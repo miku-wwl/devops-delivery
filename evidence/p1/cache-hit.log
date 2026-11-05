@@ -1,0 +1,10 @@
+# transcript: P1 caching: second run on PR #2 restores pip and Docker layer caches
+# recorded: 2026-11-05T23:07:37Z | host: jiejie | user: weila | cwd: /d/workshop/nov/devops-delivery
+
+$ gh run view 42126982421 --log 2>/dev/null | grep -E 'Cache restored from key|Cache hit occurred|cache hit|importing cache manifest|CACHED' | sed -E 's/^([^\t]+)\t([^\t]+)\t[0-9T:.-]+Z /\1 | /' | head -12
+python / test | Cache restored from key: setup-python-Linux-x64-24.04-Ubuntu-python-3.13.18-pip-954275a2989d8237e4e240c9c02dc6b72a007976e9e344b42ff767a41c14e12c
+python / test | Cache hit occurred on the primary key setup-python-Linux-x64-24.04-Ubuntu-python-3.13.18-pip-954275a2989d8237e4e240c9c02dc6b72a007976e9e344b42ff767a41c14e12c, not saving cache.
+python / lint | Cache restored from key: setup-python-Linux-x64-24.04-Ubuntu-python-3.13.18-pip-954275a2989d8237e4e240c9c02dc6b72a007976e9e344b42ff767a41c14e12c
+python / lint | Cache hit occurred on the primary key setup-python-Linux-x64-24.04-Ubuntu-python-3.13.18-pip-954275a2989d8237e4e240c9c02dc6b72a007976e9e344b42ff767a41c14e12c, not saving cache.
+container image | #10 importing cache manifest from gha:11642188703057364634
+
