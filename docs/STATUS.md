@@ -7,8 +7,8 @@
 |---|---|---|---|---|
 | P0 | 实验环境与工具链 | VALIDATED | [P0 记录](experiments/P0-environment.md)、`evidence/p0/` | Kind v1.37.0 冒烟通过 |
 | P1 | D1 GitHub Actions | VALIDATED | [P1 记录](experiments/P1-github-actions.md)、`evidence/p1/`、PR #1 #2 | 门禁与阻断已验证；官方 Skills 练习 NOT_RUN（需用户创建仓库）；PR 合并待所有者审阅 |
-| P2 | D2 GitLab CI/CD | NOT_RUN | — | — |
-| P3 | D3 Helm | NOT_RUN | — | — |
+| P2 | D2 GitLab CI/CD | VALIDATED | [P2 记录](experiments/P2-gitlab-ci.md)、`evidence/p2/` | 本地自建 GitLab CE 19.5.3；MR 阻断与合并、手动发布闸门已验证 |
+| P3 | D3 Helm | VALIDATED | [P3 记录](experiments/P3-helm.md)、`evidence/p3/` | dev/prod 同一 Chart；坏配置发布 55% 错误 → 回滚恢复 |
 | P4 | D4 Argo CD / GitOps | NOT_RUN | — | — |
 | P5 | D5 DevSecOps / 供应链 | NOT_RUN | — | — |
 | P6 | D6 渐进式交付 | NOT_RUN | — | — |

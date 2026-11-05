@@ -1,0 +1,40 @@
+# transcript: P3 helm lint and schema validation
+# recorded: 2026-11-05T23:19:57Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ helm version --short
+v4.3.1+gc0d08d0
+
+$ helm lint delivery/helm/demo-api
+==> Linting delivery/helm/demo-api
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+
+$ helm lint delivery/helm/demo-api -f delivery/helm/demo-api/values-dev.yaml
+==> Linting delivery/helm/demo-api
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+
+$ helm lint delivery/helm/demo-api -f delivery/helm/demo-api/values-prod.yaml
+==> Linting delivery/helm/demo-api
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+
+# negative test: values.schema.json must reject an invalid error rate and environment
+$ helm lint delivery/helm/demo-api --set faults.errorRate=2 --set environment=production
+==> Linting delivery/helm/demo-api
+[INFO] Chart.yaml: icon is recommended
+[ERROR] values.yaml: - at '/environment': value must be one of 'dev', 'staging', 'prod'
+- at '/faults/errorRate': maximum: got 2, want 1
+
+[ERROR] templates/: values don't meet the specifications of the schema(s) in the following chart(s):
+demo-api:
+- at '/faults/errorRate': maximum: got 2, want 1
+- at '/environment': value must be one of 'dev', 'staging', 'prod'
+
+
+Error: 1 chart(s) linted, 1 chart(s) failed
+[exit 1]
+

@@ -1,0 +1,79 @@
+# transcript: P3 package the chart and publish it as an OCI artifact
+# recorded: 2026-11-05T23:23:44Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ helm package delivery/helm/demo-api -d /tmp/charts
+Successfully packaged chart and saved it to: /tmp/charts/demo-api-0.1.0.tgz
+
+$ tar -tzf /tmp/charts/demo-api-0.1.0.tgz
+demo-api/Chart.yaml
+demo-api/values.yaml
+demo-api/values.schema.json
+demo-api/templates/NOTES.txt
+demo-api/templates/_helpers.tpl
+demo-api/templates/configmap.yaml
+demo-api/templates/deployment.yaml
+demo-api/templates/hpa.yaml
+demo-api/templates/pdb.yaml
+demo-api/templates/service.yaml
+demo-api/templates/serviceaccount.yaml
+demo-api/templates/tests/test-connection.yaml
+demo-api/.helmignore
+demo-api/values-dev.yaml
+demo-api/values-prod.yaml
+
+$ helm push /tmp/charts/demo-api-0.1.0.tgz oci://localhost:5001/charts --plain-http
+Pushed: localhost:5001/charts/demo-api:0.1.0
+Digest: sha256:9953e17510793f58f6a6fa7662aba985b5f7645b9bd971cdc7b651b94c759493
+
+$ curl -s localhost:5001/v2/charts/demo-api/tags/list; echo
+{"name":"charts/demo-api","tags":["0.1.0"]}
+
+
+$ helm show chart oci://localhost:5001/charts/demo-api --version 0.1.0 --plain-http
+Pulled: localhost:5001/charts/demo-api:0.1.0
+Digest: sha256:9953e17510793f58f6a6fa7662aba985b5f7645b9bd971cdc7b651b94c759493
+apiVersion: v2
+appVersion: 0.1.0
+description: Helm chart for demo-api, the reference workload of the devops-delivery
+  training repository
+home: https://github.com/miku-wwl/devops-delivery
+kubeVersion: '>=1.30.0-0'
+maintainers:
+- name: miku-wwl
+name: demo-api
+sources:
+- https://github.com/miku-wwl/devops-delivery
+type: application
+version: 0.1.0
+
+
+$ helm template smoke oci://localhost:5001/charts/demo-api --version 0.1.0 --plain-http --show-only templates/service.yaml
+Pulled: localhost:5001/charts/demo-api:0.1.0
+Digest: sha256:9953e17510793f58f6a6fa7662aba985b5f7645b9bd971cdc7b651b94c759493
+---
+# Source: demo-api/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: smoke-demo-api
+  labels:
+    helm.sh/chart: demo-api-0.1.0
+    app.kubernetes.io/name: demo-api
+    app.kubernetes.io/instance: smoke
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: devops-delivery
+    environment: dev
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: demo-api
+    app.kubernetes.io/instance: smoke
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+
+
+
