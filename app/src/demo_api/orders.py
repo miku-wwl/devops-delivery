@@ -31,7 +31,7 @@ def price_order(sku: str, quantity: int) -> tuple[Decimal, Decimal]:
     except KeyError as exc:
         raise UnknownSkuError(sku) from exc
     subtotal = unit * quantity
-    if quantity > BULK_THRESHOLD:
+    if quantity >= BULK_THRESHOLD:
         subtotal -= subtotal * BULK_DISCOUNT
     total = subtotal.quantize(CENT, rounding=ROUND_HALF_UP)
     return unit, total
