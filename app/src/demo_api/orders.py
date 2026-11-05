@@ -15,6 +15,9 @@ CATALOGUE: dict[str, Decimal] = {
 }
 
 CENT = Decimal("0.01")
+# Bulk discount: orders of BULK_THRESHOLD or more items get BULK_DISCOUNT off.
+BULK_THRESHOLD = 10
+BULK_DISCOUNT = Decimal("0.10")
 
 
 class UnknownSkuError(LookupError):
@@ -27,7 +30,10 @@ def price_order(sku: str, quantity: int) -> tuple[Decimal, Decimal]:
         unit = CATALOGUE[sku]
     except KeyError as exc:
         raise UnknownSkuError(sku) from exc
-    total = (unit * quantity).quantize(CENT, rounding=ROUND_HALF_UP)
+    subtotal = unit * quantity
+    if quantity > BULK_THRESHOLD:
+        subtotal -= subtotal * BULK_DISCOUNT
+    total = subtotal.quantize(CENT, rounding=ROUND_HALF_UP)
     return unit, total
 
 

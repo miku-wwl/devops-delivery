@@ -17,6 +17,18 @@ def test_price_order_rejects_unknown_sku():
         price_order("NOPE-999", 1)
 
 
+@pytest.mark.parametrize(
+    ("quantity", "expected_total"),
+    [
+        (9, Decimal("112.50")),  # below the threshold: 9 x 12.50, no discount
+        (10, Decimal("112.50")),  # exactly the threshold: 125.00 - 10%
+        (12, Decimal("135.00")),  # above the threshold: 150.00 - 10%
+    ],
+)
+def test_bulk_discount_applies_from_ten_items(quantity, expected_total):
+    assert price_order("BOOK-001", quantity) == (Decimal("12.50"), expected_total)
+
+
 def test_store_assigns_increasing_ids():
     store = OrderStore()
     first = store.create("BOOK-001", 1, Decimal("12.50"), Decimal("12.50"))
