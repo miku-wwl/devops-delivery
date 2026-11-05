@@ -1,0 +1,131 @@
+/* Print stylesheet for the PDF manual (rendered by Edge/Chromium). */
+@page { size: A4; margin: 19mm 16mm 18mm 16mm; }
+/* build.py prints the body (TOC + chapters, with footer) and the cover separately */
+body.mode-body .cover { display: none; }
+body.mode-cover #TOC, body.mode-cover main { display: none; }
+
+:root {
+  --ink: #1f2328; --muted: #59636e; --accent: #0b5cad; --accent-2: #0f766e;
+  --rule: #d0d7de; --code-bg: #f6f8fa; --head-bg: #eef2f6;
+}
+html {
+  font-family: "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  font-size: 10.5pt; line-height: 1.78; color: var(--ink);
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+body { margin: 0; }
+p { margin: 0 0 2.6mm; text-align: justify; }
+a { color: var(--accent); text-decoration: none; }
+strong { color: #0d1b2a; }
+hr { border: none; border-top: 1px solid var(--rule); margin: 5mm 0; }
+blockquote { margin: 3mm 0; padding: 2mm 4mm; color: var(--muted); border-left: 3px solid var(--rule); background: #fafbfc; }
+ul, ol { margin: 0 0 2.6mm; padding-left: 6mm; }
+li { margin: .6mm 0; }
+
+/* ---------- cover ---------- */
+.cover {
+  width: 210mm; height: 296mm; box-sizing: border-box; position: relative; overflow: hidden;
+  padding: 62mm 22mm 0; color: #fff; break-after: page;
+  background: linear-gradient(155deg, #0b2545 0%, #13315c 52%, #134074 100%);
+}
+.cover-band { position: absolute; top: 0; left: 0; right: 0; height: 9mm; background: #2ec4b6; }
+.cover-kicker { font-size: 13pt; color: #a8c5e8; letter-spacing: .4px; }
+.cover-title { font-size: 31pt; font-weight: 700; line-height: 1.32; margin: 7mm 0 11mm; }
+.cover-flow {
+  font-family: "Cascadia Mono", Consolas, monospace; font-size: 9.6pt; color: #d6e4f5;
+  border-top: 1px solid rgba(255,255,255,.28); border-bottom: 1px solid rgba(255,255,255,.28); padding: 4mm 0;
+}
+.cover-meta { position: absolute; left: 22mm; right: 22mm; bottom: 24mm; font-size: 10pt; color: #cfdcec; line-height: 1.95; }
+
+/* ---------- table of contents ---------- */
+.toc { break-after: page; }
+.toc-title { font-size: 21pt; font-weight: 700; color: var(--accent); margin: 2mm 0 6mm; }
+#TOC ul { list-style: none; margin: 0; padding-left: 0; }
+#TOC ul ul { padding-left: 6.5mm; }
+#TOC li { margin: 0; }
+#TOC a { display: flex; align-items: baseline; color: var(--ink); line-height: 1.75; }
+#TOC > ul > li > a { font-weight: 700; margin-top: 2.6mm; font-size: 11pt; }
+#TOC ul ul ul a { font-size: 9.4pt; color: var(--muted); }
+#TOC a .fill { flex: 1 1 auto; min-width: 6mm; border-bottom: 1px dotted #9aa4ae; margin: 0 1.5mm; transform: translateY(-1.2mm); }
+#TOC a::after { content: attr(data-page); flex: 0 0 9mm; text-align: right; }
+#TOC .toc-section-number { margin-right: 1.8mm; }
+#TOC > ul > li > a .toc-section-number::before { content: "第 "; }
+#TOC > ul > li > a .toc-section-number::after { content: " 章"; }
+
+/* ---------- headings ---------- */
+main { counter-reset: chapter; }
+h1, h2, h3, h4 { line-height: 1.4; break-after: avoid; page-break-after: avoid; }
+main h1 {
+  break-before: page; font-size: 22pt; color: var(--accent);
+  border-bottom: 3px solid var(--accent); padding-bottom: 3mm; margin: 0 0 6mm;
+}
+main h1:not(.unnumbered) { counter-increment: chapter; counter-reset: figure table; }
+main h1 .header-section-number::before { content: "第 "; }
+main h1 .header-section-number::after { content: " 章"; }
+main h1 .header-section-number { margin-right: 3mm; }
+main h2 { font-size: 15pt; color: #0d1b2a; margin: 8mm 0 3mm; padding-left: 3mm; border-left: 5px solid var(--accent); }
+main h3 { font-size: 12.5pt; color: var(--accent-2); margin: 6mm 0 2.5mm; }
+main h4 { font-size: 11pt; margin: 4.5mm 0 2mm; }
+.header-section-number { color: inherit; margin-right: 2mm; }
+
+/* ---------- code ---------- */
+code, pre { font-family: "Cascadia Mono", Consolas, "Microsoft YaHei", monospace; }
+code { font-size: .87em; background: var(--code-bg); padding: .08em .32em; border-radius: 3px; }
+pre {
+  background: var(--code-bg); border: 1px solid var(--rule); border-radius: 5px;
+  padding: 2.8mm 3.6mm; margin: 2.8mm 0 3.4mm; font-size: 8.4pt; line-height: 1.5;
+  white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-all;
+}
+pre code { background: none; padding: 0; font-size: inherit; border-radius: 0; }
+div.sourceCode { margin: 2.8mm 0 3.4mm; background: none; }
+div.sourceCode pre { margin: 0; }
+pre > code.sourceCode > span { line-height: 1.5; }
+/* terminal transcripts: ```console blocks */
+pre.console, div.sourceCode pre.console {
+  background: #0d1117; color: #e6edf3; border-color: #0d1117;
+}
+pre.console .prompt { color: #7ee787; font-weight: 600; }
+pre.console .exit { color: #ff7b72; font-weight: 600; }
+pre.console .comment { color: #8b949e; }
+.code-title { font-size: 8.6pt; color: var(--muted); margin: 3mm 0 -1.6mm; font-family: "Cascadia Mono", Consolas, monospace; }
+
+/* ---------- tables ---------- */
+table { border-collapse: collapse; width: 100%; margin: 3mm 0 4mm; font-size: 9.2pt; line-height: 1.55; }
+th, td { border: 1px solid var(--rule); padding: 1.5mm 2.3mm; vertical-align: top; text-align: left; }
+thead th { background: var(--head-bg); font-weight: 700; }
+tr { break-inside: avoid; }
+td code, th code { font-size: .84em; word-break: break-all; }
+
+/* ---------- figures & diagrams ---------- */
+figure { margin: 4mm 0 5mm; text-align: center; break-inside: avoid; counter-increment: figure; }
+figure img { max-width: 100%; max-height: 205mm; border: 1px solid var(--rule); border-radius: 4px; }
+figure.diagram pre.mermaid { background: none; border: none; padding: 0; margin: 0; text-align: center; white-space: normal; }
+figure.diagram svg { max-width: 100%; height: auto; }
+figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.6mm; }
+figcaption::before { content: "图 " counter(chapter) "-" counter(figure) "　"; font-weight: 700; color: var(--ink); }
+
+/* ---------- callouts: ::: tip / note / warning / danger / principle / faq ---------- */
+div.tip, div.note, div.warning, div.danger, div.principle, div.faq {
+  border-left: 4px solid; border-radius: 4px; padding: 2.4mm 4mm 1mm; margin: 3.4mm 0 4mm; break-inside: avoid;
+}
+div.tip::before, div.note::before, div.warning::before, div.danger::before, div.principle::before, div.faq::before {
+  display: block; font-weight: 700; margin-bottom: 1mm;
+}
+div.tip { background: #e9f7ef; border-color: #2da44e; }
+div.tip::before { content: "提示"; color: #1a7f37; }
+div.note { background: #eef5ff; border-color: #2f81f7; }
+div.note::before { content: "说明"; color: #0b5cad; }
+div.warning { background: #fff6e5; border-color: #d4a72c; }
+div.warning::before { content: "注意"; color: #9a6700; }
+div.danger { background: #ffefee; border-color: #cf222e; }
+div.danger::before { content: "警告"; color: #cf222e; }
+div.principle { background: #f3f0ff; border-color: #8250df; }
+div.principle::before { content: "原理"; color: #6639ba; }
+div.faq { background: #f6f8fa; border-color: #59636e; }
+div.faq::before { content: "常见问题"; color: #424a53; }
+div[title]::before { content: attr(title) !important; }
+
+/* ---------- misc ---------- */
+.evidence { font-size: 8.8pt; color: var(--muted); }
+.lead { font-size: 11pt; color: #33404d; border-left: 3px solid var(--accent-2); padding-left: 3.5mm; margin: 0 0 4mm; }
+kbd { font-family: "Cascadia Mono", Consolas, monospace; font-size: .85em; border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 3px; padding: 0 .3em; }

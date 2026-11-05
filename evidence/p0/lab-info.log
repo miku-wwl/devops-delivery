@@ -1,0 +1,47 @@
+# transcript: P0 lab facts
+# recorded: 2026-11-05T22:46:50Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ uname -r
+6.6.114.1-microsoft-standard-WSL2
+
+$ nproc
+16
+
+$ free -h
+               total        used        free      shared  buff/cache   available
+Mem:            15Gi       836Mi        14Gi       3.7Mi       552Mi        14Gi
+Swap:          4.0Gi          0B       4.0Gi
+
+$ df -h / | tail -1
+/dev/sdd       1007G  4.3G  952G   1% /
+
+$ cat /etc/wsl.conf
+[boot]
+systemd=true
+
+[user]
+default=devops
+
+[interop]
+appendWindowsPath=false
+
+$ docker info --format 'storage={{.Driver}} cgroup={{.CgroupDriver}}/v{{.CgroupVersion}} runtime={{.DefaultRuntime}} kernel={{.KernelVersion}}'
+storage=overlayfs cgroup=systemd/v2 runtime=runc kernel=6.6.114.1-microsoft-standard-WSL2
+
+$ sysctl fs.inotify.max_user_watches fs.inotify.max_user_instances
+fs.inotify.max_user_watches = 524288
+fs.inotify.max_user_instances = 512
+
+$ ls -l /usr/local/bin
+total 1016728
+-rwxr-xr-x 1 root root 266431758 Nov  6 11:38 argocd
+-rwxr-xr-x 1 root root 145688404 Nov  6 11:39 cosign
+-rwxr-xr-x 1 root root  66314400 Nov  6 11:38 helm
+-rwxr-xr-x 1 root root  65975917 Nov  6 11:39 k6
+-rwxr-xr-x 1 root root  10530942 Nov  6 11:38 kind
+-rwxr-xr-x 1 root root  61890722 Nov  6 11:38 kubectl
+-rwxr-xr-x 1 root root 141654340 Nov  6 11:39 kubectl-argo-rollouts
+-rwxr-xr-x 1 root root  92053664 Nov  6 11:39 syft
+-rwxr-xr-x 1 root root 176386208 Nov  6 11:39 trivy
+-rwxr-xr-x 1 root root  14168224 Nov  6 11:39 yq
+

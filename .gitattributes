@@ -1,0 +1,12 @@
+# Store and check out text files with LF so shell scripts, YAML and Dockerfiles
+# behave identically on Windows, inside WSL/containers and on CI runners.
+* text=auto eol=lf
+*.ps1 text eol=crlf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.gz binary

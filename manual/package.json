@@ -1,0 +1,8 @@
+{
+  "name": "devops-delivery-manual",
+  "private": true,
+  "description": "Build-time assets for the PDF manual (Mermaid renders the architecture diagrams).",
+  "dependencies": {
+    "mermaid": "12.3.0"
+  }
+}

@@ -1,0 +1,7 @@
+# Python tools used to build the manual and capture screenshots.
+#   uv venv manual/.venv --python 3.13
+#   uv pip install --python manual/.venv/Scripts/python.exe -r manual/requirements.txt
+playwright==1.64.1
+pypdf==6.21.4
+pillow==13.0.0
+pypdfium2==5.14.0

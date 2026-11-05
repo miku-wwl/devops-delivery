@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>$title$</title>
+<style>
+$highlighting-css$
+</style>
+<link rel="stylesheet" href="../assets/manual.css">
+</head>
+<body>
+<section class="cover">
+  <div class="cover-band"></div>
+  <div class="cover-kicker">$subtitle$</div>
+  <div class="cover-title">$title$</div>
+  <div class="cover-flow">Commit → CI → Scan → Sign → GitOps → Canary → Observe → Promote / Abort → RCA</div>
+  <div class="cover-meta">
+$for(cover-lines)$
+    <div>$cover-lines$</div>
+$endfor$
+  </div>
+</section>
+<nav id="TOC" class="toc">
+  <div class="toc-title">目录</div>
+$table-of-contents$
+</nav>
+<main>
+$body$
+</main>
+<script src="../node_modules/mermaid/dist/mermaid.min.js"></script>
+<script src="../assets/render.js"></script>
+</body>
+</html>

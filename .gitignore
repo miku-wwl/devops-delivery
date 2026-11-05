@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+reports/
+*.egg-info/
+
+# Node
+node_modules/
+
+# Manual build intermediates
+manual/build/
+
+# Secrets and local lab state - never commit these
+.env
+.env.*
+*.pem
+*.key
+kubeconfig*
+.lab-secrets/
+
+# OS
+.DS_Store
+Thumbs.db

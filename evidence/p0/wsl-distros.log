@@ -1,0 +1,11 @@
+  NAME                      STATE           VERSION
+* podman-machine-default    Stopped         2
+  podman-net-usermode       Stopped         2
+  devops-lab                Running         2
+
+Name      SizeGB
+----      ------
+ext4.vhdx   5.41
+
+
+

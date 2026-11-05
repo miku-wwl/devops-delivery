@@ -1,0 +1,35 @@
+
+==> 1/6 base packages
+base packages installed
+
+==> 2/6 /etc/wsl.conf
+[boot]
+systemd=true
+
+[user]
+default=devops
+
+[interop]
+appendWindowsPath=false
+
+==> 3/6 lab user 'devops'
+uid=1001(devops) gid=1002(devops) groups=1002(devops)
+
+==> 4/6 Docker Engine (official apt repository)
+Docker version 29.9.3, build 5457199
+
+==> 5/6 kernel parameters for kind (inotify limits)
+
+==> 6/6 pinned CLIs -> /usr/local/bin (sha256-verified)
+kubectl: OK
+kind-linux-amd64: OK
+helm-v4.3.1-linux-amd64.tar.gz: OK
+argocd-linux-amd64: OK
+kubectl-argo-rollouts-linux-amd64: OK
+trivy_0.76.2_Linux-64bit.tar.gz: OK
+syft_1.57.0_linux_amd64.tar.gz: OK
+cosign-linux-amd64: OK
+k6-v2.3.0-linux-amd64.tar.gz: OK
+yq_linux_amd64: OK
+
+==> bootstrap finished - restart the distro to activate systemd: wsl.exe --terminate devops-lab

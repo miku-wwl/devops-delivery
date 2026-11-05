@@ -1,0 +1,163 @@
+# transcript: P0 devops-lab verification
+# recorded: 2026-11-05T22:40:08Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# OS, init system and Docker service
+$ grep PRETTY_NAME /etc/os-release
+PRETTY_NAME="Ubuntu 24.04 LTS"
+
+$ ps -p 1 -o comm=
+systemd
+
+$ systemctl is-active docker
+active
+
+$ id
+uid=1001(devops) gid=1002(devops) groups=1002(devops),989(docker)
+
+$ docker version --format 'client={{.Client.Version}} server={{.Server.Version}}'
+client=29.9.3 server=29.9.3
+
+$ docker compose version
+Docker Compose version v5.7.0
+
+$ docker run --rm hello-world
+Unable to find image 'hello-world:latest' locally
+latest: Pulling from library/hello-world
+4f55086f7dd0: Pulling fs layer
+4f55086f7dd0: Download complete
+4f55086f7dd0: Pull complete
+d5e71e642bf5: Download complete
+Digest: sha256:c567b231f65614688711a75f31518a064258a51d442117a3e771a3a8fdba78ef
+Status: Downloaded newer image for hello-world:latest
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+
+To generate this message, Docker took the following steps:
+ 1. The Docker client contacted the Docker daemon.
+ 2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
+    (amd64)
+ 3. The Docker daemon created a new container from that image which runs the
+    executable that produces the output you are currently reading.
+ 4. The Docker daemon streamed that output to the Docker client, which sent it
+    to your terminal.
+
+To try something more ambitious, you can run an Ubuntu container with:
+ $ docker run -it ubuntu bash
+
+Share images, automate workflows, and more with a free Docker ID:
+ https://hub.docker.com/
+
+For more examples and ideas, visit:
+ https://docs.docker.com/get-started/
+
+
+# Pinned CLIs (automation/lab/versions.env)
+$ kubectl version --client
+Client Version: v1.37.2
+Kustomize Version: v5.8.1
+
+$ kind version
+kind v0.33.0 go1.26.7 linux/amd64
+
+$ helm version
+version.BuildInfo{Version:"v4.3.1", GitCommit:"c0d08d0d6d9424d4a14febb5e8a3e51b0dd00dff", GitTreeState:"clean", GoVersion:"go1.27.2", KubeClientVersion:"v1.37"}
+
+$ argocd version --client --short
+argocd: v3.6.1+94037c4
+
+$ kubectl argo rollouts version
+kubectl-argo-rollouts: v1.10.2+be8a622
+  BuildDate: 2026-11-04T15:16:36Z
+  GitCommit: be8a6221c6c9751cd14497f31a2cb3c33690375a
+  GitTreeState: clean
+  GoVersion: go1.26.10
+  Compiler: gc
+  Platform: linux/amd64
+
+$ trivy --version
+Version: 0.76.2
+
+$ syft version
+Application:   syft
+Version:       1.57.0
+BuildDate:     2026-11-05T20:44:22Z
+GitCommit:     30f4bce762f31136e055f2965185f12eb95fbe47
+GitDescription: v1.57.0
+Platform:      linux/amd64
+GoVersion:     go1.27.3
+Compiler:      gc
+SchemaVersion: 16.1.13
+
+$ cosign version
+  ______   ______        _______. __    _______ .__   __.
+ /      | /  __  \      /       ||  |  /  _____||  \ |  |
+|  ,----'|  |  |  |    |   (----`|  | |  |  __  |   \|  |
+|  |     |  |  |  |     \   \    |  | |  | |_ | |  . `  |
+|  `----.|  `--'  | .----)   |   |  | |  |__| | |  |\   |
+ \______| \______/  |_______/    |__|  \______| |__| \__|
+cosign: A tool for Container Signing, Verification and Storage in an OCI registry
+
+GitVersion:    v3.1.4
+GitCommit:     0e48502cf5ef34e2e60bbd3617aa19945712f705
+GitTreeState:  clean
+BuildDate:     2026-10-20T17:33:02Z
+GoVersion:     go1.27.3
+Compiler:      gc
+Platform:      linux/amd64
+
+
+$ k6 version
+k6 v2.3.0 (commit/e088784614, go1.26.8, linux/amd64)
+
+$ yq --version
+yq (https://github.com/mikefarah/yq/) version v4.54.1
+
+# Kind smoke cluster with the pinned node image
+$ source <(tr -d '\r' < automation/lab/versions.env) && echo "$KIND_NODE_IMAGE"
+kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5
+
+$ kind create cluster --name smoke --image "$KIND_NODE_IMAGE" --wait 180s
+Creating cluster "smoke" ...
+ • Ensuring node image (kindest/node:v1.37.0) 🖼️  ...
+ ✓ Ensuring node image (kindest/node:v1.37.0) 🖼️
+ • Preparing nodes 📦   ...
+ ✓ Preparing nodes 📦 
+ • Writing configuration 📜  ...
+ ✓ Writing configuration 📜
+ • Starting control-plane 🕹️  ...
+ ✓ Starting control-plane 🕹️
+ • Installing CNI 🔌  ...
+ ✓ Installing CNI 🔌
+ • Installing StorageClass 💾  ...
+ ✓ Installing StorageClass 💾
+ • Waiting ≤ 3m0s for control-plane = Ready ⏳  ...
+ ✓ Waiting ≤ 3m0s for control-plane = Ready ⏳
+ • Ready after 15s 💚
+Set kubectl context to "kind-smoke"
+You can now use your cluster with:
+
+kubectl cluster-info --context kind-smoke
+
+Not sure what to do next? 😅  Check out https://kind.sigs.k8s.io/docs/user/quick-start/
+
+$ kubectl get nodes -o wide
+NAME                  STATUS   ROLES           AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE                       KERNEL-VERSION                              CONTAINER-RUNTIME
+smoke-control-plane   Ready    control-plane   22s   v1.37.0   172.18.0.2    <none>        Debian GNU/Linux 13 (trixie)   6.6.114.1-microsoft-standard-WSL2 (amd64)   containerd://2.3.4
+
+$ kubectl get pods -A
+NAMESPACE            NAME                                          READY   STATUS              RESTARTS   AGE
+kube-system          coredns-559f6c778d-6fmp8                      0/1     ContainerCreating   0          12s
+kube-system          coredns-559f6c778d-zhq8t                      0/1     ContainerCreating   0          12s
+kube-system          etcd-smoke-control-plane                      1/1     Running             0          20s
+kube-system          kindnet-drjr6                                 1/1     Running             0          12s
+kube-system          kube-apiserver-smoke-control-plane            1/1     Running             0          18s
+kube-system          kube-controller-manager-smoke-control-plane   1/1     Running             0          21s
+kube-system          kube-proxy-5bfzt                              1/1     Running             0          12s
+kube-system          kube-scheduler-smoke-control-plane            1/1     Running             0          18s
+local-path-storage   local-path-provisioner-75f7fc7dc5-lxf2n       0/1     ContainerCreating   0          12s
+
+$ kind delete cluster --name smoke
+Deleting cluster "smoke" ...
+Deleted nodes: ["smoke-control-plane"]
+
