@@ -1,0 +1,26 @@
+# transcript: P1 drill: failing test blocks PR #2
+# recorded: 2026-11-05T23:05:01Z | host: jiejie | user: weila | cwd: /d/workshop/nov/devops-delivery
+
+$ gh pr checks 2
+python / test	fail	15s	https://github.com/miku-wwl/devops-delivery/actions/runs/42126751852/job/127592778842	
+container image	skipping	0	https://github.com/miku-wwl/devops-delivery/actions/runs/42126751852/job/127592906877	
+GitGuardian Security Checks	pass	1s	https://dashboard.gitguardian.com	
+python / lint	pass	13s	https://github.com/miku-wwl/devops-delivery/actions/runs/42126751852/job/127592778315	
+[exit 1]
+
+$ gh pr view 2 --json mergeStateStatus,mergeable,reviewDecision --jq '{mergeStateStatus, mergeable, reviewDecision}'
+{"mergeStateStatus":"BLOCKED","mergeable":"MERGEABLE","reviewDecision":""}
+
+$ gh api repos/miku-wwl/devops-delivery/rules/branches/main --jq '.[] | .type + (if .parameters.required_status_checks then "  " + ([.parameters.required_status_checks[].context] | join(", ")) else "" end)'
+deletion
+non_fast_forward
+pull_request
+required_status_checks  python / lint, python / test, container image
+
+$ gh run view $(gh pr checks 2 --json link --jq '.[] | select(.link | test("actions/runs")) | .link' | head -1 | sed -E 's#.*/runs/([0-9]+)/.*#\1#') --log-failed 2>/dev/null | grep -E 'FAILED|assert|Error|[0-9]+ (failed|passed)' | sed -E 's/^[^\t]+\t[^\t]+\t[0-9T:.-]+Z //' | head -12
+>       assert price_order("BOOK-001", quantity) == (Decimal("12.50"), expected_total)
+E       AssertionError: assert (Decimal('12....mal('125.00')) == (Decimal('12....mal('112.50'))
+tests/test_orders_and_config.py:29: AssertionError
+FAILED tests/test_orders_and_config.py::test_bulk_discount_applies_from_ten_items[10-expected_total1] - AssertionError: assert (Decimal('12....mal('125.00')) == (Decimal('12....mal('112.50'))
+========================= 1 failed, 21 passed in 0.41s =========================
+

@@ -5,8 +5,8 @@
 
 | Phase | 模块 | 状态 | 证据 | 备注 |
 |---|---|---|---|---|
-| P0 | 实验环境与工具链 | IN_PROGRESS | — | — |
-| P1 | D1 GitHub Actions | NOT_RUN | — | — |
+| P0 | 实验环境与工具链 | VALIDATED | [P0 记录](experiments/P0-environment.md)、`evidence/p0/` | Kind v1.37.0 冒烟通过 |
+| P1 | D1 GitHub Actions | VALIDATED | [P1 记录](experiments/P1-github-actions.md)、`evidence/p1/`、PR #1 #2 | 门禁与阻断已验证；官方 Skills 练习 NOT_RUN（需用户创建仓库）；PR 合并待所有者审阅 |
 | P2 | D2 GitLab CI/CD | NOT_RUN | — | — |
 | P3 | D3 Helm | NOT_RUN | — | — |
 | P4 | D4 Argo CD / GitOps | NOT_RUN | — | — |

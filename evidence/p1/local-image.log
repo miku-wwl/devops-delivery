@@ -1,0 +1,44 @@
+# transcript: P1 local image build and smoke test
+# recorded: 2026-11-05T22:57:36Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ docker build --quiet --build-arg APP_VERSION=0.1.0 --build-arg GIT_SHA=$(git rev-parse --short HEAD) -t demo-api:local app
+sha256:7a43744d631420e9f4c44326855d8e6ad38b63665ce7907c53f30a849a3a555b
+
+$ docker image ls demo-api:local --format '{{.Repository}}:{{.Tag}}  {{.Size}}  {{.ID}}'
+demo-api:local  202MB  7a43744d6314
+
+$ docker run -d --rm --name demo-api -p 18080:8080 demo-api:local
+b583e50d62eb8803f347e574a15a39de5cf97823f9a73d08c07ec2180b78fa5f
+
+$ sleep 3
+
+$ curl -s localhost:18080/healthz
+{"status":"ok"}
+$ curl -s localhost:18080/api/v1/info
+{"service":"demo-api","version":"0.1.0","commit":"be0efaa"}
+$ curl -s -X POST localhost:18080/api/v1/orders -H 'content-type: application/json' -d '{"sku":"BOOK-001","quantity":2}'
+{"id":1,"sku":"BOOK-001","quantity":2,"unit_price":"12.50","total":"25.00","created_at":"2026-11-05T22:58:08.003594Z"}
+$ curl -s -o /dev/null -w '%{http_code}\n' -X POST localhost:18080/api/v1/orders -H 'content-type: application/json' -d '{"sku":"NOPE","quantity":1}'
+422
+
+$ curl -s localhost:18080/metrics | grep -E '^(http_requests_total|demo_api_)'
+http_requests_total{method="GET",route="/healthz",status="200"} 1.0
+http_requests_total{method="GET",route="/api/v1/info",status="200"} 1.0
+http_requests_total{method="POST",route="/api/v1/orders",status="201"} 1.0
+http_requests_total{method="POST",route="/api/v1/orders",status="422"} 1.0
+demo_api_orders_created_total 1.0
+demo_api_orders_created_created 1.7939194863121452e+09
+demo_api_build_info{commit="be0efaa",version="0.1.0"} 1.0
+
+$ docker exec demo-api id
+uid=10001(app) gid=10001(app) groups=10001(app)
+
+$ docker logs demo-api 2>&1 | tail -4
+{"ts": "2026-11-05T22:58:07.961+00:00", "level": "info", "logger": "demo_api", "msg": "request", "method": "GET", "route": "/api/v1/info", "status": 200, "duration_ms": 0.9, "version": "0.1.0"}
+{"ts": "2026-11-05T22:58:08.003+00:00", "level": "info", "logger": "demo_api", "msg": "order created", "order_id": 1, "sku": "BOOK-001", "total": "25.00"}
+{"ts": "2026-11-05T22:58:08.004+00:00", "level": "info", "logger": "demo_api", "msg": "request", "method": "POST", "route": "/api/v1/orders", "status": 201, "duration_ms": 1.8, "version": "0.1.0"}
+{"ts": "2026-11-05T22:58:08.042+00:00", "level": "info", "logger": "demo_api", "msg": "request", "method": "POST", "route": "/api/v1/orders", "status": 422, "duration_ms": 0.8, "version": "0.1.0"}
+
+$ docker stop demo-api
+demo-api
+

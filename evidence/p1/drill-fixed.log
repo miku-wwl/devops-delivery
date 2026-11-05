@@ -1,0 +1,20 @@
+# transcript: P1 drill: fix commit unblocks PR #2
+# recorded: 2026-11-05T23:07:24Z | host: jiejie | user: weila | cwd: /d/workshop/nov/devops-delivery
+
+$ git log --oneline -3
+926e632 fix(orders): apply the bulk discount at exactly 10 items (>=, not >)
+f7e0700 feat(orders): 10% bulk discount for orders of 10 or more items
+017b7a6 feat(p1): demo-api reference service and GitHub Actions PR gate
+
+$ gh pr checks 2
+GitGuardian Security Checks	pass	0	https://dashboard.gitguardian.com	
+container image	pass	41s	https://github.com/miku-wwl/devops-delivery/actions/runs/42126982421/job/127593697825	
+python / lint	pass	12s	https://github.com/miku-wwl/devops-delivery/actions/runs/42126982421/job/127593545310	
+python / test	pass	18s	https://github.com/miku-wwl/devops-delivery/actions/runs/42126982421/job/127593544776	
+
+$ gh pr view 2 --json mergeStateStatus,mergeable --jq '{mergeStateStatus, mergeable}'
+{"mergeStateStatus":"CLEAN","mergeable":"MERGEABLE"}
+
+$ gh pr view 1 --json mergeStateStatus,mergeable --jq '{mergeStateStatus, mergeable}'
+{"mergeStateStatus":"CLEAN","mergeable":"MERGEABLE"}
+

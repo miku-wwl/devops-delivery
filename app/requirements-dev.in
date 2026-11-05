@@ -1,0 +1,8 @@
+# Test and lint tooling on top of the runtime lock file. Compile with:
+#   uv pip compile requirements-dev.in -o requirements-dev.txt --python-version 3.13 --python-platform linux
+-c requirements.txt
+-r requirements.txt
+pytest==9.2.0
+pytest-cov==7.1.0
+httpx2==2.16.0
+ruff==0.17.4
