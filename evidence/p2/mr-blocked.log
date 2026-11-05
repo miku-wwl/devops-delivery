@@ -1,0 +1,49 @@
+# transcript: P2 merge request with a failing test is blocked
+# recorded: 2026-11-05T23:34:57Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ export GL_TOKEN="$(cat ~/.lab-secrets/gitlab-root-token)"
+
+$ export GIT_CONFIG_COUNT=2 GIT_CONFIG_KEY_0=http.extraHeader GIT_CONFIG_VALUE_0="Authorization: Basic $(printf 'oauth2:%s' "$GL_TOKEN" | base64 -w0)" GIT_CONFIG_KEY_1=safe.directory GIT_CONFIG_VALUE_1='*'
+
+$ git push -q http://localhost:8929/root/devops-delivery.git gl/feature-bulk-discount:refs/heads/feature/bulk-discount 2>&1 | grep -v '^remote:'
+[exit 1]
+
+$ curl -s -X POST -H "PRIVATE-TOKEN: $GL_TOKEN" "http://localhost:8929/api/v4/projects/1/merge_requests" --data-urlencode "source_branch=feature/bulk-discount" --data-urlencode "target_branch=main" --data-urlencode "title=feat(orders): 10% bulk discount for orders of 10+ items" | jq '{iid, state, source_branch, target_branch}'
+{
+  "iid": 1,
+  "state": "opened",
+  "source_branch": "feature/bulk-discount",
+  "target_branch": "main"
+}
+
+$ sleep 5
+
+$ bash automation/gitlab/wait-pipeline.sh --mr 1
+pipeline #2 [merge_request_event] ref=refs/merge-requests/1/head sha=c1a378ba status=failed duration=27s
+  lint   lint         success  22s
+  test   test         failed   26s
+  build  build-image  skipped  0s
+[exit 1]
+
+$ curl -s -H "PRIVATE-TOKEN: $GL_TOKEN" "http://localhost:8929/api/v4/projects/1/merge_requests/1" | jq '{iid, detailed_merge_status, merge_status, head_pipeline: {id: .head_pipeline.id, source: .head_pipeline.source, status: .head_pipeline.status}}'
+{
+  "iid": 1,
+  "detailed_merge_status": "ci_must_pass",
+  "merge_status": "can_be_merged",
+  "head_pipeline": {
+    "id": 2,
+    "source": "merge_request_event",
+    "status": "failed"
+  }
+}
+
+$ curl -s -H "PRIVATE-TOKEN: $GL_TOKEN" "http://localhost:8929/api/v4/projects/1/merge_requests/1/pipelines" | jq -r '.[0].id' | xargs -I{} curl -s -H "PRIVATE-TOKEN: $GL_TOKEN" "http://localhost:8929/api/v4/projects/1/pipelines/{}/test_report" | jq '{total_count, success_count, failed_count, failed: [.test_suites[].test_cases[] | select(.status=="failed") | .name]}'
+{
+  "total_count": 22,
+  "success_count": 21,
+  "failed_count": 1,
+  "failed": [
+    "test_bulk_discount_applies_from_ten_items[10-expected_total1]"
+  ]
+}
+

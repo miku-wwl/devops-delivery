@@ -478,6 +478,15 @@ manual/.venv/Scripts/python.exe manual/tools/build.py
 **Q8：C 盘空间不足 / 虚拟磁盘越来越大。**
 本方案一开始就把发行版放在 D 盘。已有发行版可以用 `wsl --manage <发行版> --move <新目录>` 迁移；`wsl --manage <发行版> --set-sparse true` 可以让虚拟磁盘自动回收空间；在发行版内定期执行 `docker system prune` 清理无用镜像。
 
+**Q9：过一会儿再回来，Kind 集群、GitLab 等容器全部停了，甚至控制面节点停在 `Exited (128)`。**
+这是本次实验中真实遇到的问题。WSL 在没有任何 `wsl.exe` 会话连接时，会在短暂空闲后关闭整个发行版——即使 systemd 中的 Docker 正在运行。`sudo journalctl --list-boots` 可以看到发行版被反复“开机”，每次结束时都有 `Reached target shutdown.target`。解决办法是做实验期间保持一个 WSL 终端打开，或在后台运行一个“保活”会话：
+
+```bash
+wsl.exe -d devops-lab -- bash -c 'exec sleep infinity'   # 放在单独的终端/后台任务中
+```
+
+也可以在 `%USERPROFILE%\.wslconfig` 中调整实例空闲超时，但那会影响所有发行版，本项目没有采用。已经停下的 Kind 节点用 `docker start lab-control-plane lab-worker lab-worker2` 即可恢复，集群状态保存在节点容器中。
+
 ## 清理与重建
 
 整个实验环境可以随时删除并用脚本重建：
