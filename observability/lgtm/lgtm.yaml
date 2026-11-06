@@ -23,6 +23,15 @@ spec:
     metadata:
       labels: {app: lgtm}
     spec:
+      # The image runs as root by default, but it writes only below /data and /tmp,
+      # so it works as an unprivileged user with a read-only root filesystem
+      # (Trivy KSV-0014 / KSV-0118, found by the repository scan in P10).
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001   # makes the emptyDir volumes writable for that group
+        seccompProfile: {type: RuntimeDefault}
       containers:
         - name: lgtm
           image: grafana/otel-lgtm:0.39.0
@@ -36,11 +45,23 @@ spec:
           resources:
             requests: {cpu: 250m, memory: 1Gi}
             limits: {memory: 3Gi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
           volumeMounts:
             - {name: data, mountPath: /data}
+            - {name: tmp, mountPath: /tmp}
+            # Tempo 3 creates its shutdown-marker directory here, outside /data
+            # ("mkdir /var/tempo: read-only file system" without this volume).
+            - {name: tempo-var, mountPath: /var/tempo}
       volumes:
         - name: data
           emptyDir: {}   # telemetry is disposable in the lab
+        - name: tmp
+          emptyDir: {}
+        - name: tempo-var
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service

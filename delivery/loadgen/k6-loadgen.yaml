@@ -66,6 +66,7 @@ spec:
             limits: {cpu: 500m, memory: 256Mi}
           securityContext:
             allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
             capabilities: {drop: ["ALL"]}
           volumeMounts:
             - {name: script, mountPath: /scripts}

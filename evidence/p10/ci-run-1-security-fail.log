@@ -1,0 +1,33 @@
+# transcript: P10: CI on the feature branch - the repository scan fails on older files (Windows gh CLI)
+# recorded: 2026-11-06T10:15:02Z | host: jiejie | user: weila | cwd: /d/workshop/nov/devops-delivery
+
+# ci.yml only runs for pull requests and pushes to main; the stacked phase branches never ran it. Dispatched manually for p10/closed-loop.
+$ gh run view 42198994779 --json event,headBranch,headSha,conclusion --jq '"event=\(.event) branch=\(.headBranch) sha=\(.headSha[0:7]) conclusion=\(.conclusion)"'
+event=workflow_dispatch branch=p10/closed-loop sha=85b3a49 conclusion=failure
+
+$ gh run view 42198994779 --json jobs --jq '.jobs[] | "job: \(.name) -> \(.conclusion)"'
+job: security -> failure
+job: python / test -> success
+job: python / lint -> success
+job: container image -> success
+
+$ gh run view 42198994779 --log-failed | sed -E 's/^[^\t]*\t[^\t]*\t[0-9TZ:.-]+ //' | grep -E "^[a-z0-9/._-]+\.yaml \(kubernetes\)|^Failures:|^KSV-"
+delivery/loadgen/k6-loadgen.yaml (kubernetes)
+Failures: 1 (HIGH: 1, CRITICAL: 0)
+KSV-0014 (HIGH): Container 'k6' of Deployment 'k6' should set 'securityContext.readOnlyRootFilesystem' to true
+delivery/policies/tests/admission-test-pods.yaml (kubernetes)
+Failures: 3 (HIGH: 3, CRITICAL: 0)
+KSV-0014 (HIGH): Container 'app' of Pod 'sig-test-digest' should set 'securityContext.readOnlyRootFilesystem' to true
+KSV-0014 (HIGH): Container 'app' of Pod 'sig-test-tag' should set 'securityContext.readOnlyRootFilesystem' to true
+KSV-0014 (HIGH): Container 'app' of Pod 'sig-test-unsigned' should set 'securityContext.readOnlyRootFilesystem' to true
+observability/lgtm/lgtm.yaml (kubernetes)
+Failures: 3 (HIGH: 3, CRITICAL: 0)
+KSV-0014 (HIGH): Container 'lgtm' of Deployment 'lgtm' should set 'securityContext.readOnlyRootFilesystem' to true
+KSV-0118 (HIGH): container lgtm in observability namespace is using the default security context
+KSV-0118 (HIGH): deployment lgtm in observability namespace is using the default security context, which allows root privileges
+
+$ git log --diff-filter=A --format='%h %ad %s' --date=short -- delivery/policies/tests/admission-test-pods.yaml delivery/loadgen/k6-loadgen.yaml observability/lgtm/lgtm.yaml
+0e551ad 2026-11-06 feat(p7): OpenTelemetry instrumentation and telemetry pipeline
+6297a78 2026-11-06 feat(p6): progressive delivery with Argo Rollouts and a production approval gate
+20b08cc 2026-11-06 feat(p5): admission control with Kyverno, provenance verification evidence
+

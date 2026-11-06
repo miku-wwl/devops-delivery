@@ -1,0 +1,19 @@
+# transcript: P10: repository scan with the CI command, after the fixes
+# recorded: 2026-11-06T10:06:21Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# Same command as the "security" job of ci.yml (run 42198994779 failed: 7 HIGH misconfigurations in 3 files).
+$ trivy --version
+Version: 0.76.2
+Vulnerability DB:
+  Version: 2
+  UpdatedAt: 2026-11-05 19:01:45.286712831 +0000 UTC
+  NextUpdate: 2026-11-06 19:01:45.286712591 +0000 UTC
+  DownloadedAt: 2026-11-06 00:07:58.168631158 +0000 UTC
+Check Bundle:
+  Digest: sha256:b591e9190cff4aa4e385b1a25bccfd9ecf178d3c77fd194e1410b7ce7e1df058
+  DownloadedAt: 2026-11-06 00:08:00.567767265 +0000 UTC
+
+$ trivy fs --scanners vuln,secret,misconfig --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 --skip-dirs manual --quiet .
+2026-11-06T23:11:21+13:00	FATAL	Fatal error	run error: fs scan error: scan error: scan failed: failed analysis: post analysis error: post analysis error: dockerfile scan error: scan config error: context deadline exceeded
+[exit 1]
+

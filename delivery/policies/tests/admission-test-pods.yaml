@@ -14,7 +14,7 @@ spec:
   containers:
     - name: app
       image: ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74
-      securityContext: {allowPrivilegeEscalation: false, capabilities: {drop: ["ALL"]}}
+      securityContext: {allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: ["ALL"]}}
 ---
 # 2. same image referenced by a tag -> admitted, and the tag is pinned to the verified digest
 apiVersion: v1
@@ -28,7 +28,7 @@ spec:
   containers:
     - name: app
       image: ghcr.io/miku-wwl/devops-delivery/demo-api:sha-04a724f
-      securityContext: {allowPrivilegeEscalation: false, capabilities: {drop: ["ALL"]}}
+      securityContext: {allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: ["ALL"]}}
 ---
 # 3. an image that our release workflow did not sign -> denied
 apiVersion: v1
@@ -43,4 +43,4 @@ spec:
     - name: app
       image: docker.io/curlimages/curl:8.23.0
       command: ["sleep", "60"]
-      securityContext: {allowPrivilegeEscalation: false, capabilities: {drop: ["ALL"]}}
+      securityContext: {allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: ["ALL"]}}
