@@ -1,0 +1,70 @@
+# transcript: P4 seed the config repository and install Argo CD
+# recorded: 2026-11-05T23:47:58Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash delivery/argocd/seed-gitops-repo.sh
+{"id":2,"path_with_namespace":"root/delivery-gitops"}
+seeded root/delivery-gitops
+created project access token argocd-read (read_repository, Reporter)
+README.md
+apps/demo-api-dev.yaml
+apps/demo-api-prod.yaml
+apps/project.yaml
+charts/demo-api/.helmignore
+charts/demo-api/Chart.yaml
+charts/demo-api/templates/NOTES.txt
+charts/demo-api/templates/_helpers.tpl
+charts/demo-api/templates/configmap.yaml
+charts/demo-api/templates/deployment.yaml
+charts/demo-api/templates/hpa.yaml
+charts/demo-api/templates/pdb.yaml
+charts/demo-api/templates/service.yaml
+charts/demo-api/templates/serviceaccount.yaml
+charts/demo-api/templates/tests/test-connection.yaml
+charts/demo-api/values-dev.yaml
+charts/demo-api/values-prod.yaml
+charts/demo-api/values.schema.json
+charts/demo-api/values.yaml
+envs/dev/values.yaml
+envs/prod/values.yaml
+
+$ bash delivery/argocd/install-argocd.sh
+==> Argo CD v3.6.1
+namespace/argocd created
+Waiting for deployment "argocd-server" rollout to finish: 0 of 1 updated replicas are available...
+deployment "argocd-server" successfully rolled out
+deployment "argocd-repo-server" successfully rolled out
+deployment "argocd-applicationset-controller" successfully rolled out
+deployment "argocd-redis" successfully rolled out
+partitioned roll out complete: 1 new pods have been updated...
+==> lab setting: check Git every 60s (default 180s; production uses a Git webhook)
+configmap/argocd-cm patched
+statefulset.apps/argocd-application-controller restarted
+deployment.apps/argocd-repo-server restarted
+Waiting for partitioned roll out to finish: 0 out of 1 new pods have been updated...
+Waiting for 1 pods to be ready...
+Waiting for 1 pods to be ready...
+Waiting for 1 pods to be ready...
+partitioned roll out complete: 1 new pods have been updated...
+Waiting for deployment "argocd-repo-server" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "argocd-repo-server" rollout to finish: 1 old replicas are pending termination...
+deployment "argocd-repo-server" successfully rolled out
+==> admin password -> /home/devops/.lab-secrets/argocd-admin-password
+==> make the lab GitLab resolvable from pods as 'gitlab'
+==> repository credentials (read-only project token)
+repository secret repo-delivery-gitops configured for http://gitlab:8929/root/delivery-gitops.git
+NAME                                                READY   STATUS    RESTARTS   AGE
+argocd-application-controller-0                     1/1     Running   0          15s
+argocd-applicationset-controller-794bb95c9d-5fklp   1/1     Running   0          71s
+argocd-dex-server-66cf64bfcf-86c9l                  1/1     Running   0          71s
+argocd-notifications-controller-5878c8d644-q545z    1/1     Running   0          71s
+argocd-redis-5869b7547-rmlxx                        1/1     Running   0          71s
+argocd-repo-server-59c447d47f-sgdnw                 1/1     Running   0          16s
+argocd-server-85b849c688-4jkt9                      1/1     Running   0          71s
+
+# DNS check: can a pod resolve and reach the lab GitLab?
+$ kubectl run dnscheck -n argocd --rm -i --restart=Never --image=curlimages/curl:8.23.0 -- curl -s -o /dev/null -w 'gitlab from a pod: HTTP %{http_code}\n' http://gitlab:8929/users/sign_in
+All commands and output from this session will be recorded in container logs, including credentials and sensitive information passed through the command prompt.
+If you don't see a command prompt, try pressing enter.
+gitlab from a pod: HTTP 200
+pod "dnscheck" deleted from argocd namespace
+

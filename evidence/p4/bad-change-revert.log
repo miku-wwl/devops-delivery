@@ -1,0 +1,65 @@
+# transcript: P4 a bad change reaches prod through Git and is rolled back with git revert
+# recorded: 2026-11-05T23:57:33Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# 1. a reviewed-but-wrong change: someone enables 50% error injection in prod
+$ bash delivery/argocd/promote.sh prod faults.errorRate:=0.5 --merge --title "tune prod fault settings"
+ envs/prod/values.yaml | 2 ++
+ 1 file changed, 2 insertions(+)
+@@ -4 +4,3 @@ image:
+   tag: "0.1.1"
++faults:
++  errorRate: 0.5
+merge request !3: http://localhost:8929/root/delivery-gitops/-/merge_requests/3
+merged !3 -> main @ 5f5c823 by root
+
+$ BAD=$(cat ~/work/last-merge-sha); echo "bad commit: ${BAD:0:7}"
+bad commit: 5f5c823
+
+$ bash delivery/argocd/wait-sync.sh demo-api-prod "$BAD"
+t+0s  revision=f65c674 sync=Synced health=Healthy operation=Succeeded
+t+51s  revision=5f5c823 sync=OutOfSync health=Healthy operation=Running
+t+54s  revision=5f5c823 sync=Synced health=Progressing operation=Succeeded
+t+74s  revision=5f5c823 sync=Synced health=Healthy operation=Succeeded
+reached Synced/Healthy at 5f5c823 after 74s
+
+$ bash delivery/kind/probe.sh prod demo-api-prod /api/v1/info 40
+HTTP status count: 20 200
+HTTP status count: 20 500
+
+# 2. roll back in Git: revert the merge commit through another merge request
+$ bash delivery/argocd/revert.sh "$BAD" --merge
+72ffb20 Revert "Merge branch 'change/prod-20261106125734' into 'main'"
+
+ envs/prod/values.yaml | 2 --
+ 1 file changed, 2 deletions(-)
+merge request !4: http://localhost:8929/root/delivery-gitops/-/merge_requests/4
+merged !4 -> main @ 3e45aa3
+
+$ bash delivery/argocd/wait-sync.sh demo-api-prod
+t+0s  revision=5f5c823 sync=Synced health=Healthy operation=Succeeded
+t+52s  revision=3e45aa3 sync=OutOfSync health=Healthy operation=Running
+t+55s  revision=3e45aa3 sync=Synced health=Progressing operation=Succeeded
+t+74s  revision=3e45aa3 sync=Synced health=Healthy operation=Succeeded
+reached Synced/Healthy at 3e45aa3 after 74s
+
+$ kubectl -n prod get configmap demo-api-prod -o jsonpath='{.data}'; echo
+{"FAULT_ERROR_RATE":"0","FAULT_LATENCY_MS":"0"}
+
+$ bash delivery/kind/probe.sh prod demo-api-prod /api/v1/info 40
+HTTP status count: 40 200
+
+$ argocd app history demo-api-prod --grpc-web
+SOURCE  http://gitlab:8929/root/delivery-gitops.git
+ID      DATE                            REVISION
+0       2026-11-06 12:49:43 +1300 NZDT  main (7e0c4d3)
+1       2026-11-06 12:53:29 +1300 NZDT  main (f65c674)
+2       2026-11-06 12:57:20 +1300 NZDT  main (f65c674)
+3       2026-11-06 12:58:33 +1300 NZDT  main (5f5c823)
+4       2026-11-06 12:59:55 +1300 NZDT  main (3e45aa3)
+
+# the config repository history is the deployment log
+$ git -C ~/work/delivery-gitops log --oneline --first-parent -6 origin/main
+5f5c823 Merge branch 'change/prod-20261106125734' into 'main'
+f65c674 Merge branch 'change/prod-20261106125206' into 'main'
+7e0c4d3 seed: demo-api chart, environment values and Argo CD apps
+

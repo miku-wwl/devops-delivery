@@ -1,0 +1,27 @@
+# prod: Git changes are synced automatically, but manual drift is only *reported*
+# (selfHeal: false) so an operator can inspect it before Argo CD overwrites it.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: demo-api-prod
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: delivery
+  source:
+    repoURL: http://gitlab:8929/root/delivery-gitops.git
+    targetRevision: main
+    path: charts/demo-api
+    helm:
+      releaseName: demo-api-prod
+      valueFiles:
+        - values-prod.yaml
+        - ../../envs/prod/values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: false

@@ -1,0 +1,11 @@
+# transcript: P4 the configuration repository history is the deployment log
+# recorded: 2026-11-06T00:02:59Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ export GIT_TERMINAL_PROMPT=0 GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=http.extraHeader GIT_CONFIG_VALUE_0="Authorization: Basic $(printf 'oauth2:%s' "$(cat ~/.lab-secrets/gitlab-root-token)" | base64 -w0)"
+
+$ git -C ~/work/delivery-gitops fetch -q origin && git -C ~/work/delivery-gitops log --format='%h  %an  %s' --first-parent -6 origin/main
+3e45aa3  Administrator  Merge branch 'revert/5f5c823-125857' into 'main'
+5f5c823  Administrator  Merge branch 'change/prod-20261106125734' into 'main'
+f65c674  Administrator  Merge branch 'change/prod-20261106125206' into 'main'
+7e0c4d3  Lab Seeder  seed: demo-api chart, environment values and Argo CD apps
+

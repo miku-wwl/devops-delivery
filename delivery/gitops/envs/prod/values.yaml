@@ -1,0 +1,4 @@
+# Deployment state for prod. Changed by promotion merge requests only.
+image:
+  repository: localhost:5001/demo-api
+  tag: "0.1.0"
