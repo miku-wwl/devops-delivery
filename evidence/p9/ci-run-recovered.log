@@ -1,0 +1,15 @@
+# gh run view 42196846132 (workflow_dispatch release.yml, synthetic_fault=none: recovery) - recorded 2026-11-06T09:46:28Z
+event=workflow_dispatch status=completed conclusion=success sha=70ae35c
+  job: synthetic gate / synthetic API test (kind + k6) -> success
+  job: build, scan, sign, attest -> success
+# k6 verdict:
+==> candidate demo-api:candidate  fault=none  namespace=synthetic-1793958150
+synthetic gate: PASS  (base http://127.0.0.1:18080, 723 requests, checks 1446 passed / 0 failed)
+  [ok  ] checks  rate>0.99  observed 100.00%
+  [ok  ] http_req_duration{name:POST /api/v1/orders}  p(95)<300  observed 1.6 ms
+  [ok  ] http_req_duration{name:GET /api/v1/orders/:id}  p(95)<300  observed 1.6 ms
+  [ok  ] http_req_duration{name:GET /api/v1/info}  p(95)<300  observed 2.1 ms
+  [ok  ] http_req_failed  rate<0.01  observed 0.00%
+==> synthetic gate PASSED
+# release job:
+  image: ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:e17b82f121c7fa78165acd064dcae8b9c3453d8c4779c4684c99c200fab413c7

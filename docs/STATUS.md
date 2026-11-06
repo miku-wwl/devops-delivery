@@ -14,7 +14,7 @@
 | P6 | D6 渐进式交付 | VALIDATED | [P6 记录](experiments/P6-progressive-delivery.md)、`evidence/p6/` | 好版本分析 12/12 后人工晋级；坏版本 65 s 内自动中止（金丝雀本身占 1.4% 请求）；生产审批闸门待所有者批准（G4）。**勘误**：中止时一个稳定版 Pod 读到坏配置，P7 发现并修复（见 P6 记录） |
 | P7 | D7 / O1 开放可观测性 | VALIDATED | [P7 记录](experiments/P7-observability.md)、`evidence/p7/` | 官方 OTel Demo 支付故障与 demo-api 错误/延迟演练，均用指标、链路、日志三类信号定位（G5）；意外发现并修复 P6 遗留的 prod 问题（Chart 0.3.1） |
 | P8 | D8 / O2 Datadog Learning | PARTIAL | [P8 记录](experiments/P8-datadog-learning.md)、`evidence/p8/` | 3 条路径 14 门课的 56 篇讲义已读并经平台记录（50%–75%）；Agent on a Host 挑战 1–5、Agent on Docker 挑战 1–2 通过实验检查；网页登录（不能代输密码）、问卷与认证需用户本人完成 |
-| P9 | D9 可观测性 × CI/CD | NOT_RUN | — | Datadog 部分需要用户账号 |
+| P9 | D9 可观测性 × CI/CD | VALIDATED | [P9 记录](experiments/P9-synthetic-gate.md)、`evidence/p9/` | 开源实现（CI 中 Kind + k6）：延迟故障运行中发布作业被跳过（42196278404），恢复后通过并发布（42196846132）（G7 开源部分）；Datadog Synthetic 方案 NOT_RUN（无可用于 CI 的账号，只有模板） |
 | P10 | O3 交付闭环 + RCA | NOT_RUN | — | — |
 | P11 | D10 Ansible（可选） | NOT_RUN | — | — |
 | P12 | PDF 手册整合 | NOT_RUN | — | — |
