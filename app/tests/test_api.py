@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+import re
 import time
 
 import pytest
@@ -84,3 +86,33 @@ def test_injected_latency_slows_order_creation(make_client):
     response = slow.post("/api/v1/orders", json={"sku": "MUG-003", "quantity": 1})
     assert response.status_code == 201
     assert time.perf_counter() - start >= 0.15
+
+
+GENERATED_ID = re.compile(r"[0-9a-f]{32}")
+
+
+def test_request_id_is_generated_when_missing(client):
+    response = client.get("/api/v1/info")
+    assert GENERATED_ID.fullmatch(response.headers["X-Request-ID"])
+
+
+def test_safe_request_id_from_the_caller_is_reused(client):
+    response = client.get("/api/v1/info", headers={"X-Request-ID": "checkout-42.retry_1"})
+    assert response.headers["X-Request-ID"] == "checkout-42.retry_1"
+
+
+@pytest.mark.parametrize("unsafe", ["", "has space", "x" * 65, '{"level":"error"}', "<script>"])
+def test_unsafe_request_id_is_replaced(client, unsafe):
+    returned = client.get("/api/v1/info", headers={"X-Request-ID": unsafe}).headers["X-Request-ID"]
+    assert returned != unsafe
+    assert GENERATED_ID.fullmatch(returned)
+
+
+def test_request_id_is_returned_on_errors_and_logged(make_client, caplog):
+    faulty = make_client(fault_error_rate=1.0)
+    with caplog.at_level(logging.INFO, logger="demo_api"):
+        response = faulty.get("/api/v1/info", headers={"X-Request-ID": "drill-1"})
+    assert response.status_code == 500
+    assert response.headers["X-Request-ID"] == "drill-1"
+    access = [r for r in caplog.records if r.getMessage() == "request"]
+    assert [(r.status, r.request_id) for r in access] == [(500, "drill-1")]

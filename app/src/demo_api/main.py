@@ -5,7 +5,9 @@ from __future__ import annotations
 import asyncio
 import logging
 import random
+import re
 import time
+import uuid
 from datetime import datetime
 from decimal import Decimal
 
@@ -24,6 +26,19 @@ log = logging.getLogger("demo_api")
 tracer = trace.get_tracer("demo_api")
 
 QUIET_ROUTES = {"/healthz", "/readyz", "/metrics"}
+
+REQUEST_ID_HEADER = "X-Request-ID"
+# A caller's request id is reused only if it is short and plain. Anything else is
+# replaced, so clients cannot put arbitrary text into our logs and spans.
+_SAFE_REQUEST_ID = re.compile(r"[A-Za-z0-9._-]{1,64}")
+
+
+def request_id_for(request: Request) -> str:
+    """Reuse the caller's X-Request-ID when it is safe, otherwise make a new one."""
+    incoming = request.headers.get(REQUEST_ID_HEADER, "")
+    if _SAFE_REQUEST_ID.fullmatch(incoming):
+        return incoming
+    return uuid.uuid4().hex
 
 
 class OrderIn(BaseModel):
@@ -53,9 +68,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def observe_requests(request: Request, call_next):
         start = time.perf_counter()
         status = 500
+        # One id per request: returned to the caller, written to the access log and
+        # put on the server span, so a support ticket quoting it leads to both.
+        request_id = request_id_for(request)
+        trace.get_current_span().set_attribute("request.id", request_id)
         try:
             response = await call_next(request)
             status = response.status_code
+            response.headers[REQUEST_ID_HEADER] = request_id
             return response
         finally:
             elapsed = time.perf_counter() - start
@@ -71,6 +91,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                         "status": status,
                         "duration_ms": round(elapsed * 1000, 1),
                         "version": settings.version,
+                        "request_id": request_id,
                     },
                 )
 

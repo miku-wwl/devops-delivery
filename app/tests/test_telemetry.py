@@ -64,6 +64,13 @@ def test_injected_latency_is_recorded_on_the_pricing_span():
     assert (pricing.end_time - pricing.start_time) >= 20_000_000  # nanoseconds
 
 
+def test_server_span_carries_the_request_id():
+    client = traced_client()
+    client.get("/api/v1/info", headers={"X-Request-ID": "trace-me-1"})
+    server = next(s for s in EXPORTER.get_finished_spans() if s.name == "GET /api/v1/info")
+    assert server.attributes["request.id"] == "trace-me-1"
+
+
 def test_json_logs_carry_the_active_trace_id():
     record = logging.makeLogRecord({"msg": "hello", "levelname": "INFO", "name": "t"})
     with trace.get_tracer("test").start_as_current_span("unit") as span:
