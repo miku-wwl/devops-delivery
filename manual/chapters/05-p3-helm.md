@@ -197,6 +197,10 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 
 **`checksum/config` 注解**是 Helm 社区的经典技巧。环境变量只在容器启动时读取一次，单独修改 ConfigMap 不会让正在运行的 Pod 生效。把 ConfigMap 渲染结果的 SHA-256 写进 Pod 模板的注解，ConfigMap 一变，Pod 模板随之改变，Deployment 就会自动滚动更新。后面的坏发布演练正是靠它让新配置立刻生效的。
 
+::: warning
+**后文的修订。** 这个技巧解决了“配置改了、Pod 不重启”的问题，但留下一个隐患：新旧 ReplicaSet 读取的是**同一个** ConfigMap。旧版本的 Pod 只要在配置变更之后重建（扩容、节点故障、被驱逐），读到的就是新配置。滚动更新很快结束，这个窗口通常不显眼；第 8 章的金丝雀发布会长时间同时运行两个版本，并且会在中止时扩容稳定版，隐患就变成了真实的问题。第 9 章记录了这次问题，并在 Chart 0.3.1 中把发布配置直接写进 Pod 模板的 `env`，`checksum/config` 注解随之删除。
+:::
+
 **只读根文件系统 + `/tmp` 空目录卷：** `readOnlyRootFilesystem: true` 让攻击者即使拿到容器内执行权限，也无法改写程序文件；应用若需要临时文件，挂一个 `emptyDir` 到 `/tmp`。
 
 ### values.schema.json：把错误挡在集群之外

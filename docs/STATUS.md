@@ -11,8 +11,8 @@
 | P3 | D3 Helm | VALIDATED | [P3 记录](experiments/P3-helm.md)、`evidence/p3/` | dev/prod 同一 Chart；坏配置发布 55% 错误 → 回滚恢复 |
 | P4 | D4 Argo CD / GitOps | VALIDATED | [P4 记录](experiments/P4-gitops.md)、`evidence/p4/` | 配置仓库在本地 GitLab；MR 发布、漂移自愈/检测、git revert 回滚、AppProject 护栏（G2） |
 | P5 | D5 DevSecOps / 供应链 | VALIDATED | [P5 记录](experiments/P5-supply-chain.md)、`evidence/p5/` | Trivy 门禁与真实修复；SBOM + SLSA 证明 + Cosign 签名并独立验证；同一 digest dev→prod；Kyverno 准入（G3） |
-| P6 | D6 渐进式交付 | VALIDATED | [P6 记录](experiments/P6-progressive-delivery.md)、`evidence/p6/` | 好版本分析 12/12 后人工晋级；坏版本 65 s 内自动中止（影响 1.4% 请求）；生产审批闸门待所有者批准（G4） |
-| P7 | D7 / O1 开放可观测性 | NOT_RUN | — | — |
+| P6 | D6 渐进式交付 | VALIDATED | [P6 记录](experiments/P6-progressive-delivery.md)、`evidence/p6/` | 好版本分析 12/12 后人工晋级；坏版本 65 s 内自动中止（金丝雀本身占 1.4% 请求）；生产审批闸门待所有者批准（G4）。**勘误**：中止时一个稳定版 Pod 读到坏配置，P7 发现并修复（见 P6 记录） |
+| P7 | D7 / O1 开放可观测性 | VALIDATED | [P7 记录](experiments/P7-observability.md)、`evidence/p7/` | 官方 OTel Demo 支付故障与 demo-api 错误/延迟演练，均用指标、链路、日志三类信号定位（G5）；意外发现并修复 P6 遗留的 prod 问题（Chart 0.3.1） |
 | P8 | D8 / O2 Datadog Learning | NOT_RUN | — | 需要用户本人账号 |
 | P9 | D9 可观测性 × CI/CD | NOT_RUN | — | Datadog 部分需要用户账号 |
 | P10 | O3 交付闭环 + RCA | NOT_RUN | — | — |
