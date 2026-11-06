@@ -1,5 +1,6 @@
 name: release
-# Supply-chain pipeline for the demo-api image (roadmap module D5):
+# Supply-chain pipeline for the demo-api image (roadmap modules D5 and D9):
+#   synthetic gate (Kind + k6, synthetic-gate.yml) ->
 #   build -> Trivy gate (before anything is pushed) -> push to GHCR by digest
 #   -> SBOM (SPDX, Syft) -> GitHub artifact attestations (build provenance + SBOM)
 #   -> Cosign keyless signature (GitHub OIDC -> Fulcio certificate -> Rekor log)
@@ -12,8 +13,18 @@ on:
     paths:
       - app/**
       - automation/ci/**
+      - automation/lab/versions.env
+      - delivery/helm/**
+      - synthetic/**
       - .github/workflows/release.yml
+      - .github/workflows/synthetic-gate.yml
   workflow_dispatch:
+    inputs:
+      synthetic_fault:
+        description: "Drill: inject a fault into the candidate tested by the synthetic gate"
+        type: choice
+        options: [none, latency, errors]
+        default: none
 
 permissions:
   contents: read
@@ -26,8 +37,19 @@ env:
   IMAGE: ghcr.io/${{ github.repository }}/demo-api
 
 jobs:
+  # Roadmap D9: the candidate must pass synthetic API journeys in a throwaway Kind
+  # cluster before anything is pushed or signed (see synthetic-gate.yml).
+  synthetic:
+    name: synthetic gate
+    uses: ./.github/workflows/synthetic-gate.yml
+    with:
+      fault: ${{ inputs.synthetic_fault || 'none' }}
+    permissions:
+      contents: read
+
   release:
     name: build, scan, sign, attest
+    needs: synthetic
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
