@@ -1,0 +1,5 @@
+# Handlers run once, at the end of the play, and only if a task notified them.
+# The nodes are containers without systemd, so "restart" records the event instead.
+- name: Restart demo-api
+  ansible.builtin.shell: date -u +%FT%TZ >> "{{ app_home }}/logs/restarts.log"
+  changed_when: true

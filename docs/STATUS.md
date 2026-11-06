@@ -16,5 +16,5 @@
 | P8 | D8 / O2 Datadog Learning | PARTIAL | [P8 记录](experiments/P8-datadog-learning.md)、`evidence/p8/` | 3 条路径 14 门课的 56 篇讲义已读并经平台记录（50%–75%）；Agent on a Host 挑战 1–5、Agent on Docker 挑战 1–2 通过实验检查；网页登录（不能代输密码）、问卷与认证需用户本人完成 |
 | P9 | D9 可观测性 × CI/CD | VALIDATED | [P9 记录](experiments/P9-synthetic-gate.md)、`evidence/p9/` | 开源实现（CI 中 Kind + k6）：延迟故障运行中发布作业被跳过（42196278404），恢复后通过并发布（42196846132）（G7 开源部分）；Datadog Synthetic 方案 NOT_RUN（无可用于 CI 的账号，只有模板） |
 | P10 | O3 交付闭环 + RCA | VALIDATED | [P10 记录](experiments/P10-closed-loop.md)、`evidence/p10/`、[RCA](rca/) | 好版本走完整条链（CI 首次在阶段分支上运行即发现并修复 7 个遗留高危配置问题）；坏配置金丝雀分析开始 65 秒后自动中止，稳定版未被污染（验证 P7 修复），Git 回滚恢复；SLO 燃烧率规则上线；两份 RCA |
-| P11 | D10 Ansible（可选） | NOT_RUN | — | — |
+| P11 | D10 Ansible（可选） | VALIDATED | [P11 记录](experiments/P11-ansible.md)、`evidence/p11/` | 两个容器作为托管节点（`community.docker.docker` 连接）；第二次执行三台主机均 `changed=0`；人为漂移被 `--check --diff` 发现并纠正 |
 | P12 | PDF 手册整合 | NOT_RUN | — | — |

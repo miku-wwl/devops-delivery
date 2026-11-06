@@ -1,0 +1,53 @@
+- name: Base packages are present
+  ansible.builtin.apt:
+    name: "{{ base_packages }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 3600   # refresh the package index at most once an hour
+
+- name: Service group exists
+  ansible.builtin.group:
+    name: "{{ app_group }}"
+    system: true
+
+- name: Service user exists
+  ansible.builtin.user:
+    name: "{{ app_user }}"
+    group: "{{ app_group }}"
+    system: true
+    create_home: false
+    shell: /usr/sbin/nologin
+
+- name: Application directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_group }}"
+    mode: "0750"
+  loop:
+    - "{{ app_home }}"
+    - "{{ app_home }}/config"
+    - "{{ app_home }}/logs"
+
+- name: Application configuration is rendered
+  ansible.builtin.template:
+    src: config.yaml.j2
+    dest: "{{ app_home }}/config/config.yaml"
+    owner: "{{ app_user }}"
+    group: "{{ app_group }}"
+    mode: "0640"
+  notify: Restart demo-api
+
+- name: Log rotation policy is present
+  ansible.builtin.copy:
+    dest: /etc/logrotate.d/demo-api
+    content: |
+      {{ app_home }}/logs/*.log {
+        daily
+        rotate 7
+        compress
+        missingok
+        notifempty
+      }
+    mode: "0644"

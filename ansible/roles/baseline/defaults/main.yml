@@ -1,0 +1,10 @@
+# Defaults: lowest precedence, overridden by inventory (group_vars/host_vars) and -e.
+app_user: demo
+app_group: demo
+app_home: /opt/demo-api
+demo_api_env: lab
+demo_api_port: 8080
+demo_api_replicas: 1
+base_packages:
+  - ca-certificates
+  - curl

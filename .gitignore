@@ -27,3 +27,6 @@ kubeconfig*
 # OS
 .DS_Store
 Thumbs.db
+
+# Ansible collections are installed from ansible/collections/requirements.yml
+ansible/collections/ansible_collections/
