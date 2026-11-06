@@ -38,16 +38,14 @@
 ### Argo Rollouts 的工作方式
 
 ```{.mermaid caption="本章的渐进式交付闭环"}
-flowchart LR
-  G["配置仓库（Git）<br/>envs/prod/values.yaml"] -->|Argo CD 同步| R["Rollout demo-api-prod<br/>（替代 Deployment）"]
-  R --> S["稳定版 ReplicaSet<br/>role=stable"]
-  R --> C["金丝雀 ReplicaSet<br/>role=canary"]
-  L["k6 负载<br/>10 req/s"] --> SVC["Service demo-api-prod"]
-  SVC --> S & C
-  P["Prometheus<br/>（PodMonitor 采集，<br/>带 rollouts_pod_template_hash 标签）"] -.抓取.-> S & C
-  A["AnalysisRun<br/>成功率 ≥ 95%<br/>p95 < 0.5 s"] -->|PromQL，只看金丝雀| P
+flowchart TB
+  G["配置仓库 envs/prod/values.yaml"] -->|Argo CD 同步| R["Rollout demo-api-prod（替代 Deployment）"]
+  R --> S["稳定版 ReplicaSet<br/>role=stable"] & C["金丝雀 ReplicaSet<br/>role=canary"]
+  L["k6 负载 10 req/s"] --> SVC["Service demo-api-prod"] --> S & C
+  S & C -. "PodMonitor 抓取<br/>（带 Pod 模板哈希标签）" .-> P["Prometheus"]
+  P -->|"PromQL：只看金丝雀"| A["AnalysisRun<br/>成功率 ≥ 95%，p95 < 0.5 s"]
   A -->|失败| X["中止：金丝雀缩容为 0"]
-  A -->|成功| H["等待人工晋级 / 自动推进"]
+  A -->|成功| H["人工晋级 / 自动推进"]
   H --> R
 ```
 
@@ -232,7 +230,7 @@ $ ... 'count by (rollouts_pod_template_hash, route) (count_over_time(http_reques
 金丝雀 Pod 被正常采集了，但**一个业务请求都没有收到**。原因是两个机制的叠加：
 
 1. 负载生成器 k6 默认使用 HTTP keep-alive，长期复用 TCP 连接；
-2. Kubernetes Service（kube-proxy）是 **L4 负载均衡，按连接而不是按请求分配后端**。金丝雀出现之前建立的所有连接都“钉”在稳定版 Pod 上，金丝雀永远分不到流量。
+2. Kubernetes Service（kube-proxy）是 **L4 负载均衡，按连接而不是按请求分配后端**。金丝雀出现之前建立的所有连接都“钉”在稳定版 Pod 上，金丝雀永远分不到流量。第 5 章“深入”一节在实验集群上直接验证了这个机制：iptables 规则只在连接的第一个包上随机选择后端，conntrack 记住这个选择；同一个 keep-alive 连接上的 20 个请求全部落在了同一个 Pod 上。
 
 真实世界中的客户端同样大量使用连接池，这正是“基于副本数的金丝雀”最常见的失效方式。修复分两部分：
 
@@ -245,7 +243,7 @@ $ ... 'count by (rollouts_pod_template_hash, route) (count_over_time(http_reques
 - Chart 升级到 0.2.1 后，**Rollout 自动开始了一次新的金丝雀**。原因是 Pod 模板标签中包含 `helm.sh/chart: demo-api-0.2.1`，Chart 版本一变，Pod 模板哈希就变。很多 Chart 都有这个反模式：Chart 版本这类“元数据”不应该放进 Pod 模板标签。
 - 新的金丝雀分析结果为 **Inconclusive**（三态设计生效了，没有误杀），但金丝雀仍然收不到流量：只更新了 k6 的 ConfigMap，k6 Pod 并没有重启，它只在启动时读取脚本——这正是第 5 章 `checksum/config` 注解要解决的问题。
 
-![重启 k6 后金丝雀开始收到流量（stable 9 req/s，canary 1 req/s）；随后演示手动中止（abort）与重试（retry）（终端记录渲染）](../../evidence/p6/canary-abort-retry.png)
+![重启 k6 后金丝雀开始收到流量（stable 9 req/s，canary 1 req/s）；随后演示手动中止（abort）与重试（retry）（终端记录渲染）](../../evidence/p6/canary-abort-retry.png){width=86%}
 
 ## 第 5 步：好版本——分析通过，人工晋级 {#p6-good}
 
@@ -303,6 +301,14 @@ revert 后的 Pod 模板与稳定版 ReplicaSet 完全一致，Rollout 直接恢
 上文 01:14:30 测量时，它才启动 19 秒，所以“稳定版慢请求数”仍是 0。直到约 3 小时后，第 9 章新加的延迟告警才发现它：这期间它处理的 15662 个下单请求全部慢于 0.5 秒，占 4 小时窗口内 prod 全部下单请求（86680 个）的 18%。
 
 本章“只影响 1.4% 的请求”“稳定版恢复”的结论因此是不完整的。根因分析与修复（Chart 0.3.1：把发布配置写进 Pod 模板）见第 9 章，正式的事故复盘见第 12 章。
+:::
+
+::: principle
+**金丝雀只能撤回 Pod。** 中止发布时，Argo Rollouts 做的事情只有一件：把金丝雀 ReplicaSet 缩到 0，把稳定版扩回原数。凡是不随 Pod 模板一起版本化的东西，它都撤不回来：共享的 ConfigMap（本章的勘误）、数据库表结构的变更、已经写入的数据或发出的消息、缓存与文件的格式、对外接口的契约。所以“可以安全回滚”必须在设计变更时就保证，常用的做法有：
+
+- **扩展—收缩（expand/contract）。** 先做只增不减的“扩展”，例如新增字段或表、让代码同时兼容新旧两种格式，发布并确认稳定后，再在下一次发布中“收缩”，删除旧的部分。新旧两个版本在任何时刻都能同时工作，回滚就永远是安全的。第 9 章 Chart 0.3.1 把配置移入 Pod 模板时，有意把旧的 ConfigMap 再保留一个版本，就是这个模式。
+- **部署与发布分离。** 用功能开关（feature flag）控制新功能是否生效。代码先部署但默认关闭，出问题时关闭开关，比回滚整个版本快得多，也不受数据变更的牵连。
+- **向前修复。** 当回滚本身不安全时（例如数据已经按新格式写入），就发布一个修复版本，而不是退回旧版本。这需要能快速、安全地发布，正是前面几章交付链条的价值所在。
 :::
 
 ## 第 7 步：GitHub Deployment Environment 审批闸门 {#p6-approval}

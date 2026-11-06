@@ -74,6 +74,9 @@ def appendix_e() -> str:
         rec = sorted((ROOT / "docs" / "experiments").glob(f"P{n}-*.md"))
         rec_name = f"`docs/experiments/{rec[0].name}`" if rec else "—"
         rows.append(f"| {n + 2} | P{n} | `evidence/p{n}/` | {logs} | {pngs} | {rec_name} |")
+    d12 = ROOT / "evidence" / "p12"
+    if d12.exists():
+        rows.append(f"| — | P12 | `evidence/p12/` | {len(list(d12.glob('*.log')))} | {len(list(d12.glob('*.png')))} | 第 5、7、9、12 章的“深入”一节；`docs/ACCEPTANCE_REPORT.md` |")
 
     check = ROOT / "manual" / "build" / "evidence-check.json"
     labels = {

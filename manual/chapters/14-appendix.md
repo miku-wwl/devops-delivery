@@ -6,6 +6,7 @@
 
 命令行工具的版本以 `automation/lab/versions.env` 为唯一来源，安装时校验 SHA256（第 2 章）；集群组件按 Helm Chart 或清单的版本号固定。
 
+::: {.tbl-versions}
 | 类别 | 组件 | 版本 | 章节 |
 |---|---|---|---|
 | 宿主环境 | Windows 11 家庭中文版、WSL | WSL 2.7.3.0，内核 6.6.114.1 | 2 |
@@ -33,9 +34,11 @@
 | 应用 | demo-api：Python / ruff / pytest | 3.13（CI）、3.12（本地） / 0.17.4 / 9.2.0 | 3 |
 | | demo-api Helm Chart | 0.3.1 | 5、9 |
 | 配置管理 | ansible-core / community.docker | 2.20.11 / 5.4.0 | 13 |
+:::
 
 ## 常用命令速查 {-}
 
+::: {.tbl-commands}
 | 场景 | 命令 | 章节 |
 |---|---|---|
 | 录制终端证据 | `bash automation/evidence/transcript.sh evidence/pN/x.log "标题" <<'EOF' … EOF` | 2 |
@@ -57,8 +60,15 @@
 | 检查 Pod 实际配置 | `kubectl get pods -o custom-columns=POD:.metadata.name,LAT:'.spec.containers[0].env[?(@.name=="FAULT_LATENCY_MS")].value'` | 9、12 |
 | 链路与日志查询 | TraceQL：`{span.request.id="…"}`；LogQL：`{service_name="demo-api"} \| trace_id="…"` | 9、12 |
 | 燃烧率与告警 | `demo_api:slo_latency:burn_rate5m{namespace="prod"}`；`ALERTS{alertname=~"DemoApi.*"}` | 12 |
+| 找到容器主进程并查看内核限制 | `docker exec <节点> crictl inspect <容器ID> \| jq .info.pid`，再看 `/proc/<pid>/status`、`/proc/<pid>/cgroup` | 5 |
+| 查看 Service 的 NAT 规则与连接跟踪 | `docker exec <节点> iptables-save -t nat \| grep <ClusterIP>`；`docker exec <节点> conntrack -L -p tcp --orig-dst <ClusterIP>` | 5 |
+| 观察准入的效果（不写入） | `kubectl apply --dry-run=server -o yaml -f <文件>` | 5 |
+| 读取镜像清单并核对 digest | 匿名令牌 `https://ghcr.io/token?scope=repository:<仓库>:pull`，再 `curl …/v2/<仓库>/manifests/<digest> \| sha256sum` | 7 |
+| 带链路上下文发请求 | `curl -H "traceparent: 00-<32 位 trace ID>-<16 位 span ID>-01" …` | 9 |
+| 从配置仓库统计部署与回滚 | `git log --first-parent --format='%h %cI %s' <基线>..origin/main -- envs/prod charts` | 12 |
 | 本地合成测试门禁 | `bash synthetic/run-gate.sh --image <仓库> --digest <sha256:…> [--fault latency]` | 11 |
 | Ansible 演练 | `ansible-playbook site.yml --check --diff`，再 `ansible-playbook site.yml` | 13 |
+:::
 
 ## 仓库结构 {-}
 
@@ -115,6 +125,8 @@ devops-delivery/
 4. 软反亲和是“尽量分散”，无法满足时仍然调度。3 个副本、2 个可调度节点时，硬反亲和（每个节点最多一个）只能放下 2 个 Pod，第 3 个永远 Pending，PDB（minAvailable 2）也会让节点维护更困难。必须用硬规则的场景：同一节点上放两个副本就失去意义或违反要求的情况，例如有状态集群的成员（数据库、ZooKeeper/etcd 副本）必须跨节点或跨可用区，以保证单点故障不会同时带走多数派；或合规要求跨故障域部署。
 5. Helm 的回滚是“用修订 2 的内容生成一个新的修订”，历史只追加、不改写：谁在什么时候回滚到了什么内容，都留在 history 中，修订 4（坏发布）的内容也仍可查询（`helm get values --revision 4`），便于复盘。根本区别：helm rollback 改变的是集群状态，Git 中的期望状态没有变，下一次从 Git 部署会把坏配置带回来；GitOps 回滚是对 Git 的一次 revert 提交，期望状态本身被修正，集群跟随 Git，三者（Git、Argo CD、集群）保持一致。
 6. Chart 0.3.0 中所有 ReplicaSet 通过 envFrom 读取同一个 ConfigMap：配置变了，只有在 Pod 启动时才读取，所以稳定版 ReplicaSet 在中止扩容时新建的 Pod 读到的是当时 ConfigMap 中的坏值。0.3.1 把配置写进 Pod 模板，配置成为模板（和哈希）的一部分：稳定版 ReplicaSet 的模板里是 0，金丝雀的模板里是 800，任何时候新建的 Pod 都只能拿到所属 ReplicaSet 的配置。不可变 ConfigMap 方案（例如 `demo-api-prod-config-<内容哈希>`，并在 Pod 模板中引用这个名字）效果相同：配置内容变 → 名字变 → Pod 模板变 → 新 ReplicaSet，旧 ReplicaSet 仍引用旧的 ConfigMap。区别在于：它适合配置较大或包含文件的场景，但要负责清理不再被引用的旧 ConfigMap；env 方案简单，适合少量键值。两者共同的原则是“配置与 Pod 模板一起版本化”。
+7. 4 个就绪端点时依次为 0.25、0.333…、0.5，最后一条无条件命中，每个后端仍是 1/4。Pod 未就绪时，EndpointSlice 把它标为 not ready，kube-proxy 只为就绪端点生成规则，剩下 3 个时为 0.333…、0.5 和无条件的最后一条。规则只决定新连接去哪里：已经建立的连接仍由 conntrack 记录的转换决定，会继续发往原来的 Pod，直到连接关闭（Pod 被删除、连接被重置或空闲超时）。所以优雅下线要配合 preStop 等待和服务端主动关闭空闲连接。
+8. 多出的风险：user namespace 与节点共享，容器内的 root 就是节点上的 UID 0。它可以读写挂载进来的卷中属于 root 的文件；可以改写镜像中的文件（如果根文件系统不是只读的）；一旦有容器逃逸漏洞，攻击者在节点上直接就是 root。restricted 级别的 Pod 安全标准也会拒绝它。启用独立的 user namespace 后，容器内的 UID 0 映射到节点上一段没有特权的 UID，逃逸出去也只是一个普通用户；容器内的 capability 只在它自己的 namespace 中有效。代价是需要内核和运行时支持，挂载卷的文件属主要做 ID 映射。
 
 ## 第 6 章　持续部署：GitOps 与 Argo CD（P4 / D4） {- .unlisted}
 
@@ -133,6 +145,7 @@ devops-delivery/
 4. ① 本地用 cosign 按同样的身份条件验证，确认镜像上到底挂着什么（Sigstore 包还是旧式 `.sig` 标签）；② 策略中设置 `type: SigstoreBundle`（Cosign v3 与 GitHub 证明使用包格式）；③ 从 cosign 的报错或证明页面读出证书中真实的 SAN，与策略中的 subject/正则逐字比对，注意分支名中的 `/` 会让通配符失配，改用锚定的正则；④ 核对签发者 URL 是否完全一致；⑤ 若验证的是证明，核对谓词类型（`https://slsa.dev/provenance/v1`）；⑥ 检查 Kyverno 能否访问 Rekor 与镜像仓库、webhook 超时是否足够，并查看 Kyverno 日志与策略状态。
 5. 镜像层只能叠加：上层删除文件只是加了一个“遮盖”记录，下面的基础镜像层里 pip 仍然存在，所以体积不变（扫描器看的是合并后的文件系统，漏洞因此消失）。方案：多阶段构建中，在 build 阶段安装依赖并删除 pip，运行时阶段从一个不含 pip 的基础镜像开始（例如 distroless 的 Python 镜像，或 `debian:*-slim` 加从构建阶段 `COPY --from=build /usr/local /usr/local`），最终镜像的任何一层都不含 pip；完成后再用 Trivy 扫描、比较体积，并跑完整的测试与冒烟测试。
 6. PR 阻断防的是开发者无意中引入的漏洞依赖（最早、最便宜）；发布门禁防的是“合并后才曝出 CVE”或合并规则被绕过的情况，保证有漏洞的镜像不会被推送和签名；准入控制防的是一切不是由我们流水线构建的镜像——手工推送、被盗的仓库凭据、有 kubectl 权限的攻击者。若只能留一道，多数人会选准入控制，因为它是运行前最后一道、能覆盖绕过；但它只验证来源，验证不了“我们自己构建的镜像有没有漏洞”。每道防线只覆盖一部分失效方式，单靠任何一道都不够，这正是纵深防御的意义。
+7. 需要改的地方：① 版本号不再取运行编号，改为从提交派生（例如 `git describe` 或提交哈希），这样构建参数在两次构建中相同；② 在发布流水线中设置 `SOURCE_DATE_EPOCH` 为提交时间，并在 BuildKit 导出镜像时启用 `rewrite-timestamp=true`，把层中文件的修改时间和配置中的 `created` 统一为这个时间；③ OCI 标签 `org.opencontainers.image.created` 也取同一个时间；④ 保持基础镜像按 digest 固定、依赖完全锁定（本项目已做到），构建过程中不下载会变化的内容。验证：对同一个提交手动触发两次发布流水线（或在两台机器上各构建一次），比较两个 digest 是否相同；不同时，用本章的方法逐层比较，找出剩下的差异。额外的价值：任何人都可以独立重新构建，并把结果与来源证明中的 digest 对照，从而发现构建平台被篡改的情况（例如 SolarWinds 式的攻击），这比只相信“构建平台签了名”更强。
 
 ## 第 8 章　渐进式交付：Argo Rollouts 金丝雀与发布闸门（P6 / D6） {- .unlisted}
 
@@ -151,6 +164,7 @@ devops-delivery/
 4. 习惯：用事件自身的时间戳（span 开始时间、日志时间）独立验证结论，不信任“看起来正确”的查询参数；查阅文档或源码确认 API 实际做了什么；查询时显式给出时间范围。Prometheus 中的类似陷阱：`rate(x[5m])` 包含过去 5 分钟，恢复后指标要过一个窗口才回落；瞬时查询默认向前回看 5 分钟，已删除 Pod 的序列会从瞬时查询中消失，要用 count_over_time 这类范围查询（第 8 章就是这样发现金丝雀只有探针流量的）；告警的 `for` 在条件中断时会重新计时；修改规则后要等待传播（第 12 章）。
 5. 在 Collector 中使用尾部采样：策略为 status_code = ERROR 全部保留、latency > 500 ms 全部保留、其余按 5% 概率采样。因为同一条链路的所有 span 必须到达同一个 Collector 实例才能整体决策，需要两层部署：前一层用 load-balancing 导出器按 trace_id 路由，后一层做尾部采样；配置 decision_wait（例如 10 秒）和可暂存的链路数，按内存需求横向扩容。SDK 端用基于父级的全量采样（或较高比例），保证 span 能到达 Collector；RED 指标在采样之前由 spanmetrics 或应用自身计算，避免采样扭曲指标。
 6. 告警规则必须覆盖面向用户的症状和全部 Pod（而不只是金丝雀）；用基于 SLO 的告警度量用户体验（好事件/坏事件），并对“没有数据”本身告警（`absent()`、看门狗/死人开关），确认监控系统自己在工作；告警不会响的慢性问题（例如持续 4% 的慢请求）要靠 SLO 报表和定期的预算评审发现。第 12 章基线中 prod 6 小时慢请求比例 1.03%，正是这次事故的尾巴——如果当时已有 SLO 报表，它会显示预算在被异常消耗。
+7. 链路：采样器跟随父级，下游不记录 span，Tempo 中没有这些请求的链路。日志：照常输出，并且带有上游传来的 trace ID（不记录数据的 span 仍然承载上下文），但按这个 ID 查不到链路。指标：本项目的 RED 指标由应用中间件用 prometheus_client 计算，与采样无关，不受影响；如果改用 spanmetrics 从 span 生成指标，这些请求根本没有 span，指标会严重少算，所以从 span 生成指标时，要在采样之前计算，或只对未采样的数据做尾部采样。让下游总是记录：根采样器不再跟随远端父级，例如 ParentBased 中对“远端父级未采样”的情况改用 AlwaysOn，或直接用 AlwaysOn。代价：下游会产生只有后半段的不完整链路（上游的 span 不存在），数据量上升，并且破坏了“全链路采用同一个采样决定”的一致性。更好的做法是在上游修正采样策略，或在 Collector 中做尾部采样。
 
 ## 第 10 章　商业可观测性平台：Datadog 学习路径与动手实验（P8 / D8 / O2） {- .unlisted}
 
@@ -178,6 +192,7 @@ devops-delivery/
 4. 改法一：把它的 severity 改为 ticket，在 Alertmanager 中路由到不呼叫人的接收器（看板、工单）。代价：整体故障时少了一路快速呼叫，但快速燃烧告警已经覆盖。改法二：拉长窗口和持续时间（例如 5 分钟 p95、`for: 10m`），被金丝雀限制、一分钟内就被中止的问题永远不会触发。代价：真实的持续性延迟问题要晚几分钟才告警。改法三：只统计稳定版（按 `role="stable"` 过滤），金丝雀的问题交给分析处理。代价：依赖角色标签，且金丝雀自身的问题不再有告警兜底。取舍原则：呼叫人的告警应当对应“需要人立即行动、并且会影响用户承诺”的情况。
 5. 为什么响应里没有 X-Request-ID？请求是旧容器回答的。为什么会打到旧容器？127.0.0.1:18081 被第 4 章的 Docker 容器占用，port-forward 只绑定了 IPv6。为什么会端口冲突？第 4 章的部署容器一直在运行，占用固定端口，而实验环境没有端口分配记录，新测试恰好选了同一个端口。为什么没有立刻发现？port-forward 的输出被丢弃，它部分绑定成功、没有退出。为什么测试没能识别？冒烟测试没有先确认回答它的是哪个版本。预防：冒烟测试第一步先请求版本接口，核对版本和提交；让 kubectl 自动选择本地端口（例如 `kubectl port-forward svc/x :80`）并从输出中读取，或检查输出中必须包含 `127.0.0.1` 的绑定；及时清理不再使用的部署，维护端口分配表。
 6. 等待：Argo CD 轮询（每个环境约 1 分钟）、人工观察分析数据 2 分 45 秒、dev 金丝雀暂停 30 秒、prod 金丝雀暂停 60 秒 + 30 秒。验证：合成测试门禁 2 分 50 秒、扫描与签名 1 分 50 秒、消费者验证、端到端关联验证、金丝雀分析。计划外的返工：修复 CI 揭出的问题约 17 分钟。缩短到 15 分钟以内：配置 Git webhook（省约 2 分钟）；让 lint/test/security 在每次推送时运行，问题在开发阶段就暴露，避免发布时返工；CI 与发布流水线并行；当分析连续 N 次健康时自动晋级，取消常规变更的人工闸门（高风险变更保留审批）；缩短暂停时间、加强分析指标。代价：人的把关减少，更依赖分析质量，细微的退化可能更快扩散到全部流量。
+7. 数据来源：GitLab 的合并请求事件（webhook 或 API，含合并时间、作者、标签、改动的路径）；Argo CD 的同步与健康事件（notifications 控制器，可以得到“生产实际生效”的时间）；告警与 SLO 事件（Alertmanager webhook、燃烧率记录规则）。分类规则：用合并请求模板和 CI 检查强制给每个合并请求打标签（例如 `type::deploy`、`type::revert`、`type::drill`），回滚统一使用 `revert/<sha>` 分支命名，从而能自动关联被回滚的那次变更；只改动 `envs/<env>/` 或 Chart 的合并才计为该环境的部署。部署时间取 Argo CD 同步完成（且 Rollout 全量）的时间，而不是合并时间。失败：部署后在约定时间内被 revert，或者触发了可归因于它的 SLO 燃烧告警或金丝雀中止。恢复时间：从用户侧第一次出现异常（燃烧率超过阈值，或告警进入 pending；如果检测有延迟，可以回溯到坏变更生效的时刻）开始，到 SLI 恢复正常（燃烧率回落、告警解除）为止；Git 何时回滚另行记录，作为“配置恢复正确”的时间，两者不要混为一谈。
 
 ## 第 13 章　配置管理：用 Ansible 实现幂等的服务器配置（P11 / D10，选修） {- .unlisted}
 
@@ -210,11 +225,22 @@ devops-delivery/
 | values schema | 用 JSON Schema 校验 Helm values，错误在渲染前就被拦下 | 5 |
 | Pod 安全标准（PSS） | Kubernetes 内置的 privileged / baseline / restricted 三档 Pod 安全策略 | 5、12 |
 | PodDisruptionBudget（PDB） | 限制自愿中断时同时不可用的 Pod 数 | 5 |
+| 准入 Webhook（admission webhook） | API Server 在持久化之前调用的外部服务：变更型可以修改对象，校验型只能放行或拒绝 | 5、7 |
+| level-triggered（基于状态的调和） | 控制器比较当前状态与期望状态，而不是响应单个事件，漏掉事件也能自我纠正 | 5 |
+| EndpointSlice / kube-proxy | 记录 Service 就绪后端的对象 / 在每个节点上把它们翻译成 NAT 规则的组件 | 5 |
+| conntrack（连接跟踪） | 内核记录每个连接的地址转换，同一连接的后续数据包都走同一个后端 | 5、8 |
+| namespace / cgroup | 内核为进程提供的隔离视图 / 资源限制（memory.max、cpu.max、cpu.weight） | 5 |
+| capability / seccomp / no_new_privs | 把 root 的特权拆分后的权限集合 / 系统调用过滤器 / 禁止通过 setuid 等方式提权的标志 | 5 |
+| overlayfs | 把镜像的只读层与可写层叠加成一个文件系统；只读根文件系统即不再提供可写层 | 5、12 |
+| QoS 等级 | 由 requests 与 limits 决定的 Guaranteed / Burstable / BestEffort，影响驱逐顺序 | 5 |
 | GitOps | 期望状态保存在 Git，由环境内的代理拉取并持续调和 | 6 |
 | 同步状态 / 健康状态 | 集群是否与 Git 一致 / 对象本身是否正常，两者相互独立 | 6、12 |
 | 漂移（drift）与自愈（self-heal） | 集群偏离 Git 的状态；自动改回 Git 的行为 | 6、13 |
 | AppProject | Argo CD 的多租户边界，限制仓库来源、目标命名空间和资源类型 | 6 |
 | digest | 内容的哈希（`sha256:…`），内容变则 digest 变；tag 是可变的指针 | 7 |
+| OCI 清单 / 配置 / 层 | 镜像的三部分：列出各部分的 JSON、记录元数据和构建历史的 JSON、文件系统差异包；镜像 digest 是清单的 SHA-256 | 7 |
+| 可复现构建（reproducible build） | 同样的输入总是产生逐字节相同的产物，任何人都能独立重建并比对 | 7、11 |
+| in-toto 声明（statement） | 来源证明的格式：subject（关于哪个制品）+ predicateType + predicate（声明内容） | 7 |
 | SBOM（软件物料清单） | 制品中全部组件及其版本、许可证的清单（SPDX、CycloneDX） | 7 |
 | SLSA 与来源证明（provenance） | 供应链分级框架；来源证明是被签名的声明，记录制品由谁、从哪个提交、怎样构建 | 7 |
 | 无密钥签名（keyless signing） | Sigstore 用 OIDC 身份换取短期证书签名，签名时间由透明日志证明 | 7 |
@@ -225,6 +251,8 @@ devops-delivery/
 | 爆炸半径（blast radius） | 一次故障影响的范围，例如受影响请求的数量与比例 | 8、12 |
 | 可观测性（observability） | 仅凭系统输出的数据就能回答事先没想到的问题 | 9 |
 | 指标 / 链路 / 日志 | 聚合的数值 / 一次请求经过的 span 及其关系 / 离散事件记录 | 9 |
+| traceparent（W3C Trace Context） | 跨服务传递链路上下文的请求头：版本、trace ID、父 span ID、采样标志 | 9 |
+| 外推（extrapolation） | `rate()`、`increase()` 把窗口内样本的增长按比例推算到整个窗口，所以结果可以是小数 | 9、12 |
 | span 与 trace_id | 链路中的一个操作 / 把同一请求的 span 和日志关联起来的标识 | 9、12 |
 | OpenTelemetry / OTLP / Collector | 可观测性标准 / 其传输协议 / 接收、处理、导出遥测数据的程序 | 9 |
 | RED / USE | 面向请求的速率、错误、耗时 / 面向资源的利用率、饱和度、错误 | 9 |
@@ -241,6 +269,8 @@ devops-delivery/
 | 燃烧率（burn rate） | 窗口内坏事件比例 ÷ 错误预算；1 表示恰好在周期结束时用完 | 12 |
 | 多窗口告警 | 长窗口与短窗口同时超过阈值才告警，兼顾显著性与恢复速度 | 12 |
 | 记录规则（recording rule） | 预先计算并保存为新时间序列的 PromQL 表达式 | 12 |
+| 扩展—收缩（expand/contract） | 先只增不减、让新旧版本都能工作，确认稳定后再删除旧的部分，使回滚始终安全 | 8、9 |
+| 带外密钥（out-of-band secret） | 不经过 Git、由脚本或人直接创建在集群中的密钥；GitOps 中的替代方案有 Sealed Secrets、SOPS、External Secrets | 6 |
 | RCA 与无责复盘 | 事故根因分析；关注改进系统而不是追究个人 | 12 |
 | 5 Whys / 根本原因 / 促成因素 | 逐层追问的分析方法 / 去掉即不会发生的原因 / 让问题更严重或更难发现的因素 | 12 |
 | MTTD / MTTR | 从事件开始到检测 / 到恢复所用的时间 | 12 |
@@ -435,6 +465,7 @@ devops-delivery/
 | 11 | P9 | `evidence/p9/` | 5 | 5 | `docs/experiments/P9-synthetic-gate.md` |
 | 12 | P10 | `evidence/p10/` | 25 | 5 | `docs/experiments/P10-closed-loop.md` |
 | 13 | P11 | `evidence/p11/` | 4 | 2 | `docs/experiments/P11-ansible.md` |
+| — | P12 | `evidence/p12/` | 6 | 0 | 第 5、7、9、12 章的“深入”一节；`docs/ACCEPTANCE_REPORT.md` |
 :::
 
 第 12 章的两份事故复盘在 `docs/rca/` 中，每一行时间线都注明了所依据的证据文件。
@@ -449,11 +480,11 @@ devops-delivery/
 | 检查项 | 检查对象数 | 发现的问题 |
 |---|---|---|
 | 书中引用的图片均存在 | 65 | 0 |
-| 引用的证据文件均存在 | 280 | 0 |
+| 引用的证据文件均存在 | 292 | 0 |
 | 书中的 GitHub 运行编号均出现在证据中 | 7 | 0 |
-| 书中的镜像 digest 均出现在证据或源文件中 | 11 | 0 |
+| 书中的镜像 digest 均出现在证据或源文件中 | 15 | 0 |
 | 章节间的内部链接均有效 | 3 | 0 |
-| 章节、文档与证据中没有凭据 | 160 | 0 |
-| 练习数量与附录 B 的答案一致 | 71 | 0 |
-| 关键数字与证据原文逐字一致 | 17 | 0 |
+| 章节、文档与证据中没有凭据 | 167 | 0 |
+| 练习数量与附录 B 的答案一致 | 76 | 0 |
+| 关键数字与证据原文逐字一致 | 31 | 0 |
 :::

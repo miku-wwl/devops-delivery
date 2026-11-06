@@ -71,12 +71,12 @@ flowchart LR
 
 ```{.mermaid caption="helm upgrade 的工作流程"}
 flowchart TB
-  V["values.yaml + values-prod.yaml + --set-json"] --> S{"values.schema.json 校验"}
-  S -- 不通过 --> X["立即失败，不产生新修订"]
-  S -- 通过 --> T["模板引擎渲染 templates/*.yaml<br/>→ Kubernetes 清单"]
-  T --> API["API Server：创建 / 更新对象"]
-  API --> R["保存修订 N+1<br/>Secret: sh.helm.release.v1.*"]
-  R --> W["--wait：等待资源就绪"]
+  V["values.yaml<br/>values-prod.yaml<br/>--set-json"] --> S{"values.schema.json<br/>校验"}
+  S -- 不通过 --> X["立即失败<br/>不产生新修订"]
+  S -- 通过 --> T["渲染 templates/<br/>得到 Kubernetes 清单"]
+  T --> API["API Server<br/>创建 / 更新对象"]
+  API --> R["保存修订 N+1<br/>（一个 Secret）"]
+  R --> W["--wait<br/>等待资源就绪"]
 ```
 
 ## 第 1 步：实验集群与本地镜像仓库 {#p3-cluster}
@@ -341,6 +341,155 @@ Digest: sha256:9953e17510793f58f6a6fa7662aba985b5f7645b9bd971cdc7b651b94c759493
 
 Chart 被打包成 `.tgz`，以 OCI 制品推送到与镜像相同的仓库，之后可以像引用镜像一样按版本甚至 digest 引用它。`--plain-http` 只因为本地实验仓库没有 TLS；真实环境中的仓库都应启用 HTTPS 和认证。（完整输出：`evidence/p3/helm-package-oci.log`）
 
+## 深入：从一行 YAML 到内核 {#p3-deep}
+
+前面把 Kubernetes 当作“提交期望状态、控制器负责收敛”的黑盒来用。本节把它打开，回答三个问题：一次写请求在 API Server 里经过了什么；控制器、调度器和 kubelet 怎样接力把它变成一个运行中的进程；Service 怎样把流量分给 Pod；Pod 规格里的 `securityContext` 和 `resources` 在内核里又变成了什么。后面几章遇到的很多现象，例如准入控制把镜像标签改写成 digest（第 7 章）、金丝雀收不到流量（第 8 章）、只读根文件系统暴露出隐藏的写入路径（第 12 章），都能在这里找到底层原因。
+
+下面的实验是在全书实验完成之后的集群上做的：这时 prod 已经由第 8 章的 Rollout 管理，集群里也装好了第 7 章的 Kyverno。机制与本章的 Deployment 完全相同（证据：`evidence/p12/kubernetes-request-path.log`、`container-internals.log`）。
+
+### 一次写请求的旅程
+
+```{.mermaid caption="kubectl apply 之后：API Server 处理请求，其余组件各自监视对象、接力完成工作"}
+sequenceDiagram
+  autonumber
+  participant U as kubectl
+  participant A as API Server
+  participant W as 准入 Webhook（Kyverno 等）
+  participant E as etcd
+  participant C as 控制器（Deployment、ReplicaSet）
+  participant S as 调度器
+  participant K as kubelet + containerd
+  U->>A: 写请求（创建或修改对象）
+  A->>A: 认证（是谁）→ 鉴权（RBAC：能不能）
+  A->>W: 变更型准入：可以修改对象
+  A->>A: 按 schema 校验
+  A->>W: 校验型准入：只能放行或拒绝
+  A->>E: 持久化
+  A-->>U: 返回结果
+  C->>A: 监视到新的期望状态，创建下一级对象
+  S->>A: 监视到未调度的 Pod，写入 nodeName
+  K->>A: 监视到分配给本节点的 Pod
+  K->>K: 拉取镜像、创建沙箱与容器、配置网络（CNI）
+  K->>A: 上报 Pod 状态（Running、Ready）
+```
+
+**准入发生在持久化之前。** 集群中注册了 4 个变更型和 8 个校验型 Webhook 配置，来自 Kyverno 和 kube-prometheus-stack。用 `--dry-run=server` 发送请求，API Server 会完整地执行认证、鉴权和准入，只是不写入 etcd，于是可以直接看到准入的效果：
+
+```console
+$ yq '... .spec.containers[0].image' delivery/policies/tests/admission-test-pods.yaml
+ghcr.io/miku-wwl/devops-delivery/demo-api:sha-04a724f
+$ yq '...' delivery/policies/tests/admission-test-pods.yaml | kubectl apply --dry-run=server -o jsonpath='{.spec.containers[0].image}' -f -
+ghcr.io/miku-wwl/devops-delivery/demo-api:sha-04a724f@sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74
+```
+
+提交的是一个标签，返回的对象里已经被 Kyverno 的变更型 Webhook 固定成了验证过签名的 digest（第 7 章的 `mutateDigest`）。准入 Webhook 是 API Server 请求路径上的一环：它越慢，所有写请求就越慢；它不可用时，按 `failurePolicy` 的设置，要么拒绝所有相关请求，要么放行。这也是 Kyverno 策略里要设置 `webhookTimeoutSeconds` 的原因。
+
+**控制器接力。** 在一个临时命名空间里创建一个 2 副本的 Deployment，再按时间查看事件（同一秒内的事件，输出顺序不一定是发生顺序，这里按逻辑顺序排列）：
+
+```console
+COMPONENT               OBJECT       REASON              MESSAGE
+deployment-controller   Deployment   ScalingReplicaSet   Scaled up replica set chain-demo-85847b776c from 0 to 2
+replicaset-controller   ReplicaSet   SuccessfulCreate    Created pod: chain-demo-85847b776c-f8q9q
+default-scheduler       Pod          Scheduled           Successfully assigned p12-chain/chain-demo-85847b776c-f8q9q to lab-worker
+kubelet                 Pod          Pulled              Container image "registry.k8s.io/pause:3.10" already present on machine ...
+kubelet                 Pod          Created             Container created
+kubelet                 Pod          Started             Container started
+```
+
+Deployment 控制器只负责创建或调整 ReplicaSet，ReplicaSet 控制器只负责让 Pod 的数量对上，调度器只负责给 Pod 选节点，kubelet 只负责把分配给自己的 Pod 跑起来。它们之间不直接通信，而是都通过 API Server 读写对象来协作。对象之间的从属关系记在 `ownerReferences` 里：
+
+```console
+Pod chain-demo-85847b776c-f8q9q <- ReplicaSet chain-demo-85847b776c <- Deployment/chain-demo
+Pod demo-api-prod-56ffb56667-gr7cz <- ReplicaSet demo-api-prod-56ffb56667 <- Rollout/demo-api-prod
+argocd tracking id: demo-api-prod:argoproj.io/Rollout:prod/demo-api-prod
+```
+
+prod 中把 ReplicaSet 创建出来的是 Argo Rollouts 的控制器，而不是 Deployment 控制器。这正是第 8 章能“替换”发布策略的原因：Rollout 只是另一个管理 ReplicaSet 的控制器。Argo CD 则不是任何对象的 owner，它用注解“认领”自己管理的资源，所以删除 Application 时，要靠第 6 章提到的 finalizer 来级联删除资源。
+
+::: principle
+**基于状态而不是基于事件。** 控制器每次调和比较的是“期望状态”和“当前状态”，而不是“刚刚发生了什么事件”（这种做法称为 level-triggered）。即使控制器重启、漏掉了几个事件，下一次调和仍会得出正确的动作。这也是 Kubernetes 可以被不断扩展的原因：Argo CD、Argo Rollouts、Kyverno、Prometheus Operator 都是按同样的模式写成的控制器。
+:::
+
+### Service 是怎样分流的
+
+ClusterIP 并不是某个进程在监听的地址。EndpointSlice 控制器维护每个 Service 对应的就绪 Pod 列表；每个节点上的 kube-proxy 再把这个列表翻译成内核的 NAT 规则。Kind 中的 kube-proxy 使用 iptables 模式（`mode: iptables`）。prod 的 5 个就绪 Pod 在 lab-worker 节点上对应的规则如下（为便于阅读，注释被简写为括号中的后端地址）：
+
+```console
+-A KUBE-SERVICES -d 10.96.78.13/32 -p tcp ... --dport 80 -j KUBE-SVC-4MKJFZO4EMFIXLDZ
+-A KUBE-SVC-4MKJFZO4EMFIXLDZ (-> 10.244.1.43:8080) -m statistic --mode random --probability 0.20000000019 -j KUBE-SEP-2HEUMPRBKZSWPLCL
+-A KUBE-SVC-4MKJFZO4EMFIXLDZ (-> 10.244.1.44:8080) -m statistic --mode random --probability 0.25000000000 -j KUBE-SEP-U6HFCHFDZRI2ZMIR
+-A KUBE-SVC-4MKJFZO4EMFIXLDZ (-> 10.244.1.46:8080) -m statistic --mode random --probability 0.33333333349 -j KUBE-SEP-6Z757G2UCX2ORLHG
+-A KUBE-SVC-4MKJFZO4EMFIXLDZ (-> 10.244.2.58:8080) -m statistic --mode random --probability 0.50000000000 -j KUBE-SEP-3FSLLPAN64XLXBBU
+-A KUBE-SVC-4MKJFZO4EMFIXLDZ (-> 10.244.2.59:8080) -j KUBE-SEP-GDUDNWIQLOCHUIX7
+-A KUBE-SEP-2HEUMPRBKZSWPLCL -p tcp ... -j DNAT --to-destination 10.244.1.43:8080
+```
+
+规则按顺序匹配：第一条以 1/5 的概率命中；没命中时（概率 4/5），第二条以 1/4 命中，总概率同样是 4/5 × 1/4 = 1/5；依此类推，最后一条无条件命中剩下的 1/5。结果是 5 个后端被均匀地随机选中，命中后由 DNAT 把目的地址改写为 Pod 的地址。
+
+**关键在于：这个选择只对连接的第一个包做一次。** 内核的连接跟踪（conntrack）会记住这次地址转换，同一个连接后续所有的包都走同一个后端。在负载生成器 k6 所在的节点上，可以直接看到这些记录：每一行先是发往 ClusterIP 的原始方向，再是从某个 Pod 返回的方向。
+
+```console
+$ docker exec $K conntrack -L -p tcp --orig-dst 10.96.78.13 | head -2
+tcp 6 20 TIME_WAIT src=10.244.1.41 dst=10.96.78.13 sport=42110 dport=80 src=10.244.1.46 dst=10.244.1.41 sport=8080 dport=42110 [ASSURED] ...
+tcp 6 77 TIME_WAIT src=10.244.1.41 dst=10.96.78.13 sport=60964 dport=80 src=10.244.1.44 dst=10.244.1.41 sport=8080 dport=60964 [ASSURED] ...
+[exit 141]
+$ docker exec $K conntrack -L -p tcp --orig-dst 10.96.78.13 | ... | sort | uniq -c
+    243 src=10.244.1.43
+    236 src=10.244.1.44
+    241 src=10.244.1.46
+    247 src=10.244.2.58
+    242 src=10.244.2.59
+```
+
+（`[exit 141]` 是 128 + 13：`head` 读完两行就关闭了管道，`conntrack` 随即收到 SIGPIPE，与第 4 章脚本静默退出是同一个信号，这里无害。）k6 每个请求新建一个连接，1209 个连接几乎均匀地分到了 5 个后端。
+
+如果连接被复用呢？从 dev 的一个 Pod 里向 prod 发送 40 个请求：前 20 个复用同一个 HTTP/1.1 keep-alive 连接，后 20 个每次新建连接。每个请求带一个不同的 `X-Request-ID`（第 12 章加入的功能），再统计每个 prod Pod 的访问日志：
+
+```console
+demo-api-prod-56ffb56667-gr7cz: keep-alive=20 new-connections=2
+demo-api-prod-56ffb56667-kdrzz: keep-alive=0 new-connections=4
+demo-api-prod-56ffb56667-klpxl: keep-alive=0 new-connections=2
+demo-api-prod-56ffb56667-nl8wl: keep-alive=0 new-connections=7
+demo-api-prod-56ffb56667-nqlv6: keep-alive=0 new-connections=5
+```
+
+复用连接的 20 个请求全部落在同一个 Pod 上。这就是第 8 章第一次金丝雀“收不到流量”的完整机制：k6 在金丝雀出现之前就建好了长连接，这些连接的后端早已固定，新 Pod 只能分到新建的连接。按请求分配权重，需要能理解 HTTP 的 L7 代理（服务网格、Gateway API 实现等），而不是 L4 的 NAT 规则。
+
+### securityContext 与 resources 在内核里是什么
+
+容器不是虚拟机，它是宿主机上一个被内核限制住的普通进程。在 prod 一个 Pod 所在的节点上，通过 `crictl inspect` 找到容器主进程在节点上的 PID，就可以直接查看内核为它设置的一切：
+
+| Pod 规格中的字段 | 对应的内核机制 | 实测结果 |
+|---|---|---|
+| （隐含）每个 Pod 有自己的网络、进程编号等 | namespace | cgroup、ipc、mnt、net、pid、uts 六个 namespace 都与节点不同；**user namespace 与节点相同** |
+| `runAsUser: 10001`、`runAsNonRoot` | 进程的 UID | `Uid: 10001`；在容器内看，1 号进程就是 uvicorn |
+| `capabilities.drop: ["ALL"]` | capability 集合 | `CapEff`、`CapBnd` 均为 0（节点上的 1 号进程是 `000001ffffffffff`，即全部） |
+| `allowPrivilegeEscalation: false` | no_new_privs 标志 | `NoNewPrivs: 1` |
+| `seccompProfile: RuntimeDefault` | seccomp-bpf 系统调用过滤 | `Seccomp: 2`（过滤模式） |
+| `limits.memory: 256Mi` | cgroup `memory.max` | 268435456（超出即被 OOM 终止，退出码 137） |
+| `limits.cpu: 1` | cgroup `cpu.max` | `100000 100000`：每 100 ms 的周期内最多运行 100 ms，超出就被限流，而不是被终止 |
+| `requests.cpu: 100m` | cgroup `cpu.weight` | 17：只在 CPU 争用时起作用的相对权重（换算公式随 runc 版本而不同） |
+| `readOnlyRootFilesystem: true` | 只读挂载的 overlayfs 根文件系统 | `/` 以 `ro` 挂载，由 8 个镜像层叠加而成；写 `/app` 报 “Read-only file system”，`/tmp`（emptyDir）可写 |
+
+几点值得展开：
+
+- **user namespace 是共享的。** Kubernetes 默认不为 Pod 创建独立的 user namespace，容器里的 UID 10001 在节点上也是 10001；如果容器以 root 运行，它在节点上就是 root，只是被 capability 和 seccomp 收紧了。这正是 `runAsNonRoot` 重要的原因。Kubernetes 支持用 `hostUsers: false` 为 Pod 启用独立的 user namespace（需要节点内核与容器运行时的支持），本项目没有启用。
+- **requests 与 limits 决定了 QoS 等级。** demo-api 的 requests（100m、128Mi）小于 limits（1 CPU、256Mi），所以是 **Burstable**；两者完全相等是 **Guaranteed**，都不设置是 **BestEffort**。节点内存紧张时，kubelet 按 BestEffort、超出 requests 较多的 Burstable、Guaranteed 的顺序驱逐 Pod。内存超过 limits 会被立即终止，CPU 超过 limits 只会被限流，这两者的差别经常是“服务突然变慢”和“服务反复重启”两类问题的根源。
+- **seccomp 拦的是系统调用。** `add_key` 不需要任何 capability，普通用户就可以调用。用同一个 Python 脚本调用它：
+
+```console
+$ kubectl -n prod exec -i $P -- python - < /tmp/addkey.py                     # demo-api，RuntimeDefault
+add_key -> error: Operation not permitted
+$ docker run --rm -i --user 10001 --security-opt seccomp=unconfined python@sha256:09a17cad... python - < /tmp/addkey.py
+add_key -> key serial 536790600 (allowed)
+$ docker run --rm -i --user 10001 python@sha256:09a17cad... python - < /tmp/addkey.py   # Docker 默认的 seccomp 配置
+add_key -> error: Operation not permitted
+```
+
+对照实验使用同一个基础镜像、同一个用户，只改变 seccomp 设置，因此可以确定拦截来自 seccomp 配置，而不是来自权限。内核密钥环没有按容器隔离，默认配置因此禁止了这组调用。
+
+- **只读根文件系统让写入路径变得可见。** 根文件系统是镜像各层通过 overlayfs 叠加出来的，挂载为只读后，任何未声明的写入都会立刻失败，而不是悄悄写进容器的可写层。第 12 章加固 LGTM 时，Tempo 写 `/var/tempo` 失败，正是这样暴露出来的。这里看到的 8 层，与第 7 章“深入”一节从镜像仓库读到的 8 个层是同一回事，只是一个在节点的挂载表里，一个在镜像清单里。
+
 ## 常见问题
 
 **Q1：`helm upgrade` 报 “got string, want number”。**
@@ -370,6 +519,8 @@ Chart 被打包成 `.tgz`，以 OCI 制品推送到与镜像相同的仓库，�
 4. **（设计）** prod 的反亲和为什么用“软”规则（preferred）？3 个副本、2 个工作节点时改成“硬”规则（required）会怎样？什么场景下必须用硬规则？
 5. **（原理）** `helm rollback demo-api-prod 2` 之后，`helm history` 里为什么出现的是修订 5，而不是回到修订 2？这种只追加的历史有什么好处？它与 GitOps 的回滚有什么根本区别？
 6. **（思考）** 本章的 `checksum/config` 方案在第 8 章引发了真实故障。用 Pod 模板哈希的原理，解释 Chart 0.3.1（配置写进 Pod 模板）为什么能修复它；再与“名字带内容哈希的不可变 ConfigMap”方案比较异同。
+7. **（计算）** prod 缩容到 4 个副本后，kube-proxy 为这个 Service 生成的各条规则的概率依次是多少？如果其中一个 Pod 的 readiness 探针失败了呢？已经建立在那个 Pod 上的连接会怎样？
+8. **（分析）** 一个容器以 root 运行（没有设置 `runAsNonRoot`），但保留了 `drop: ["ALL"]` 和 RuntimeDefault。和本章的 demo-api 相比，它多了哪些风险？如果为它启用了独立的 user namespace（`hostUsers: false`），情况有什么不同？
 :::
 
 参考答案见附录 B。

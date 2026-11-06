@@ -1,0 +1,83 @@
+# transcript: P12: what the kernel enforces on a demo-api container (namespaces, capabilities, seccomp, cgroups, overlayfs)
+# recorded: 2026-11-06T19:10:42Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# A demo-api pod in prod: where does its process live, and what does the kernel enforce on it?
+$ P=$(kubectl -n prod get pods -l app.kubernetes.io/name=demo-api -o jsonpath='{.items[0].metadata.name}'); N=$(kubectl -n prod get pod $P -o jsonpath='{.spec.nodeName}'); C=$(kubectl -n prod get pod $P -o jsonpath='{.status.containerStatuses[0].containerID}'); C=${C#containerd://}; echo "pod=$P node=$N container=${C:0:13}"
+pod=demo-api-prod-56ffb56667-gr7cz node=lab-worker container=707e3550e25e4
+
+$ PID=$(docker exec $N crictl inspect $C | jq -r .info.pid); echo "PID of the container's main process, as seen in the node: $PID"
+PID of the container's main process, as seen in the node: 29556
+
+# 1. Namespaces. Left: the container process. Right: the node's PID 1. Equal numbers = shared namespace.
+$ paste <(docker exec $N readlink /proc/$PID/ns/{cgroup,ipc,mnt,net,pid,user,uts}) <(docker exec $N readlink /proc/1/ns/{cgroup,ipc,mnt,net,pid,user,uts})
+cgroup:[4026533181]	cgroup:[4026532585]
+ipc:[4026533585]	ipc:[4026532583]
+mnt:[4026533179]	mnt:[4026532581]
+net:[4026534906]	net:[4026532586]
+pid:[4026533180]	pid:[4026532584]
+user:[4026531837]	user:[4026531837]
+uts:[4026533189]	uts:[4026532582]
+
+$ kubectl -n prod exec $P -- sh -c 'echo "inside the pod, PID 1 is: $(tr "\0" " " < /proc/1/cmdline)"; id'
+inside the pod, PID 1 is: /usr/local/bin/python3.13 /usr/local/bin/uvicorn demo_api.main:app --host 0.0.0.0 --port 8080 --no-access-log 
+uid=10001(app) gid=10001(app) groups=10001(app)
+
+# 2. Capabilities, no_new_privs and seccomp, as set by the Pod's securityContext; then the node's PID 1 for comparison
+$ docker exec $N grep -E '^(Uid|CapEff|CapBnd|NoNewPrivs|Seccomp|Seccomp_filters):' /proc/$PID/status
+Uid:	10001	10001	10001	10001
+CapEff:	0000000000000000
+CapBnd:	0000000000000000
+NoNewPrivs:	1
+Seccomp:	2
+Seccomp_filters:	2
+
+$ docker exec $N grep -E '^CapEff:' /proc/1/status
+CapEff:	000001ffffffffff
+
+# 3. cgroup v2: the resources of the Pod spec become kernel limits
+$ kubectl -n prod get pod $P -o jsonpath='{.spec.containers[0].resources}{"  qosClass="}{.status.qosClass}{"\n"}'
+{"limits":{"cpu":"1","memory":"256Mi"},"requests":{"cpu":"100m","memory":"128Mi"}}  qosClass=Burstable
+
+$ CG=$(docker exec $N cat /proc/$PID/cgroup | cut -d: -f3); echo "cgroup: ...${CG##*/kubelet-kubepods-}"
+cgroup: ...burstable-podf640b5aa_7260_4bb9_a58d_53e2600b8e42.slice/cri-containerd-707e3550e25e40d0822c5dcd6ad043715719d0c5b4143c123176e4c2c71d3672.scope
+
+$ for f in memory.max memory.current cpu.max cpu.weight; do echo "$f = $(docker exec $N cat /sys/fs/cgroup$CG/$f)"; done
+memory.max = 268435456
+memory.current = 62504960
+cpu.max = 100000 100000
+cpu.weight = 17
+
+# 4. Root filesystem: image layers merged by overlayfs and mounted read-only; /tmp is a separate writable emptyDir volume
+$ docker exec $N grep -E ' / | /tmp ' /proc/$PID/mountinfo | cut -c1-150
+5496 1399 0:182 / / ro,relatime - overlay overlay rw,lowerdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/335/fs:/var/lib/con
+5498 5496 0:318 / /proc rw,nosuid,nodev,noexec,relatime - proc proc rw
+1771 5496 0:351 / /dev rw,nosuid - tmpfs tmpfs rw,size=65536k,mode=755
+1773 1771 0:381 / /dev/pts rw,nosuid,noexec,relatime - devpts devpts rw,gid=5,mode=620,ptmxmode=666
+5355 1771 0:457 / /dev/mqueue rw,nosuid,nodev,noexec,relatime - mqueue mqueue rw
+5499 5496 0:828 / /sys ro,nosuid,nodev,noexec,relatime - sysfs sysfs ro
+5501 5496 8:48 /var/lib/docker/volumes/1c0873a4edd736b41c6c538592e13d53d29553023a820f61f9c03abd9277a15e/_data/lib/kubelet/pods/f640b5aa-7260-4bb9-a58d
+5507 1771 0:453 / /dev/shm rw,relatime - tmpfs shm rw,size=65536k
+1677 5498 0:386 / /proc/acpi ro,relatime - tmpfs tmpfs ro,size=4k,nr_inodes=1
+2320 5498 0:386 / /proc/scsi ro,relatime - tmpfs tmpfs ro,size=4k,nr_inodes=1
+2322 5499 0:386 / /sys/firmware ro,relatime - tmpfs tmpfs ro,size=4k,nr_inodes=1
+
+$ echo "image layers (lowerdir entries of the root overlay): $(docker exec $N grep ' / ' /proc/$PID/mountinfo | grep -o 'lowerdir=[^,]*' | tr ':' '\n' | wc -l)"
+image layers (lowerdir entries of the root overlay): 8
+
+$ kubectl -n prod exec $P -- sh -c 'touch /app/x; touch /tmp/x && echo "/tmp is writable"'
+touch: cannot touch '/app/x': Read-only file system
+/tmp is writable
+
+# 5. Seccomp in action: add_key(2) needs no capability, but the RuntimeDefault profile blocks it.
+$ printf '%s\n' 'import ctypes, os' 'libc = ctypes.CDLL(None, use_errno=True)' 'r = libc.syscall(248, b"user", b"demo", b"x", 1, -3)  # add_key(type, description, payload, len, KEY_SPEC_SESSION_KEYRING)' 'print("add_key ->", "key serial %d (allowed)" % r if r >= 0 else "error: " + os.strerror(ctypes.get_errno()))' > /tmp/addkey.py
+
+$ kubectl -n prod exec -i $P -- python - < /tmp/addkey.py
+add_key -> error: Operation not permitted
+
+# Control: the same base image and user on Docker, first without seccomp, then with Docker's default profile
+$ docker run --rm -i --user 10001 --security-opt seccomp=unconfined python@sha256:09a17cad02668ae61ece136b4fd36ac3849e14f670ebedb637ea3e15580525bc python - < /tmp/addkey.py
+add_key -> key serial 536790600 (allowed)
+
+$ docker run --rm -i --user 10001 python@sha256:09a17cad02668ae61ece136b4fd36ac3849e14f670ebedb637ea3e15580525bc python - < /tmp/addkey.py
+add_key -> error: Operation not permitted
+

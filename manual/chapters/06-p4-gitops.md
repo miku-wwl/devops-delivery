@@ -343,6 +343,23 @@ $ argocd app create sneaky-app --grpc-web --project delivery --repo http://gitla
 
 即使有人能修改配置仓库，也无法借 `delivery` 项目把东西部署到系统命名空间。
 
+## 工程决策：GitOps 中的密钥 {#p4-secrets}
+
+GitOps 要求“期望状态全部在 Git 中”，但密码、令牌、证书私钥不能以明文进入 Git：Git 历史无法真正删除，仓库会被克隆、被 fork，CI 日志也可能打印出文件内容。Kubernetes 的 Secret 对象只是 base64 编码，**不是加密**，提交它和提交明文没有区别。这是每个 GitOps 项目都必须做出的工程决策。
+
+**本项目的做法。** 实验中的所有凭据都在运行时生成，保存在 WSL 中的 `~/.lab-secrets/`（文件权限 600，不在仓库内），由安装脚本直接创建为 Secret：Argo CD 读取配置仓库的令牌（`install-argocd.sh`）、Grafana 的管理员密码（`install-monitoring.sh`）、GitLab 的 root 密码与令牌（`gitlab-up.sh`）。Git 中只出现对它们的引用（例如 `existingSecret: grafana-admin`）。这种“带外”（out-of-band）管理对单人实验足够，但有明显的缺点：密钥不在 Git 中，Argo CD 看不到它们的漂移；在另一台机器上重建环境时，要重新运行这些脚本；没有轮换和审计。
+
+生产环境常用的四类方案：
+
+| 方案 | 工作方式 | Git 中存放什么 | 优点 | 代价 |
+|---|---|---|---|---|
+| Sealed Secrets | 集群内的控制器持有私钥；开发者用公钥把 Secret 加密成 SealedSecret | 密文 | 纯 GitOps，概念简单 | 私钥的备份与轮换；密文与集群绑定，换集群要重新加密 |
+| SOPS（配合 age 或云 KMS） | 只加密 YAML 中的值，保留键名；Argo CD 通过插件解密 | 字段级密文 | diff 仍然可读；可以用多个 KMS 的密钥 | Argo CD 需要额外的插件；解密密钥本身要分发 |
+| External Secrets Operator | 控制器按 Git 中的引用，从 Vault 或云密钥管理服务读取数据，生成 Secret | 只有引用（ExternalSecret） | 密钥不进 Git；集中轮换和审计 | 依赖外部系统的可用性；多了一个要运维的组件 |
+| Secrets Store CSI Driver | 把外部密钥作为文件挂载进 Pod，可以不生成 Secret 对象 | 只有引用 | 密钥不必存入 etcd | 应用要从文件读取；与环境变量方式不兼容 |
+
+选择时考虑三个问题：密钥的“事实来源”在哪里（Git 中的密文，还是外部的密钥管理系统）；谁能解密（集群、开发者、CI 各自需要什么权限）；怎样轮换和吊销（第 4 章 Runner 令牌泄露的教训：吊销必须快，而且可以审计）。无论选哪种，都要同时打开 etcd 的静态加密，并用 RBAC 限制谁能读取 Secret，因为最终落在集群里的仍然是 Secret 对象（CSI 方式除外）。小团队从 SOPS 或 Sealed Secrets 起步最简单；已经有 Vault 或云 KMS 的组织，External Secrets Operator 更合适。
+
 ## 常见问题
 
 **Q1：应用一直 `OutOfSync`，但 diff 中只看到默认字段（例如 `imagePullPolicy`、`terminationMessagePath`）。**

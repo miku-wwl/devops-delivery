@@ -91,7 +91,7 @@ flowchart LR
   end
   subgraph P3["持续交付"]
     direction TB
-    C5["5 Kubernetes 与 Helm"] --> C6["6 GitOps"] --> C7["7 供应链安全"] --> C8["8 渐进式交付"]
+    C5["5 Kubernetes<br/>与 Helm"] --> C6["6 GitOps"] --> C7["7 供应链安全"] --> C8["8 渐进式交付"]
   end
   subgraph P4["可观测性与可靠性"]
     direction TB
@@ -125,6 +125,7 @@ flowchart LR
 - **按 digest 而不是按名字信任制品**：基础镜像固定 digest（第 3 章）→ 签名与晋级（第 7 章）→ 同一提交、不同 digest（第 11 章）。
 - **门禁只在被触发时有效**：触发条件（第 3 章）→ 叠加分支漏掉的扫描（第 7、12 章）→ 只改配置的变更绕过合成测试（第 11、12 章）。
 - **自动化的结论要用独立信号核实**：Jaeger 的 lookback 参数（第 9 章）→ Rollout 显示 Healthy 但有一个 Pod 被污染（第 8、9 章）→ 冒烟测试打到旧容器（第 12 章）。
+- **从现象到机制**：金丝雀收不到流量（第 8 章）← Service 只在连接建立时选择后端（第 5 章“深入”）；同一提交得到两个 digest（第 11 章）← digest 是清单的哈希、层里记录了时间（第 7 章“深入”）；日志里有 trace ID 却找不到链路（第 9 章练习）← 采样决定随 traceparent 传递（第 9 章“深入”）。
 
 ## 被交付的参考服务 {#ov-app}
 

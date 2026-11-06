@@ -24,14 +24,16 @@
 ## 原理：软件供应链的攻击面与防线 {#p5-principles}
 
 ```{.mermaid caption="从源码到运行：每个环节对应的防线"}
-flowchart LR
-  S["源码<br/>（依赖、配置）"] --> B["构建<br/>（CI Runner）"] --> A["制品<br/>（镜像）"] --> R["镜像仓库"] --> D["部署<br/>（GitOps）"] --> K["运行<br/>（集群）"]
-  S -.- C1["Trivy fs：依赖漏洞、<br/>泄露的密钥、IaC 错误配置"]
-  B -.- C2["固定 Action SHA、最小权限、<br/>OIDC 代替长期密钥"]
-  A -.- C3["Trivy image 门禁、SBOM"]
-  R -.- C4["按 digest 引用、<br/>Cosign 签名 + SLSA 来源证明"]
-  D -.- C5["只晋级已验证的 digest"]
-  K -.- C6["Kyverno 准入：<br/>没有来源证明就拒绝"]
+flowchart TB
+  subgraph CHAIN["交付链条"]
+    direction LR
+    S["源码<br/>依赖、配置"] --> B["构建<br/>CI Runner"] --> A["制品<br/>镜像"] --> R["镜像仓库"] --> D["部署<br/>GitOps"] --> K["运行<br/>集群"]
+  end
+  subgraph GUARD["对应的防线"]
+    direction LR
+    C1["Trivy fs<br/>漏洞 · 密钥 · IaC"] ~~~ C2["固定 Action SHA<br/>最小权限 · OIDC"] ~~~ C3["Trivy image 门禁<br/>SBOM"] ~~~ C4["按 digest 引用<br/>签名 + 来源证明"] ~~~ C5["只晋级<br/>已验证的 digest"] ~~~ C6["Kyverno 准入<br/>无来源证明即拒绝"]
+  end
+  CHAIN -.- GUARD
 ```
 
 近年的真实事件说明，攻击者越来越多地瞄准“交付链条”本身，而不仅是应用代码：SolarWinds 事件中，构建系统被植入后门，用户安装的是带有合法签名的恶意版本；2025 年 `tj-actions/changed-files` 被攻破，大量 CI 流水线的密钥泄露到公开日志中（第 3 章已介绍）。这类事件的共同点是：**仅凭镜像的名字和标签，无法知道它从哪里来、由什么构建、是否被篡改。**
@@ -56,7 +58,7 @@ SBOM（Software Bill of Materials）列出制品中包含的全部组件及其�
 - **签名 vs 来源证明（attestation）。** 签名只说明“某身份认可这个 digest”；来源证明是一份**被签名的声明**（in-toto statement），说明关于这个 digest 的事实，例如 SLSA 来源证明记录了构建它的仓库、提交、工作流、触发事件和 Runner 类型；SBOM 证明则把 SBOM 与 digest 绑定。
 - **SLSA**（Supply-chain Levels for Software Artifacts）是一套分级框架。使用 GitHub 托管 Runner 加 GitHub 生成的来源证明，可以满足 SLSA Build Level 2 的要求：来源证明由托管的构建平台生成并签名，构建者本人无法伪造。
 
-```{.mermaid caption="Sigstore 无密钥签名与验证：身份由 OIDC 证明，时间由透明日志证明"}
+```{.mermaid .wide caption="Sigstore 无密钥签名与验证：身份由 OIDC 证明，时间由透明日志证明"}
 sequenceDiagram
   autonumber
   participant J as CI 作业（release.yml）
@@ -225,7 +227,7 @@ affected: 45, fix_deferred: 1
 
 第一次运行用时 1 分 48 秒，全部成功：
 
-![release 工作流的运行页面：build, scan, sign, attest 作业成功（GitHub 页面截图）](../../evidence/p5/release-run.png)
+![release 工作流的运行页面：build, scan, sign, attest 作业成功（GitHub 页面截图）](../../evidence/p5/release-run.png){width=82%}
 
 运行日志中的关键结果（节选自 `evidence/p5/release-run.log`）：
 
@@ -400,9 +402,119 @@ Total: 1 (HIGH: 0, CRITICAL: 1)
 
 由于分支名匹配 `p5/**`，这次推送还触发了发布流水线，正好演示了“漏洞镜像永远不会被推送”：
 
-![发布流水线在 Trivy 门禁处失败，推送、SBOM、来源证明、签名步骤全部被跳过（GitHub 页面截图）](../../evidence/p5/release-gate-blocked.png){width=88%}
+![发布流水线在 Trivy 门禁处失败，推送、SBOM、来源证明、签名步骤全部被跳过（GitHub 页面截图）](../../evidence/p5/release-gate-blocked.png){width=72%}
 
 三道防线各自独立地挡住了它：PR 合并被阻断；镜像没有被推送，更没有被签名；即使有人绕过 CI 手工推送一个镜像，它也没有 `release.yml` 的来源证明，Kyverno 会在准入阶段拒绝。PR #4 按计划关闭，不合并。
+
+## 深入：digest 是怎样算出来的，来源证明里写了什么 {#p5-deep}
+
+本章反复强调“签名和晋级都针对 digest”。这一节从镜像仓库的 API 直接读取数据，看清 digest 到底保护了什么，并顺带解答第 11 章留下的问题：为什么同一个提交两次构建，得到了两个不同的 digest。最后打开一份真实的 SLSA 来源证明，逐字段说明验证策略可以检查什么（证据：`evidence/p12/oci-image-anatomy.log`、`slsa-provenance-structure.log`）。
+
+### 镜像的三层结构
+
+```{.mermaid caption="OCI 镜像：每一层引用都是“媒体类型 + digest + 大小”，镜像 digest 就是清单本身的 SHA-256"}
+flowchart LR
+  D["镜像 digest<br/>sha256(清单的字节)"] --> M["清单 manifest<br/>（JSON）"]
+  M --> C["配置 config<br/>环境变量、启动命令、标签<br/>构建历史、各层的 diff_id"]
+  M --> L1["层 1（tar.gz）"]
+  M --> L2["层 2"]
+  M --> LN["……层 8"]
+```
+
+一个 OCI 镜像由三部分组成：**层**（layer）是一个个压缩的文件系统差异包；**配置**（config）记录环境变量、启动命令、标签和构建历史；**清单**（manifest）列出配置和各层，每一项都写明媒体类型、digest 和大小。镜像的 digest 就是清单这份 JSON 字节的 SHA-256。用匿名令牌从 GHCR 读取第 11 章两次运行（A 与 C）产生的清单，自己计算一遍：
+
+```console
+$ for D in $A $C; do echo "${D:0:19}...  sha256 of the bytes we received: $(sha256sum /tmp/manifest-${D:7:8}.json | cut -c1-12)..."; done
+sha256:27919359a461...  sha256 of the bytes we received: 27919359a461...
+sha256:e17b82f121c7...  sha256 of the bytes we received: e17b82f121c7...
+$ jq '{schemaVersion, mediaType, config: {...}, layers: (.layers | length)}' /tmp/manifest-27919359.json
+{ "schemaVersion": 2, "mediaType": "application/vnd.oci.image.manifest.v1+json",
+  "config": { "mediaType": "application/vnd.oci.image.config.v1+json", "digest": "sha256:70010f3c44ae", "size": 9817 },
+  "layers": 8 }
+```
+
+这是一棵 Merkle 树：改动任何一层的一个字节，这一层的 digest 就变，清单随之改变，镜像 digest 也就变了。所以对 digest 签名，等于对整个镜像的每一个字节签名；而标签只是指向某个 digest 的、可以随时改写的名字。
+
+### 同一个提交，为什么得到两个 digest
+
+逐层比较两个清单（`=` 表示相同，`x` 表示不同），再从配置的构建历史中查出每一层来自 Dockerfile 的哪条指令：
+
+::: {.tbl-layers}
+| 层 | A 的 digest | C 的 digest | | 大小 | 产生这一层的指令 |
+|---|---|---|---|---|---|
+| 1–4 | 37fb86c2…等 | 相同 | = | 约 43 MB | 基础镜像 `python:3.13-slim`（按 digest 固定） |
+| 5 | 17994bce… | e21dab08… | x | 1423 B | `RUN useradd … && pip uninstall …`（构建参数 `APP_VERSION=p9/synthetic-gate-8`） |
+| 6 | ec16f00a… | ec16f00a… | = | 9.1 MB | `COPY --from=build /install /usr/local` |
+| 7 | ee87ed2c… | d0a8ad44… | x | 93 B | `WORKDIR /app` |
+| 8 | aa63f5e6… | 87ece704… | x | 5246 B | `COPY src/ ./src/` |
+:::
+
+配置的差异只有三处：
+
+```console
+<   "created": "2026-11-06T09:33:45.034130175Z",
+>   "created": "2026-11-06T09:44:10.891584237Z",
+<     "APP_VERSION=p9/synthetic-gate-6",
+>     "APP_VERSION=p9/synthetic-gate-8",
+<     "org.opencontainers.image.created": "2026-11-06T09:33:35.297Z",
+>     "org.opencontainers.image.created": "2026-11-06T09:44:03.074Z",
+```
+
+于是原因可以精确地说清楚：
+
+1. **构建参数进入了缓存键。** 第 5 层的 `RUN` 指令声明在 `ARG APP_VERSION` 之后，构建参数是这条指令缓存键的一部分。运行编号从 6 变成 8，缓存失效，指令重新执行，新写入的文件带着新的修改时间，压缩包的字节就不同了。
+2. **文件时间戳进入了层。** 把两次构建的第 7、8 层下载下来逐个列出文件：路径、权限、属主、大小完全相同，第 8 层全部文件内容的哈希也相同（都是 `d6830502…`），唯一的差别是修改时间，分别是两次构建的时刻 09:33 和 09:44（UTC）。压缩包里记录了时间，字节就不同，digest 也就不同。第 6 层来自构建阶段，那个阶段与 `APP_VERSION` 无关，命中了缓存，所以完全相同。
+3. **配置里有时间和运行编号。** 即使所有层都相同，`created`、环境变量和标签不同，配置的 digest 就不同，清单和镜像 digest 也随之不同。
+
+第 11 章当时的推断（构建参数含运行编号、镜像中有时间戳）因此得到了逐层的证实。要做到可复现构建，就要消除这三类差异：版本号从提交派生，而不是来自运行编号；用提交时间设置 `SOURCE_DATE_EPOCH`，并让 BuildKit 在导出时把文件时间戳统一改写成这个时间（`rewrite-timestamp=true`）；配置中的 `created` 也取同一个时间。本项目尚未实现这项改造，第 12 章把它列为待办；上面的改造方法来自 BuildKit 文档，没有在本项目中实际验证。
+
+### 来源证明里写了什么
+
+第 4 步只验证了来源证明“有效”。它的内容是一份 in-toto 声明（statement），由三部分组成：关于谁（subject）、什么类型的声明（predicateType）、声明的内容（predicate）。下面是第 12 章那个镜像（`sha256:4bb4aac3…`）的来源证明中的关键字段：
+
+```json
+{
+  "_type": "https://in-toto.io/Statement/v1",
+  "subject": [{ "name": "ghcr.io/miku-wwl/devops-delivery/demo-api",
+                "digest": { "sha256": "4bb4aac303ab48d036af1808c98312c16acbe8eef3c8f6fcdc42dc4f77711f38" } }],
+  "predicateType": "https://slsa.dev/provenance/v1",
+  "predicate": {
+    "buildDefinition": {
+      "buildType": "https://actions.github.io/buildtypes/workflow/v1",
+      "externalParameters": { "workflow": { "path": ".github/workflows/release.yml",
+                                            "ref": "refs/heads/p10/closed-loop",
+                                            "repository": "https://github.com/miku-wwl/devops-delivery" } },
+      "resolvedDependencies": [{ "uri": "git+https://github.com/miku-wwl/devops-delivery@refs/heads/p10/closed-loop",
+                                 "digest": { "gitCommit": "85b3a49c7a25849861368913e9372a80ffa3cbe2" } }]
+    },
+    "runDetails": {
+      "builder": { "id": "https://github.com/miku-wwl/devops-delivery/.github/workflows/release.yml@refs/heads/p10/closed-loop" },
+      "metadata": { "invocationId": "https://github.com/miku-wwl/devops-delivery/actions/runs/42198984873/attempts/1" }
+    }
+  }
+}
+```
+
+| 字段 | 含义 | 可以用来检查什么 |
+|---|---|---|
+| `subject[].digest` | 这份声明说的是哪个制品 | 与要部署的 digest 一致（验证工具自动检查） |
+| `externalParameters` | 由使用者控制的构建输入：哪个工作流文件、哪个分支 | 只接受特定分支，例如 main |
+| `resolvedDependencies` | 实际构建所用的源码，精确到提交 | 与审阅过的提交一致 |
+| `runDetails.builder.id` | 可信的构建者身份 | 只接受本仓库的 `release.yml` |
+| `invocationId` | 是哪一次运行 | 从镜像追溯到 CI 日志 |
+
+这份声明由 Sigstore 签名，签名证书中还有一组 GitHub 写入的扩展字段：签发者 `https://token.actions.githubusercontent.com`、触发事件 `push`、工作流所在的提交 `85b3a49…`、Runner 环境 `github-hosted`、签名时仓库的可见性 `public`。验证策略就是对这些字段提出要求：
+
+```console
+$ gh attestation verify "oci://$IMG" --repo miku-wwl/devops-delivery --deny-self-hosted-runners \
+    --source-digest 85b3a49c7a25849861368913e9372a80ffa3cbe2 --format json --jq 'length | "verified attestations: \(.)"'
+verified attestations: 1
+$ gh attestation verify "oci://$IMG" --repo miku-wwl/devops-delivery --source-ref refs/heads/main
+Error: expected SourceRepositoryRef to be refs/heads/main, got refs/heads/p10/closed-loop
+[exit 1]
+```
+
+第一条要求“在 GitHub 托管的 Runner 上、从提交 `85b3a49` 构建”，通过；第二条要求“必须从 main 构建”，这个镜像构建自 `p10/closed-loop` 分支，被拒绝。生产环境的准入策略通常就是这样写的：只有从受保护分支、经过审阅的提交、由可信构建者构建的制品才能运行。本项目的 Kyverno 策略允许任意分支（`refs/heads/.+`），因为各阶段的工作都在分支上进行；合并到 main 之后，应当收紧为只接受 main。
 
 ## 常见问题
 
@@ -436,6 +548,7 @@ Total: 1 (HIGH: 0, CRITICAL: 1)
 4. **（排障）** Kyverno 拒绝了一个确实由 `release.yml` 签名的镜像，报 `no matching signatures found`。参考本章四次尝试的经验，按顺序列出排查步骤。
 5. **（设计）** 删除 pip 修复了 5 个 HIGH，但镜像体积没变。解释原因，并设计一个既消除这些组件、又减小体积的 Dockerfile 方案。
 6. **（思考）** 本章的三道防线（PR 阻断、发布门禁、准入控制）各自防的是什么样的攻击者或失误？如果只能保留一道，你选哪一道？这个问题本身说明了什么？
+7. **（设计）** 要让同一个提交的两次构建得到同一个 digest，本项目的 Dockerfile 和发布流水线需要改哪些地方？怎样验证改造成功？可复现构建对供应链安全有什么额外的价值？
 :::
 
 参考答案见附录 B。

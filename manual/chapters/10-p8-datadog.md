@@ -41,7 +41,7 @@ Learning Center 的课程由两类内容组成：
 **一个实际的坑：浏览器窗口不能最小化。** 浏览器自动化要截图，而 Edge 窗口最小化后不再渲染页面，截图会一直超时。本次两次遇到这种情况，第一次用 Windows API 在不抢焦点的前提下恢复了窗口。实验终端是 canvas 绘制的，读不到文字，只能看截图。所以窗口被最小化时，实验就无法继续。读讲义、标记完成、调用 API 都只需要 JavaScript，不受影响。
 :::
 
-![Learning Center 的学习路径页面：本章学习的 Core Skills、Configuration 两条通用路径，以及按角色划分的 Site Reliability Engineer 路径（浏览器截图，右上角的用户名已遮盖）](../../evidence/p8/learning-paths.png)
+![Learning Center 的学习路径页面：本章学习的 Core Skills、Configuration 两条通用路径，以及按角色划分的 Site Reliability Engineer 路径（浏览器截图，右上角的用户名已遮盖）](../../evidence/p8/learning-paths.png){height=90mm}
 
 三条路径共 14 门不重复的课程（Tagging Best Practices 同时属于前两条路径）：
 
@@ -92,7 +92,7 @@ Datadog 保留了几个**有固定含义的标签键**，用来在指标、链�
 
 Agent 是一个开源的守护进程，安装在主机上（或以容器方式运行在主机旁），负责收集数据并发送给 Datadog。它由几个协作的进程组成：
 
-```{.mermaid caption="Datadog Agent 的组成与数据流（根据课程与实验中的 status 输出整理）"}
+```{.mermaid .wide caption="Datadog Agent 的组成与数据流（根据课程与实验中的 status 输出整理）"}
 flowchart LR
   subgraph HOST["主机 / 节点"]
     APP["应用进程<br/>（ddtrace 等追踪库）"]
@@ -359,7 +359,7 @@ echo "install exit=$?"
 
 安装后，Agent 以 systemd 服务 `datadog-agent` 运行：
 
-![安装结果：Agent 7.85.1，服务 active；主机名 agent-host；cpu、disk、io、load、memory、file_handle 等核心检查无需任何配置就已经在运行（实验终端截图）](../../evidence/p8/agent-host-01-install-status.png){height=125mm}
+![安装结果：Agent 7.85.1，服务 active；主机名 agent-host；cpu、disk、io、load、memory、file_handle 等核心检查无需任何配置就已经在运行（实验终端截图）](../../evidence/p8/agent-host-01-install-status.png){height=106mm}
 
 点 Check，平台确认 Agent 已安装并在运行，进入下一个挑战。
 

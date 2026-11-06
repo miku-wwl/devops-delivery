@@ -26,7 +26,7 @@
 
 在动手之前，先弄清楚命令最终是在“哪一层”执行的。很多环境问题（网络不通、权限不够、找错了命令）都源于没分清层次。
 
-```{.mermaid caption="本手册实验环境的分层结构"}
+```{.mermaid .tall caption="本手册实验环境的分层结构"}
 flowchart TB
   subgraph WIN["Windows 11 宿主机（31 GB 内存 / 16 线程）"]
     PS["PowerShell / Git Bash<br/>git、gh、Edge（截图与 PDF）"]
@@ -67,7 +67,7 @@ WSL2（Windows Subsystem for Linux 2）会在后台运行一台轻量级虚拟�
 
 **镜像（image）** 是一个只读的、分层的文件系统快照，加上启动命令等元数据；**容器（container）** 是镜像的一个运行实例，本质是宿主机上的一组进程，被 Linux 内核的 *namespace*（隔离视图）和 *cgroup*（资源限制）包裹起来。容器不是虚拟机，它没有自己的内核。
 
-Docker Engine 由几层组成：`docker` 命令行 → `dockerd` 守护进程（REST API，监听 `/var/run/docker.sock`）→ `containerd`（管理容器生命周期与镜像）→ `runc`（真正调用内核创建容器）。本章的验证结果中可以看到 `storage=overlayfs cgroup=systemd/v2 runtime=runc`，正好对应这几层。
+Docker Engine 由几层组成：`docker` 命令行 → `dockerd` 守护进程（REST API，监听 `/var/run/docker.sock`）→ `containerd`（管理容器生命周期与镜像）→ `runc`（真正调用内核创建容器）。本章的验证结果中可以看到 `storage=overlayfs cgroup=systemd/v2 runtime=runc`，正好对应这几层。第 5 章“深入”一节会在一个真实的 Pod 上逐一查看这些内核机制：它有哪些 namespace，cgroup 里写着什么限制，capability 和 seccomp 如何生效，overlayfs 怎样把镜像层叠成根文件系统。第 7 章“深入”一节则从镜像仓库一侧拆开同一个镜像。
 
 ::: principle
 **为什么选 Docker Engine 而不是 Docker Desktop 或 Podman？**

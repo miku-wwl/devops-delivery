@@ -2,6 +2,7 @@
 
 命令行工具的版本以 `automation/lab/versions.env` 为唯一来源，安装时校验 SHA256（第 2 章）；集群组件按 Helm Chart 或清单的版本号固定。
 
+::: {.tbl-versions}
 | 类别 | 组件 | 版本 | 章节 |
 |---|---|---|---|
 | 宿主环境 | Windows 11 家庭中文版、WSL | WSL 2.7.3.0，内核 6.6.114.1 | 2 |
@@ -29,9 +30,11 @@
 | 应用 | demo-api：Python / ruff / pytest | 3.13（CI）、3.12（本地） / 0.17.4 / 9.2.0 | 3 |
 | | demo-api Helm Chart | 0.3.1 | 5、9 |
 | 配置管理 | ansible-core / community.docker | 2.20.11 / 5.4.0 | 13 |
+:::
 
 ## 常用命令速查 {-}
 
+::: {.tbl-commands}
 | 场景 | 命令 | 章节 |
 |---|---|---|
 | 录制终端证据 | `bash automation/evidence/transcript.sh evidence/pN/x.log "标题" <<'EOF' … EOF` | 2 |
@@ -53,8 +56,15 @@
 | 检查 Pod 实际配置 | `kubectl get pods -o custom-columns=POD:.metadata.name,LAT:'.spec.containers[0].env[?(@.name=="FAULT_LATENCY_MS")].value'` | 9、12 |
 | 链路与日志查询 | TraceQL：`{span.request.id="…"}`；LogQL：`{service_name="demo-api"} \| trace_id="…"` | 9、12 |
 | 燃烧率与告警 | `demo_api:slo_latency:burn_rate5m{namespace="prod"}`；`ALERTS{alertname=~"DemoApi.*"}` | 12 |
+| 找到容器主进程并查看内核限制 | `docker exec <节点> crictl inspect <容器ID> \| jq .info.pid`，再看 `/proc/<pid>/status`、`/proc/<pid>/cgroup` | 5 |
+| 查看 Service 的 NAT 规则与连接跟踪 | `docker exec <节点> iptables-save -t nat \| grep <ClusterIP>`；`docker exec <节点> conntrack -L -p tcp --orig-dst <ClusterIP>` | 5 |
+| 观察准入的效果（不写入） | `kubectl apply --dry-run=server -o yaml -f <文件>` | 5 |
+| 读取镜像清单并核对 digest | 匿名令牌 `https://ghcr.io/token?scope=repository:<仓库>:pull`，再 `curl …/v2/<仓库>/manifests/<digest> \| sha256sum` | 7 |
+| 带链路上下文发请求 | `curl -H "traceparent: 00-<32 位 trace ID>-<16 位 span ID>-01" …` | 9 |
+| 从配置仓库统计部署与回滚 | `git log --first-parent --format='%h %cI %s' <基线>..origin/main -- envs/prod charts` | 12 |
 | 本地合成测试门禁 | `bash synthetic/run-gate.sh --image <仓库> --digest <sha256:…> [--fault latency]` | 11 |
 | Ansible 演练 | `ansible-playbook site.yml --check --diff`，再 `ansible-playbook site.yml` | 13 |
+:::
 
 ## 仓库结构 {-}
 

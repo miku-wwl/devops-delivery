@@ -88,15 +88,13 @@ k6 的执行器分两类：
 
 ```{.mermaid caption="发布流水线：合成测试门禁成为发布作业的前置条件"}
 flowchart TB
-  P["push / workflow_dispatch（可选：synthetic_fault）"] --> G
+  P["push 或手动触发（可选注入故障）"] --> G
   subgraph G["synthetic-gate.yml（可复用工作流）"]
     direction LR
-    T["安装 kind / kubectl / helm / k6<br/>固定版本 + SHA256 校验"] --> B["构建候选镜像<br/>demo-api:candidate"]
-    B --> K["kind create cluster<br/>kind load docker-image"]
-    K --> R["run-gate.sh<br/>helm install → k6"]
+    T["安装工具<br/>固定版本<br/>SHA256 校验"] --> B["构建<br/>候选镜像"] --> K["Kind 集群<br/>载入镜像"] --> R["run-gate.sh<br/>Helm + k6"]
   end
-  G -- "全部阈值通过（退出码 0）" --> REL["release 作业：扫描 → 推送 → SBOM → 证明 → 签名"]
-  G -- "任一阈值失败（退出码 99）" --> X["release 作业被跳过：什么都不推送、不签名"]
+  G -- "全部阈值通过<br/>（退出码 0）" --> REL["release 作业<br/>扫描、推送、SBOM<br/>证明、签名"]
+  G -- "任一阈值失败<br/>（退出码 99）" --> X["release 作业被跳过<br/>不推送、不签名"]
 ```
 
 ### k6 脚本
@@ -218,7 +216,7 @@ synthetic gate: PASS  (base http://127.0.0.1:18080, 723 requests, checks 1446 pa
 ![运行 #8：门禁 2 分 30 秒通过，发布作业 2 分 19 秒完成，产物中包含新镜像 sha256:e17b82f1… 的 SBOM（GitHub 页面截图）](../../evidence/p9/github-run-recovered.png)
 
 ::: note
-**同一个 commit，两个不同的 digest。** 运行 A 和运行 C 都构建自 commit `70ae35c`，得到的镜像却分别是 `sha256:27919359…` 和 `sha256:e17b82f1…`。原因是构建参数里有运行编号（`APP_VERSION=...-<run_number>`），镜像层里还有时间戳。这说明当前的构建**不是可复现的**（reproducible build），所以第 7 章坚持按 digest 而不是按 commit 追踪制品，只有 digest 才唯一确定一个镜像。想做到可复现，需要固定时间戳（如设置 `SOURCE_DATE_EPOCH`），并去掉所有随构建变化的输入。
+**同一个 commit，两个不同的 digest。** 运行 A 和运行 C 都构建自 commit `70ae35c`，得到的镜像却分别是 `sha256:27919359…` 和 `sha256:e17b82f1…`。第 7 章“深入”一节从镜像仓库读出两个镜像的清单和配置逐层比较，证实了原因：8 层中有 3 层不同，一层是因为构建参数里的运行编号（`APP_VERSION=...-<run_number>`）让 `RUN` 指令的缓存失效，另外两层文件内容完全相同、只有修改时间不同；配置中的构建时间、环境变量和标签也不同。这说明当前的构建**不是可复现的**（reproducible build），所以第 7 章坚持按 digest 而不是按 commit 追踪制品，只有 digest 才唯一确定一个镜像。想做到可复现，需要固定时间戳（如设置 `SOURCE_DATE_EPOCH`），并去掉所有随构建变化的输入。
 :::
 
 ## 门禁拦不住什么 {#p9-limits}

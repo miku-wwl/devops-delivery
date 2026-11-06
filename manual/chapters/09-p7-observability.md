@@ -60,17 +60,17 @@ OpenTelemetry（OTel）是 CNCF 的可观测性标准，目标是“埋点一次
 | **语义约定（Semantic Conventions）** | 统一的属性名，例如 `service.name`、`http.route`、`k8s.pod.name` |
 | **上下文传播** | W3C `traceparent` 请求头在服务之间传递 trace_id 与父 span，跨服务的 span 才能拼成一条链路 |
 
-```{.mermaid caption="本章 demo-api 的遥测数据流"}
-flowchart TB
-  subgraph APP["demo-api Pod（dev / prod）"]
-    direction LR
-    SDK["OTel SDK：FastAPI 自动埋点<br/>+ pricing.calculate 等业务 span"]
-    M["/metrics<br/>prometheus_client"]
+```{.mermaid caption="本章 demo-api 的遥测数据流：链路与日志经 Collector 进入 LGTM，指标被两套 Prometheus 各自抓取"}
+flowchart LR
+  subgraph APP["demo-api Pod"]
+    direction TB
+    SDK["OTel SDK<br/>自动埋点 + 业务 span"]
+    M["/metrics"]
   end
-  SDK -- "OTLP/HTTP :4318（traces + logs）" --> COL["OpenTelemetry Collector<br/>memory_limiter → k8sattributes → batch"]
-  M -- "按 Pod 注解发现并抓取" --> COL
-  M -- "PodMonitor 抓取" --> KPS["kube-prometheus-stack<br/>Prometheus（告警规则）· Alertmanager"]
-  COL -- OTLP --> LGTM["grafana/otel-lgtm<br/>Tempo（链路）· Loki（日志）· Prometheus（指标）<br/>Grafana：trace ↔ log ↔ metric 一键关联"]
+  SDK -- "OTLP/HTTP<br/>链路 + 日志" --> COL["OTel Collector<br/>memory_limiter<br/>k8sattributes · batch"]
+  M -- "按注解抓取" --> COL
+  COL -- OTLP --> LGTM["grafana/otel-lgtm<br/>Tempo · Loki · Prometheus<br/>Grafana 关联查询"]
+  M -- "PodMonitor 抓取" --> KPS["kube-prometheus-stack<br/>告警规则 · Alertmanager"]
 ```
 
 ## 第 1 步：官方 OpenTelemetry Demo 3.1.0 {#p7-otel-demo}
@@ -133,7 +133,7 @@ $ curl -s http://localhost:8080/jaeger/ui/api/services | jq -r '.data | sort | j
 ad, cart, checkout, currency, email, flagd, frontend, frontend-proxy, frontend-web, image-provider, load-generator, payment, product-catalog, quote, recommendation, shipping, telemetry-docs
 ```
 
-![Astronomy Shop 首页（OpenTelemetry Demo 3.1.0，本机 http://localhost:8080）](../../evidence/p7/otel-demo-shop.png){height=105mm}
+![Astronomy Shop 首页（OpenTelemetry Demo 3.1.0，本机 http://localhost:8080）](../../evidence/p7/otel-demo-shop.png){height=90mm}
 
 ### 注入故障：paymentFailure
 
@@ -435,7 +435,7 @@ DemoApiHighLatency [firing] since 04:01:05Z  demo-api in prod: p95 latency 836.3
 DemoApiHighLatency [firing] since 04:06:50Z  demo-api in dev: p95 latency 958.4ms
 ```
 
-![Prometheus 告警页面：demo-api.slo 规则组中，DemoApiHighErrorRate 有 1 条、DemoApiHighLatency 有 2 条处于 FIRING（浏览器截图）](../../evidence/p7/drill-prometheus-alerts.png)
+![Prometheus 告警页面：demo-api.slo 规则组中，DemoApiHighErrorRate 有 1 条、DemoApiHighLatency 有 2 条处于 FIRING（浏览器截图）](../../evidence/p7/drill-prometheus-alerts.png){height=95mm}
 
 第二行是 **prod** 的延迟告警，不在演练计划之内，第 6 步专门分析。先按“指标 → 链路 → 日志”的顺序排查 dev：
 
@@ -512,6 +512,73 @@ all prod POST /api/v1/orders in the same 4 h: 86680
 **三条教训。** ① 没有告警不等于没有问题——本次故障在加上延迟告警之前就已存在了 3 小时。② “Rollout 显示 Healthy”只说明控制器认为期望状态已达成，并不代表每个 Pod 都在按你以为的配置运行；要用按 Pod、按 ReplicaSet 拆分的指标去验证。③ 被多个版本共享的可变配置（ConfigMap、Secret）与金丝雀发布天然冲突：配置应当与 Pod 模板一起版本化，或者使用带内容哈希的不可变 ConfigMap。
 :::
 
+## 深入：链路怎样跨服务拼接，指标为什么会算出小数 {#p7-deep}
+
+本章用到了链路和 PromQL，但两个关键机制只是一笔带过：一条链路是怎样跨越服务边界拼起来的；`rate()`、`increase()` 的结果为什么不是整数。这一节用两个小实验把它们讲透（证据：`evidence/p12/trace-context-and-promql.log`）。
+
+### W3C Trace Context：traceparent 请求头
+
+服务之间靠一个 HTTP 请求头传递链路上下文：
+
+```text
+traceparent: 00-ef9be21ebec2afabd097b853eb6f73e5-b993381fd6b5fba6-01
+
+  00                                 版本
+  ef9be21ebec2afabd097b853eb6f73e5   trace ID（32 位十六进制），整条链路共用
+  b993381fd6b5fba6                   调用方当前 span 的 ID（16 位十六进制）
+  01                                 标志：最低位为 1 表示调用方采样了这条链路
+```
+
+收到请求的服务从这个头里取出 trace ID 和调用方的 span ID，把自己的服务端 span 记为它的子节点；再向下游发请求时，把自己的 span ID 放进新的 `traceparent`。全程的每个服务都这样做，各自上报的 span 就能在后端按 trace ID 拼成一棵树。
+
+**实验一：模拟一个上游服务。** 自己生成 trace ID 和 span ID，标志设为 `01`，发给 dev 的 demo-api，45 秒后到 Tempo 中读取这条链路：
+
+```console
+$ curl -s -o /dev/null -w "HTTP %{http_code}\n" -H "traceparent: 00-$TID-$SID-01" -H "X-Request-ID: p12-tp-sampled" http://127.0.0.1:18091/api/v1/info
+HTTP 200
+server span: GET /api/v1/info
+  traceId      = ef9be21ebec2afabd097b853eb6f73e5
+  parentSpanId = b993381fd6b5fba6
+```
+
+demo-api 的服务端 span 用的正是我们给出的 trace ID，父 span 就是我们声称的那个 span。demo-api 的代码里没有任何处理这个请求头的逻辑，这是 OpenTelemetry 的 FastAPI 自动埋点按 W3C 标准完成的。（Tempo 的 API 以 base64 返回 ID，实验中已转换为十六进制。）
+
+**实验二：调用方没有采样。** 同样的请求，标志改为 `00`：
+
+```console
+$ curl -s -o /dev/null -w "HTTP %{http_code}\n" -H "traceparent: 00-$TID2-$SID2-00" -H "X-Request-ID: p12-tp-unsampled" http://127.0.0.1:18091/api/v1/info
+HTTP 200
+Tempo lookup of b22367769a6ff7e4228070bc2c40b97b: HTTP 404
+$ kubectl -n dev logs $P --since=3m --tail=-1 | grep '"request_id": "p12-tp-' | jq -c '{request_id, trace_id, span_id}'
+{"request_id":"p12-tp-sampled","trace_id":"ef9be21ebec2afabd097b853eb6f73e5","span_id":"52671ada4a780c95"}
+{"request_id":"p12-tp-unsampled","trace_id":"b22367769a6ff7e4228070bc2c40b97b","span_id":"1f95f1f4f64e21fe"}
+```
+
+Tempo 中没有这条链路，但访问日志里仍然有它的 trace ID。原因是 SDK 默认的采样器是“跟随父级”（ParentBased）：调用方说没有采样，本服务也不记录 span，但仍然创建一个不记录数据的 span 来承载上下文，日志关联、继续向下游传递都照常进行。由此得到三条实用结论：
+
+- **采样决定在链路的入口做一次，然后随请求传递。** 所有服务按同一个决定行事，保存下来的链路要么完整、要么没有，不会出现一半。
+- **日志里有 trace ID，不代表能找到这条链路。** 本章练习 3 的第一个原因就是这种情况。
+- **不要盲目信任来自外部的 `traceparent`。** 公网客户端可以通过它强制开启采样（增加存储成本），或者把请求拼进别人的链路。在系统入口（网关、Ingress）通常应当丢弃外部传入的链路上下文，重新开始一条链路。
+
+### rate() 与 increase()：外推出来的小数
+
+第 12 章统计爆炸半径时，`increase()` 给出了 137.67 个请求、90.67 个慢请求这样的小数，可请求数明明都是整数。下面在同一个固定的时刻执行几条查询：
+
+```console
+raw samples in the last 1m (scrape interval 15s): 19:15:53=39621  19:16:08=39640  19:16:23=39662  19:16:38=39679
+value now - value 1m ago   = 72
+increase(...[1m])          = 77.33333333333333
+rate(...[1m]) * 60         = 77.33333333333333
+```
+
+1 分钟的窗口里只有 4 个样本，覆盖的时间是 19:15:53 到 19:16:38，共 45 秒，计数器在这期间增加了 39679 − 39621 = 58。`increase()` 假设增长是均匀的，把它外推到整个 60 秒的窗口：58 × 60 ÷ 45 = 77.33。外推只在样本离窗口边界足够近时进行（不超过平均采样间隔的 1.1 倍），这里两端的空隙加起来正好 15 秒，所以外推到了整个窗口。`rate()` 是同一个计算再除以窗口的秒数，`increase(x[1m])` 就等于 `rate(x[1m]) * 60`。而用 `offset` 相减得到的 72，用的是窗口之外的样本，回答的是另一个问题。
+
+由此得到几条使用 PromQL 的规则：
+
+- **`increase()` 是估计值。** 想要精确的计数，就不要用它和日志或业务系统中的计数逐个比对。第 12 章写“约 138 个请求”，原因就在这里。
+- **窗口至少取采样间隔的 4 倍。** 窗口里只有一两个样本时，外推的误差很大；只有一个样本时根本无法计算。本项目的抓取间隔是 15 秒，1 分钟正好是下限，所以第 8 章的金丝雀分析、第 12 章的燃烧率规则都用了 1 分钟及以上的窗口。
+- **先 `rate` 再 `sum`。** `rate()` 能识别计数器的重置（进程重启后计数器归零，值变小即视为重置）。必须先对每条序列各自求 `rate`，再求和；先求和再求 `rate`，一个 Pod 重启造成的归零会被当成整体的下降。
+
 ## 关于 O0 视频
 
 路线图指定的辅助视频（Abhishek Veeramalla《Learn Observability in 5 Hours》）由用户自行观看，本手册不转述其内容。
@@ -545,6 +612,7 @@ Collector 会把 `$` 当作环境变量展开，正则替换中的 `$1` 要写�
 4. **（原理）** 本章“lookback 参数被忽略”的教训说明了什么样的验证习惯？Prometheus 中有没有类似的陷阱？（提示：`rate()` 的窗口、序列的过期时间、瞬时查询看不到已消失的序列。）
 5. **（设计）** 一个服务每秒 1 万个请求，全部记录链路的成本无法接受。设计一个采样方案，保证所有错误请求和慢请求都被保留，并说明 Collector 需要怎样配置和扩容。
 6. **（分析）** 本章的 prod 延迟问题在“加上告警之前”已经存在了 3 小时。“没有告警”和“没有问题”的区别应该如何体现在告警与 SLO 的设计中？（可结合第 12 章。）
+7. **（分析）** 一个上游服务对所有请求都发送带 `-00` 标志的 `traceparent`。下游 demo-api 的链路、日志和指标分别会受到什么影响？如果改用 Collector 的 spanmetrics 从 span 生成 RED 指标，又会怎样？想让下游无论如何都记录链路，采样器应该怎么配置，代价是什么？
 :::
 
 参考答案见附录 B。
