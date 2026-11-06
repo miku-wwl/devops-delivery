@@ -25,7 +25,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app/src \
     APP_VERSION=${APP_VERSION} \
     GIT_SHA=${GIT_SHA}
-RUN useradd --uid 10001 --no-create-home --shell /usr/sbin/nologin app
+RUN useradd --uid 10001 --no-create-home --shell /usr/sbin/nologin app \
+ # pip is only needed at build time. Its vendored copies of urllib3, msgpack and
+ # setuptools were flagged by Trivy (HIGH, fix available); removing pip from the
+ # runtime image removes them and means nobody can "pip install" inside a container.
+ && python -m pip uninstall --yes --quiet pip \
+ && rm -rf /usr/local/lib/python3.13/ensurepip
 COPY --from=build /install /usr/local
 WORKDIR /app
 COPY src/ ./src/

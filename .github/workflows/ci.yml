@@ -2,8 +2,10 @@ name: ci
 # Pull-request quality gate for app/ (demo-api):
 #   python / lint      ruff lint + format check          (reusable workflow)
 #   python / test      pytest + coverage threshold        (reusable workflow)
-#   container image    docker build with layer cache + container smoke test
-# The three check names above are required by the "protect-main" ruleset.
+#   container image    docker build with layer cache, Trivy image gate, smoke test
+#   security           Trivy repository scan (dependencies, secrets, misconfigurations)
+# python / lint, python / test and container image are required by the
+# "protect-main" ruleset; add "security" once this workflow version is on main.
 
 on:
   pull_request:
@@ -28,6 +30,22 @@ jobs:
       working-directory: app
       python-version: "3.13"
 
+  security:
+    name: security
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install Trivy (pinned, checksum-verified)
+        run: bash automation/ci/install-trivy.sh
+      - name: Trivy repository scan - dependencies, leaked secrets, IaC misconfigurations
+        # manual/ holds build tooling for the PDF manual; it is not shipped.
+        run: >-
+          trivy fs --scanners vuln,secret,misconfig --severity HIGH,CRITICAL
+          --ignore-unfixed --exit-code 1 --skip-dirs manual .
+
   image:
     name: container image
     needs: python
@@ -50,6 +68,10 @@ jobs:
             GIT_SHA=${{ github.sha }}
           cache-from: type=gha,scope=demo-api
           cache-to: type=gha,mode=max,scope=demo-api
+      - name: Install Trivy (pinned, checksum-verified)
+        run: bash automation/ci/install-trivy.sh
+      - name: Trivy image scan - block fixable HIGH/CRITICAL vulnerabilities
+        run: trivy image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 demo-api:ci
       - name: Smoke test the container
         run: |
           docker run -d --name demo-api -p 8080:8080 demo-api:ci
