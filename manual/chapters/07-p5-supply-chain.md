@@ -13,6 +13,14 @@
 
 **验收标准（路线图 D5 / Gate G3）：** 漏洞策略阻断不合格发布；签名/来源证明验证通过；同一镜像 digest 在环境间晋级。三项均已通过（`evidence/p5/`）。
 
+**学完本章，你应当能够：**
+
+- 说出软件供应链从源码到运行的每个环节面临的攻击，以及对应的防线；
+- 设计“只阻断可修复的高危漏洞”的扫描门禁，并真正修复（而不是忽略）一个漏洞；
+- 解释 Sigstore 无密钥签名的完整流程，以及签名、SLSA 来源证明、SBOM 证明三者的区别；
+- 以消费者身份独立验证镜像的来源，只按 digest 晋级制品；
+- 用准入控制让集群拒绝来历不明的镜像。
+
 ## 原理：软件供应链的攻击面与防线 {#p5-principles}
 
 ```{.mermaid caption="从源码到运行：每个环节对应的防线"}
@@ -47,6 +55,33 @@ SBOM（Software Bill of Materials）列出制品中包含的全部组件及其�
 - **Sigstore 无密钥签名。** 传统签名需要保管私钥，而私钥本身就是高价值目标。Sigstore 的思路是：CI 作业向 GitHub 申请一个 OIDC 身份令牌（“我是 `miku-wwl/devops-delivery` 仓库 `release.yml` 工作流的某次运行”），用它向 **Fulcio** 证书机构换取一张只有 10 分钟有效期、写明该身份的短期证书，用临时私钥签名后立即丢弃私钥，签名事件记录到公开、只追加的透明日志 **Rekor**。验证者不用信任某把密钥，而是验证“这个签名来自**哪个身份**”。
 - **签名 vs 来源证明（attestation）。** 签名只说明“某身份认可这个 digest”；来源证明是一份**被签名的声明**（in-toto statement），说明关于这个 digest 的事实，例如 SLSA 来源证明记录了构建它的仓库、提交、工作流、触发事件和 Runner 类型；SBOM 证明则把 SBOM 与 digest 绑定。
 - **SLSA**（Supply-chain Levels for Software Artifacts）是一套分级框架。使用 GitHub 托管 Runner 加 GitHub 生成的来源证明，可以满足 SLSA Build Level 2 的要求：来源证明由托管的构建平台生成并签名，构建者本人无法伪造。
+
+```{.mermaid caption="Sigstore 无密钥签名与验证：身份由 OIDC 证明，时间由透明日志证明"}
+sequenceDiagram
+  autonumber
+  participant J as CI 作业（release.yml）
+  participant O as GitHub OIDC
+  participant F as Fulcio（证书机构）
+  participant R as Rekor（透明日志）
+  participant G as GHCR（镜像仓库）
+  participant V as 验证者（cosign / Kyverno）
+  J->>O: 申请身份令牌（需要 id-token: write）
+  O-->>J: JWT：仓库、工作流、分支、提交……
+  J->>J: 生成一次性密钥对
+  J->>F: 公钥 + JWT
+  F-->>J: 短期证书（约 10 分钟），SAN = 工作流身份
+  J->>J: 用私钥签名镜像 digest，随即丢弃私钥
+  J->>R: 记录签名与证书
+  R-->>J: 带时间戳的收录证明
+  J->>G: 签名包（证书 + 签名 + 收录证明）挂到 digest 上
+  V->>G: 取回签名包
+  V->>V: 证书链能追溯到 Fulcio 根证书？<br/>SAN 与签发者符合预期？
+  V->>V: 收录证明有效，且签名时间落在证书有效期内？
+```
+
+::: principle
+**证书只有 10 分钟有效，为什么一年后还能验证？** 验证者并不检查“证书现在是否有效”，而是检查“签名发生时证书是否有效”。签名时间不能由签名者自己声称（它可以伪造），而是由 Rekor 证明：每一条签名都写进公开、只追加的透明日志，日志返回带时间戳的收录证明。只要签名时间落在证书的 10 分钟有效期内，签名就永远可验证。这带来两个好处：没有需要长期保管、可能泄露的私钥；任何签名都公开可查，项目方可以监控日志，发现有人冒用自己的身份签名。验证时真正要配置的只有两件事：**签发者**（谁颁发的身份，这里是 GitHub Actions 的 OIDC 服务）和**身份**（证书中的 SAN，这里是本仓库的 `release.yml`）。
+:::
 
 ## 第 1 步：本地扫描，以及一次真实的修复 {#p5-remediation}
 
@@ -135,7 +170,7 @@ affected: 45, fix_deferred: 1
 为什么不用现成的 Trivy Action，而是自己写一个安装脚本？`install-trivy.sh` 从 Trivy 的 GitHub Release 下载固定版本（`automation/lab/versions.env` 中的 `TRIVY_VERSION`，与实验环境相同），并用同一发布的 `checksums.txt` 校验后才安装。**少依赖一个第三方 Action，就少一个需要信任的环节**——这正是本章要防范的风险。
 
 ::: note
-`container image` 已经是规则集的必需检查，所以镜像门禁立即具有阻断力。新增的 `security` 作业暂时不能加入必需检查：被 #1 等尚未合并的 PR 中不存在这个作业，一旦设为必需，它们会永远等待一个不会出现的检查。合并后再把 `security` 加入规则集。
+`container image` 已经是规则集的必需检查，所以镜像门禁立即具有阻断力。新增的 `security` 作业暂时不能加入必需检查：被 #1 等尚未合并的 PR 中不存在这个作业，一旦设为必需，它们会永远等待一个不会出现的检查。合并后再把 `security` 加入规则集。另外，`ci.yml` 只在以 main 为目标的 PR 上运行，此后各阶段新增的清单没有经过这道扫描，第 12 章才发现了这个缺口的后果。
 :::
 
 ## 第 3 步：发布流水线 {#p5-release}
@@ -251,7 +286,7 @@ Error: HTTP 404: Not Found (https://api.github.com/repos/miku-wwl/some-other-rep
 
 用 Cosign 验证签名，并故意要求一个错误的签名者身份：
 
-![cosign verify：同一 digest 上验证到三项（签名、SLSA 来源证明、SPDX SBOM）；要求 ci.yml 身份时失败，并指出实际身份是 release.yml（终端记录渲染）](../../evidence/p5/verify-cosign.png)
+![cosign verify：同一 digest 上验证到三项（签名、SLSA 来源证明、SPDX SBOM）；要求 ci.yml 身份时失败，并指出实际身份是 release.yml（终端记录渲染）](../../evidence/p5/verify-cosign.png){width=88%}
 
 注意两点：验证结果里出现了三条记录——Cosign 签名、SLSA 来源证明和 SPDX 文档——它们都是以 Sigstore 包（bundle）形式附加在同一个 digest 上的；反例的报错信息直接告诉你证书中的真实身份（SAN），这正是“验证身份而不是验证密钥”的含义。
 
@@ -365,7 +400,7 @@ Total: 1 (HIGH: 0, CRITICAL: 1)
 
 由于分支名匹配 `p5/**`，这次推送还触发了发布流水线，正好演示了“漏洞镜像永远不会被推送”：
 
-![发布流水线在 Trivy 门禁处失败，推送、SBOM、来源证明、签名步骤全部被跳过（GitHub 页面截图）](../../evidence/p5/release-gate-blocked.png)
+![发布流水线在 Trivy 门禁处失败，推送、SBOM、来源证明、签名步骤全部被跳过（GitHub 页面截图）](../../evidence/p5/release-gate-blocked.png){width=88%}
 
 三道防线各自独立地挡住了它：PR 合并被阻断；镜像没有被推送，更没有被签名；即使有人绕过 CI 手工推送一个镜像，它也没有 `release.yml` 的来源证明，Kyverno 会在准入阶段拒绝。PR #4 按计划关闭，不合并。
 
@@ -391,6 +426,19 @@ Total: 1 (HIGH: 0, CRITICAL: 1)
 
 **Q7：PR 上的 GitGuardian 检查报告了“密码”。**
 见第 4 章常见问题 Q7：本项目遇到的是一次误报，处理方法是核实、标记误报并改写配置；若是真实凭据，必须先吊销。
+
+## 练习 {#p5-exercises}
+
+::: exercise
+1. **（理解）** 本章的门禁使用 `--ignore-unfixed`，不阻断暂无修复的漏洞。说明这样做的理由，以及在什么情况下这个策略不够用、需要额外的措施。
+2. **（原理）** 不看书，画出 Sigstore 无密钥签名的时序：谁提供身份、谁签发证书、谁证明签名时间。为什么验证时不需要任何长期公钥？
+3. **（动手）** 对本书任意一个已发布的镜像运行 `gh attestation verify --format json`，从结果中找出构建它的提交、工作流引用、触发事件和 Runner 环境。如果要求“只接受 main 分支构建的镜像”，Kyverno 策略中的 `subjectRegExp` 应该怎么改？
+4. **（排障）** Kyverno 拒绝了一个确实由 `release.yml` 签名的镜像，报 `no matching signatures found`。参考本章四次尝试的经验，按顺序列出排查步骤。
+5. **（设计）** 删除 pip 修复了 5 个 HIGH，但镜像体积没变。解释原因，并设计一个既消除这些组件、又减小体积的 Dockerfile 方案。
+6. **（思考）** 本章的三道防线（PR 阻断、发布门禁、准入控制）各自防的是什么样的攻击者或失误？如果只能保留一道，你选哪一道？这个问题本身说明了什么？
+:::
+
+参考答案见附录 B。
 
 ## 本章小结
 

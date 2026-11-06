@@ -16,6 +16,13 @@
 
 **验收标准（路线图 O1 / Gate G5）：** 能解释 Logs/Metrics/Traces 各自回答什么问题，并在一次 HTTP 5xx 或高延迟演练中用至少两类信号定位故障。已通过：官方 Demo 的支付故障与 demo-api 的错误/延迟故障，都用指标、链路、日志三类信号定位到根因（`evidence/p7/`）。
 
+**学完本章，你应当能够：**
+
+- 说清指标、链路、日志各自回答什么问题，以及 trace_id 如何把它们关联起来；
+- 理解 OpenTelemetry 的组成（SDK、OTLP、Collector、语义约定、上下文传播），为一个服务加上链路与日志埋点；
+- 搭建 Collector + Tempo/Loki/Prometheus/Grafana 遥测管道，并用 TraceQL、LogQL、PromQL 排查问题；
+- 按“告警 → 指标 → 链路 → 日志”的顺序定位故障，并用独立的时间戳验证恢复，避免被查询参数误导。
+
 ## 原理 {#p7-principles}
 
 ### 监控与可观测性
@@ -34,6 +41,12 @@
 
 常用的指标方法论：**RED**（Rate 速率、Errors 错误、Duration 耗时，面向请求型服务，第 3 章 demo-api 就是按它设计的）和 **USE**（Utilization 利用率、Saturation 饱和度、Errors 错误，面向资源，如 CPU、内存、磁盘）。
 
+::: principle
+**成本、采样与关联。** 三种信号的成本差别很大。指标的成本由**时间序列的数量**决定，与请求量无关，所以标签取值必须有限（第 3 章用路由模板而不是真实路径做标签，就是这个原因）。链路和日志的成本随请求量线性增长，高流量的生产系统通常要对链路**采样**：头部采样（head sampling）在请求入口按比例决定是否记录，开销最小，但很可能恰好丢掉那条出错的请求；尾部采样（tail sampling）由 Collector 等一条链路结束后再决定，可以做到“保留全部错误和慢请求，其余只留 5%”，代价是 Collector 要在内存中暂存整条链路。本项目流量很小，没有采样。
+
+关联还有另一个方向：**exemplar** 在直方图的某个区间上附带一个具体请求的 trace_id，于是可以从“p95 变高了”的图上直接点进一条慢请求的链路。本项目在 kube-prometheus-stack 中开启了 exemplar 存储，但 demo-api 的直方图还没有附带 exemplar，这留作本章练习。
+:::
+
 ### OpenTelemetry
 
 OpenTelemetry（OTel）是 CNCF 的可观测性标准，目标是“埋点一次，发往任何后端”。它由几部分组成：
@@ -48,21 +61,16 @@ OpenTelemetry（OTel）是 CNCF 的可观测性标准，目标是“埋点一次
 | **上下文传播** | W3C `traceparent` 请求头在服务之间传递 trace_id 与父 span，跨服务的 span 才能拼成一条链路 |
 
 ```{.mermaid caption="本章 demo-api 的遥测数据流"}
-flowchart LR
+flowchart TB
   subgraph APP["demo-api Pod（dev / prod）"]
-    SDK["OTel SDK<br/>FastAPI 自动埋点<br/>+ pricing.calculate 等业务 span"]
+    direction LR
+    SDK["OTel SDK：FastAPI 自动埋点<br/>+ pricing.calculate 等业务 span"]
     M["/metrics<br/>prometheus_client"]
   end
-  SDK -- "OTLP/HTTP :4318<br/>traces + logs" --> COL["OpenTelemetry Collector<br/>memory_limiter → k8sattributes → batch"]
-  COL -- "Prometheus 抓取<br/>按 Pod 注解发现" --> M
-  COL -- OTLP --> LGTM
-  subgraph LGTM["grafana/otel-lgtm"]
-    T["Tempo（链路）"]
-    L["Loki（日志）"]
-    P2["Prometheus（指标）"]
-    G["Grafana<br/>关联：trace ↔ log ↔ metric"]
-  end
-  KPS["kube-prometheus-stack<br/>Prometheus（告警规则）<br/>Alertmanager"] -- "PodMonitor 抓取" --> M
+  SDK -- "OTLP/HTTP :4318（traces + logs）" --> COL["OpenTelemetry Collector<br/>memory_limiter → k8sattributes → batch"]
+  M -- "按 Pod 注解发现并抓取" --> COL
+  M -- "PodMonitor 抓取" --> KPS["kube-prometheus-stack<br/>Prometheus（告警规则）· Alertmanager"]
+  COL -- OTLP --> LGTM["grafana/otel-lgtm<br/>Tempo（链路）· Loki（日志）· Prometheus（指标）<br/>Grafana：trace ↔ log ↔ metric 一键关联"]
 ```
 
 ## 第 1 步：官方 OpenTelemetry Demo 3.1.0 {#p7-otel-demo}
@@ -125,7 +133,7 @@ $ curl -s http://localhost:8080/jaeger/ui/api/services | jq -r '.data | sort | j
 ad, cart, checkout, currency, email, flagd, frontend, frontend-proxy, frontend-web, image-provider, load-generator, payment, product-catalog, quote, recommendation, shipping, telemetry-docs
 ```
 
-![Astronomy Shop 首页（OpenTelemetry Demo 3.1.0，本机 http://localhost:8080）](../../evidence/p7/otel-demo-shop.png)
+![Astronomy Shop 首页（OpenTelemetry Demo 3.1.0，本机 http://localhost:8080）](../../evidence/p7/otel-demo-shop.png){height=105mm}
 
 ### 注入故障：paymentFailure
 
@@ -527,6 +535,19 @@ Collector 会把 `$` 当作环境变量展开，正则替换中的 `$1` 要写�
 
 **Q6：用 Jaeger API 查“最近 N 分钟”的链路，结果却包含更早的错误。**
 `lookback` 只是 Jaeger Web 界面的参数，`/api/traces` 会忽略它；没有 `start` 时，API 默认查询过去 48 小时。用 API 时请显式传入 `start`/`end`（Unix 微秒）。验证恢复时，按 span 和日志自身的时间戳统计。
+
+## 练习 {#p7-exercises}
+
+::: exercise
+1. **（理解）** 面对“为什么 5 个 Pod 里只有一个慢”这样的问题，三种信号各自能提供什么线索？如果只有指标，你能查到哪一步？
+2. **（动手）** 为 demo-api 的请求耗时直方图附带 exemplar（当前 span 的 trace_id），让 Grafana 能从延迟图跳到对应的链路。需要注意哪些条件（指标的暴露格式、Prometheus 的 exemplar 存储、数据源配置）？
+3. **（排障）** 日志里有 trace_id，但在 Tempo 中按这个 ID 找不到链路。列出可能的原因，以及各自的确认方法。
+4. **（原理）** 本章“lookback 参数被忽略”的教训说明了什么样的验证习惯？Prometheus 中有没有类似的陷阱？（提示：`rate()` 的窗口、序列的过期时间、瞬时查询看不到已消失的序列。）
+5. **（设计）** 一个服务每秒 1 万个请求，全部记录链路的成本无法接受。设计一个采样方案，保证所有错误请求和慢请求都被保留，并说明 Collector 需要怎样配置和扩容。
+6. **（分析）** 本章的 prod 延迟问题在“加上告警之前”已经存在了 3 小时。“没有告警”和“没有问题”的区别应该如何体现在告警与 SLO 的设计中？（可结合第 12 章。）
+:::
+
+参考答案见附录 B。
 
 ## 本章小结
 

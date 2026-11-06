@@ -15,6 +15,13 @@
 
 **验收标准（路线图 D9，Gate G7 的开源部分）：** 合成测试失败时阻断发布，恢复后通过。已通过：注入延迟的运行中发布作业被跳过（运行 42196278404），恢复后的运行中发布作业正常执行（运行 42196846132）。Datadog 版本因为没有 Datadog 账号，状态为 **NOT_RUN**。
 
+**学完本章，你应当能够：**
+
+- 说明合成测试门禁在测试左移中的位置，以及它能发现、不能发现哪些问题；
+- 用 k6 编写带断言和按接口阈值的用户旅程，区分 check 与 threshold、开放模型与封闭模型；
+- 在 CI 中用临时 Kind 集群部署候选版本，并用可复用工作流和 `needs` 让门禁决定发布；
+- 用故障注入证明门禁真的会拦截，并解释同一提交为什么会产生不同的 digest。
+
 ## 原理 {#p9-principles}
 
 ### 测试左移，以及“合成测试”在其中的位置
@@ -80,15 +87,16 @@ k6 的执行器分两类：
 ## 实现 {#p9-impl}
 
 ```{.mermaid caption="发布流水线：合成测试门禁成为发布作业的前置条件"}
-flowchart LR
-  P["push / workflow_dispatch<br/>（可选：synthetic_fault）"] --> G
+flowchart TB
+  P["push / workflow_dispatch（可选：synthetic_fault）"] --> G
   subgraph G["synthetic-gate.yml（可复用工作流）"]
-    T["安装 kind / kubectl / helm / k6<br/>（固定版本 + SHA256 校验）"] --> B["构建候选镜像<br/>demo-api:candidate"]
-    B --> K["kind create cluster<br/>（node 镜像按 digest 固定）<br/>kind load docker-image"]
-    K --> R["run-gate.sh<br/>helm install → port-forward → k6"]
+    direction LR
+    T["安装 kind / kubectl / helm / k6<br/>固定版本 + SHA256 校验"] --> B["构建候选镜像<br/>demo-api:candidate"]
+    B --> K["kind create cluster<br/>kind load docker-image"]
+    K --> R["run-gate.sh<br/>helm install → k6"]
   end
-  R -- "全部阈值通过（退出码 0）" --> REL["release 作业<br/>扫描 → 推送 → SBOM → 证明 → 签名"]
-  R -- "任一阈值失败（退出码 99）" --> X["release 作业被跳过<br/>什么都不推送、不签名"]
+  G -- "全部阈值通过（退出码 0）" --> REL["release 作业：扫描 → 推送 → SBOM → 证明 → 签名"]
+  G -- "任一阈值失败（退出码 99）" --> X["release 作业被跳过：什么都不推送、不签名"]
 ```
 
 ### k6 脚本
@@ -252,6 +260,19 @@ check 和阈值是两回事。check 只记录结果，阈值才决定是否失�
 
 **Q5：门禁应该放在 PR 阶段还是发布阶段？**
 都可以。放在 PR 阶段，反馈更早，并且可以设为必需检查，阻止合并。放在发布阶段，则能保证任何被推送的镜像都通过了门禁。本项目选择了后者，因为修改仓库的规则集需要仓库所有者操作。
+
+## 练习 {#p9-exercises}
+
+::: exercise
+1. **（理解）** 延迟演练中 1440 个断言全部通过，门禁却失败了。用 check 与 threshold 的区别解释这个结果。
+2. **（原理）** 把执行器换成 `constant-vus`（封闭模型）重做延迟演练，下单接口的 p95 和总请求数会怎样变化？对于“负载升高后服务变慢”这类问题，为什么只有开放模型能暴露出来？
+3. **（动手）** 门禁还可能因为“测试本身没有正常运行”而误判通过，例如场景配置错误只跑了几秒。增加阈值防止这种情况（提示：`iterations` 或 `http_reqs` 的计数，以及 `dropped_iterations`）。
+4. **（排障）** CI 中的门禁偶发失败，某个接口的 p95 偶尔超过 300 ms。列出排查步骤，并说明如何区分“被测服务的问题”和“测试环境的问题”。
+5. **（设计）** 要把门禁也作为 PR 的必需检查，工作流要怎么改？需要考虑哪些成本问题和安全问题？
+6. **（思考）** 本章的门禁拦不住“只改配置”的坏变更（第 12 章演练 B）。为配置仓库的合并请求设计一个检查方案，让 `faults.latencyMs: 800` 这样的变更在合并前就被拦下。
+:::
+
+参考答案见附录 B。
 
 ## 本章小结
 

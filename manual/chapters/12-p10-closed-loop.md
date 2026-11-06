@@ -14,6 +14,14 @@
 
 **验收标准（PHASE_PLAN P10）：** 延迟故障版本被中止并回滚；输出测试环境的事故 RCA。已通过：带 800 ms 延迟配置的金丝雀在分析开始 65 秒后被自动中止（13:38:26 UTC），用 Git 回滚后于 13:45:27 恢复 Synced + Healthy；两份 RCA 见本章[“两次事件的对比与复盘”](#p10-rca)一节。
 
+**学完本章，你应当能够：**
+
+- 说出交付闭环中每道关卡防的是什么，并能把一个变更从提交一路送到生产；
+- 定义 SLI、SLO 和错误预算，推导多窗口燃烧率告警的阈值，并用 PromQL 实现；
+- 解释直方图分位数为什么是估计值，以及 SLO 为什么要用区间计数；
+- 用独立的信号核实自动化给出的结论（“已中止”“Healthy”），并量化一次事件的影响与预算消耗；
+- 按无责复盘的方法写出包含时间线、根因、促成因素和行动项的 RCA。
+
 ## 原理 {#p10-principles}
 
 ### 交付闭环：每道关卡防的是什么
@@ -220,7 +228,7 @@ LGTM 的修改先在一个强制 `restricted` Pod 安全标准的临时命名空
 level=error msg="module failed" module=live-store err="... failed to create shutdown marker directory: mkdir /var/tempo: read-only file system"
 ```
 
-Tempo 3 会在 `/var/tempo` 创建一个目录，这个路径不在镜像文档提到的 `/data` 下。只读根文件系统的价值正在于此：它把所有“未声明的写入”变成显式的失败。为 `/var/tempo` 加一个 emptyDir 后，第二次 6 个组件全部启动（`lgtm-hardening-test-1.log`、`-2.log`）。之后再应用到实验集群，确认负载和遥测都正常（`hardening-verify.log`），重新运行准入测试，结果不变（`admission-retest.log`）。
+Tempo 3 会在 `/var/tempo` 创建一个目录，这个路径不在镜像文档提到的 `/data` 下。只读根文件系统的价值正在于此：它把所有“未声明的写入”变成显式的失败。为 `/var/tempo` 加一个 emptyDir 后，第二次 6 个组件全部启动（`lgtm-hardening-test-1.log`、`lgtm-hardening-test-2.log`）。之后再应用到实验集群，确认负载和遥测都正常（`hardening-verify.log`），重新运行准入测试，结果不变（`admission-retest.log`）。
 
 本地复查也踩了一个坑：直接扫描 Windows 磁盘上的工作区，5 分钟后超时，因为工作区里还有大量未跟踪、被 `.gitignore` 忽略的目录（例如 Ansible 集合）。CI 扫描的是干净的检出。改为用 `git ls-files` 复制出受版本控制的文件再扫描，3 秒完成，结果干净（`trivy-repo-scan-2.log`）。提交修复（`5b3e829`）后，CI 重跑 4 个作业全部通过（42201262422）。
 

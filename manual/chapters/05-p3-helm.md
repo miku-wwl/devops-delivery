@@ -13,6 +13,13 @@
 
 **验收标准（路线图 D3）：** 可重复部署同一应用，配置按环境区分。已通过：dev（1 副本）与 prod（3 副本 + PDB + 反亲和）由同一 Chart 部署，升级、坏发布、回滚全过程有记录（`evidence/p3/`）。
 
+**学完本章，你应当能够：**
+
+- 用“期望状态 + 控制器调和”解释 Kubernetes 的工作方式，说清 Deployment、ReplicaSet、Service、ConfigMap、PDB 的分工；
+- 理解 Pod 模板哈希如何驱动滚动更新，以及它为什么贯穿后面的金丝雀发布；
+- 编写带 values schema、安全默认值和环境差异文件的 Helm Chart，并用 `lint`、`template`、`diff` 审查它；
+- 完成安装、升级、坏发布和回滚，并说明 Helm 回滚与 GitOps 回滚的区别。
+
 ## 原理一：最小够用的 Kubernetes {#p3-k8s}
 
 Kubernetes 是一个**声明式**系统：你把“期望状态”（例如“运行 3 个 demo-api 0.1.1 的副本”）以对象的形式提交给 API Server，各种**控制器**不停地比较“期望状态”与“实际状态”，并采取行动消除差异。这个“观察 → 比较 → 行动”的循环叫**调和（reconcile）**，是理解 Kubernetes、GitOps（第 6 章）和渐进式交付（第 8 章）的钥匙。
@@ -40,7 +47,13 @@ flowchart LR
 | **PodDisruptionBudget** | 限制“自愿中断”（节点维护、驱逐）时同时不可用的 Pod 数 | prod 要求至少 2 个可用 |
 | **Namespace** | 逻辑隔离与配额、策略的边界 | `dev`、`prod` 两个命名空间 |
 
-**探针（Probe）：** `readinessProbe` 决定 Pod 是否接收流量（未就绪时会从 Service 的后端列表中摘除）；`livenessProbe` 决定容器是否要被重启。二者用途不同，不能混用：把依赖数据库的检查放进 liveness，数据库抖一下就会导致所有 Pod 被重启。
+**探针（Probe）：** `readinessProbe` 决定 Pod 是否接收流量（未就绪时会从 Service 的后端列表中摘除）；`livenessProbe` 决定容器是否要被重启。二者用途不同，不能混用：把依赖数据库的检查放进 liveness，数据库抖一下就会导致所有 Pod 被重启。readiness 还是滚动更新的“节拍器”：Deployment 只有在新 Pod 就绪之后，才会继续缩减旧 Pod（由 `maxSurge`、`maxUnavailable` 控制步幅，默认各 25%）。一个永远不就绪的新版本会让滚动更新停住，而不是把旧版本全部替换掉。
+
+::: principle
+**Pod 模板哈希：本书反复用到的机制。** Deployment 会对 Pod 模板（`spec.template`）计算一个哈希，作为 ReplicaSet 名称的后缀和 Pod 的标签 `pod-template-hash`。模板中任何一个字段变了（镜像、环境变量、注解），哈希就变，Deployment 创建新的 ReplicaSet 并开始滚动更新；模板没变，就什么也不发生。旧的 ReplicaSet 缩到 0 后仍被保留，`kubectl rollout undo` 就是把它们重新扩起来。
+
+后面的章节都建立在这个机制上：本章的 `checksum/config` 注解靠改变模板来触发重启；第 8 章的 Argo Rollouts 用同样的哈希（标签 `rollouts-pod-template-hash`）区分稳定版和金丝雀，分析查询也按它过滤；第 12 章只改配置也会产生新的修订，是因为 Chart 0.3.1 把配置写进了 Pod 模板。
+:::
 
 **Pod 安全标准（Pod Security Standards）：** Kubernetes 内置三档策略：`privileged`、`baseline`、`restricted`。给命名空间打上标签 `pod-security.kubernetes.io/enforce=restricted` 后，任何不满足最严格要求的 Pod（以 root 运行、允许提权、未丢弃 Linux capabilities、未设置 seccomp 等）都会被**直接拒绝创建**。本章的 dev、prod 都启用了 `restricted`，Chart 必须“生来安全”。
 
@@ -57,13 +70,12 @@ flowchart LR
 | **Repository / OCI** | Chart 的分发方式。Helm 3.8 起支持把 Chart 当作 OCI 制品推送到镜像仓库 |
 
 ```{.mermaid caption="helm upgrade 的工作流程"}
-flowchart LR
-  V["values.yaml<br/>+ values-prod.yaml<br/>+ --set-json"] --> S{"values.schema.json<br/>校验"}
-  S -- 不通过 --> X["立即失败<br/>不产生新修订"]
-  S -- 通过 --> T["模板引擎渲染<br/>templates/*.yaml"]
-  T --> M["Kubernetes 清单"]
-  M --> API["API Server<br/>创建 / 更新对象"]
-  API --> R["保存修订 N+1<br/>（Secret: sh.helm.release.v1.*）"]
+flowchart TB
+  V["values.yaml + values-prod.yaml + --set-json"] --> S{"values.schema.json 校验"}
+  S -- 不通过 --> X["立即失败，不产生新修订"]
+  S -- 通过 --> T["模板引擎渲染 templates/*.yaml<br/>→ Kubernetes 清单"]
+  T --> API["API Server：创建 / 更新对象"]
+  API --> R["保存修订 N+1<br/>Secret: sh.helm.release.v1.*"]
   R --> W["--wait：等待资源就绪"]
 ```
 
@@ -301,7 +313,7 @@ demo-api:
 
 **修订 4：用 `--set-json` 真正发布一个坏配置（50% 请求返回 500），然后回滚：**
 
-![坏配置发布：40 次请求中 22 次返回 500；回滚到修订 2 后 40 次全部 200（终端记录渲染）](../../evidence/p3/helm-bad-release.png)
+![坏配置发布：40 次请求中 22 次返回 500；回滚到修订 2 后 40 次全部 200（终端记录渲染）](../../evidence/p3/helm-bad-release.png){height=140mm}
 
 逐段解读：
 
@@ -348,6 +360,19 @@ Chart 被打包成 `.tgz`，以 OCI 制品推送到与镜像相同的仓库，�
 
 **Q6：实验过程中 Kind 集群和 GitLab 容器“莫名其妙”全部重启，控制面节点停在 `Exited (128)`。**
 这是本次实验中真实发生的问题。WSL 在没有任何 `wsl.exe` 会话连接时，会在短暂空闲后**关闭整个发行版**，即使 systemd 中的 Docker 仍在运行；systemd 日志中可以看到每次空闲后都出现 `Reached target shutdown.target`。下次进入时 Docker 重启，Kind 节点容器在开机过程中与 systemd 的 cgroup 创建发生竞争，报 `unable to start unit docker-....scope`。处理方法：保持一个 WSL 终端（或后台的 `wsl.exe -d devops-lab -- sleep infinity`）一直打开；已经停止的节点用 `docker start lab-control-plane lab-worker lab-worker2` 恢复，集群中的工作负载会随之恢复。
+
+## 练习 {#p3-exercises}
+
+::: exercise
+1. **（理解）** 一个服务依赖数据库。把“数据库是否可用”的检查分别放进 livenessProbe 和 readinessProbe，数据库短暂故障时会分别发生什么？你会怎么设计这两个探针？
+2. **（动手）** 用 `helm template` 渲染 prod，分别在 `--set-json faults.latencyMs=800` 前后各渲染一次，用 diff 找出 Pod 模板中变化的字段。按本章的原理，这次变更会创建新的 ReplicaSet 吗？
+3. **（排障）** `helm upgrade --set faults.errorRate=0.5` 报 `got string, want number`。解释原因，并给出两种正确的写法。
+4. **（设计）** prod 的反亲和为什么用“软”规则（preferred）？3 个副本、2 个工作节点时改成“硬”规则（required）会怎样？什么场景下必须用硬规则？
+5. **（原理）** `helm rollback demo-api-prod 2` 之后，`helm history` 里为什么出现的是修订 5，而不是回到修订 2？这种只追加的历史有什么好处？它与 GitOps 的回滚有什么根本区别？
+6. **（思考）** 本章的 `checksum/config` 方案在第 8 章引发了真实故障。用 Pod 模板哈希的原理，解释 Chart 0.3.1（配置写进 Pod 模板）为什么能修复它；再与“名字带内容哈希的不可变 ConfigMap”方案比较异同。
+:::
+
+参考答案见附录 B。
 
 ## 本章小结
 

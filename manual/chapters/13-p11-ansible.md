@@ -12,6 +12,13 @@
 
 **验收标准（路线图 D10）：** 第二次执行 `changed=0`。已通过：首次运行 node1、node2 各 changed=8，第二次运行全部 changed=0（`evidence/p11/run-2-idempotent.log`）。
 
+**学完本章，你应当能够：**
+
+- 解释声明式与命令式的区别，以及幂等性为什么是配置管理的基石；
+- 说清一个 Ansible 任务在托管节点上是如何执行、如何判断 `changed` 的；
+- 编写带 Inventory、角色、模板、handler 和按主机变量的 playbook，并让它的第二次运行 `changed=0`；
+- 用 `--check --diff` 检测配置漂移，并把 Ansible 与 GitOps、不可变基础设施放在同一张图里比较。
+
 ## 原理 {#p11-principles}
 
 ### 声明式与幂等性
@@ -50,11 +57,21 @@ flowchart LR
 | Handler | 被 `notify` 的任务。只有在通知它的任务确实发生了变化时才运行，并且在 play 结束时只运行一次 | 配置变化后重启服务 |
 | 集合（collection） | 模块和插件的发布单位，用 `ansible-galaxy` 安装 | `community.docker` 5.4.0 |
 
+::: principle
+**一个任务在托管节点上是怎么执行的。** 对每个任务，Ansible 在控制节点上把模块代码和参数打包成一个自包含的 Python 程序（AnsiballZ），经连接插件传到托管节点的临时目录（开启 pipelining 时直接经标准输入传入），用节点上的 python3 执行，读取它输出的 JSON（`changed`、`failed` 和返回值），最后清理临时文件。这解释了三件事：
+
+- 托管节点需要 Python，只有 `raw` 例外，因为它直接执行命令、不经过模块；
+- 幂等是**模块自己实现的**：模块先读取当前状态，与参数描述的期望状态比较，只有不同才修改，并返回 `changed: true`；
+- check 模式也要模块自己支持：支持的模块只比较、不修改。
+
+连接插件只负责“传文件、执行命令”，所以把 SSH 换成 `docker exec`，playbook 一行都不用改。
+:::
+
 **变量的优先级**（只列本章用到的几层，从低到高）：角色的 `defaults/main.yml` → Inventory 中的 `group_vars` → `host_vars` → 命令行 `-e`。本章在角色默认值中设置 `demo_api_env: lab`，再在 `host_vars/node2.yml` 中把 node2 改成 `staging`，所以同一个模板在两台主机上渲染出不同的结果。
 
 ## 动手实验 {#p11-lab}
 
-### 1. 准备控制节点
+### 准备控制节点
 
 ```bash
 python3 -m venv ~/work/ansible-venv
@@ -65,7 +82,7 @@ export ANSIBLE_CONFIG="$PWD/ansible.cfg"                            # 原因见�
 ansible-galaxy collection install -r collections/requirements.yml -p ./collections
 ```
 
-### 2. 一个真实的坑：ansible.cfg 被忽略了
+### 一个真实的坑：ansible.cfg 被忽略了
 
 第一次运行时没有设置 `ANSIBLE_CONFIG`，结果失败了：
 
@@ -78,7 +95,7 @@ ansible-galaxy collection install -r collections/requirements.yml -p ./collectio
 
 原因：仓库在 Windows 盘上，WSL 以 drvfs 挂载，所有目录在 Linux 看来都是“所有人可写”（777）。如果 Ansible 自动加载这种目录里的 `ansible.cfg`，任何人都可以放一个恶意配置进来，比如改掉连接参数、插件路径。所以 Ansible 选择忽略它。结果就是 Inventory 没有被读取，`groups['lab_nodes']` 不存在。官方给出的做法是用 `ANSIBLE_CONFIG` 显式指定配置文件，把项目放到 Linux 原生路径下同样可以。
 
-### 3. Playbook 的结构
+### Playbook 的结构
 
 `site.yml` 包含三个 play，体现了“先能连上，再谈配置”的顺序：
 
@@ -136,7 +153,7 @@ ansible-galaxy collection install -r collections/requirements.yml -p ./collectio
 
 `cache_valid_time` 这一行很容易被忽略：没有它，`update_cache: true` 每次都会刷新软件包索引并报告 changed，playbook 就永远做不到 changed=0。
 
-### 4. 首次运行与第二次运行
+### 首次运行与第二次运行
 
 首次运行时：localhost 创建了 2 个容器（changed=1）；两台节点各有 8 项变化：安装 Python、软件包、组、用户、目录、配置模板、logrotate 文件，以及最后触发的 handler。
 
@@ -151,7 +168,7 @@ node2                      : ok=9    changed=8    unreachable=0    failed=0
 
 ![第二次运行：三台主机 changed=0；两台节点上的配置文件由同一个模板渲染，node2 的 environment、replicas 来自 host_vars（终端记录渲染）](../../evidence/p11/run-2-idempotent.png)
 
-### 5. 配置漂移：发现与纠正
+### 配置漂移：发现与纠正
 
 模拟有人登录 node1，把 `replicas` 手工改成 5：
 
@@ -166,6 +183,10 @@ node2                      : ok=9    changed=8    unreachable=0    failed=0
 - **Ansible 与 Argo CD**：都是“期望状态 + 收敛”。Argo CD 持续运行、自动收敛；Ansible 默认按需运行，要定期运行或在 CI 中运行，才能接近持续收敛。
 - **用 Ansible 搭建实验环境**：第 2 章的 `bootstrap-root.sh` 是命令式脚本，靠 `id ... || useradd`、`test -f` 一类判断实现幂等。用 Ansible 重写会更简洁、更可读，还能直接 dry run。第 10 章 Datadog 课程也提到，Agent 可以用 Ansible、Chef、Puppet 等工具批量部署。
 - **不可变基础设施**：容器镜像和 Kubernetes 是“换掉而不是修改”，Ansible 是“原地收敛”。现实中两者常常并存：用 Ansible 管理节点的操作系统层，在节点上运行不可变的容器。
+
+::: tip
+**走向工程化。** 本章只覆盖了核心概念。真实项目中还会用到：`ansible-lint` 做静态检查（与第 3 章的 ruff、actionlint 同样的思路）；Molecule 在临时容器或虚拟机中测试角色，验证“首次收敛 + 第二次 changed=0”；`ansible-vault` 加密 Inventory 中的密码和密钥，不让明文进入 Git；以及在 CI 中定期运行 `--check --diff`，把漂移报告当作告警。
+:::
 
 ## 常见问题
 
@@ -185,6 +206,19 @@ node2                      : ok=9    changed=8    unreachable=0    failed=0
 
 **Q4：`--check` 模式下有任务被跳过。**
 `raw`、`command`、`shell` 等不支持 check 模式，会被跳过，dry run 不包含它们的效果。
+
+## 练习 {#p11-exercises}
+
+::: exercise
+1. **（理解）** 为什么 `apt` 任务设置了 `update_cache: true` 却没有 `cache_valid_time` 时，playbook 永远做不到 changed=0？再列举两种会破坏幂等的常见写法。
+2. **（原理）** 把连接插件从 SSH 换成 `docker exec`，playbook 为什么不用改？模块是怎样在托管节点上执行并判断 `changed` 的？
+3. **（动手）** 新建 `inventory/group_vars/lab_nodes.yml`，写入 `demo_api_replicas: 3`。先预测 node1、node2 渲染出的 `replicas` 各是多少，再运行验证，并用变量优先级解释结果。
+4. **（动手）** 用 Ansible 重写第 2 章 `bootstrap-root.sh` 中“创建用户、写 sudoers、添加 Docker 软件源”这几步。与原脚本相比，可读性和 dry run 能力有什么差别？
+5. **（排障）** 第二次运行仍然报告 changed=1，来自一个 `command` 任务。说明两种修正方法。
+6. **（思考）** Ansible 的“按需推送、原地收敛”和 Argo CD 的“持续拉取、自动收敛”相比，在漂移检测上有什么不同？怎样让 Ansible 更接近持续收敛？
+:::
+
+参考答案见附录 B。
 
 ## 本章小结
 

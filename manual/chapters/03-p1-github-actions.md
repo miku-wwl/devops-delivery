@@ -14,6 +14,14 @@
 
 **验收标准（路线图 D1）：** PR 自动质量门禁运行成功；测试故障能阻断合并。两项均已通过，证据见 `evidence/p1/`。
 
+**学完本章，你应当能够：**
+
+- 用事件、工作流、Job、Step、Runner 这几个概念解释一次 CI 运行，并写出带 `needs`、`concurrency`、最小 `permissions` 的工作流；
+- 把通用的检查抽成可复用工作流，在调用方和被调用方之间传递输入与输出；
+- 正确使用依赖缓存和镜像层缓存，并理解缓存的作用域；
+- 用规则集把“检查通过”变成合并的硬性条件，并用一次故障演练证明它有效；
+- 识别 CI 中常见的供应链风险（可移动的 tag、脚本注入、残留凭据）并加固。
+
 ## 原理：GitHub Actions 的执行模型 {#p1-model}
 
 ```{.mermaid caption="一次 pull_request 事件在 GitHub Actions 中的执行过程"}
@@ -236,20 +244,13 @@ uid=10001(app) gid=10001(app) groups=10001(app)
 
 ## CI 设计：可复用工作流 + 调用方 {#p1-ci}
 
-```{.mermaid caption="demo-api 的 PR 质量门禁结构"}
+```{.mermaid caption="demo-api 的 PR 质量门禁结构：lint 与 test 来自可复用工作流 reusable-python-ci.yml，三个必需检查全部通过才允许合并"}
 flowchart LR
-  PR["pull_request → main"] --> CI["ci.yml（调用方）"]
-  CI --> PY["job: python<br/>uses: reusable-python-ci.yml"]
-  subgraph RW["reusable-python-ci.yml（workflow_call）"]
-    L["lint<br/>ruff check + format"]
-    T["test<br/>pytest + 覆盖率 ≥ 90%<br/>上传 test-reports"]
-  end
-  PY --> L
-  PY --> T
-  L --> IMG["job: container image<br/>buildx + gha 缓存<br/>容器冒烟测试"]
-  T --> IMG
-  IMG --> CHK{"规则集 protect-main<br/>三个必需检查全部通过？"}
-  CHK -- 是 --> M["允许合并（squash）"]
+  PR["pull_request<br/>→ main"] --> CI["ci.yml<br/>job: python"]
+  CI --> L["lint<br/>ruff"] & T["test<br/>pytest ≥ 90%"]
+  L & T --> IMG["container image<br/>冒烟测试"]
+  IMG --> CHK{"必需检查<br/>全部通过？"}
+  CHK -- 是 --> M["允许合并<br/>（squash）"]
   CHK -- 否 --> B["合并被阻断"]
 ```
 
@@ -415,6 +416,10 @@ jobs:
 - **`needs: python`**：镜像构建依赖 lint 与测试通过，失败时直接 `skipped`，不浪费时间构建一个注定不能合并的镜像。
 - **`cache-from/cache-to: type=gha`**：BuildKit 把镜像层缓存到 GitHub Actions 缓存服务；`mode=max` 连中间阶段（`build` 阶段）的层也缓存。
 - **冒烟测试**：单元测试证明代码逻辑正确，冒烟测试证明**镜像**能启动、能响应、确实以非 root 运行——这两件事不能互相替代。
+
+::: warning
+**触发条件决定了门禁的覆盖范围。** `ci.yml` 只在“向 main 发起的 PR”和“推送到 main”时运行。本项目后续各阶段的分支是层层叠加的（每个分支基于上一个阶段），它们的 PR 目标不是 main，于是这道门禁在第 4–11 章期间从未运行过。第 12 章第一次在阶段分支上手动触发它，安全扫描立刻发现了 7 个在此期间引入的高危配置问题。门禁只在被触发时才有效：设计触发条件时，要把所有会最终进入 main 的代码路径都考虑进去。
+:::
 
 ### 推送前先检查工作流本身：actionlint
 
@@ -610,6 +615,19 @@ GitHub 只向登录用户展示 Actions 日志；运行摘要和 Job 结果图�
 
 **Q7：如何在本地预先运行工作流？**
 可以用 actionlint 做静态检查；第三方工具 `act` 可以在本地 Docker 中模拟运行，但与 GitHub 托管 Runner 的环境并不完全相同，最终仍以真实运行为准。
+
+## 练习 {#p1-exercises}
+
+::: exercise
+1. **（理解）** 去掉 `image` Job 的 `needs: python`，测试失败时会发生什么？`concurrency.cancel-in-progress` 为什么要写成表达式 `github.event_name == 'pull_request'`，而不是直接写 `true`？
+2. **（动手）** 给 `reusable-python-ci.yml` 增加一个输入 `coverage-threshold`（数字，默认 90），并让 pytest 使用它。它和 `pyproject.toml` 中的 `fail_under` 同时存在时，哪个生效？你会保留哪一个，为什么？
+3. **（安全）** 下面这一步有什么风险？请改写成安全的形式：`run: echo "PR title: ${{ github.event.pull_request.title }}"`
+4. **（排障）** 一个 PR 的必需检查一直显示 “Expected — Waiting for status to be reported”。列出三种可能的原因，以及各自的确认方法。
+5. **（设计）** 把规则集的 `strict_required_status_checks_policy` 改为 `true` 有什么好处和代价？对每天合并几十个 PR 的团队，有什么更好的办法？
+6. **（思考）** 本章的 warning 指出 `ci.yml` 从未在叠加的阶段分支上运行。你会怎样修改触发条件或分支策略，既能覆盖所有分支，又不浪费 Runner 时间？
+:::
+
+参考答案见附录 B。
 
 ## 本章小结
 

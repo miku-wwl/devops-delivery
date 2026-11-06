@@ -13,6 +13,13 @@
 
 **验收标准（路线图 D8 / O2，Gate G6）：** 路线图要求用本人的 Learning Center 账号完成学习路径。实际状态是 **PARTIAL**：14 门课的全部 56 篇讲义已读完并由平台记录；两门 Agent 实验的终端部分（共 7 个挑战）通过了实验平台的自动检查。依赖 Datadog 网页登录的实验部分、各课的反馈问卷和认证考试需要你本人完成，见[本章最后](#p8-todo)。
 
+**学完本章，你应当能够：**
+
+- 用标签和统一服务标签（`env`、`service`、`version`）组织遥测数据，并把它们对应到 OpenTelemetry 的资源属性；
+- 说出 Datadog Agent 的组成与配置优先级，在主机和容器中安装、配置 Agent 及其集成；
+- 区分五种指标类型，知道哪些可以跨主机聚合、哪些不能；
+- 把 monitor、SLO、燃烧率告警、事故管理流程对应到本书的开源实现上，并据此判断商业平台与自建方案的取舍。
+
 ## 学习方式与边界 {#p8-method}
 
 本章的所有网页操作，都是通过 Claude in Chrome 扩展在你自己的 Microsoft Edge 中进行的（浏览器标识为 `Edg/156.0.0.0`），使用的是你已经登录的 Learning Center 会话。
@@ -352,7 +359,7 @@ echo "install exit=$?"
 
 安装后，Agent 以 systemd 服务 `datadog-agent` 运行：
 
-![安装结果：Agent 7.85.1，服务 active；主机名 agent-host；cpu、disk、io、load、memory、file_handle 等核心检查无需任何配置就已经在运行（实验终端截图）](../../evidence/p8/agent-host-01-install-status.png)
+![安装结果：Agent 7.85.1，服务 active；主机名 agent-host；cpu、disk、io、load、memory、file_handle 等核心检查无需任何配置就已经在运行（实验终端截图）](../../evidence/p8/agent-host-01-install-status.png){height=125mm}
 
 点 Check，平台确认 Agent 已安装并在运行，进入下一个挑战。
 
@@ -614,6 +621,19 @@ Agent 默认只接收本机的链路。来自容器或其他主机的流量，�
 2. **完成两个 Agent 实验的剩余挑战。** “Agent on a Host”只剩第 6 个挑战（网页浏览）；“Agent on Docker”剩第 3、4 个挑战。注意实验会话可能已经过期，需要重启并重做终端部分，命令都在本章里。
 3. **填写各课的反馈问卷。** 问卷完成后课程才会到 100%，并发放结课证书。
 4. **认证考试**（若打算参加）由你本人报名和完成。
+
+## 练习 {#p8-exercises}
+
+::: exercise
+1. **（理解）** 统一服务标签 `env`、`service`、`version` 分别对应 OpenTelemetry 的哪些资源属性？在本项目中，它们是在哪里设置的？如果只缺少 `version`，哪些分析就做不了？
+2. **（原理）** 某服务的 10 台主机各自用 histogram 类型在本地算出 p95 后上报。能不能把 10 个 p95 取平均，作为全局的 p95？为什么 distribution 类型可以给出正确的全局百分位？这与第 9、12 章 PromQL 中“先 `sum by (le)`、再 `histogram_quantile`”的写法是什么关系？
+3. **（计算）** 一个 7 天的 SLO，目标 99.9%。希望“1 小时内消耗 5% 的预算”时立即呼叫，燃烧率阈值是多少？对应的 1 小时错误率是多少？
+4. **（动手，需要你本人登录实验的试用组织）** 为 Storedog 的一个服务建立基于指标的 SLO 和燃烧率 monitor，把参数与第 12 章 Prometheus 中的规则逐项对照。
+5. **（设计）** 对照表中 USM、CNM 这两行，开源栈一栏是空的。如果要在开源栈中补上“无需埋点的服务指标与网络可见性”，有哪些候选方案？它们分别需要什么前提条件？
+6. **（思考）** 选择商业平台还是自建开源栈，除了费用，还要考虑哪些因素？分别描述一个更适合 Datadog 的团队，和一个更适合自建的团队。
+:::
+
+参考答案见附录 B。
 
 ## 本章小结
 

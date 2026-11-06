@@ -98,9 +98,11 @@ td code, th code { font-size: .84em; word-break: break-all; }
 
 /* ---------- figures & diagrams ---------- */
 figure { margin: 4mm 0 5mm; text-align: center; break-inside: avoid; counter-increment: figure; }
-figure img { max-width: 100%; max-height: 205mm; border: 1px solid var(--rule); border-radius: 4px; }
+/* 155 mm leaves room for a caption and some text on the same page; taller images would
+   only fit on an almost empty page and push big gaps into the layout. */
+figure img { max-width: 100%; max-height: 155mm; border: 1px solid var(--rule); border-radius: 4px; }
 figure.diagram pre.mermaid { background: none; border: none; padding: 0; margin: 0; text-align: center; white-space: normal; }
-figure.diagram svg { max-width: 100%; height: auto; }
+figure.diagram svg { max-width: 100%; max-height: 140mm; width: auto; height: auto; }
 figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.6mm; }
 figcaption::before { content: "图 " counter(chapter) "-" counter(figure) "　"; font-weight: 700; color: var(--ink); }
 
@@ -134,3 +136,11 @@ div[title]::before { content: attr(title) !important; }
 .evidence { font-size: 8.8pt; color: var(--muted); }
 .lead { font-size: 11pt; color: #33404d; border-left: 3px solid var(--accent-2); padding-left: 3.5mm; margin: 0 0 4mm; }
 kbd { font-family: "Cascadia Mono", Consolas, monospace; font-size: .85em; border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 3px; padding: 0 .3em; }
+
+/* ---------- appendix tables: fixed column widths (auto layout wastes space) ---------- */
+.tbl-glossary table, .tbl-faq table, .tbl-evidence table, .tbl-check table { table-layout: fixed; }
+.tbl-glossary th:nth-child(1) { width: 26%; } .tbl-glossary th:nth-child(2) { width: 62%; } .tbl-glossary th:nth-child(3) { width: 12%; }
+.tbl-faq th:nth-child(1) { width: 9%; } .tbl-faq th:nth-child(2) { width: 91%; }
+.tbl-evidence th:nth-child(1) { width: 6%; } .tbl-evidence th:nth-child(2) { width: 8%; } .tbl-evidence th:nth-child(3) { width: 20%; }
+.tbl-evidence th:nth-child(4) { width: 11%; } .tbl-evidence th:nth-child(5) { width: 9%; } .tbl-evidence th:nth-child(6) { width: 46%; }
+.tbl-check th:nth-child(1) { width: 64%; } .tbl-check th:nth-child(2) { width: 18%; } .tbl-check th:nth-child(3) { width: 18%; }

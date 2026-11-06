@@ -14,6 +14,13 @@
 
 **验收标准（路线图 D4 / Gate G2）：** 声明式部署成功，Git 漂移能被检测、解释并恢复。已通过：dev 漂移 4 秒内被自愈；prod 漂移被检测并给出精确 diff，手动同步恢复；坏变更经 `git revert` 回滚（`evidence/p4/`）。
 
+**学完本章，你应当能够：**
+
+- 用 OpenGitOps 的四条原则说明 GitOps 与推送式部署的区别，以及它在凭据和审计上的好处；
+- 区分 Argo CD 的同步状态与健康状态，读懂两者的各种组合；
+- 用 AppProject、Application、`automated`/`prune`/`selfHeal` 设计分级的环境策略；
+- 通过合并请求完成发布，用 `git revert` 完成回滚，并检测和处理配置漂移。
+
 ## 原理：GitOps 与 Argo CD {#p4-principles}
 
 ### GitOps 的四条原则
@@ -57,6 +64,12 @@ flowchart LR
 - **健康状态（Health Status）**：对象本身是否工作正常——`Healthy` / `Progressing` / `Degraded` / `Missing` 等。例如 Deployment 的 Pod 全部就绪才算 `Healthy`。
 
 二者相互独立：后面你会看到 `OutOfSync` 但 `Healthy`（有人手动扩容到 5 个副本，服务正常但与 Git 不符），也会看到 `Synced` 但 `Progressing`（刚同步了新版本，Pod 还在滚动）。
+
+::: principle
+**Argo CD 怎么算出“健康”和“差异”。** 同步状态来自比较：repo-server 把 Git 中的 Chart 渲染成清单（期望状态），application-controller 通过 watch 维护集群对象的缓存（实际状态），两者逐字段对比（忽略 API Server 补上的默认值）。健康状态来自**健康检查**：Argo CD 为 Deployment、StatefulSet、Ingress 等内置类型写好了判断逻辑（例如 Deployment 的新副本全部可用才算 Healthy）；对 CRD，则用 Lua 脚本定义的健康检查，第 8 章的 Argo Rollouts 就是这样：Rollout 停在人工闸门时显示 `Suspended`，被分析中止时显示 `Degraded`。第 12 章会遇到 `Synced` + `Degraded` 的组合：集群中的对象与 Git 完全一致，但 Git 中的期望状态本身是坏的。
+
+还要区分两个常被混用的动作：**Refresh** 是重新读取 Git、重新比较（`argocd app get --refresh`），不会改变集群；**Sync** 才是把期望状态应用到集群。
+:::
 
 ### 应用仓库与配置仓库分离
 
@@ -300,7 +313,7 @@ spec.replicas=3 ready=3
 
 这是第 5 章坏配置演练的 GitOps 版本：一个“看起来合理”的合并请求把 prod 的错误注入率改成了 0.5；发现后，用 `git revert` 撤销它。
 
-![坏变更经合并请求进入 prod（20/40 返回 500），revert 合并后自动恢复（40/40 返回 200）（终端记录渲染）](../../evidence/p4/bad-change-revert.png)
+![坏变更经合并请求进入 prod（20/40 返回 500），revert 合并后自动恢复（40/40 返回 200）（终端记录渲染）](../../evidence/p4/bad-change-revert.png){height=128mm}
 
 `revert.sh` 对合并提交执行 `git revert -m 1`（保留第一个父提交，即 main 作为主线），同样通过合并请求进入 main。和 `helm rollback` 相比，这次回滚之后：**Git 与集群一致**；回滚本身也是一次有审阅记录的变更；没有人需要集群凭据。
 
@@ -349,6 +362,19 @@ Argo CD 不支持 Helm 的 `test` 钩子。冒烟测试可以改写为带 `argoc
 
 **Q6：自动化脚本在 `git fetch` 时卡住不动。**
 本实验遇到过：克隆时通过环境变量提供了认证头，后续的 `git fetch` 没有提供，Git 打开 `/dev/tty` 交互式询问用户名，进程一直等待（重定向 stdin 也拦不住）。在自动化环境中设置 `GIT_TERMINAL_PROMPT=0`，缺少凭据时立即失败，而不是挂起。
+
+## 练习 {#p4-exercises}
+
+::: exercise
+1. **（理解）** 同步状态和健康状态有四种常见组合：Synced + Healthy、Synced + Degraded、OutOfSync + Healthy、Synced + Progressing。分别说明含义，并从本书中各找一个真实出现过的例子。
+2. **（动手）** 假设 dev 将来启用 HPA（自动扩缩容）。HPA 会不断修改 `spec.replicas`，开启了 selfHeal 的 Argo CD 会怎么做？用 Application 的 `ignoreDifferences` 解决这个冲突，并验证手动扩容后同步状态的变化。
+3. **（安全）** 本章给 Argo CD 的是只读、30 天过期的项目令牌。如果图省事改用 root 的个人访问令牌，会扩大哪些风险？“能写配置仓库就等于能部署生产”意味着配置仓库需要哪些保护措施？
+4. **（排障）** 合并请求已经合并 5 分钟，Argo CD 仍然没有同步。按顺序列出你的排查步骤。
+5. **（设计）** prod 关闭了 selfHeal。举一个开启 selfHeal 会让事故恶化的例子，再举一个关闭 selfHeal 会带来风险的例子。
+6. **（思考）** 自动同步开启时，`argocd app rollback` 被拒绝。在 GitOps 中，最快的“紧急回滚”是什么？怎样在速度和审计之间取得平衡？
+:::
+
+参考答案见附录 B。
 
 ## 本章小结
 

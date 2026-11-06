@@ -13,6 +13,13 @@
 
 **验收标准（路线图 D2）：** 独立运行 GitLab 构建/测试/部署流水线。已通过：main 流水线完成 lint → test → 构建镜像 → 部署 dev → 手动部署 prod；MR 流水线在测试失败时被“流水线必须成功”规则阻断，修复后可合并并已合并（`evidence/p2/`）。
 
+**学完本章，你应当能够：**
+
+- 解释 GitLab Runner 的拉取模型、executor 和两类令牌（Runner 认证令牌、`CI_JOB_TOKEN`）；
+- 用 `workflow:rules`、`stages`/`needs`、`cache`/`artifacts`、`reports`、`environment` 和 `when: manual` 搭建 MR 门禁与发布流程；
+- 在自建 GitLab 中用“流水线必须成功”阻断合并，并读懂 `detailed_merge_status`；
+- 安全地处理凭据：令牌不落盘、日志脱敏后要验证、泄露后先吊销。
+
 ## 原理：GitLab CI/CD 的执行模型 {#p2-model}
 
 ```{.mermaid caption="GitLab 与 Runner：Runner 主动轮询领取作业"}
@@ -338,6 +345,10 @@ $ curl -s localhost:18081/api/v1/info
 {"service":"demo-api","version":"gl-1","commit":"034fd907"}
 ```
 
+::: warning
+这两个容器（`demo-api-dev` 占用 `127.0.0.1:18081`，`demo-api-prod` 占用 `127.0.0.1:18082`）会一直运行，直到被清理。第 12 章在同一个端口上做 `kubectl port-forward` 时，IPv4 地址已被占用，port-forward 只绑定了 IPv6，冒烟测试于是打到了这里的旧容器。长期运行的实验环境要记录端口分配，不用的部署及时清理。
+:::
+
 接着用 API 运行手动作业，相当于在页面上点击 ▶（`POST /projects/:id/jobs/:job_id/play`）：
 
 ```console
@@ -499,6 +510,19 @@ docker compose -f automation/gitlab/compose.yaml down -v       # 连同数据卷
 docker rm -f demo-api-dev demo-api-prod                        # 流水线部署的容器
 rm -f ~/.lab-secrets/gitlab-root-password ~/.lab-secrets/gitlab-root-token
 ```
+
+## 练习 {#p2-exercises}
+
+::: exercise
+1. **（理解）** Runner 主动拉取作业的模型，对网络边界和安全意味着什么？与 GitHub 托管的 Runner 相比，自托管 Runner 适合什么场景、要额外承担什么责任？
+2. **（分析）** 去掉 `workflow:rules` 的第 2 条规则（分支上有打开的 MR 时 `when: never`），向一个已有 MR 的分支推送会发生什么？MR 页面会显示哪一条流水线？
+3. **（排障）** 假设为了给每个 MR 部署一个评审环境，把 `deploy-dev` 改为在 MR 中也运行，`build-image` 的规则保持不变。此后，一个只改了文档的 MR 无法创建流水线，报错指向 `deploy-dev` 的 `needs: [build-image]`。说明原因，并给出两种修复方法。
+4. **（动手）** 为 `.gitlab-ci.yml` 增加一个 `security` 作业，用与第 3 章相同的 Trivy 命令扫描仓库，只在 MR 和 main 上运行。Trivy 每次都要下载漏洞数据库，怎样用 `cache` 加速？
+5. **（安全）** 本章 Runner 令牌泄露后，为什么“删掉日志”远远不够？写出凭据泄露的标准处置顺序。
+6. **（思考）** 缓存键的 `-protected` 后缀防的是什么攻击？如果 MR 的缓存能被 main 的发布作业读取，攻击者可以怎样利用？
+:::
+
+参考答案见附录 B。
 
 ## 本章小结
 

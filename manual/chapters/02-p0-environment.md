@@ -15,6 +15,13 @@
 
 **验收标准：** `docker run hello-world` 成功；用固定版本节点镜像创建的 Kind 集群节点进入 `Ready`；所有工具版本与 `versions.env` 一致。本章验收已全部通过（证据见 `evidence/p0/`）。
 
+**学完本章，你应当能够：**
+
+- 说清 Windows → WSL2 → Docker → Kind 节点 → Pod 这几层的关系，判断一条命令实际在哪一层执行；
+- 用脚本可重复地创建、验证和销毁实验环境，并对下载的每个二进制做 SHA256 校验；
+- 解释 Kind 节点镜像、kubeconfig 和 `kind load` 各自的作用；
+- 用 `transcript.sh` 录制可复查的终端证据。
+
 ## 原理：这套实验环境由哪些层组成 {#p0-layers}
 
 在动手之前，先弄清楚命令最终是在“哪一层”执行的。很多环境问题（网络不通、权限不够、找错了命令）都源于没分清层次。
@@ -498,6 +505,18 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File automation\lab\wsl-create.ps1
 wsl.exe -d devops-lab -u root -- bash /mnt/d/workshop/nov/devops-delivery/automation/lab/bootstrap-root.sh
 wsl.exe --terminate devops-lab
 ```
+
+## 练习 {#p0-exercises}
+
+::: exercise
+1. **（理解）** demo-api 的一个 Pod 正在运行。从 Windows 的 PowerShell 出发，要看到它的进程，需要依次穿过哪几层？`docker ps` 能看到它吗？`kubectl get pods` 呢？
+2. **（动手）** 仿照 `bootstrap-root.sh` 的模式，为一个新工具（例如 `stern`）写“下载 → 从同一发布取校验和 → 校验 → 安装”的代码。故意改错哈希中的一个字符，观察脚本的行为，并说明是 `set -euo pipefail` 中的哪一项让它停下的。
+3. **（排障）** 前置检查中，镜像仓库的 `/v2/` 返回 401 被视为“网络可达”。如果返回的是 403、连接超时、证书错误，分别说明了什么？各自该从哪里查起？
+4. **（思考）** 固定版本让环境可复现，但也意味着不会自动获得安全更新。你会如何定期、可审阅地更新 `versions.env`？
+5. **（排障）** 回到实验环境时发现 Kind 节点停在 `Exited (128)`。根据本章 Q9，说明原因、恢复方法，以及怎样预防。
+:::
+
+参考答案见附录 B。
 
 ## 本章小结
 
