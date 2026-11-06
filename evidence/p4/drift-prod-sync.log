@@ -1,0 +1,20 @@
+# transcript: P4 resolve prod drift with an explicit sync
+# recorded: 2026-11-05T23:57:19Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# rollback to an older Argo CD history entry is refused while automated sync is on
+$ argocd app rollback demo-api-prod 0 --grpc-web
+{"level":"fatal","msg":"rpc error: code = FailedPrecondition desc = rollback cannot be initiated when auto-sync is enabled","time":"2026-11-06T12:57:19+13:00"}
+[exit 20]
+
+$ argocd app sync demo-api-prod --grpc-web --timeout 180 | grep -E 'Sync Status|Health Status|Operation|Phase|Deployment'
+2026-11-06T12:57:19+13:00   apps   Deployment                 prod         demo-api-prod  OutOfSync  Healthy              
+2026-11-06T12:57:20+13:00   apps   Deployment                 prod         demo-api-prod  OutOfSync  Healthy              deployment.apps/demo-api-prod configured
+Sync Status:        Synced to main (f65c674)
+Health Status:      Healthy
+Operation:          Sync
+Phase:              Succeeded
+apps    Deployment           prod       demo-api-prod  Synced  Healthy        deployment.apps/demo-api-prod configured
+
+$ kubectl -n prod get deploy demo-api-prod -o jsonpath='spec.replicas={.spec.replicas} ready={.status.readyReplicas}{"\n"}'
+spec.replicas=3 ready=3
+

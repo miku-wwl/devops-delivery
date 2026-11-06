@@ -1,0 +1,5 @@
+# Top-level runtime dependencies. Compile the fully pinned lock file with:
+#   uv pip compile requirements.in -o requirements.txt --python-version 3.13 --python-platform linux
+fastapi==0.162.0
+uvicorn==0.54.0
+prometheus-client==0.26.0

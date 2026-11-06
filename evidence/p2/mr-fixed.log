@@ -1,0 +1,35 @@
+# transcript: P2 fix commit makes the merge request mergeable
+# recorded: 2026-11-05T23:36:45Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ export GL_TOKEN="$(cat ~/.lab-secrets/gitlab-root-token)"
+
+$ export GIT_CONFIG_COUNT=2 GIT_CONFIG_KEY_0=http.extraHeader GIT_CONFIG_VALUE_0="Authorization: Basic $(printf 'oauth2:%s' "$GL_TOKEN" | base64 -w0)" GIT_CONFIG_KEY_1=safe.directory GIT_CONFIG_VALUE_1='*'
+
+$ git push -q http://localhost:8929/root/devops-delivery.git gl/feature-bulk-discount:refs/heads/feature/bulk-discount 2>&1 | grep -v '^remote:'
+[exit 1]
+
+$ sleep 8
+
+$ bash automation/gitlab/wait-pipeline.sh --mr 1
+pipeline #3 [merge_request_event] ref=refs/merge-requests/1/head sha=7343db4d status=success duration=46s
+  lint   lint         success  23s
+  test   test         success  29s
+  build  build-image  success  16s
+
+$ curl -s -H "PRIVATE-TOKEN: $GL_TOKEN" "http://localhost:8929/api/v4/projects/1/merge_requests/1" | jq '{iid, detailed_merge_status, head_pipeline: {id: .head_pipeline.id, status: .head_pipeline.status, coverage: .head_pipeline.coverage}}'
+{
+  "iid": 1,
+  "detailed_merge_status": "unchecked",
+  "head_pipeline": {
+    "id": 3,
+    "status": "success",
+    "coverage": "99.00"
+  }
+}
+
+# workflow:rules check - pipelines per ref (the feature branch never got a duplicate branch pipeline)
+$ curl -s -H "PRIVATE-TOKEN: $GL_TOKEN" "http://localhost:8929/api/v4/projects/1/pipelines?per_page=20" | jq -r '.[] | "#\(.id)\t\(.source)\t\(.ref)\t\(.status)"' | column -t -s $'\t'
+#3  merge_request_event  refs/merge-requests/1/head  success
+#2  merge_request_event  refs/merge-requests/1/head  failed
+#1  push                 main                        success
+

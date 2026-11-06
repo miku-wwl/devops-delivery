@@ -1,0 +1,70 @@
+# Default values for demo-api. Environment files (values-dev.yaml, values-prod.yaml)
+# override only what differs. Validated by values.schema.json on lint/install.
+
+# -- Number of pods (ignored when autoscaling.enabled is true)
+replicaCount: 1
+
+image:
+  # -- Image repository. The lab's local registry is localhost:5001 (see delivery/kind).
+  repository: localhost:5001/demo-api
+  # -- Image tag; defaults to the chart's appVersion
+  tag: ""
+  # -- Image digest (sha256:...). When set, the image is pulled by digest and tag is ignored.
+  digest: ""
+  pullPolicy: IfNotPresent
+
+# -- Logical environment name, added as a pod label (dev | staging | prod)
+environment: dev
+
+# -- Fault injection for drills (maps to FAULT_ERROR_RATE / FAULT_LATENCY_MS)
+faults:
+  errorRate: 0
+  latencyMs: 0
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+# -- Add prometheus.io/* annotations so annotation-based scrape configs find the pods
+metricsAnnotations: true
+
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+
+autoscaling:
+  # -- Requires metrics-server in the cluster
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+
+# Secure defaults that satisfy the "restricted" Pod Security Standard.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: ["ALL"]
+
+# -- "soft": prefer spreading pods over nodes (built from the chart's selector labels)
+podAntiAffinityPreset: ""
+
+nodeSelector: {}
+tolerations: []
+# -- Full custom affinity; takes precedence over podAntiAffinityPreset
+affinity: {}

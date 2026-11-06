@@ -1,0 +1,68 @@
+# transcript: P5 promote one signed digest from dev to prod
+# recorded: 2026-11-06T00:20:23Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ export DIGEST=sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74
+
+# 1. dev gets the CI-built, signed image - referenced by digest, never by tag
+$ bash delivery/argocd/promote.sh dev image.repository=ghcr.io/miku-wwl/devops-delivery/demo-api image.digest=$DIGEST --merge --title "dev: run signed image $DIGEST"
+ envs/dev/values.yaml | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+@@ -2,3 +2,4 @@
+ image:
+-  repository: localhost:5001/demo-api
++  repository: ghcr.io/miku-wwl/devops-delivery/demo-api
+   tag: "0.1.1"
++  digest: sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74
+merge request !5: http://localhost:8929/root/delivery-gitops/-/merge_requests/5
+merged !5 -> main @ fdc0f62 by root
+
+$ bash delivery/argocd/wait-sync.sh demo-api-dev
+t+0s  revision=3e45aa3 sync=Synced health=Healthy operation=Succeeded
+t+51s  revision=fdc0f62 sync=Synced health=Progressing operation=Succeeded
+t+67s  revision=fdc0f62 sync=Synced health=Healthy operation=Succeeded
+reached Synced/Healthy at fdc0f62 after 67s
+
+$ kubectl -n dev get pods -l app.kubernetes.io/name=demo-api -o jsonpath='{range .items[*]}{.metadata.name}{"  image="}{.spec.containers[0].image}{"\n  imageID="}{.status.containerStatuses[0].imageID}{"\n"}{end}'
+demo-api-dev-f4c745bdc-fgk42  image=ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74
+  imageID=ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74
+demo-api-dev-f64db4b8f-hzqxv  image=localhost:5001/demo-api:0.1.1
+  imageID=localhost:5001/demo-api@sha256:f9519d2a91be04b0d78c7ee6b85980e66d717e705c743bec9ac7ac619210097c
+demo-api-dev-smoke-test  image=curlimages/curl:8.23.0
+  imageID=docker.io/curlimages/curl@sha256:3fb7e13e5d179a845c97d78204f3f1064d1907037f26a3ebf91710571151fd93
+
+# 2. after dev looks good, the *same* digest is promoted to prod
+$ bash delivery/argocd/promote.sh prod image.repository=ghcr.io/miku-wwl/devops-delivery/demo-api image.digest=$DIGEST --merge --title "prod: promote $DIGEST from dev"
+ envs/prod/values.yaml | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+@@ -2,3 +2,4 @@
+ image:
+-  repository: localhost:5001/demo-api
++  repository: ghcr.io/miku-wwl/devops-delivery/demo-api
+   tag: "0.1.1"
++  digest: sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74
+merge request !6: http://localhost:8929/root/delivery-gitops/-/merge_requests/6
+merged !6 -> main @ 81402f6 by root
+
+$ bash delivery/argocd/wait-sync.sh demo-api-prod
+t+0s  revision=3e45aa3 sync=Synced health=Healthy operation=Succeeded
+t+16s  revision=fdc0f62 sync=Synced health=Healthy operation=Succeeded
+t+122s  revision=81402f6 sync=Synced health=Progressing operation=Succeeded
+t+148s  revision=81402f6 sync=Synced health=Healthy operation=Succeeded
+reached Synced/Healthy at 81402f6 after 148s
+
+$ kubectl -n prod get pods -l app.kubernetes.io/name=demo-api -o jsonpath='{range .items[*]}{.metadata.name}{"  imageID="}{.status.containerStatuses[0].imageID}{"\n"}{end}'
+demo-api-prod-7c5c87cfbd-247w5  imageID=ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74
+demo-api-prod-7c5c87cfbd-8d6tp  imageID=ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74
+demo-api-prod-7c5c87cfbd-9tktx  imageID=ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74
+
+# 3. one digest everywhere
+$ kubectl get pods -A -l app.kubernetes.io/name=demo-api -o jsonpath='{range .items[*]}{.status.containerStatuses[0].imageID}{"\n"}{end}' | sort | uniq -c
+      1 docker.io/curlimages/curl@sha256:3fb7e13e5d179a845c97d78204f3f1064d1907037f26a3ebf91710571151fd93
+      4 ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74
+
+$ bash delivery/kind/probe.sh prod demo-api-prod /api/v1/info 10
+HTTP status count: 10 200
+
+$ kubectl -n prod exec deploy/demo-api-prod -- python -c "import urllib.request; print(urllib.request.urlopen('http://127.0.0.1:8080/api/v1/info').read().decode())"
+{"service":"demo-api","version":"p5/supply-chain-1","commit":"04a724fbbb668ed5d7e8200d1b896d125b2964e7"}
+

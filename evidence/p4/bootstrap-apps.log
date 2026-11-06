@@ -1,0 +1,60 @@
+# transcript: P4 hand the environments from Helm to Argo CD
+# recorded: 2026-11-05T23:49:37Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ argocd login localhost:8443 --insecure --username admin --password "$(cat ~/.lab-secrets/argocd-admin-password)" --grpc-web
+'admin:login' logged in successfully
+Context 'localhost:8443' updated
+
+$ argocd version --short --grpc-web
+argocd: v3.6.1+94037c4
+argocd-server: v3.6.1
+
+# the P3 Helm releases are removed; from now on Git (via Argo CD) owns these namespaces
+$ helm uninstall demo-api-dev -n dev
+release "demo-api-dev" uninstalled
+
+$ helm uninstall demo-api-prod -n prod
+release "demo-api-prod" uninstalled
+
+$ kubectl apply -f delivery/gitops/apps/project.yaml -f delivery/gitops/apps/demo-api-dev.yaml -f delivery/gitops/apps/demo-api-prod.yaml
+appproject.argoproj.io/delivery created
+Warning: metadata.finalizers: "resources-finalizer.argocd.argoproj.io": prefer a domain-qualified finalizer name including a path (/) to avoid accidental conflicts with other finalizer writers
+application.argoproj.io/demo-api-dev created
+application.argoproj.io/demo-api-prod created
+
+$ sleep 45
+
+$ argocd app list --grpc-web
+NAME                  CLUSTER                         NAMESPACE  PROJECT   STATUS  HEALTH   SYNCPOLICY  CONDITIONS  REPO                                         PATH             TARGET
+argocd/demo-api-dev   https://kubernetes.default.svc  dev        delivery  Synced  Healthy  Auto-Prune  <none>      http://gitlab:8929/root/delivery-gitops.git  charts/demo-api  main
+argocd/demo-api-prod  https://kubernetes.default.svc  prod       delivery  Synced  Healthy  Auto-Prune  <none>      http://gitlab:8929/root/delivery-gitops.git  charts/demo-api  main
+
+$ argocd app get demo-api-prod --grpc-web
+Name:               argocd/demo-api-prod
+Project:            delivery
+Server:             https://kubernetes.default.svc
+Namespace:          prod
+URL:                https://localhost:8443/applications/demo-api-prod
+Source:
+- Repo:             http://gitlab:8929/root/delivery-gitops.git
+  Target:           main
+  Path:             charts/demo-api
+  Helm Values:      values-prod.yaml,../../envs/prod/values.yaml
+SyncWindow:         Sync Allowed
+Sync Policy:        Automated (Prune)
+Sync Status:        Synced to main (7e0c4d3)
+Health Status:      Healthy
+
+GROUP   KIND                 NAMESPACE  NAME           STATUS  HEALTH   HOOK  MESSAGE
+policy  PodDisruptionBudget  prod       demo-api-prod  Synced  Healthy        poddisruptionbudget.policy/demo-api-prod created
+        ServiceAccount       prod       demo-api-prod  Synced                 serviceaccount/demo-api-prod created
+        ConfigMap            prod       demo-api-prod  Synced                 configmap/demo-api-prod created
+        Service              prod       demo-api-prod  Synced  Healthy        service/demo-api-prod created
+apps    Deployment           prod       demo-api-prod  Synced  Healthy        deployment.apps/demo-api-prod created
+
+$ kubectl -n prod get deploy demo-api-prod -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'
+localhost:5001/demo-api:0.1.0
+
+$ kubectl -n dev get deploy demo-api-dev -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'
+localhost:5001/demo-api:0.1.1
+

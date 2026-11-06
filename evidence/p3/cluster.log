@@ -1,0 +1,68 @@
+# transcript: P3 lab cluster with local registry
+# recorded: 2026-11-05T23:18:52Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash delivery/kind/create-lab-cluster.sh
+Unable to find image 'registry:3.1.2' locally
+3.1.2: Pulling from library/registry
+b6d795448ea0: Pulling fs layer
+7a0bafd2eac6: Pulling fs layer
+7b229517ed22: Pulling fs layer
+30513d5b3b2d: Pulling fs layer
+9cf9c5d068e4: Pulling fs layer
+7b229517ed22: Already exists
+9cf9c5d068e4: Download complete
+7a0bafd2eac6: Download complete
+b6d795448ea0: Download complete
+30513d5b3b2d: Download complete
+9cf9c5d068e4: Pull complete
+5b07f1fa18b6: Download complete
+828a4dc4d650: Download complete
+7a0bafd2eac6: Pull complete
+b6d795448ea0: Pull complete
+30513d5b3b2d: Pull complete
+Digest: sha256:88604dfe2f457935aafbb96755d0511e8216eb1b8df6b94329d530706eb8b906
+Status: Downloaded newer image for registry:3.1.2
+c85ed789d1a92f6a49274871d829e227df763536890417829ca93a08f8bd0bb3
+No kind clusters found.
+Creating cluster "lab" ...
+ • Ensuring node image (kindest/node:v1.37.0) 🖼️  ...
+ ✓ Ensuring node image (kindest/node:v1.37.0) 🖼️
+ • Preparing nodes 📦 📦 📦   ...
+ ✓ Preparing nodes 📦 📦 📦 
+ • Writing configuration 📜  ...
+ ✓ Writing configuration 📜
+ • Starting control-plane 🕹️  ...
+ ✓ Starting control-plane 🕹️
+ • Installing CNI 🔌  ...
+ ✓ Installing CNI 🔌
+ • Installing StorageClass 💾  ...
+ ✓ Installing StorageClass 💾
+ • Joining worker nodes 🚜  ...
+ ✓ Joining worker nodes 🚜
+ • Waiting ≤ 3m0s for control-plane = Ready ⏳  ...
+ ✓ Waiting ≤ 3m0s for control-plane = Ready ⏳
+ • Ready after 9s 💚
+Set kubectl context to "kind-lab"
+You can now use your cluster with:
+
+kubectl cluster-info --context kind-lab
+
+Have a question, bug, or feature request? Let us know! https://kind.sigs.k8s.io/#community 🙂
+configmap/local-registry-hosting created
+NAME                STATUS   ROLES           AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE                       KERNEL-VERSION                              CONTAINER-RUNTIME
+lab-control-plane   Ready    control-plane   26s   v1.37.0   172.18.0.2    <none>        Debian GNU/Linux 13 (trixie)   6.6.114.1-microsoft-standard-WSL2 (amd64)   containerd://2.3.4
+lab-worker          Ready    <none>          12s   v1.37.0   172.18.0.4    <none>        Debian GNU/Linux 13 (trixie)   6.6.114.1-microsoft-standard-WSL2 (amd64)   containerd://2.3.4
+lab-worker2         Ready    <none>          13s   v1.37.0   172.18.0.3    <none>        Debian GNU/Linux 13 (trixie)   6.6.114.1-microsoft-standard-WSL2 (amd64)   containerd://2.3.4
+
+$ docker ps --filter name=kind-registry --filter name=lab- --format '{{.Names}}  {{.Image}}  {{.Status}}'
+lab-worker2  kindest/node:v1.37.0  Up 39 seconds
+lab-control-plane  kindest/node:v1.37.0  Up 39 seconds
+lab-worker  kindest/node:v1.37.0  Up 39 seconds
+kind-registry  registry:3.1.2  Up 45 seconds
+gitlab-runner  gitlab/gitlab-runner:alpine-v19.5.2  Up About a minute
+
+$ for n in $(kind get nodes --name lab); do echo "$n: $(docker exec $n cat /etc/containerd/certs.d/localhost:5001/hosts.toml)"; done
+lab-worker2: [host."http://kind-registry:5000"]
+lab-control-plane: [host."http://kind-registry:5000"]
+lab-worker: [host."http://kind-registry:5000"]
+

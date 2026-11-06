@@ -1,0 +1,12 @@
+# transcript: P1 actionlint
+# recorded: 2026-11-05T22:59:43Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.12 -color=false -verbose 2>&1 | grep -vE '^verbose: (Using|Linting|Processing)'
+verbose: Detected project: /repo
+verbose: Collected 2 YAML files
+verbose: Found 0 parse errors in 1 ms for .github/workflows/ci.yml
+verbose: Found 0 parse errors in 0 ms for .github/workflows/reusable-python-ci.yml
+verbose: Found total 0 errors in 44 ms for .github/workflows/reusable-python-ci.yml
+verbose: Found total 0 errors in 47 ms for .github/workflows/ci.yml
+verbose: Found 0 errors in 2 files
+

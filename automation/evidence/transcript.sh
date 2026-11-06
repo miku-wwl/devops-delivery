@@ -20,6 +20,7 @@ set -uo pipefail
 out="${1:?usage: transcript.sh OUTFILE [TITLE] < commands}"
 title="${2:-$(basename "$out" .log)}"
 mkdir -p "$(dirname "$out")"
+out="$(cd "$(dirname "$out")" && pwd)/$(basename "$out")"   # absolute: commands may cd
 : > "$out"
 
 emit() { printf '%s\n' "$*" | tee -a "$out"; }

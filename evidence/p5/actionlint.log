@@ -1,0 +1,8 @@
+# transcript: P5 actionlint
+# recorded: 2026-11-06T00:14:18Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.12 -color=false
+
+$ echo "actionlint exit: $?"
+actionlint exit: 0
+

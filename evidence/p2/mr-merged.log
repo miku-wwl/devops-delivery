@@ -1,0 +1,25 @@
+# transcript: P2 merge in the local lab GitLab and the post-merge main pipeline
+# recorded: 2026-11-05T23:38:02Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ export GL_TOKEN="$(cat ~/.lab-secrets/gitlab-root-token)"
+
+$ curl -s -X PUT -H "PRIVATE-TOKEN: $GL_TOKEN" "http://localhost:8929/api/v4/projects/1/merge_requests/1/merge" | jq '{state, merged_by: .merged_by.username, merge_commit_sha: .merge_commit_sha[0:8]}'
+{
+  "state": "merged",
+  "merged_by": "root",
+  "merge_commit_sha": "dd38a063"
+}
+
+$ sleep 8
+
+$ bash automation/gitlab/wait-pipeline.sh main
+pipeline #4 [push] ref=main sha=dd38a063 status=manual duration=56s
+  lint    lint         success  22s
+  test    test         success  28s
+  build   build-image  success  14s
+  deploy  deploy-dev   success  13s
+  deploy  deploy-prod  manual   0s
+
+$ curl -s localhost:18081/api/v1/info; echo
+{"service":"demo-api","version":"gl-4","commit":"dd38a063"}
+

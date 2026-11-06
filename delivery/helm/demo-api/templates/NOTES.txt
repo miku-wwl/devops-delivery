@@ -1,0 +1,9 @@
+demo-api {{ include "demo-api.imageTag" . }} is deployed as release "{{ .Release.Name }}" in namespace "{{ .Release.Namespace }}" ({{ .Values.environment }}).
+Image: {{ include "demo-api.image" . }}
+
+Try it:
+  kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "demo-api.fullname" . }} 8080:{{ .Values.service.port }}
+  curl -s localhost:8080/api/v1/info
+
+Run the chart's smoke test:
+  helm test {{ .Release.Name }} -n {{ .Release.Namespace }}

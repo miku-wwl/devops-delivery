@@ -1,0 +1,115 @@
+# GitLab CI/CD pipeline for app/ (demo-api) - roadmap module D2.
+# Same quality gate as .github/workflows/ci.yml, expressed with GitLab features:
+#   workflow:rules   MR pipelines, no duplicate branch pipelines
+#   stages + needs   a DAG: test starts immediately instead of waiting for lint
+#   cache            pip downloads keyed on the dev lock file
+#   artifacts        JUnit + Cobertura reports shown in the merge request
+#   rules:changes    only rebuild the image in MRs that touch app/
+#   environments     dev deployed automatically from main, prod behind a manual job
+# Runs on the local lab GitLab (automation/gitlab/); jobs use the lab Docker Engine.
+
+workflow:
+  name: "$CI_PIPELINE_SOURCE · $CI_COMMIT_REF_NAME"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"  # merge request pipelines
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS    # branch with an open MR:
+      when: never                                         #   the MR pipeline covers it
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH         # main
+    - if: $CI_PIPELINE_SOURCE == "web"                    # "Run pipeline" button
+  auto_cancel:
+    on_new_commit: interruptible
+
+stages: [lint, test, build, deploy]
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  IMAGE: "demo-api:gl-$CI_COMMIT_SHORT_SHA"
+  LAB_NETWORK: gitlab-lab_default
+
+default:
+  image: python:3.13-slim
+  interruptible: true
+
+.python:
+  before_script:
+    - cd app
+    - pip install -r requirements-dev.txt
+  cache:
+    key:
+      files: [app/requirements-dev.txt]
+      prefix: pip
+    paths: [.cache/pip]
+
+lint:
+  stage: lint
+  extends: .python
+  script:
+    - ruff check .
+    - ruff format --check .
+
+test:
+  stage: test
+  extends: .python
+  needs: []  # DAG: no need to wait for the lint stage
+  script:
+    - mkdir -p reports
+    - pytest --cov --cov-report=term --cov-report=xml:reports/coverage.xml --junitxml=reports/junit.xml
+  coverage: '/^TOTAL.*\s(\d+(?:\.\d+)?)%$/'
+  artifacts:
+    when: always
+    expire_in: 1 week
+    paths: [app/reports/]
+    reports:
+      junit: app/reports/junit.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: app/reports/coverage.xml
+
+build-image:
+  stage: build
+  image: docker:29-cli
+  needs: [lint, test]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: [app/**/*]
+  script:
+    - docker build --build-arg APP_VERSION="gl-$CI_PIPELINE_IID" --build-arg GIT_SHA="$CI_COMMIT_SHORT_SHA" -t "$IMAGE" app
+    - docker image inspect "$IMAGE" --format 'built {{.RepoTags}} size={{.Size}} user={{.Config.User}}'
+
+.deploy:
+  stage: deploy
+  image: docker:29-cli
+  interruptible: false
+  script:
+    - docker rm -f "demo-api-$CI_ENVIRONMENT_NAME" >/dev/null 2>&1 || true
+    - >-
+      docker run -d --name "demo-api-$CI_ENVIRONMENT_NAME" --network "$LAB_NETWORK"
+      -p "127.0.0.1:$HOST_PORT:8080" -e APP_VERSION="gl-$CI_PIPELINE_IID" -e GIT_SHA="$CI_COMMIT_SHORT_SHA" "$IMAGE"
+    - for _ in $(seq 1 30); do wget -qO- "http://demo-api-$CI_ENVIRONMENT_NAME:8080/healthz" && break; sleep 1; done
+    - wget -qO- "http://demo-api-$CI_ENVIRONMENT_NAME:8080/api/v1/info"
+
+deploy-dev:
+  extends: .deploy
+  needs: [build-image]
+  variables:
+    HOST_PORT: "18081"
+  environment:
+    name: dev
+    url: http://localhost:18081/api/v1/info
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+deploy-prod:
+  extends: .deploy
+  needs: [deploy-dev]
+  variables:
+    HOST_PORT: "18082"
+  environment:
+    name: prod
+    url: http://localhost:18082/api/v1/info
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: manual   # a person decides when dev is promoted to prod
+  allow_failure: false  # the pipeline shows "blocked" until someone runs this job

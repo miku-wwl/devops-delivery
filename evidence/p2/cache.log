@@ -1,0 +1,17 @@
+# transcript: P2 pip cache: first vs later pipelines
+# recorded: 2026-11-05T23:39:29Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ export GL_TOKEN="$(cat ~/.lab-secrets/gitlab-root-token)"
+
+$ for p in 1 4; do j=$(curl -s -H "PRIVATE-TOKEN: $GL_TOKEN" "http://localhost:8929/api/v4/projects/1/pipelines/$p/jobs" | jq -r '.[] | select(.name=="lint") | .id'); echo "== pipeline #$p, job lint ($j)"; curl -s -H "PRIVATE-TOKEN: $GL_TOKEN" "http://localhost:8929/api/v4/projects/1/jobs/$j/trace" | sed -E 's/\x1b\[[0-9;]*[mK]//g' | grep -E 'Checking cache|cache.zip|Successfully extracted|No URL provided|not found|Creating cache|Uploading cache|Saving cache' | sed -E 's/^.{0,40}section_[a-z_]+:[0-9]+:[a-z_]+\r?//' | head -4; done
+== pipeline #1, job lint (1)
+2026-11-05T23:32:58.979402Z 01O Checking cache for pip-5cc53b81deb0c0fb477d0ec3a202d2d8d457eb5e-protected...
+2026-11-05T23:32:59.068999Z 01E No URL provided, cache will not be downloaded from shared cache server. Instead a local version of cache will be extracted. 
+2026-11-05T23:33:14.836276Z 00O+Saving cache for successful job
+2026-11-05T23:33:15.789588Z 01O Creating cache pip-5cc53b81deb0c0fb477d0ec3a202d2d8d457eb5e-protected...
+== pipeline #4, job lint (12)
+2026-11-05T23:38:20.706844Z 01O Checking cache for pip-5cc53b81deb0c0fb477d0ec3a202d2d8d457eb5e-protected...
+2026-11-05T23:38:20.787564Z 01E No URL provided, cache will not be downloaded from shared cache server. Instead a local version of cache will be extracted. 
+2026-11-05T23:38:21.083103Z 01O Successfully extracted cache
+2026-11-05T23:38:33.335462Z 00O+Saving cache for successful job
+

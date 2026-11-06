@@ -1,0 +1,36 @@
+# transcript: P4 promote 0.1.1 to prod through a merge request
+# recorded: 2026-11-05T23:52:05Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ argocd app get demo-api-prod --grpc-web | grep -E 'Sync Status|Health Status'
+Sync Status:        Synced to main (7e0c4d3)
+Health Status:      Healthy
+
+$ bash delivery/argocd/promote.sh prod image.tag=0.1.1 --merge --title "promote demo-api 0.1.1 to prod"
+ envs/prod/values.yaml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+@@ -3,2 +3,2 @@ image:
+   repository: localhost:5001/demo-api
+-  tag: "0.1.0"
++  tag: "0.1.1"
+merge request !2: http://localhost:8929/root/delivery-gitops/-/merge_requests/2
+merged !2 -> main @ f65c674 by root
+
+# no "argocd app sync": Argo CD notices the new commit on its next poll (<= 60s in this lab)
+$ bash delivery/argocd/wait-sync.sh demo-api-prod
+t+1s  revision=7e0c4d3 sync=Synced health=Healthy operation=Succeeded
+t+81s  revision=f65c674 sync=Synced health=Progressing operation=Succeeded
+t+103s  revision=f65c674 sync=Synced health=Healthy operation=Succeeded
+reached Synced/Healthy at f65c674 after 103s
+
+$ kubectl -n prod get deploy demo-api-prod -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'
+localhost:5001/demo-api:0.1.1
+
+$ bash delivery/kind/probe.sh prod demo-api-prod /api/v1/info 10
+HTTP status count: 10 200
+
+$ argocd app history demo-api-prod --grpc-web
+SOURCE  http://gitlab:8929/root/delivery-gitops.git
+ID      DATE                            REVISION
+0       2026-11-06 12:49:43 +1300 NZDT  main (7e0c4d3)
+1       2026-11-06 12:53:29 +1300 NZDT  main (f65c674)
+
