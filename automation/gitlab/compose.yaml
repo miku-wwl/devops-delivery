@@ -15,7 +15,10 @@ services:
       # 0.0.0.0 binding would also listen on the Windows host's LAN interfaces.
       - "127.0.0.1:8929:8929"
     environment:
-      GITLAB_ROOT_PASSWORD: ${GITLAB_ROOT_PASSWORD:?run gitlab-up.sh or export GITLAB_ROOT_PASSWORD}
+      # No value here on purpose: Compose passes the variable through from the shell
+      # (gitlab-up.sh exports it from ~/.lab-secrets). Writing "PASSWORD: ${...}" was
+      # flagged by GitGuardian as a generic password - a false positive, but noise.
+      GITLAB_ROOT_PASSWORD:
       GITLAB_OMNIBUS_CONFIG: |
         external_url 'http://localhost:8929'
         # Lab sizing: single Puma process, smaller Sidekiq, no bundled monitoring stack.

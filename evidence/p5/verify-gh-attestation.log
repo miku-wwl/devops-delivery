@@ -1,0 +1,23 @@
+# transcript: P5 consumer-side verification of GitHub attestations (Windows gh CLI)
+# recorded: 2026-11-06T00:19:02Z | host: jiejie | user: weila | cwd: /d/workshop/nov/devops-delivery
+
+# 1. SLSA build provenance: which workflow, which commit, which runner built this exact digest?
+$ gh attestation verify "oci://$IMG" --repo miku-wwl/devops-delivery --format json --jq '.[0].verificationResult | {predicateType: .statement.predicateType, signerWorkflow: .signature.certificate.githubWorkflowRef, sourceRepositoryDigest: .signature.certificate.sourceRepositoryDigest, runnerEnvironment: .signature.certificate.runnerEnvironment, rekorLogIndex: .verifiedTimestamps[0].uri}'
+{"predicateType":"https://slsa.dev/provenance/v1","rekorLogIndex":"https://rekor.sigstore.dev","runnerEnvironment":"github-hosted","signerWorkflow":"refs/heads/p5/supply-chain","sourceRepositoryDigest":"04a724fbbb668ed5d7e8200d1b896d125b2964e7"}
+
+# 2. SBOM attestation (SPDX 2.3) for the same digest
+$ gh attestation verify "oci://$IMG" --repo miku-wwl/devops-delivery --predicate-type https://spdx.dev/Document/v2.3 --format json --jq '.[0].verificationResult.statement | {predicateType, sbomPackages: (.predicate.packages | length)}'
+{"predicateType":"https://spdx.dev/Document/v2.3","sbomPackages":104}
+
+# 3. negative: the provenance must have been signed by ci.yml (it was signed by release.yml)
+$ gh attestation verify "oci://$IMG" --repo miku-wwl/devops-delivery --signer-workflow miku-wwl/devops-delivery/.github/workflows/ci.yml
+
+Error: verifying with issuer "sigstore.dev"
+[exit 1]
+
+# 4. negative: the image must come from another repository
+$ gh attestation verify "oci://$IMG" --repo miku-wwl/some-other-repo
+
+Error: HTTP 404: Not Found (https://api.github.com/repos/miku-wwl/some-other-repo/attestations/sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74?per_page=30&predicate_type=https://slsa.dev/provenance/v1)
+[exit 1]
+

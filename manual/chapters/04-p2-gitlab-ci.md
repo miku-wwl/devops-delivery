@@ -68,7 +68,9 @@ services:
       # 0.0.0.0 binding would also listen on the Windows host's LAN interfaces.
       - "127.0.0.1:8929:8929"
     environment:
-      GITLAB_ROOT_PASSWORD: ${GITLAB_ROOT_PASSWORD:?run gitlab-up.sh or export GITLAB_ROOT_PASSWORD}
+      # No value here on purpose: Compose passes the variable through from the shell
+      # (gitlab-up.sh exports it from ~/.lab-secrets).
+      GITLAB_ROOT_PASSWORD:
       GITLAB_OMNIBUS_CONFIG: |
         external_url 'http://localhost:8929'
         # Lab sizing: single Puma process, smaller Sidekiq, no bundled monitoring stack.
@@ -94,7 +96,7 @@ services:
 
 - **`external_url` 决定一切对外地址**：Web、API、Git 克隆地址都由它生成；端口写在 URL 里时，内置 Nginx 就监听这个端口，所以容器内外都是 8929。
 - **`GITLAB_OMNIBUS_CONFIG`** 是官方镜像读取配置的方式，内容就是 `gitlab.rb` 的 Ruby 语句。实验环境关掉了内置 Prometheus 等组件以节省内存（GitLab 官方建议至少 4 GB 内存）。
-- **`GITLAB_ROOT_PASSWORD`** 只在首次初始化数据库时生效，由脚本随机生成，保存在仓库之外。
+- **`GITLAB_ROOT_PASSWORD`** 只在首次初始化数据库时生效，由脚本随机生成，保存在仓库之外。这里故意只写键、不写值：Compose 会从当前 shell 环境中取值。第一版写的是 `GITLAB_ROOT_PASSWORD: ${GITLAB_ROOT_PASSWORD:?...}`（变量引用，并不包含任何密码），却被仓库所有者安装的 GitGuardian 判定为 “Generic Password”——详见本章常见问题 Q7。
 - **三个命名卷**保存配置、日志和数据，删除容器后数据仍在。
 - **Runner 挂载宿主机的 Docker socket**，它创建的作业容器都运行在实验环境的 Docker Engine 上。
 
@@ -485,6 +487,9 @@ Successfully extracted cache
 
 **Q6：GitLab 容器启动后很久仍不可用 / 内存不足。**
 首次启动需要初始化数据库，几分钟是正常的；内存低于 4 GB 时可能反复重启，参考本章的精简配置。
+
+**Q7：密钥扫描工具报告“发现硬编码密码”，怎么判断真假？**
+本项目真实遇到过：GitGuardian 在 PR 检查中把 `GITLAB_ROOT_PASSWORD: ${GITLAB_ROOT_PASSWORD:?...}` 标记为 “Generic Password”。处理步骤：① 打开报告指向的提交与行号，确认内容——这里是 Compose 的变量引用，没有任何密码值；② 扫描整个分支历史中的真实令牌格式（如 `glpat-`、`glrt-`、`ghp_`），结果为 0；③ 在 GitGuardian 中把该事件标记为误报；④ 改写配置，避免以后再触发（改为只写键、由 shell 传入值）。反过来，如果确认是真实凭据，正确的动作永远是**先吊销/轮换**，再清理代码与历史——正如本章 Runner 令牌泄露的处理过程。
 
 ## 清理
 
