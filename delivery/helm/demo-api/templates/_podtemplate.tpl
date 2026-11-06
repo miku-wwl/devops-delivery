@@ -12,8 +12,6 @@ metadata:
     app.kubernetes.io/part-of: devops-delivery
     environment: {{ .Values.environment }}
   annotations:
-    # Changing the ConfigMap changes this hash, which rolls the pods.
-    checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     {{- if .Values.metricsAnnotations }}
     prometheus.io/scrape: "true"
     prometheus.io/port: "8080"
@@ -32,10 +30,15 @@ spec:
         - name: http
           containerPort: 8080
           protocol: TCP
-      envFrom:
-        - configMapRef:
-            name: {{ include "demo-api.fullname" . }}
       env:
+        # Release configuration lives in the pod template, so every ReplicaSet keeps
+        # its own copy. (Chart <= 0.3.0 read it from one shared ConfigMap: when an
+        # aborted canary scaled the stable ReplicaSet back up, the new *stable* pod
+        # started with the canary's bad config - see chapter 9.)
+        - name: FAULT_ERROR_RATE
+          value: {{ .Values.faults.errorRate | quote }}
+        - name: FAULT_LATENCY_MS
+          value: {{ .Values.faults.latencyMs | quote }}
         - name: DEPLOY_ENV
           value: {{ .Values.environment | quote }}
         {{- if .Values.otel.enabled }}

@@ -1,0 +1,19 @@
+# transcript: P7 OpenTelemetry Demo: turn the flag off and confirm recovery
+# recorded: 2026-11-06T03:50:23Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ cd ~/work/opentelemetry-demo
+
+$ jq '.flags.paymentFailure.defaultVariant = "off"' src/flagd/demo.flagd.json > /tmp/flags.json && cat /tmp/flags.json > src/flagd/demo.flagd.json
+
+$ date -u +%H:%M:%SZ
+03:50:23Z
+
+# wait three minutes of checkout traffic, then count failing payment traces in that window only
+$ sleep 180
+
+$ curl -s 'http://localhost:8080/jaeger/ui/api/traces?service=payment&tags=%7B%22error%22%3A%22true%22%7D&lookback=2m&limit=100' | jq '"payment traces with error=true in the last 2 min: \(.data | length)"'
+"payment traces with error=true in the last 2 min: 9"
+
+$ curl -s 'http://localhost:8080/jaeger/ui/api/traces?service=payment&operation=oteldemo.PaymentService/Charge&lookback=2m&limit=100' | jq '"payment Charge traces in the last 2 min: \(.data | length)"'
+"payment Charge traces in the last 2 min: 31"
+

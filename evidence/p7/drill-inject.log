@@ -1,0 +1,32 @@
+# transcript: P7 incident drill: a change injects 20% errors and 600 ms pricing latency into dev
+# recorded: 2026-11-06T04:05:32Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash delivery/argocd/promote.sh dev faults.errorRate:=0.2 faults.latencyMs:=600 --merge --title "dev: new pricing client timeout settings (drill)"
+ envs/dev/values.yaml | 3 +++
+ 1 file changed, 3 insertions(+)
+@@ -20 +20,4 @@ otel:
+   enabled: true
++faults:
++  errorRate: 0.2
++  latencyMs: 600
+merge request !17: http://localhost:8929/root/delivery-gitops/-/merge_requests/17
+merged !17 -> main @ fa135cf by root
+
+$ BAD=$(cat ~/work/last-merge-sha); echo "change under investigation: ${BAD:0:7} at $(date -u +%H:%M:%SZ)"
+change under investigation: fa135cf at 04:05:37Z
+
+$ bash delivery/argocd/wait-sync.sh demo-api-dev "" 420
+t+1s  revision=a09cec1 sync=Synced health=Healthy operation=Succeeded
+t+40s  revision=fa135cf sync=Synced health=Progressing operation=Succeeded
+t+53s  revision=fa135cf sync=Synced health=Suspended operation=Succeeded
+t+83s  revision=fa135cf sync=Synced health=Healthy operation=Succeeded
+reached Synced/Healthy at fa135cf after 83s
+
+# wait for both alerts to fire in kube-prometheus-stack (rules use "for: 1m")
+$ for i in $(seq 1 60); do n=$(curl -s http://127.0.0.1:9090/api/v1/alerts | jq '[.data.alerts[] | select(.labels.alertname|test("DemoApi")) | select(.state=="firing")] | length'); [ "$n" -ge 2 ] && break; sleep 5; done
+
+$ curl -s http://127.0.0.1:9090/api/v1/alerts | jq -r '.data.alerts[] | select(.labels.alertname|test("DemoApi")) | "\(.labels.alertname) [\(.state)] since \(.activeAt[11:19])Z  \(.annotations.summary)"'
+DemoApiHighErrorRate [pending] since 04:07:20Z  demo-api in dev: 16.78% of API requests fail
+DemoApiHighLatency [firing] since 04:01:05Z  demo-api in prod: p95 latency 836.3ms
+DemoApiHighLatency [firing] since 04:06:50Z  demo-api in dev: p95 latency 958.4ms
+

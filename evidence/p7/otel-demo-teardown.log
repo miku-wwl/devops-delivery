@@ -1,0 +1,6 @@
+containers removed: 26
+ Container gitlab Started 
+ Container gitlab-runner Started 
+gitlab: healthy
+gitlab already on the kind network
+Mem:            15Gi       7.5Gi       136Mi       108Mi       7.9Gi       7.7Gi

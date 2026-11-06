@@ -1,0 +1,27 @@
+# transcript: P7 verify all three signals of dev arrive in the backend
+# recorded: 2026-11-06T04:05:08Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ G=http://127.0.0.1:3001/api/datasources/proxy/uid
+
+# traces (Tempo, TraceQL): recent demo-api traces from dev
+$ curl -s -G "$G/tempo/api/search" --data-urlencode 'q={resource.service.name="demo-api" && resource.deployment.environment.name="dev"}' --data-urlencode 'limit=5' | jq -r '.traces[] | "\(.rootTraceName)  \(.durationMs // 0) ms  trace=\(.traceID)"'
+GET /api/v1/info  10 ms  trace=83dca639a39a0493fca37b7066c06f92
+POST /api/v1/orders  3 ms  trace=307a1ee487f3ab81d749b6e623ebae28
+POST /api/v1/orders  3 ms  trace=98fd3e517cc4b98851477d39a3fdeae8
+POST /api/v1/orders  2 ms  trace=5856cbdd30ae94e6cb287454d3811309
+GET /api/v1/info  3 ms  trace=27572958074f4166683f2762c6e3cd3b
+
+# logs (Loki): the app's log records, with the trace id carried as OTLP trace context
+$ curl -s -G "$G/loki/loki/api/v1/query_range" --data-urlencode 'query={service_name="demo-api"}' --data-urlencode 'limit=3' | jq -r '.data.result[].values[] | .[1] | .[0:110]' | head -3
+order created
+request
+request
+
+$ curl -s -G "$G/loki/loki/api/v1/query_range" --data-urlencode 'query={service_name="demo-api"} | trace_id != ""' --data-urlencode 'limit=200' | jq -r '[.data.result[].values[]] | length | "log lines with a trace_id (last hour): \(.)"'
+log lines with a trace_id (last hour): 200
+
+# metrics (Prometheus in LGTM): scraped by the collector from the pods' /metrics endpoint
+$ curl -s -G "$G/prometheus/api/v1/query" --data-urlencode 'query=sum by (namespace) (rate(http_requests_total{route=~"/api/.*"}[2m]))' | jq -r '.data.result[] | "\(.metric.namespace): \(.value[1] | tonumber | . * 10 | floor / 10) req/s"'
+prod: 10.5 req/s
+dev: 4 req/s
+

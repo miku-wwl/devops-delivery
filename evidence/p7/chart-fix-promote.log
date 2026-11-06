@@ -1,0 +1,30 @@
+# transcript: P7 permanent fix: analysis, promotion, prod alert cleared
+# recorded: 2026-11-06T04:17:01Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ AR=$(kubectl -n prod get rollout demo-api-prod -o jsonpath='{.status.canary.currentBackgroundAnalysisRunStatus.name}')
+
+$ for _ in $(seq 1 60); do n=$(kubectl -n prod get analysisrun "$AR" -o json | jq '[.status.metricResults[]?.successful // 0] | min // 0'); [ "$n" -ge 3 ] && break; sleep 4; done
+
+$ kubectl -n prod get analysisrun "$AR" -o json | jq -r '.status.metricResults[] | "\(.name): successful=\(.successful // 0) failed=\(.failed // 0) last=\(.measurements[-1].value)"'
+success-rate: successful=3 failed=0 last=[1]
+p95-latency-seconds: successful=3 failed=0 last=[0.00475]
+
+$ kubectl argo rollouts promote demo-api-prod -n prod
+rollout 'demo-api-prod' promoted
+
+$ bash delivery/rollouts/watch-rollout.sh prod demo-api-prod Healthy 420
+t+0s  phase=Progressing step=2 updated=1 available=5 analysis=Running message="more replicas need to be updated"
+t+3s  phase=Progressing step=2 updated=3 available=4 analysis=Running message="more replicas need to be updated"
+t+10s  phase=Paused step=3 updated=3 available=6 analysis=Running message="CanaryPauseStep"
+t+68s  phase=Progressing step=4 updated=4 available=4 analysis=Running message="more replicas need to be updated"
+t+78s  phase=Paused step=5 updated=4 available=5 analysis=Running message="CanaryPauseStep"
+t+108s  phase=Progressing step=6 updated=5 available=4 analysis=Running message="updated replicas are still becoming available"
+t+114s  phase=Healthy step=6 updated=5 available=5 analysis=- message="-"
+
+$ for i in $(seq 1 40); do n=$(curl -s http://127.0.0.1:9090/api/v1/alerts | jq '[.data.alerts[] | select(.labels.alertname|test("DemoApi"))] | length'); [ "$n" -eq 0 ] && break; sleep 5; done; echo "active DemoApi alerts: $n at $(date -u +%H:%M:%SZ)"
+active DemoApi alerts: 0 at 04:20:05Z
+
+$ curl -s -G http://127.0.0.1:9090/api/v1/query --data-urlencode 'query=demo_api:request_duration_seconds:p95_1m' | jq -r '.data.result[] | "p95 \(.metric.namespace): \(.value[1] | tonumber * 1000 | floor) ms"'
+p95 dev: 4 ms
+p95 prod: 4 ms
+

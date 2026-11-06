@@ -1,0 +1,28 @@
+# transcript: P7 deploy the instrumented demo-api to dev through GitOps
+# recorded: 2026-11-06T04:01:23Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash delivery/argocd/update-chart.sh --merge
+ 3 files changed, 32 insertions(+), 2 deletions(-)
+merge request !15: http://localhost:8929/root/delivery-gitops/-/merge_requests/15
+merged !15 -> main @ 5e0b522 by root
+
+$ bash delivery/argocd/promote.sh dev image.digest=sha256:9f45ec009f30fd01ec98998c8b86f74106721346475f3847bf6911d8ab318c81 @$PWD/delivery/gitops/patches/dev-otel.yaml --merge --title "dev: OpenTelemetry-instrumented demo-api"
+error: RPC failed; HTTP 403 curl 22 The requested URL returned error: 403
+fatal: expected flush after ref listing
+[exit 128]
+
+$ bash delivery/argocd/wait-sync.sh demo-api-dev "" 420
+t+2s  revision=d6225fa sync=Synced health=Healthy operation=Succeeded
+t+40s  revision=5e0b522 sync=OutOfSync health=Healthy operation=Running
+t+46s  revision=5e0b522 sync=Synced health=Progressing operation=Succeeded
+t+62s  revision=5e0b522 sync=Synced health=Suspended operation=Succeeded
+t+91s  revision=5e0b522 sync=Synced health=Healthy operation=Succeeded
+reached Synced/Healthy at 5e0b522 after 91s
+
+$ kubectl -n dev get pods -l app.kubernetes.io/name=demo-api -o custom-columns=POD:.metadata.name,IMAGE:.status.containerStatuses[0].imageID --no-headers | sed 's#ghcr.io/miku-wwl/devops-delivery/##'
+demo-api-dev-dc9446f8-t7lgf    demo-api@sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74
+demo-api-dev-f48f57569-mrvb7   demo-api@sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74
+
+$ kubectl -n dev get rollout demo-api-dev -o jsonpath='{range .spec.template.spec.containers[0].env[*]}{.name}={.value}{"\n"}{end}'
+DEPLOY_ENV=dev
+

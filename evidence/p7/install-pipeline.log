@@ -1,0 +1,26 @@
+# transcript: P7 install the telemetry pipeline in the lab cluster
+# recorded: 2026-11-06T03:58:25Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash observability/install-observability.sh
+namespace/observability created
+deployment.apps/lgtm created
+service/lgtm created
+Waiting for deployment "lgtm" rollout to finish: 0 of 1 updated replicas are available...
+deployment "lgtm" successfully rolled out
+deployment "otel-collector" successfully rolled out
+prometheusrule.monitoring.coreos.com/demo-api created
+NAME                              READY   STATUS    RESTARTS   AGE    IP            NODE          NOMINATED NODE   READINESS GATES
+lgtm-6df9467b7b-w7khw             1/1     Running   0          110s   10.244.1.36   lab-worker2   <none>           <none>
+otel-collector-6485b95575-qjxbt   1/1     Running   0          17s    10.244.2.43   lab-worker    <none>           <none>
+
+$ helm list -n observability
+NAME          	NAMESPACE    	REVISION	UPDATED                                 	STATUS  	CHART                          	APP VERSION
+otel-collector	observability	1       	2026-11-06 16:59:58.473928197 +1300 NZDT	deployed	opentelemetry-collector-0.178.2	0.163.2    
+
+$ kubectl -n observability logs deploy/otel-collector --tail=200 | grep -iE 'Everything is ready|error|Starting' | tail -5
+2026-11-06T04:00:15.162Z	info	prometheusreceiver@v0.163.0/metrics_receiver.go:159	Starting discovery manager	{"resource": {"host.name": "lab-worker", "k8s.namespace.name": "observability", "k8s.node.ip": "172.18.0.5", "k8s.node.name": "lab-worker", "k8s.pod.ip": "10.244.2.43", "k8s.pod.name": "otel-collector-6485b95575-qjxbt", "service.instance.id": "c0fe9237-41c2-48f1-8858-2efacef725f6", "service.name": "otelcol-contrib", "service.version": "0.163.2"}, "otelcol.component.id": "prometheus", "otelcol.component.kind": "receiver", "otelcol.signal": "metrics"}
+2026-11-06T04:00:15.163Z	info	prometheusreceiver@v0.163.0/metrics_receiver.go:206	Starting scrape manager	{"resource": {"host.name": "lab-worker", "k8s.namespace.name": "observability", "k8s.node.ip": "172.18.0.5", "k8s.node.name": "lab-worker", "k8s.pod.ip": "10.244.2.43", "k8s.pod.name": "otel-collector-6485b95575-qjxbt", "service.instance.id": "c0fe9237-41c2-48f1-8858-2efacef725f6", "service.name": "otelcol-contrib", "service.version": "0.163.2"}, "otelcol.component.id": "prometheus", "otelcol.component.kind": "receiver", "otelcol.signal": "metrics"}
+2026-11-06T04:00:15.200Z	info	otlpreceiver@v0.163.0/otlp.go:120	Starting GRPC server	{"resource": {"host.name": "lab-worker", "k8s.namespace.name": "observability", "k8s.node.ip": "172.18.0.5", "k8s.node.name": "lab-worker", "k8s.pod.ip": "10.244.2.43", "k8s.pod.name": "otel-collector-6485b95575-qjxbt", "service.instance.id": "c0fe9237-41c2-48f1-8858-2efacef725f6", "service.name": "otelcol-contrib", "service.version": "0.163.2"}, "otelcol.component.id": "otlp", "otelcol.component.kind": "receiver", "endpoint": "10.244.2.43:4317"}
+2026-11-06T04:00:15.242Z	info	otlpreceiver@v0.163.0/otlp.go:175	Starting HTTP server	{"resource": {"host.name": "lab-worker", "k8s.namespace.name": "observability", "k8s.node.ip": "172.18.0.5", "k8s.node.name": "lab-worker", "k8s.pod.ip": "10.244.2.43", "k8s.pod.name": "otel-collector-6485b95575-qjxbt", "service.instance.id": "c0fe9237-41c2-48f1-8858-2efacef725f6", "service.name": "otelcol-contrib", "service.version": "0.163.2"}, "otelcol.component.id": "otlp", "otelcol.component.kind": "receiver", "endpoint": "10.244.2.43:4318"}
+2026-11-06T04:00:15.242Z	info	service@v0.163.0/service.go:256	Everything is ready. Begin running and processing data.	{"resource": {"host.name": "lab-worker", "k8s.namespace.name": "observability", "k8s.node.ip": "172.18.0.5", "k8s.node.name": "lab-worker", "k8s.pod.ip": "10.244.2.43", "k8s.pod.name": "otel-collector-6485b95575-qjxbt", "service.instance.id": "c0fe9237-41c2-48f1-8858-2efacef725f6", "service.name": "otelcol-contrib", "service.version": "0.163.2"}}
+
