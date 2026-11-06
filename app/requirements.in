@@ -3,3 +3,4 @@
 fastapi==0.162.0
 uvicorn==0.54.0
 prometheus-client==0.26.0
+PyYAML==5.3.1  # P5 drill: CVE-2020-14343 (critical), fixed in 5.4
