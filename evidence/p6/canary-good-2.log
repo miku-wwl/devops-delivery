@@ -1,0 +1,12 @@
+# transcript: P6 canary of a good version: background analysis results while paused
+# recorded: 2026-11-06T00:56:46Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ AR=$(kubectl -n prod get analysisrun -o jsonpath='{.items[-1:].metadata.name}'); echo "analysisrun: $AR"
+analysisrun: demo-api-prod-77569c5f77-2
+
+$ for _ in $(seq 1 60); do n=$(kubectl -n prod get analysisrun "$AR" -o json | jq '[.status.metricResults[]?.measurements | length] | min // 0'); [ "$n" -ge 3 ] && break; sleep 3; done
+
+$ kubectl -n prod get analysisrun "$AR" -o json | jq -r '.status.metricResults[] | "\(.name): phase=\(.phase) successful=\(.successful // 0) failed=\(.failed // 0) values=\([.measurements[].value] | join(", "))"'
+success-rate: phase=Failed successful=0 failed=2 values=[], []
+p95-latency-seconds: phase=Failed successful=0 failed=2 values=[], []
+

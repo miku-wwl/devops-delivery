@@ -2,21 +2,20 @@
 # Change the desired state of an environment through a merge request in the
 # GitOps configuration repository - the only way deployments happen in this lab.
 #
-#   bash delivery/argocd/promote.sh <env> <key=value | key:=raw> ... [--merge] [--title "..."]
+#   bash delivery/argocd/promote.sh <env> <change>... [--merge] [--title "..."]
 #
 #   bash delivery/argocd/promote.sh prod image.tag=0.1.1 --merge
 #   bash delivery/argocd/promote.sh prod image.digest=sha256:... --merge
 #   bash delivery/argocd/promote.sh prod faults.errorRate:=0.5 --merge --title "tune retries"
+#   bash delivery/argocd/promote.sh prod @/abs/path/patch.yaml --merge
 #
-# key=value sets a YAML string; key:=raw sets a raw YAML value (numbers, booleans).
+# key=value sets a YAML string; key:=raw sets a raw YAML value (numbers, booleans);
+# @file.yaml deep-merges a YAML patch (e.g. delivery/gitops/patches/prod-rollout.yaml).
 # Prints the merge request and, with --merge, the merge commit Argo CD will sync.
 set -euo pipefail
-GL="http://localhost:8929"
-PROJECT="root%2Fdelivery-gitops"
-TOKEN="$(cat "$HOME/.lab-secrets/gitlab-root-token")"
-api() { curl -fsS -H "PRIVATE-TOKEN: $TOKEN" "$@"; }
+source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
-env="${1:?usage: promote.sh <env> key=value ... [--merge] [--title text]}"; shift
+env="${1:?usage: promote.sh <env> <change>... [--merge] [--title text]}"; shift
 merge=false; title=""; changes=()
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -28,51 +27,29 @@ while [ $# -gt 0 ]; do
 done
 [ ${#changes[@]} -gt 0 ] || { echo "no changes given" >&2; exit 2; }
 
-work="$HOME/work/delivery-gitops"
-export GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=http.extraHeader \
-  GIT_CONFIG_VALUE_0="Authorization: Basic $(printf 'oauth2:%s' "$TOKEN" | base64 -w0)"
-rm -rf "$work" && git clone -q "$GL/root/delivery-gitops.git" "$work"
-cd "$work"
 branch="change/${env}-$(date +%Y%m%d%H%M%S)"
-git checkout -q -b "$branch"
-
-file="envs/${env}/values.yaml"
+clone_on_branch "$branch"
+file="$WORK/envs/${env}/values.yaml"
 [ -f "$file" ] || { echo "unknown environment: $env" >&2; exit 2; }
 for c in "${changes[@]}"; do
-  if [[ "$c" == *":="* ]]; then
+  if [[ "$c" == @* ]]; then
+    yq -i ". *= load(\"${c#@}\")" "$file"            # deep-merge a YAML patch
+  elif [[ "$c" == *":="* ]]; then
     key="${c%%:=*}" val="${c#*:=}"; yq -i ".${key} = ${val}" "$file"
   else
     key="${c%%=*}" val="${c#*=}"; yq -i ".${key} = \"${val}\"" "$file"
   fi
 done
-git diff --stat
-git diff -U1 -- "$file" | sed -n '5,$p'
-summary="${env}: ${changes[*]}"
-git -c user.name="Lab Promoter" -c user.email="promoter@lab.local" commit -q -am "deploy(${summary})"
-git push -q origin "$branch" 2>&1 | grep -v '^remote:' || true
+git -C "$WORK" diff --stat
+git -C "$WORK" diff -U1 -- "envs/${env}/values.yaml" | sed -n '5,$p'
 
-# GitLab registers a pushed branch asynchronously (post-receive background job);
-# creating the MR immediately can fail with HTTP 400, so wait until it is visible.
-enc_branch="${branch//\//%2F}"
-for _ in $(seq 1 30); do
-  api "$GL/api/v4/projects/$PROJECT/repository/branches/$enc_branch" >/dev/null 2>&1 && break
-  sleep 1
+parts=()
+for c in "${changes[@]}"; do
+  if [[ "$c" == @* ]]; then parts+=("@$(basename "${c#@}")"); else parts+=("$c"); fi
 done
-
-mr=$(api -X POST "$GL/api/v4/projects/$PROJECT/merge_requests" \
-  --data-urlencode "source_branch=$branch" --data-urlencode "target_branch=main" \
-  --data-urlencode "title=${title:-deploy(${summary})}" \
-  --data-urlencode "remove_source_branch=true")
+summary="${env}: ${parts[*]}"
+commit_and_push "deploy(${summary})"
+mr=$(create_mr "$branch" "${title:-deploy(${summary})}")
 iid=$(jq -r .iid <<<"$mr")
 echo "merge request !${iid}: $(jq -r .web_url <<<"$mr")"
-
-if $merge; then
-  for _ in $(seq 1 20); do
-    s=$(api "$GL/api/v4/projects/$PROJECT/merge_requests/$iid" | jq -r .detailed_merge_status)
-    [ "$s" = mergeable ] && break; sleep 2
-  done
-  merged=$(api -X PUT "$GL/api/v4/projects/$PROJECT/merge_requests/$iid/merge")
-  jq -r '"merged !\(.iid) -> main @ \(.merge_commit_sha[0:7]) by \(.merged_by.username)"' <<<"$merged"
-  # remembered for wait-sync.sh
-  jq -r .merge_commit_sha <<<"$merged" > "$HOME/work/last-merge-sha"
-fi
+if $merge; then merge_mr "$iid"; fi

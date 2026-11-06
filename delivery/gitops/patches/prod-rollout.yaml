@@ -1,0 +1,14 @@
+# Progressive delivery for prod: 5 replicas (20% steps = 1 pod), metrics scraped
+# by Prometheus, and a canary with a manual gate after the first step.
+replicaCount: 5
+podMonitor:
+  enabled: true
+rollout:
+  enabled: true
+  steps:
+    - setWeight: 20
+    - pause: {}   # manual gate: kubectl argo rollouts promote demo-api-prod -n prod
+    - setWeight: 50
+    - pause: {duration: 60s}
+    - setWeight: 80
+    - pause: {duration: 30s}

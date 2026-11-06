@@ -1,0 +1,19 @@
+# transcript: P6 bad canary: blast radius measured in Prometheus
+# recorded: 2026-11-06T01:14:30Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ q() { curl -s 'http://127.0.0.1:9090/api/v1/query' --data-urlencode "query=$1" | jq -r '.data.result[] | "\(.metric.role // "all"): \(.value[1] | tonumber | . * 1000 | floor / 1000)"'; }
+
+# API requests in the last 5 minutes, and how many were slower than 0.5 s, per role (canary/stable)
+$ q 'sum by (role) (increase(http_request_duration_seconds_count{namespace="prod", route=~"/api/.*"}[5m]))'
+stable: 2218.723
+canary: 706.998
+
+$ q 'sum by (role) (increase(http_request_duration_seconds_count{namespace="prod", route=~"/api/.*"}[5m])) - sum by (role) (increase(http_request_duration_seconds_bucket{namespace="prod", route=~"/api/.*", le="0.5"}[5m]))'
+stable: 0
+canary: 85.333
+
+# share of all prod API requests in the window that were slow
+$ q 'sum(increase(http_request_duration_seconds_count{namespace="prod", route=~"/api/.*"}[5m]) - on(namespace,pod,route,method) increase(http_request_duration_seconds_bucket{namespace="prod", route=~"/api/.*", le="0.5"}[5m])) / sum(increase(http_request_duration_seconds_count{namespace="prod", route=~"/api/.*"}[5m]))'
+jq: error (at <stdin>:0): Cannot iterate over null (null)
+[exit 5]
+

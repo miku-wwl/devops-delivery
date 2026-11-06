@@ -1,0 +1,58 @@
+# transcript: P6 canary of a good version: start, pause at 20% with background analysis
+# recorded: 2026-11-06T00:55:05Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ export GOOD=sha256:7826c3b200f29420237e75169e25d4780192439e9ca01c5d1b17988e513b2559
+
+$ bash delivery/argocd/promote.sh prod image.digest=$GOOD --merge --title "prod: canary sha-5f72652 (signed by release.yml)"
+ envs/prod/values.yaml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+@@ -4,3 +4,3 @@ image:
+   tag: "0.1.1"
+-  digest: sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74
++  digest: sha256:7826c3b200f29420237e75169e25d4780192439e9ca01c5d1b17988e513b2559
+ # Progressive delivery for prod: 5 replicas (20% steps = 1 pod), metrics scraped
+merge request !11: http://localhost:8929/root/delivery-gitops/-/merge_requests/11
+merged !11 -> main @ c7efb5a by root
+
+# Argo CD syncs the new pod template; Argo Rollouts turns it into a canary
+$ bash delivery/rollouts/watch-rollout.sh prod demo-api-prod Paused 300
+t+0s  phase=Healthy step=6 updated=5 available=5 analysis=- message="-"
+t+73s  phase=Progressing step=0 updated=0 available=4 analysis=- message="more replicas need to be updated"
+t+76s  phase=Progressing step=0 updated=1 available=4 analysis=- message="more replicas need to be updated"
+t+82s  phase=Paused step=1 updated=1 available=5 analysis=Running message="CanaryPauseStep"
+
+$ kubectl argo rollouts get rollout demo-api-prod -n prod | sed -E 's/\x1b\[[0-9;]*m//g' | head -30
+Name:            demo-api-prod
+Namespace:       prod
+Status:          ॥ Paused
+Message:         CanaryPauseStep
+Strategy:        Canary
+  Step:          1/6
+  SetWeight:     20
+  ActualWeight:  20
+Images:          ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:7826c3b200f29420237e75169e25d4780192439e9ca01c5d1b17988e513b2559 (canary)
+                 ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74 (stable)
+Replicas:
+  Desired:       5
+  Current:       5
+  Updated:       1
+  Ready:         5
+  Available:     5
+
+NAME                                       KIND         STATUS     AGE    INFO
+⟳ demo-api-prod                            Rollout      ॥ Paused   9m51s  
+├──# revision:2                                                           
+│  ├──⧉ demo-api-prod-77569c5f77           ReplicaSet   ✔ Healthy  13s    canary
+│  │  └──□ demo-api-prod-77569c5f77-cgrh9  Pod          ✔ Running  9s     ready:1/1
+│  └──α demo-api-prod-77569c5f77-2         AnalysisRun  ◌ Running  2s     
+└──# revision:1                                                           
+   └──⧉ demo-api-prod-67859d86c4           ReplicaSet   ✔ Healthy  9m51s  stable
+      ├──□ demo-api-prod-67859d86c4-99h4j  Pod          ✔ Running  9m51s  ready:1/1
+      ├──□ demo-api-prod-67859d86c4-9hzws  Pod          ✔ Running  9m51s  ready:1/1
+      ├──□ demo-api-prod-67859d86c4-d6brg  Pod          ✔ Running  9m51s  ready:1/1
+      └──□ demo-api-prod-67859d86c4-vscvp  Pod          ✔ Running  9m51s  ready:1/1
+
+$ kubectl -n prod get analysisrun
+NAME                         STATUS    AGE
+demo-api-prod-77569c5f77-2   Running   2s
+

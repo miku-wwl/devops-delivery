@@ -31,6 +31,26 @@
         "port": { "type": "integer", "minimum": 1, "maximum": 65535 }
       }
     },
+    "rollout": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "steps": { "type": "array", "minItems": 1 },
+        "analysis": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "minSuccessRate": { "type": "number", "minimum": 0, "maximum": 1 },
+            "maxP95LatencySeconds": { "type": "number", "exclusiveMinimum": 0 },
+            "failureLimit": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "podMonitor": {
+      "type": "object",
+      "properties": { "enabled": { "type": "boolean" } }
+    },
     "podDisruptionBudget": {
       "type": "object",
       "properties": {

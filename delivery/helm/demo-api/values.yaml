@@ -36,6 +36,35 @@ resources:
 # -- Add prometheus.io/* annotations so annotation-based scrape configs find the pods
 metricsAnnotations: true
 
+# -- Prometheus Operator PodMonitor (requires the monitoring.coreos.com CRDs)
+podMonitor:
+  enabled: false
+
+# Argo Rollouts canary instead of a Deployment (requires the Argo Rollouts controller).
+rollout:
+  enabled: false
+  # -- Canary steps. Without a traffic router, weights are approximated by replica counts.
+  steps:
+    - setWeight: 20
+    - pause: {duration: 60s}
+    - setWeight: 50
+    - pause: {duration: 60s}
+    - setWeight: 80
+    - pause: {duration: 30s}
+  analysis:
+    enabled: true
+    prometheusAddress: http://kube-prometheus-stack-prometheus.monitoring.svc:9090
+    # -- Abort when the canary's non-5xx ratio drops below this value
+    minSuccessRate: 0.95
+    # -- Abort when the canary's p95 latency reaches this value
+    maxP95LatencySeconds: 0.5
+    initialDelay: 45s
+    interval: 20s
+    # -- More than this many failed measurements abort the rollout
+    failureLimit: 1
+    # -- More than this many "no data" measurements pause the rollout for a human
+    inconclusiveLimit: 2
+
 podDisruptionBudget:
   enabled: false
   minAvailable: 1

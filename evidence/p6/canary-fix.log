@@ -1,0 +1,29 @@
+# transcript: P6 fix: traffic reaches the canary, no-data is inconclusive
+# recorded: 2026-11-06T01:00:59Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ helm lint delivery/helm/demo-api --set rollout.enabled=true --quiet
+
+$ kubectl apply -f delivery/loadgen/k6-loadgen.yaml
+namespace/loadgen unchanged
+configmap/k6-script configured
+deployment.apps/k6 unchanged
+
+$ kubectl -n loadgen rollout status deploy/k6 --timeout=120s
+deployment "k6" successfully rolled out
+
+$ bash delivery/argocd/update-chart.sh --merge
+ 3 files changed, 13 insertions(+), 1 deletion(-)
+merge request !12: http://localhost:8929/root/delivery-gitops/-/merge_requests/12
+merged !12 -> main @ 3b6428c by root
+
+$ bash delivery/argocd/wait-sync.sh demo-api-prod "" 240 || true
+t+0s  revision=c7efb5a sync=Synced health=Degraded operation=Succeeded
+t+56s  revision=3b6428c sync=OutOfSync health=Degraded operation=Running
+t+59s  revision=3b6428c sync=Synced health=Progressing operation=Succeeded
+t+69s  revision=3b6428c sync=Synced health=Suspended operation=Succeeded
+timeout after 241s
+
+$ kubectl -n prod get analysistemplate demo-api-prod-health -o jsonpath='{range .spec.metrics[*]}{.name}: success="{.successCondition}" failure="{.failureCondition}" inconclusiveLimit={.inconclusiveLimit}{"\n"}{end}'
+success-rate: success="len(result) > 0 && result[0] >= 0.95" failure="len(result) > 0 && result[0] < 0.95" inconclusiveLimit=2
+p95-latency-seconds: success="len(result) > 0 && result[0] < 0.5" failure="len(result) > 0 && result[0] >= 0.5" inconclusiveLimit=2
+
