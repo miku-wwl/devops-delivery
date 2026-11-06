@@ -104,13 +104,18 @@ figure.diagram svg { max-width: 100%; height: auto; }
 figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.6mm; }
 figcaption::before { content: "图 " counter(chapter) "-" counter(figure) "　"; font-weight: 700; color: var(--ink); }
 
-/* ---------- callouts: ::: tip / note / warning / danger / principle / faq ---------- */
-div.tip, div.note, div.warning, div.danger, div.principle, div.faq {
+/* ---------- callouts: ::: tip / note / warning / danger / principle / faq / exercise ---------- */
+div.tip, div.note, div.warning, div.danger, div.principle, div.faq, div.exercise {
   border-left: 4px solid; border-radius: 4px; padding: 2.4mm 4mm 1mm; margin: 3.4mm 0 4mm; break-inside: avoid;
 }
-div.tip::before, div.note::before, div.warning::before, div.danger::before, div.principle::before, div.faq::before {
+div.tip::before, div.note::before, div.warning::before, div.danger::before, div.principle::before, div.faq::before,
+div.exercise::before {
   display: block; font-weight: 700; margin-bottom: 1mm;
 }
+/* exercise lists can be long: let them break across pages, but never inside one item */
+div.exercise { background: #fff8f1; border-color: #e36209; break-inside: auto; }
+div.exercise::before { content: "练习"; color: #bc4c00; }
+div.exercise li { break-inside: avoid; }
 div.tip { background: #e9f7ef; border-color: #2da44e; }
 div.tip::before { content: "提示"; color: #1a7f37; }
 div.note { background: #eef5ff; border-color: #2f81f7; }

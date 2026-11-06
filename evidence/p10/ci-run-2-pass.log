@@ -1,0 +1,12 @@
+# transcript: P10: CI on the feature branch after the hardening fix (Windows gh CLI)
+# recorded: 2026-11-06T10:17:06Z | host: jiejie | user: weila | cwd: /d/workshop/nov/devops-delivery
+
+$ gh run view 42201262422 --json event,headBranch,headSha,conclusion --jq '"event=\(.event) branch=\(.headBranch) sha=\(.headSha[0:7]) conclusion=\(.conclusion)"'
+event=workflow_dispatch branch=p10/closed-loop sha=5b3e829 conclusion=success
+
+$ gh run view 42201262422 --json jobs --jq '.jobs[] | "job: \(.name) -> \(.conclusion)"'
+job: security -> success
+job: python / test -> success
+job: python / lint -> success
+job: container image -> success
+

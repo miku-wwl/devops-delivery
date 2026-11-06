@@ -1,0 +1,56 @@
+# transcript: P10 part B: roll Git back to the last good state (git revert through a merge request)
+# recorded: 2026-11-06T13:43:56Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# The cluster is safe (stable runs revision 8), but Git still asks for latencyMs 800: Argo CD reports Synced + Degraded. Make Git true again.
+$ BAD=$(cat ~/work/p10-bad-sha); echo "reverting ${BAD:0:7}"
+reverting 10a6786
+
+$ date -u +"revert started at %FT%TZ"
+revert started at 2026-11-06T13:43:56Z
+
+$ bash delivery/argocd/revert.sh $BAD --merge
+5a6174b Revert "Merge branch 'change/prod-20261107023609' into 'main'"
+
+ envs/prod/values.yaml | 2 --
+ 1 file changed, 2 deletions(-)
+merge request !23: http://localhost:8929/root/delivery-gitops/-/merge_requests/23
+merged !23 -> main @ 39ee3f2 by root
+
+$ bash delivery/argocd/wait-sync.sh demo-api-prod "" 300
+t+0s  revision=10a6786 sync=Synced health=Degraded operation=Succeeded
+t+81s  revision=39ee3f2 sync=OutOfSync health=Degraded operation=Running
+t+84s  revision=39ee3f2 sync=Synced health=Healthy operation=Succeeded
+reached Synced/Healthy at 39ee3f2 after 84s
+
+$ bash delivery/rollouts/watch-rollout.sh prod demo-api-prod Healthy 120
+t+1s  phase=Healthy step=6 updated=5 available=5 analysis=- message="-"
+
+$ date -u +"healthy at %FT%TZ"
+healthy at 2026-11-06T13:45:27Z
+
+$ kubectl argo rollouts get rollout demo-api-prod -n prod | sed -E "s/\x1b\[[0-9;]*m//g" | sed -n "1,9p"
+Name:            demo-api-prod
+Namespace:       prod
+Status:          ✔ Healthy
+Strategy:        Canary
+  Step:          6/6
+  SetWeight:     100
+  ActualWeight:  100
+Images:          ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:4bb4aac303ab48d036af1808c98312c16acbe8eef3c8f6fcdc42dc4f77711f38 (stable)
+Replicas:
+
+$ kubectl get pods -n prod -l app.kubernetes.io/name=demo-api -o custom-columns=POD:.metadata.name,HASH:.metadata.labels.rollouts-pod-template-hash,FAULT_LATENCY_MS:".spec.containers[0].env[?(@.name==\"FAULT_LATENCY_MS\")].value" --no-headers
+demo-api-prod-56ffb56667-gr7cz   56ffb56667   0
+demo-api-prod-56ffb56667-kdrzz   56ffb56667   0
+demo-api-prod-56ffb56667-klpxl   56ffb56667   0
+demo-api-prod-56ffb56667-nl8wl   56ffb56667   0
+demo-api-prod-56ffb56667-nqlv6   56ffb56667   0
+
+$ git -C ~/work/delivery-gitops log --oneline -6
+5a6174b Revert "Merge branch 'change/prod-20261107023609' into 'main'"
+10a6786 Merge branch 'change/prod-20261107023609' into 'main'
+7575517 deploy(prod: faults.latencyMs:=800)
+f49539c Merge branch 'change/prod-20261107022913' into 'main'
+15443a9 deploy(prod: image.digest=sha256:4bb4aac303ab48d036af1808c98312c16acbe8eef3c8f6fcdc42dc4f77711f38)
+e9472b2 Merge branch 'change/dev-20261106231721' into 'main'
+

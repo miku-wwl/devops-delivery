@@ -1,0 +1,30 @@
+# transcript: P10 part B: what the drill cost in SLO terms, and which alerts fired
+# recorded: 2026-11-06T13:46:11Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ P=http://127.0.0.1:9090/api/v1
+
+$ q() { curl -s "$P/query" --data-urlencode "query=$1" | jq -r ".data.result[] | \"  \(.metric.alertname // .metric.namespace // \"value\") \(.metric.alertstate // \"\"): \(.value[1] | tonumber | . * 1000 | round / 1000)\""; }
+
+$ echo "peak latency burn rate during the drill (5m window / 1h window), page threshold 14.4:"; q "max_over_time(demo_api:slo_latency:burn_rate5m{namespace=\"prod\"}[20m])"; q "max_over_time(demo_api:slo_latency:burn_rate1h{namespace=\"prod\"}[20m])"
+peak latency burn rate during the drill (5m window / 1h window), page threshold 14.4:
+  prod : 3.121
+  prod : 0.245
+
+# Alert timeline 13:36-13:50 UTC (first and last sample of each alert state, 15 s resolution).
+$ curl -s "$P/query_range" --data-urlencode "query=ALERTS{namespace=\"prod\", alertname=~\"DemoApi.*\"}" --data-urlencode "start=2026-11-06T13:36:00Z" --data-urlencode "end=2026-11-06T13:50:00Z" --data-urlencode "step=15s" | jq -r ".data.result[] | \"  \(.metric.alertname) \(.metric.alertstate): \(.values[0][0] | todate[11:19]) .. \(.values[-1][0] | todate[11:19])\""
+  DemoApiHighLatency firing: 13:39:00 .. 13:39:00
+  DemoApiHighLatency pending: 13:38:00 .. 13:38:45
+
+$ curl -s "$P/query_range" --data-urlencode "query=ALERTS{namespace=\"prod\", alertname!~\"DemoApi.*\"}" --data-urlencode "start=2026-11-06T13:36:00Z" --data-urlencode "end=2026-11-06T13:50:00Z" --data-urlencode "step=15s" | jq -r ".data.result[] | \"  \(.metric.alertname) \(.metric.alertstate) (\(.metric.pod // .metric.job // \"-\")): \(.values[0][0] | todate[11:19]) .. \(.values[-1][0] | todate[11:19])\""
+  KubePodNotReady pending (demo-api-prod-56ffb56667-nl8wl): 13:38:45 .. 13:38:45
+  TargetDown pending (prod/demo-api-prod): 13:38:45 .. 13:38:45
+
+# Error budget of the latency SLO: 1 % of 30 days of prod API requests.
+$ RATE=$(curl -s "$P/query" --data-urlencode "query=sum(rate(http_requests_total{namespace=\"prod\", route=~\"/api/.*\"}[1h]))" | jq -r ".data.result[0].value[1]"); echo "prod API requests per second (1h average): $RATE"
+prod API requests per second (1h average): 10.293192708033803
+
+$ python3 -c "r=$RATE; budget=r*30*86400*0.01; print(f\"30-day budget: {budget:,.0f} slow requests\"); [print(f\"{name}: {n:,} slow -> {n/budget:.3%} of the budget\") for name, n in ((\"P10 drill (canary, aborted after 72 s)\", 91), (\"P7 incident (poisoned stable pod, 3 h)\", 15662))]"
+30-day budget: 266,800 slow requests
+P10 drill (canary, aborted after 72 s): 91 slow -> 0.034% of the budget
+P7 incident (poisoned stable pod, 3 h): 15,662 slow -> 5.870% of the budget
+
