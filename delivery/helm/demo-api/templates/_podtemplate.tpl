@@ -5,7 +5,12 @@ exactly the same pods. Call it with the root context: include "demo-api.podTempl
 {{- define "demo-api.podTemplate" -}}
 metadata:
   labels:
-    {{- include "demo-api.labels" . | nindent 4 }}
+    # Only labels that change when the *application* changes. The chart version
+    # (helm.sh/chart) is deliberately absent: it would roll every pod on each chart bump.
+    {{- include "demo-api.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/version: {{ include "demo-api.imageTag" . | quote }}
+    app.kubernetes.io/part-of: devops-delivery
+    environment: {{ .Values.environment }}
   annotations:
     # Changing the ConfigMap changes this hash, which rolls the pods.
     checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
@@ -30,6 +35,25 @@ spec:
       envFrom:
         - configMapRef:
             name: {{ include "demo-api.fullname" . }}
+      env:
+        - name: DEPLOY_ENV
+          value: {{ .Values.environment | quote }}
+        {{- if .Values.otel.enabled }}
+        # OpenTelemetry: traces and logs go to the collector over OTLP/HTTP.
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: {{ .Values.otel.endpoint | quote }}
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        # Kubernetes expands $(VAR) references to variables defined earlier in the list.
+        - name: OTEL_RESOURCE_ATTRIBUTES
+          value: "k8s.pod.name=$(POD_NAME),k8s.namespace.name=$(POD_NAMESPACE)"
+        {{- end }}
       readinessProbe:
         httpGet:
           path: /readyz

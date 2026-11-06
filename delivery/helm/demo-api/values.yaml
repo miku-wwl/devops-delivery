@@ -40,6 +40,12 @@ metricsAnnotations: true
 podMonitor:
   enabled: false
 
+# OpenTelemetry export of traces and logs (sets OTEL_EXPORTER_OTLP_ENDPOINT).
+otel:
+  enabled: false
+  # -- OTLP/HTTP endpoint of the collector (the SDK appends /v1/traces and /v1/logs)
+  endpoint: http://otel-collector.observability.svc:4318
+
 # Argo Rollouts canary instead of a Deployment (requires the Argo Rollouts controller).
 rollout:
   enabled: false

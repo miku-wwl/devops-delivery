@@ -8,7 +8,7 @@ name: release
 
 on:
   push:
-    branches: [main, "p5/**"]
+    branches: [main, "p[0-9]*/**"]  # lab: phase branches (main merges are owner-reviewed)
     paths:
       - app/**
       - automation/ci/**

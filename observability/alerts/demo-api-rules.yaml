@@ -1,0 +1,36 @@
+# Alerting rules for demo-api, evaluated by the kube-prometheus-stack Prometheus
+# (it selects every PrometheusRule because ruleSelectorNilUsesHelmValues=false).
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: demo-api
+  namespace: monitoring
+spec:
+  groups:
+    - name: demo-api.slo
+      rules:
+        # Recording rules: the RED signals per environment, reused by alerts and dashboards.
+        - record: demo_api:request_error_ratio:rate1m
+          expr: |
+            sum by (namespace) (rate(http_requests_total{route=~"/api/.*", status=~"5.."}[1m]))
+            /
+            sum by (namespace) (rate(http_requests_total{route=~"/api/.*"}[1m]))
+        - record: demo_api:request_duration_seconds:p95_1m
+          expr: |
+            histogram_quantile(0.95, sum by (namespace, le) (rate(http_request_duration_seconds_bucket{route=~"/api/.*"}[1m])))
+        - alert: DemoApiHighErrorRate
+          expr: demo_api:request_error_ratio:rate1m > 0.05
+          for: 1m
+          labels:
+            severity: page
+          annotations:
+            summary: "demo-api in {{ $labels.namespace }}: {{ $value | humanizePercentage }} of API requests fail"
+            runbook: "Check recent deployments (argocd app history), then traces with status=error in Tempo."
+        - alert: DemoApiHighLatency
+          expr: demo_api:request_duration_seconds:p95_1m > 0.5
+          for: 1m
+          labels:
+            severity: ticket
+          annotations:
+            summary: "demo-api in {{ $labels.namespace }}: p95 latency {{ $value | humanizeDuration }}"
+            runbook: "Find slow spans (pricing.calculate) in Tempo; correlate with logs by trace_id."

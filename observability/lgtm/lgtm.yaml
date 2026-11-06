@@ -1,0 +1,55 @@
+# Telemetry backend for the lab: grafana/otel-lgtm, Grafana Labs' all-in-one image
+# (an OpenTelemetry Collector in front of Prometheus, Tempo and Loki, plus Grafana
+# with the three data sources and trace <-> log <-> metric correlations pre-wired).
+# Fine for learning; production runs each backend separately and durably.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: observability
+  labels:
+    pod-security.kubernetes.io/enforce: baseline
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lgtm
+  namespace: observability
+  labels: {app: lgtm}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: lgtm}
+  template:
+    metadata:
+      labels: {app: lgtm}
+    spec:
+      containers:
+        - name: lgtm
+          image: grafana/otel-lgtm:0.39.0
+          ports:
+            - {name: grafana, containerPort: 3000}
+            - {name: otlp-grpc, containerPort: 4317}
+            - {name: otlp-http, containerPort: 4318}
+          readinessProbe:
+            httpGet: {path: /api/health, port: grafana}
+            periodSeconds: 10
+          resources:
+            requests: {cpu: 250m, memory: 1Gi}
+            limits: {memory: 3Gi}
+          volumeMounts:
+            - {name: data, mountPath: /data}
+      volumes:
+        - name: data
+          emptyDir: {}   # telemetry is disposable in the lab
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lgtm
+  namespace: observability
+spec:
+  selector: {app: lgtm}
+  ports:
+    - {name: grafana, port: 3000, targetPort: grafana}
+    - {name: otlp-grpc, port: 4317, targetPort: otlp-grpc}
+    - {name: otlp-http, port: 4318, targetPort: otlp-http}

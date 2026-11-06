@@ -10,14 +10,18 @@ from datetime import datetime
 from decimal import Decimal
 
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
+from opentelemetry import trace
 from pydantic import BaseModel, Field
 
 from .config import Settings
 from .logs import configure_logging
 from .metrics import Metrics
 from .orders import OrderStore, UnknownSkuError, price_order
+from .telemetry import configure_telemetry
 
 log = logging.getLogger("demo_api")
+# A proxy until a TracerProvider is installed; without one every span is a no-op.
+tracer = trace.get_tracer("demo_api")
 
 QUIET_ROUTES = {"/healthz", "/readyz", "/metrics"}
 
@@ -43,6 +47,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     metrics = Metrics(settings)
     app.state.settings = settings
     app.state.metrics = metrics
+    app.state.telemetry = configure_telemetry(app, settings)
 
     @app.middleware("http")
     async def observe_requests(request: Request, call_next):
@@ -72,6 +77,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def inject_faults() -> None:
         # Not cryptographic randomness - this only decides whether to simulate a failure.
         if settings.fault_error_rate and random.random() < settings.fault_error_rate:  # noqa: S311
+            span = trace.get_current_span()
+            span.add_event(
+                "fault.injected", {"fault.type": "error", "fault.rate": settings.fault_error_rate}
+            )
+            log.warning("injected fault: failing request", extra={"fault_type": "error"})
             raise HTTPException(status_code=500, detail="injected fault (FAULT_ERROR_RATE)")
 
     @app.get("/healthz")
@@ -97,14 +107,23 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         dependencies=[Depends(inject_faults)],
     )
     async def create_order(body: OrderIn):
-        if settings.fault_latency_ms:
-            # Simulates a slow pricing dependency (used by the canary and tracing drills).
-            await asyncio.sleep(settings.fault_latency_ms / 1000)
-        try:
-            unit_price, total = price_order(body.sku, body.quantity)
-        except UnknownSkuError:
-            raise HTTPException(status_code=422, detail=f"unknown SKU: {body.sku}") from None
-        order = store.create(body.sku, body.quantity, unit_price, total)
+        # Child spans make the trace show *where* the time of a request goes.
+        with tracer.start_as_current_span("pricing.calculate") as span:
+            span.set_attribute("order.sku", body.sku)
+            span.set_attribute("order.quantity", body.quantity)
+            if settings.fault_latency_ms:
+                # Simulates a slow pricing dependency (used by the canary and tracing drills).
+                span.add_event(
+                    "fault.injected",
+                    {"fault.type": "latency", "fault.latency_ms": settings.fault_latency_ms},
+                )
+                await asyncio.sleep(settings.fault_latency_ms / 1000)
+            try:
+                unit_price, total = price_order(body.sku, body.quantity)
+            except UnknownSkuError:
+                raise HTTPException(status_code=422, detail=f"unknown SKU: {body.sku}") from None
+        with tracer.start_as_current_span("orders.store"):
+            order = store.create(body.sku, body.quantity, unit_price, total)
         metrics.orders_created.inc()
         log.info(
             "order created", extra={"order_id": order.id, "sku": order.sku, "total": str(total)}

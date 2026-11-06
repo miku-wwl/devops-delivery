@@ -3,3 +3,7 @@
 fastapi==0.162.0
 uvicorn==0.54.0
 prometheus-client==0.26.0
+# OpenTelemetry: SDK, OTLP/HTTP exporter (traces + logs), FastAPI auto-instrumentation
+opentelemetry-sdk==1.45.2
+opentelemetry-exporter-otlp-proto-http==1.45.2
+opentelemetry-instrumentation-fastapi==0.66b2

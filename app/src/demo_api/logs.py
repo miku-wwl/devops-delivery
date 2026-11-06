@@ -7,6 +7,8 @@ import logging
 import sys
 from datetime import UTC, datetime
 
+from opentelemetry import trace
+
 _RESERVED = set(vars(logging.makeLogRecord({})))
 
 
@@ -18,8 +20,19 @@ class JsonFormatter(logging.Formatter):
             "logger": record.name,
             "msg": record.getMessage(),
         }
+        # Correlate logs with traces: the active span's ids, in the W3C hex format.
+        ctx = trace.get_current_span().get_span_context()
+        if ctx.is_valid:
+            payload["trace_id"] = format(ctx.trace_id, "032x")
+            payload["span_id"] = format(ctx.span_id, "016x")
         # Anything passed via logger.info(..., extra={...}) becomes a top-level field.
-        payload.update({k: v for k, v in vars(record).items() if k not in _RESERVED})
+        payload.update(
+            {
+                k: v
+                for k, v in vars(record).items()
+                if k not in _RESERVED and not k.startswith("otel")
+            }
+        )
         if record.exc_info:
             payload["exc"] = self.formatException(record.exc_info)
         return json.dumps(payload, default=str, ensure_ascii=False)
