@@ -10,6 +10,13 @@ tempo:
   metricsGenerator:
     enabled: true
     remoteWriteUrl: http://kps-prometheus.monitoring:9090/api/v1/write
+  # "enabled" only starts the generator; the processors are switched on per tenant here.
+  # Without this block the generator runs, writes nothing, and the service graph stays empty
+  # (found in E1: zero traces_service_graph_* series in Prometheus).
+  overrides:
+    defaults:
+      metrics_generator:
+        processors: [service-graphs, span-metrics]
 persistence:
   enabled: true
   size: 2Gi
