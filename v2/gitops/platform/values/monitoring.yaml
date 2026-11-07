@@ -45,6 +45,10 @@ grafana:
     userKey: admin-user
     passwordKey: admin-password
   resources: {requests: {cpu: 50m, memory: 320Mi}, limits: {memory: 512Mi}}   # E1: 297 MiB
+  # Lab only: read-only anonymous access, so screenshots need no password. Grafana is reached
+  # through kubectl port-forward on 127.0.0.1 and is not exposed otherwise.
+  grafana.ini:
+    auth.anonymous: {enabled: true, org_role: Viewer}
   sidecar:
     resources: {requests: {cpu: 5m, memory: 96Mi}, limits: {memory: 192Mi}}     # E1: 77-80 MiB each
     dashboards: {enabled: true, searchNamespace: ALL}

@@ -7,6 +7,10 @@ notifications: {enabled: false}
 configs:
   params:
     server.insecure: true          # reached through kubectl port-forward only
+    # fewer applications reconciled in parallel (defaults 20/10): lower peak memory, and this
+    # cluster has only ~16 applications
+    controller.status.processors: 10
+    controller.operation.processors: 5
   cm:
     timeout.reconciliation: 60s    # poll Git every minute (production: a Git webhook)
     # Health of child Applications, so that sync waves in the app-of-apps wait for each wave
@@ -23,7 +27,12 @@ configs:
       end
       return hs
 controller:
-  resources: {requests: {cpu: 100m, memory: 448Mi}, limits: {memory: 768Mi}}   # E1: 425 MiB
+  # E1: 425 MiB at rest, but OOM-killed three times at 768 Mi (anon-rss 783 MB) while
+  # refreshing every application at once. The controller caches every watched resource of the
+  # cluster, so its memory follows the cluster (CRDs, objects), not the number of apps.
+  resources: {requests: {cpu: 100m, memory: 512Mi}, limits: {memory: 1Gi}}
+  env:
+    - {name: GOMEMLIMIT, value: "850MiB"}   # GC hard before the kernel limit, not after
 repoServer:
   resources: {requests: {cpu: 50m, memory: 128Mi}, limits: {memory: 512Mi}}
 server:

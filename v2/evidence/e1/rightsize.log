@@ -1,0 +1,73 @@
+# transcript: E1: right-sizing requests from measurements
+# recorded: 2026-11-07T04:13:58Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ TAG=$(bash v2/platform/bootstrap/build-image.sh 2>/dev/null); echo "image tag $TAG"
+image tag 647f6d9
+
+$ bash v2/platform/bootstrap/publish-gitops.sh "$TAG" "right-size requests from E1 measurements; storefront $TAG"
+platform-gitops: pushed bc92233 (right-size requests from E1 measurements; storefront 647f6d9)
+
+$ helm upgrade argocd argo/argo-cd --version 10.14.0 -n argocd -f v2/gitops/bootstrap/argocd-values.yaml --wait --timeout 10m | grep -E "STATUS|REVISION"
+STATUS: deployed
+REVISION: 2
+
+$ kubectl -n argocd annotate applications --all argocd.argoproj.io/refresh=normal --overwrite >/dev/null
+
+$ sleep 30
+
+$ bash v2/platform/bootstrap/wait-apps.sh 600
+t+   0s  12/16 Synced+Healthy; not yet: loki=Synced/Progressing monitoring=OutOfSync/Healthy platform-root=Synced/Progressing tempo=Synced/Progressing 
+t+  10s  13/16 Synced+Healthy; not yet: loki=Synced/Progressing monitoring=Synced/Progressing platform-root=Synced/Progressing 
+t+  15s  13/16 Synced+Healthy; not yet: loki=Synced/Progressing monitoring=Synced/Degraded platform-root=Synced/Degraded 
+t+  26s  14/16 Synced+Healthy; not yet: monitoring=Synced/Degraded platform-root=Synced/Degraded 
+t+  31s  14/16 Synced+Healthy; not yet: monitoring=Synced/Progressing platform-root=Synced/Progressing 
+t+  41s  16/16 Synced+Healthy; not yet: 
+all 16 applications Synced and Healthy after 41s
+
+$ kubectl -n storefront get deploy -o custom-columns=NAME:.metadata.name,IMAGE:.spec.template.spec.containers[0].image,READY:.status.readyReplicas
+NAME        IMAGE                               READY
+catalog     localhost:5001/storefront:647f6d9   2
+gateway     localhost:5001/storefront:647f6d9   2
+inventory   localhost:5001/storefront:647f6d9   2
+notifier    localhost:5001/storefront:647f6d9   1
+orders      localhost:5001/storefront:647f6d9   2
+payments    localhost:5001/storefront:647f6d9   2
+
+$ kubectl get pods -n observability -o custom-columns=NAME:.metadata.name,NODE:.spec.nodeName,REQ:.spec.containers[0].resources.requests.memory
+NAME                             NODE          REQ
+loki-0                           ent-worker3   192Mi
+otel-collector-f79fc69d8-pcr4k   ent-worker3   96Mi
+tempo-0                          ent-worker    640Mi
+
+$ bash v2/platform/cluster/measure.sh "after right-sizing" 2>&1 | sed -n "/### 3/,/### 6/p"
+### 3. node cgroups (kernel limits and usage)
+node               cpuset   cpu.max    mem.max_MiB current_MiB workingset_MiB oom_kill
+ent-control-plane  0-3      max        max         1993        1844         0
+ent-worker         4-7      max        3072        2377        1875         0
+ent-worker2        8-11     max        3072        2223        1704         9
+ent-worker3        12-15    max        3072        2459        1774         0
+
+### 4. kubelet view: capacity, allocatable, eviction signal
+NODE                ZONE     CAP_CPU   ALLOC_CPU   CAP_MEM      ALLOC_MEM    PODS
+ent-control-plane   <none>   16        16          16017492Ki   16017492Ki   110
+ent-worker          zone-a   16        3750m       16017492Ki   2730068Ki    110
+ent-worker2         zone-b   16        3750m       16017492Ki   2730068Ki    110
+ent-worker3         zone-c   16        3750m       16017492Ki   2730068Ki    110
+ent-control-plane: workingSet=1840 MiB, available=13801 MiB (signal memory.available)
+ent-worker: workingSet=1873 MiB, available=13768 MiB (signal memory.available)
+ent-worker2: workingSet=1696 MiB, available=13945 MiB (signal memory.available)
+ent-worker3: workingSet=1752 MiB, available=13889 MiB (signal memory.available)
+
+### 5. requests vs allocatable (what the scheduler sees)
+ent-control-plane:   cpu                960m (6%)   0 (0%)
+ent-control-plane:   memory             314Mi (2%)  404Mi (2%)
+ent-worker:   cpu                580m (15%)    0 (0%)
+ent-worker:   memory             1970Mi (73%)  3392Mi (127%)
+ent-worker2:   cpu                750m (20%)    0 (0%)
+ent-worker2:   memory             1914Mi (71%)  4544Mi (170%)
+ent-worker3:   cpu                815m (21%)    0 (0%)
+ent-worker3:   memory             1770Mi (66%)  5440Mi (204%)
+
+### 6. pods (metrics-server, working set)
+[exit 141]
+
