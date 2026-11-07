@@ -18,3 +18,20 @@ Known limitations of the prediction: the demand D was measured ~30 minutes befor
 (this lab drifts by 10-25 % between runs, chapter 4, experiment 1); D fell from 20 to 40 it/s
 (gateway 6.46 → 5.95 ms), so a constant D is conservative; the busiest-pod share (0.58 for the
 gateway) depends on how k6's connections happen to be spread over the two pods.
+
+## Second prediction: one gateway replica (written after phase 2, before the run)
+
+Phase 2 is evaluated in chapter 4: P2 and P4 passed; P1 passed at 4 of 6 steps (the model
+over-estimated the busiest pod by 8-24 %, mostly because its share of the gateway's CPU was
+0.50-0.53 instead of 0.58); P3 failed narrowly at 60 it/s (browse p95 51.0 ms) because of
+transient events in the first steps. With a single gateway replica the share is 1 by definition,
+so the prediction depends only on the gateway's total demand. The phase-1 model is used
+unchanged: 1.61 requests per iteration × 5.95 ms = 9.58 ms CPU per iteration on the one pod,
+saturation (0.95 cores) at 99 it/s. Run: `experiments/e3/one-replica.sh one-replica 40,60,80,100,120`
+(replicas: 1 published through GitOps, restored to 2 afterwards).
+
+| | Claim | Passes if |
+|---|---|---|
+| P5a | The gateway pod's CPU is 9.58 ms × rate | within ±15 % at 40, 60 and 80 it/s (0.38, 0.57, 0.77 cores) |
+| P5b | It saturates near 99 it/s | below 0.90 cores at 80 it/s, at least 0.90 cores at 100 it/s |
+| P5c | Latency is flat well below saturation, and the system fails beyond it | browse p95 < 50 ms at 40 and 60 it/s; at 120 it/s browse p95 > 500 ms or failures > 5 % |

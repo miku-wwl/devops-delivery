@@ -1,0 +1,103 @@
+# transcript: E3: capacity model, phase 2 - 60 to 200 it/s in one run (prediction in capacity-prediction.md)
+# recorded: 2026-11-07T13:17:17Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e3/step-ramp.sh run2-high 60,80,100,120,140,160,180,200
+time="2026-11-08T02:18:33+13:00" level=warning msg="Request Failed" error="Post \"http://172.20.0.8:8080/api/orders\": read tcp 172.20.0.1:43945->172.20.0.8:8080: read: connection reset by peer"
+time="2026-11-08T02:18:39+13:00" level=warning msg="Request Failed" error="Get \"http://172.20.0.8:8080/api/products?limit=20\": read tcp 172.20.0.1:46819->172.20.0.8:8080: read: connection reset by peer"
+time="2026-11-08T02:18:45+13:00" level=warning msg="Request Failed" error="Get \"http://172.20.0.8:8080/api/products?limit=20\": request timeout"
+[12 more 'Request Failed' warnings collapsed; all 15 by error: 11 request timeout, 4 read tcp ADDR->ADDR: read: connection reset by peer]
+stages=60,80,100,120,140,160,180,200 it/s, 120 s each (ramp 10 s, warm-up 30 s) iterations=134795 dropped=0
+requests=228751 (224.4/s) failed=8.86%
+browse: p50=20.1 p95=859.6 p99=1801.5 max=58838.1 ms
+order:  p50=167.5 p95=717.8 p99=1652.3 max=57568.9 ms
+checks: 91.14% passed
+stage 60: achieved 60.0 it/s, requests=12212 failed=0.11% | browse p50=13.2 p95=51.0 p99=192.5 max=58838.1 ms | order p50=123.5 p95=310.8 p99=669.8 max=57568.9 ms
+stage 80: achieved 80.0 it/s, requests=16306 failed=5.84% | browse p50=11.5 p95=26.2 p99=420.3 max=1743.0 ms | order p50=112.7 p95=247.3 p99=559.2 max=1712.8 ms
+stage 100: achieved 100.0 it/s, requests=20349 failed=0.00% | browse p50=13.5 p95=29.8 p99=57.6 max=237.3 ms | order p50=124.1 p95=239.9 p99=335.5 max=703.7 ms
+stage 120: achieved 120.0 it/s, requests=24430 failed=0.00% | browse p50=14.9 p95=39.5 p99=94.1 max=460.9 ms | order p50=133.4 p95=261.8 p99=377.0 max=940.4 ms
+stage 140: achieved 140.0 it/s, requests=28581 failed=0.00% | browse p50=14.8 p95=36.1 p99=62.1 max=245.7 ms | order p50=131.5 p95=240.0 p99=353.5 max=749.6 ms
+stage 160: achieved 160.0 it/s, requests=32625 failed=0.00% | browse p50=20.9 p95=81.4 p99=172.4 max=576.7 ms | order p50=153.0 p95=281.3 p99=370.7 max=789.8 ms
+stage 180: achieved 180.0 it/s, requests=36534 failed=13.61% | browse p50=130.1 p95=1179.4 p99=2002.0 max=6069.0 ms | order p50=252.0 p95=856.3 p99=1819.7 max=3728.1 ms
+stage 200: achieved 200.0 it/s, requests=40782 failed=33.24% | browse p50=221.0 p95=1656.3 p99=2740.1 max=6930.7 ms | order p50=393.2 p95=1520.4 p99=2587.2 max=4977.3 ms
+time="2026-11-08T02:34:16+13:00" level=error msg="thresholds on metrics 'http_req_duration{kind:browse}, http_req_failed{kind:browse}' have been crossed"
+=== step 60 it/s (13:17:46 .. 13:19:46)
+  service      req/s  cores ms CPU/req busiest pod    R ms  p95 ms in flight    X*R loop p99 pool p95
+  catalog      107.6  0.294       2.73       0.151     3.1     5.4      0.90   0.34      4.6     0.43
+  gateway      105.7  0.573       5.42       0.289    34.0   147.5      3.10   3.60      6.0     0.00
+  inventory     15.8  0.116       7.37       0.060    15.3    30.5      0.17   0.24      3.5     0.22
+  notifier       0.0  0.067       0.00       0.067     0.0     0.0      0.00   0.00      3.0     0.00
+  orders        18.6  0.371      19.97       0.190   111.8   278.7      1.98   2.08      4.5     0.23
+  payments      15.5  0.105       6.77       0.053    61.7   149.0      0.67   0.96      2.5     0.00
+  nodes (cores): ent-worker=1.01, ent-worker2=0.85, ent-worker3=1.33
+  platform (cores): otel-collector=0.017, pg-main=0.356, prometheus-kps=0.101, tempo=0.04, waypoint=0.23, ztunnel=0.429
+=== step 80 it/s (13:19:56 .. 13:21:56)
+  service      req/s  cores ms CPU/req busiest pod    R ms  p95 ms in flight    X*R loop p99 pool p95
+  catalog      143.2  0.369       2.58       0.186     2.3     4.9      0.50   0.33      4.7     0.20
+  gateway      141.2  0.699       4.95       0.366    27.8   137.0      4.17   3.93      7.4     0.00
+  inventory     20.9  0.145       6.94       0.074    12.4    23.9      0.17   0.26      3.6     0.22
+  notifier       0.0  0.081       0.00       0.081     0.0     0.0      0.00   0.00      3.8     0.00
+  orders        25.2  0.458      18.20       0.231    96.7   204.5      2.83   2.44      4.3     0.22
+  payments      20.5  0.127       6.19       0.064    62.5   159.1      1.50   1.28      2.5     0.00
+  nodes (cores): ent-worker=1.2, ent-worker2=0.93, ent-worker3=1.55
+  platform (cores): otel-collector=0.017, pg-main=0.392, prometheus-kps=0.094, tempo=0.038, waypoint=0.286, ztunnel=0.457
+=== step 100 it/s (13:22:06 .. 13:24:06)
+  service      req/s  cores ms CPU/req busiest pod    R ms  p95 ms in flight    X*R loop p99 pool p95
+  catalog      182.6  0.453       2.48       0.234     2.6     6.0      0.29   0.48      5.8     0.21
+  gateway      179.1  0.912       5.10       0.480    32.0   145.0      4.17   5.73      9.5     0.00
+  inventory     27.2  0.182       6.71       0.095    13.7    26.5      0.50   0.37      4.6     0.22
+  notifier       0.0  0.082       0.00       0.082     0.0     0.0      0.00   0.00      4.5     0.00
+  orders        32.6  0.590      18.11       0.301   106.2   233.1      3.38   3.46      5.4     0.23
+  payments      26.6  0.161       6.03       0.083    62.4   149.1      2.33   1.66      3.6     0.00
+  nodes (cores): ent-worker=1.52, ent-worker2=1.12, ent-worker3=1.92
+  platform (cores): otel-collector=0.019, pg-main=0.472, prometheus-kps=0.106, tempo=0.053, waypoint=0.357, ztunnel=0.578
+=== step 120 it/s (13:24:16 .. 13:26:16)
+  service      req/s  cores ms CPU/req busiest pod    R ms  p95 ms in flight    X*R loop p99 pool p95
+  catalog      220.5  0.567       2.57       0.302     3.1     8.0      0.14   0.68      7.9     0.21
+  gateway      215.9  1.145       5.30       0.607    39.8   172.8      6.83   8.60     23.5     0.00
+  inventory     32.4  0.222       6.86       0.113    15.5    31.6      1.00   0.50      5.2     0.22
+  notifier       0.0  0.120       0.00       0.120     0.0     0.0      0.00   0.00      5.1     0.00
+  orders        39.4  0.707      17.92       0.358   112.4   255.6      4.38   4.44      7.3     0.23
+  payments      32.8  0.194       5.92       0.098    62.8   154.3      2.83   2.06      4.1     0.00
+  nodes (cores): ent-worker=1.79, ent-worker2=1.35, ent-worker3=2.25
+  platform (cores): otel-collector=0.021, pg-main=0.517, prometheus-kps=0.105, tempo=0.035, waypoint=0.416, ztunnel=0.668
+=== step 140 it/s (13:26:26 .. 13:28:26)
+  service      req/s  cores ms CPU/req busiest pod    R ms  p95 ms in flight    X*R loop p99 pool p95
+  catalog      260.9  0.593       2.27       0.298     2.8     7.6      0.31   0.74      6.9     0.13
+  gateway      255.4  1.134       4.44       0.583    34.1   152.0      7.17   8.72     13.6     0.00
+  inventory     38.2  0.218       5.70       0.109    14.9    28.9      0.50   0.57      4.7     0.21
+  notifier       0.0  0.127       0.00       0.127     0.0     0.0      0.00   0.00      4.7     0.00
+  orders        44.6  0.758      17.00       0.391   110.7   242.6      5.02   4.94      5.7     0.22
+  payments      37.7  0.201       5.34       0.102    63.6   158.6      1.83   2.40      3.8     0.00
+  nodes (cores): ent-worker=1.82, ent-worker2=1.41, ent-worker3=2.41
+  platform (cores): otel-collector=0.02, pg-main=0.581, prometheus-kps=0.105, tempo=0.079, waypoint=0.45, ztunnel=0.681
+=== step 160 it/s (13:28:36 .. 13:30:36)
+  service      req/s  cores ms CPU/req busiest pod    R ms  p95 ms in flight    X*R loop p99 pool p95
+  catalog      282.9  0.709       2.51       0.381     7.1     9.8      2.74   2.01     14.6  1780.77
+  gateway      293.0  1.499       5.12       0.801    62.2   219.5     15.00  18.22     30.0     0.00
+  inventory     43.6  0.257       5.89       0.133    18.5    42.6      0.50   0.81      6.3     0.22
+  notifier       0.0  0.141       0.00       0.141     0.0     0.0      0.00   0.00      6.7     0.00
+  orders        48.3  0.874      18.10       0.452   141.0   291.0      3.83   6.81      9.4     0.23
+  payments      41.5  0.230       5.53       0.118    63.0   155.8      2.67   2.61      4.2     0.00
+  nodes (cores): ent-worker=2.17, ent-worker2=1.5, ent-worker3=2.7
+  platform (cores): otel-collector=0.022, pg-main=0.613, prometheus-kps=0.098, tempo=0.043, waypoint=0.441, ztunnel=0.77
+=== step 180 it/s (13:30:46 .. 13:32:46)
+  service      req/s  cores ms CPU/req busiest pod    R ms  p95 ms in flight    X*R loop p99 pool p95
+  catalog      290.1  0.697       2.40       0.386     4.4    12.6      0.64   1.27     10.3     0.20
+  gateway      325.4  1.789       5.50       0.938   302.7  1244.0    109.50  98.49     80.0     0.00
+  inventory     50.5  0.312       6.18       0.165    21.5    47.2      0.83   1.09      7.1     0.23
+  notifier       0.0  0.163       0.00       0.163     0.0     0.0      0.00   0.00      8.8     0.00
+  orders        60.0  1.014      16.89       0.527   147.6   294.9      9.26   8.86     12.3     0.22
+  payments      49.7  0.265       5.32       0.138    66.2   171.9      3.33   3.29      4.9     0.00
+  nodes (cores): ent-worker=2.52, ent-worker2=1.63, ent-worker3=2.99
+  platform (cores): otel-collector=0.023, pg-main=0.69, prometheus-kps=0.113, tempo=0.05, waypoint=0.474, ztunnel=0.799
+=== step 200 it/s (13:32:56 .. 13:34:56)
+  service      req/s  cores ms CPU/req busiest pod    R ms  p95 ms in flight    X*R loop p99 pool p95
+  catalog      146.2  0.363       2.48       0.209     4.5    13.4      0.53   0.65      9.5     0.19
+  gateway      204.8  1.021       4.99       0.533   441.9  1747.7    108.00  90.51     86.7     0.00
+  inventory     33.9  0.202       5.94       0.106    22.8    49.4      0.50   0.77      6.6     0.23
+  notifier       0.0  0.102       0.00       0.102     0.0     0.0      0.00   0.00      9.2     0.00
+  orders        37.6  0.645      17.17       0.352   159.1   312.3      7.23   5.98     13.6     0.22
+  payments      30.1  0.165       5.47       0.085    66.9   163.0      1.60   2.01      4.3     0.00
+  nodes (cores): ent-worker=1.56, ent-worker2=0.99, ent-worker3=1.81
+  platform (cores): otel-collector=0.017, pg-main=0.445, prometheus-kps=0.079, tempo=0.032, waypoint=0.297, ztunnel=0.476
+

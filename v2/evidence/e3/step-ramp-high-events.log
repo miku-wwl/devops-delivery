@@ -1,0 +1,65 @@
+# transcript: E3: phase 2 - what happened at 60 and 80 it/s (warnings, 5xx series)
+# recorded: 2026-11-07T13:35:33Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e3/warn-logs.sh 2026-11-07T13:17:10Z 2026-11-07T13:20:40Z "gateway|catalog|orders|inventory|payments"
+1x 13:19:50 catalog-cdb4f59b9-ktzjq cache read failed [catalog:product:sku-*]
+1x 13:19:50 catalog-cdb4f59b9-ktzjq cache read failed [catalog:products:20]
+4x 13:19:51 catalog-cdb4f59b9-ktzjq cache read failed [catalog:product:sku-*]
+1x 13:19:51 catalog-cdb4f59b9-ktzjq cache read failed [catalog:products:20]
+1x 13:19:51 gateway-fcbf876d9-746cl circuit breaker orders: CLOSED -> OPEN
+1x 13:19:51 gateway-fcbf876d9-d6st4 circuit breaker orders: CLOSED -> OPEN
+5x 13:19:52 catalog-cdb4f59b9-ktzjq cache read failed [catalog:product:sku-*]
+13x 13:19:52 catalog-cdb4f59b9-ktzjq cache read failed [catalog:products:20]
+1x 13:19:52 gateway-fcbf876d9-d6st4 circuit breaker catalog: CLOSED -> OPEN
+1x 13:19:52 orders-5cd5d8df65-bhcp2 circuit breaker inventory: CLOSED -> OPEN
+8x 13:19:52 orders-5cd5d8df65-bhcp2 compensation failed: reservation not released
+1x 13:19:52 orders-5cd5d8df65-tvqsm circuit breaker inventory: CLOSED -> OPEN
+3x 13:19:52 orders-5cd5d8df65-tvqsm compensation failed: reservation not released
+3x 13:19:53 catalog-cdb4f59b9-ktzjq cache read failed [catalog:product:sku-*]
+2x 13:19:53 catalog-cdb4f59b9-ktzjq cache read failed [catalog:products:20]
+1x 13:19:53 gateway-fcbf876d9-746cl circuit breaker catalog: CLOSED -> OPEN
+4x 13:19:53 orders-5cd5d8df65-bhcp2 compensation failed: reservation not released
+3x 13:19:53 orders-5cd5d8df65-tvqsm compensation failed: reservation not released
+1x 13:19:53 orders-5cd5d8df65-tvqsm outbox relay failed
+1x 13:19:55 gateway-fcbf876d9-746cl circuit breaker orders: HALF_OPEN -> OPEN
+1x 13:19:55 gateway-fcbf876d9-746cl circuit breaker orders: OPEN -> HALF_OPEN
+1x 13:19:55 gateway-fcbf876d9-d6st4 circuit breaker orders: HALF_OPEN -> OPEN
+1x 13:19:55 gateway-fcbf876d9-d6st4 circuit breaker orders: OPEN -> HALF_OPEN
+1x 13:19:55 orders-5cd5d8df65-bhcp2 compensation failed: reservation not released
+3x 13:19:55 orders-5cd5d8df65-tvqsm compensation failed: reservation not released
+1x 13:19:56 gateway-fcbf876d9-d6st4 circuit breaker catalog: HALF_OPEN -> CLOSED
+1x 13:19:56 gateway-fcbf876d9-d6st4 circuit breaker catalog: OPEN -> HALF_OPEN
+1x 13:19:57 gateway-fcbf876d9-746cl circuit breaker catalog: HALF_OPEN -> CLOSED
+1x 13:19:57 gateway-fcbf876d9-746cl circuit breaker catalog: OPEN -> HALF_OPEN
+1x 13:20:00 gateway-fcbf876d9-746cl circuit breaker orders: OPEN -> HALF_OPEN
+1x 13:20:00 gateway-fcbf876d9-d6st4 circuit breaker orders: OPEN -> HALF_OPEN
+1x 13:20:00 orders-5cd5d8df65-bhcp2 circuit breaker inventory: OPEN -> HALF_OPEN
+1x 13:20:00 orders-5cd5d8df65-tvqsm circuit breaker inventory: OPEN -> HALF_OPEN
+1x 13:20:01 gateway-fcbf876d9-746cl circuit breaker orders: HALF_OPEN -> CLOSED
+1x 13:20:01 gateway-fcbf876d9-d6st4 circuit breaker orders: HALF_OPEN -> CLOSED
+1x 13:20:01 orders-5cd5d8df65-bhcp2 circuit breaker inventory: HALF_OPEN -> CLOSED
+1x 13:20:01 orders-5cd5d8df65-tvqsm circuit breaker inventory: HALF_OPEN -> CLOSED
+
+$ bash v2/experiments/e3/first-sample.sh 2026-11-07T13:19:40Z 2026-11-07T13:22:00Z gateway
+746cl /api/orders 503: first seen 13:20:10 = 87, at the end = 120
+746cl /api/orders 504: first seen 13:20:10 = 10, at the end = 10
+746cl /api/orders/{order_id} 503: first seen 13:20:10 = 16, at the end = 22
+746cl /api/products 503: first seen 13:20:10 = 153, at the end = 153
+746cl /api/products/{product_id} 503: first seen 13:20:10 = 169, at the end = 169
+d6st4 /api/orders 503: first seen 13:20:10 = 133, at the end = 133
+d6st4 /api/orders 504: first seen 13:20:10 = 10, at the end = 10
+d6st4 /api/orders/{order_id} 503: first seen 13:20:10 = 20, at the end = 20
+d6st4 /api/orders/{order_id} 504: first seen 13:20:10 = 3, at the end = 3
+d6st4 /api/products 503: first seen 13:20:10 = 166, at the end = 166
+d6st4 /api/products 504: first seen 13:20:10 = 12, at the end = 12
+d6st4 /api/products/{product_id} 503: first seen 13:20:10 = 196, at the end = 196
+d6st4 /api/products/{product_id} 504: first seen 13:20:10 = 4, at the end = 4
+increase over the window: /api/orders 503 = 36
+increase over the window: /api/orders 504 = 0
+increase over the window: /api/orders/{order_id} 503 = 6
+increase over the window: /api/orders/{order_id} 504 = 0
+increase over the window: /api/products 503 = 0
+increase over the window: /api/products 504 = 0
+increase over the window: /api/products/{product_id} 503 = 0
+increase over the window: /api/products/{product_id} 504 = 0
+

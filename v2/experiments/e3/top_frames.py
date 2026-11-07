@@ -73,6 +73,7 @@ def main() -> None:
     ap.add_argument("path")
     ap.add_argument("--seconds", type=float, default=0)
     ap.add_argument("--top", type=int, default=10)
+    ap.add_argument("--by-file", action="store_true", help="also charge samples to files, not components")
     a = ap.parse_args()
     stacks: list[tuple[list[str], int]] = []
     for line in open(a.path, encoding="utf-8", errors="replace"):
@@ -86,6 +87,7 @@ def main() -> None:
     if not total:
         return
     by_comp: Counter[str] = Counter()
+    by_file: Counter[str] = Counter()
     by_thread: Counter[str] = Counter()
     ours: Counter[str] = Counter()
     leaf: Counter[str] = Counter()
@@ -94,12 +96,14 @@ def main() -> None:
         owner = "unattributed (stdlib helpers)"
         if LOOP.search(frames[-1]):  # innermost Python frame is asyncio.run: C code of the loop
             owner = "event loop machinery (uvloop, task scheduling; C code)"
+        file = owner
         for f in reversed(frames if owner.startswith("unattributed") else ()):
             m = FRAME.match(f)
             if m and (c := component(m["path"])):
-                owner = c
+                owner, file = c, rel(m["path"]).removeprefix("app/src/")
                 break
         by_comp[owner] += count
+        by_file[file] += count
         for f in reversed(frames):
             m = FRAME.match(f)
             if m and component(m["path"]) == "storefront (our code)":
@@ -113,6 +117,10 @@ def main() -> None:
     print("by component (innermost frame that belongs to one):")
     for name, c in by_comp.most_common():
         print(f"  {100 * c / total:5.1f} %  {name}")
+    if a.by_file:
+        print(f"by file (innermost frame that belongs to a component; top {a.top}):")
+        for name, c in by_file.most_common(a.top):
+            print(f"  {100 * c / total:5.1f} %  {name}")
     print(f"our code on the stack, innermost storefront function (top {a.top}):")
     for name, c in ours.most_common(a.top):
         print(f"  {100 * c / total:5.1f} %  {name}")
