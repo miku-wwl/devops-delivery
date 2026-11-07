@@ -25,6 +25,8 @@ singleBinary:
   replicas: 1
   resources: {requests: {cpu: 50m, memory: 192Mi}, limits: {memory: 768Mi}}
   persistence: {size: 2Gi}
+sidecar:
+  rules: {enabled: false}            # no Loki alerting rules here; the sidecar alone used 71 MiB
 read: {replicas: 0}
 write: {replicas: 0}
 backend: {replicas: 0}

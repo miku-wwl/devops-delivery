@@ -2,7 +2,11 @@
 # request-rate/latency series and the service graph, pushed to Prometheus by remote write.
 tempo:
   retention: 24h
-  resources: {requests: {cpu: 50m, memory: 192Mi}, limits: {memory: 768Mi}}
+  # requests from measurement (E1: 719 MiB at 34 req/s); GOMEMLIMIT makes the Go GC work
+  # harder near the limit instead of letting the heap grow until the kernel kills the pod
+  resources: {requests: {cpu: 50m, memory: 640Mi}, limits: {memory: 1Gi}}
+  extraEnv:
+    - {name: GOMEMLIMIT, value: "800MiB"}
   metricsGenerator:
     enabled: true
     remoteWriteUrl: http://kps-prometheus.monitoring:9090/api/v1/write

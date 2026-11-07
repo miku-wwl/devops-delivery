@@ -23,7 +23,7 @@ configs:
       end
       return hs
 controller:
-  resources: {requests: {cpu: 100m, memory: 256Mi}, limits: {memory: 768Mi}}
+  resources: {requests: {cpu: 100m, memory: 448Mi}, limits: {memory: 768Mi}}   # E1: 425 MiB
 repoServer:
   resources: {requests: {cpu: 50m, memory: 128Mi}, limits: {memory: 512Mi}}
 server:

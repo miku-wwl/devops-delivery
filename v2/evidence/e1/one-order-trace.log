@@ -1,0 +1,103 @@
+# transcript: E1: one order, end to end, in one trace
+# recorded: 2026-11-07T04:08:39Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ GW=$(kubectl -n storefront get svc gateway -o jsonpath="{.status.loadBalancer.ingress[0].ip}"); echo "gateway LoadBalancer: $GW"
+gateway LoadBalancer: 172.20.0.12
+
+$ curl -s -D - -o /tmp/order.json "http://$GW:8080/api/orders" -H "Content-Type: application/json" -H "Idempotency-Key: e1-trace-demo-0001" -H "X-Request-ID: e1-trace-demo" -d "{\"customer_id\":\"c-42\",\"items\":[{\"product_id\":\"sku-007\",\"qty\":2},{\"product_id\":\"sku-011\",\"qty\":1}]}" | grep -iE "^HTTP|x-request-id"; cat /tmp/order.json; echo
+HTTP/1.1 201 Created
+x-request-id: e1-trace-demo
+{"id":"f9c9a183-7f61-4786-b175-903dcfc7604b","status":"CONFIRMED","total_cents":4625}
+
+$ ORDER=$(jq -r .id /tmp/order.json); sleep 3; curl -s "http://$GW:8080/api/orders/$ORDER" | jq -c "{id, status, total_cents, items}"
+{"id":"f9c9a183-7f61-4786-b175-903dcfc7604b","status":"CONFIRMED","total_cents":4625,"items":[{"qty":2,"product_id":"sku-007"},{"qty":1,"product_id":"sku-011"}]}
+
+# the same request again: idempotent replay, no second order
+$ curl -s -D - -o /dev/null "http://$GW:8080/api/orders" -H "Content-Type: application/json" -H "Idempotency-Key: e1-trace-demo-0001" -d "{\"customer_id\":\"c-42\",\"items\":[{\"product_id\":\"sku-007\",\"qty\":2},{\"product_id\":\"sku-011\",\"qty\":1}]}" | grep -iE "^HTTP|idempotent"
+HTTP/1.1 200 OK
+idempotent-replayed: true
+
+$ kubectl -n storefront exec deploy/notifier -- python -c "import urllib.request,json; print([n for n in json.load(urllib.request.urlopen(\"http://localhost:8080/notifications/recent?limit=5\")) if n[\"order_id\"]==\"$ORDER\"])"
+[{'order_id': 'f9c9a183-7f61-4786-b175-903dcfc7604b', 'event_id': '78439703-0015-40fe-9d85-0150b981f826', 'sent_at': 1794024519.8989737}]
+
+$ kubectl -n storefront logs -l app.kubernetes.io/name=orders --tail=200 | grep -F "e1-trace-demo" | head -3 | cut -c1-260
+Defaulted container "app" out of: app, migrate (init)
+Defaulted container "app" out of: app, migrate (init)
+{"ts": "2026-11-07T04:08:39.635+00:00", "level": "info", "service": "orders", "logger": "httpx", "msg": "HTTP Request: GET http://catalog:8080/products/sku-007 \"HTTP/1.1 200 OK\"", "trace_id": "8435aeb0cd09bbd5381d8dd95bf80b7d", "span_id": "bfbc25d1274170a4",
+{"ts": "2026-11-07T04:08:39.651+00:00", "level": "info", "service": "orders", "logger": "httpx", "msg": "HTTP Request: GET http://catalog:8080/products/sku-011 \"HTTP/1.1 200 OK\"", "trace_id": "8435aeb0cd09bbd5381d8dd95bf80b7d", "span_id": "bfbc25d1274170a4",
+{"ts": "2026-11-07T04:08:39.678+00:00", "level": "info", "service": "orders", "logger": "httpx", "msg": "HTTP Request: POST http://inventory:8080/reservations \"HTTP/1.1 201 Created\"", "trace_id": "8435aeb0cd09bbd5381d8dd95bf80b7d", "span_id": "bfbc25d1274170
+
+$ (kubectl -n observability port-forward svc/tempo 3200:3200 >/dev/null 2>&1 &) ; sleep 4
+
+$ sleep 10; TRACE=$(curl -s -G "http://localhost:3200/api/search" --data-urlencode "q={ span.order.id = \"$ORDER\" }" | jq -r ".traces[0].traceID"); echo "trace $TRACE"
+trace 8435aeb0cd09bbd5381d8dd95bf80b7d
+
+$ curl -s "http://localhost:3200/api/traces/$TRACE" > /tmp/trace.json; python3 v2/experiments/e1/trace_tree.py /tmp/trace.json
+65 spans, 6 services: catalog, gateway, inventory, notifier, orders, payments; total 320.8 ms
+      0.0 ms    156.6 ms  gateway   SERVER   POST /api/orders  http.route=/api/orders
+      2.5 ms      0.1 ms    gateway   INTERNAL POST /api/orders http receive
+      5.7 ms    144.7 ms    gateway   CLIENT   POST
+     12.4 ms    137.0 ms      orders    SERVER   POST /orders  http.route=/orders order.id=f9c9a183-7f61-4786-b175-903dcfc7604b order.status=CONFIRMED
+     15.2 ms      0.1 ms        orders    INTERNAL POST /orders http receive
+     17.1 ms      6.2 ms        orders    CLIENT   INSERT   sql='INSERT INTO orders (id, idempotency_key, custome'
+     23.7 ms      0.7 ms        orders    CLIENT   SELECT   sql='SELECT pg_advisory_unlock_all();\nCLOSE ALL;\nUNLI'
+     26.1 ms     27.2 ms        orders    CLIENT   GET
+     34.0 ms     18.7 ms          catalog   SERVER   GET /products/{product_id}  http.route=/products/{product_id}
+     35.4 ms      8.9 ms            catalog   CLIENT   GET   sql='GET ?'
+     44.6 ms      3.7 ms            catalog   CLIENT   SELECT   sql='SELECT id, name, price_cents FROM products WHERE'
+     48.6 ms      0.5 ms            catalog   CLIENT   SELECT   sql='SELECT pg_advisory_unlock_all();\nCLOSE ALL;\nUNLI'
+     49.3 ms      2.1 ms            catalog   CLIENT   SET   sql='SET ? ? ? ?'
+     52.1 ms      0.1 ms            catalog   INTERNAL GET /products/{product_id} http send
+     52.5 ms      0.0 ms            catalog   INTERNAL GET /products/{product_id} http send
+     52.7 ms      0.0 ms            catalog   INTERNAL GET /products/{product_id} http send
+     27.7 ms     41.9 ms        orders    CLIENT   GET
+     38.0 ms     31.4 ms          catalog   SERVER   GET /products/{product_id}  http.route=/products/{product_id}
+     38.7 ms      8.2 ms            catalog   CLIENT   GET   sql='GET ?'
+     63.8 ms      2.2 ms            catalog   CLIENT   SELECT   sql='SELECT id, name, price_cents FROM products WHERE'
+     66.3 ms      0.5 ms            catalog   CLIENT   SELECT   sql='SELECT pg_advisory_unlock_all();\nCLOSE ALL;\nUNLI'
+     67.0 ms      1.5 ms            catalog   CLIENT   SET   sql='SET ? ? ? ?'
+     68.8 ms      0.0 ms            catalog   INTERNAL GET /products/{product_id} http send
+     69.2 ms      0.0 ms            catalog   INTERNAL GET /products/{product_id} http send
+     69.4 ms      0.0 ms            catalog   INTERNAL GET /products/{product_id} http send
+     72.1 ms     25.4 ms        orders    CLIENT   POST
+     77.3 ms     20.2 ms          inventory SERVER   POST /reservations  http.route=/reservations
+     79.4 ms      0.0 ms            inventory INTERNAL POST /reservations http receive
+     81.2 ms      0.7 ms            inventory CLIENT   BEGIN;   sql='BEGIN;'
+     82.0 ms      3.3 ms            inventory CLIENT   SELECT   sql='SELECT status FROM reservations WHERE order_id ='
+     85.6 ms      2.7 ms            inventory CLIENT   UPDATE   sql='UPDATE stock SET available = available - $2, res'
+     88.6 ms      1.1 ms            inventory CLIENT   UPDATE   sql='UPDATE stock SET available = available - $2, res'
+     90.0 ms      1.3 ms            inventory CLIENT   INSERT   sql='INSERT INTO reservations (order_id, items, statu'
+     91.5 ms      2.8 ms            inventory CLIENT   COMMIT;   sql='COMMIT;'
+     94.8 ms      0.8 ms            inventory CLIENT   SELECT   sql='SELECT pg_advisory_unlock_all();\nCLOSE ALL;\nUNLI'
+     96.4 ms      0.1 ms            inventory INTERNAL POST /reservations http send
+     97.2 ms      0.0 ms            inventory INTERNAL POST /reservations http send
+     97.5 ms      0.0 ms            inventory INTERNAL POST /reservations http send
+     99.7 ms     36.2 ms        orders    CLIENT   POST
+    104.6 ms     31.2 ms          payments  SERVER   POST /charges  http.route=/charges
+    107.3 ms      0.1 ms            payments  INTERNAL POST /charges http receive
+    108.9 ms      1.0 ms            payments  CLIENT   GET   sql='GET ?'
+    110.2 ms      0.8 ms            payments  CLIENT   SET   sql='SET ? ? ? ? ?'
+    132.6 ms      1.3 ms            payments  CLIENT   SET   sql='SET ? ? ? ?'
+    134.1 ms      0.6 ms            payments  CLIENT   DEL   sql='DEL ?'
+    135.2 ms      0.1 ms            payments  INTERNAL POST /charges http send
+    135.6 ms      0.0 ms            payments  INTERNAL POST /charges http send
+    135.7 ms      0.0 ms            payments  INTERNAL POST /charges http send
+    138.3 ms      0.9 ms        orders    CLIENT   BEGIN;   sql='BEGIN;'
+    139.4 ms      2.9 ms        orders    CLIENT   UPDATE   sql="UPDATE orders SET status = 'CONFIRMED', total_ce"
+    142.6 ms      1.9 ms        orders    CLIENT   INSERT   sql='INSERT INTO outbox (event_id, subject, payload, '
+    144.7 ms      1.9 ms        orders    CLIENT   COMMIT;   sql='COMMIT;'
+    147.0 ms      0.6 ms        orders    CLIENT   SELECT   sql='SELECT pg_advisory_unlock_all();\nCLOSE ALL;\nUNLI'
+    148.4 ms      0.1 ms        orders    INTERNAL POST /orders http send
+    149.0 ms      0.0 ms        orders    INTERNAL POST /orders http send
+    149.3 ms      0.0 ms        orders    INTERNAL POST /orders http send
+    267.2 ms     10.0 ms        orders    PRODUCER send orders.confirmed  messaging.destination.name=orders.confirmed
+    283.0 ms     37.8 ms          notifier  CONSUMER process orders.confirmed  messaging.destination.name=orders.confirmed
+    283.3 ms     12.6 ms            notifier  CLIENT   EXISTS   sql='EXISTS ?'
+    316.6 ms      1.2 ms            notifier  CLIENT   SET   sql='SET ? ? ? ?'
+    318.0 ms      1.9 ms            notifier  CLIENT   LPUSH   sql='LPUSH ? ?'
+    320.0 ms      0.6 ms            notifier  CLIENT   LTRIM   sql='LTRIM ? ? ?'
+    155.6 ms      0.1 ms    gateway   INTERNAL POST /api/orders http send
+    156.2 ms      0.1 ms    gateway   INTERNAL POST /api/orders http send
+    156.5 ms      0.0 ms    gateway   INTERNAL POST /api/orders http send
+
+$ pkill -f "port-forward svc/tempo" || true

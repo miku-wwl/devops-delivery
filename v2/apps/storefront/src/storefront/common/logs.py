@@ -49,3 +49,6 @@ def configure_logging(service: str, level: str = "INFO") -> None:
     root.setLevel(level)
     # uvicorn's own access log is replaced by the sampled access log in web.py
     logging.getLogger("uvicorn.access").disabled = True
+    # httpx logs every outgoing request at INFO: 4 log lines per order (E1 baseline), i.e. a
+    # log line per dependency call at any load. Failures still surface as WARNING/ERROR.
+    logging.getLogger("httpx").setLevel(logging.WARNING)

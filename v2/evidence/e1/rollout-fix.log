@@ -1,0 +1,39 @@
+# transcript: E1: roll out the notifier fix through Git
+# recorded: 2026-11-07T04:05:01Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ TAG=$(bash v2/platform/bootstrap/build-image.sh 2>/dev/null); echo "image tag $TAG"
+image tag a7041d0
+
+$ bash v2/platform/bootstrap/publish-gitops.sh "$TAG" "storefront $TAG: notifier waits for the stream; dashboards"
+platform-gitops: pushed 08a71e8 (storefront a7041d0: notifier waits for the stream; dashboards)
+
+$ kubectl -n argocd annotate application platform-root argocd.argoproj.io/refresh=normal --overwrite >/dev/null; kubectl -n argocd annotate applications -l storefront/env=prod argocd.argoproj.io/refresh=normal --overwrite >/dev/null
+
+$ for i in $(seq 60); do imgs=$(kubectl -n storefront get deploy -o jsonpath="{range .items[*]}{.spec.template.spec.containers[0].image}{\"\n\"}{end}" | sort -u); [ "$imgs" = "localhost:5001/storefront:$TAG" ] && break; sleep 5; done; echo "$imgs"
+localhost:5001/storefront:a7041d0
+
+$ kubectl -n storefront rollout status deploy/notifier --timeout=180s
+deployment "notifier" successfully rolled out
+
+$ bash v2/platform/bootstrap/wait-apps.sh 300
+t+   0s  13/16 Synced+Healthy; not yet: storefront-catalog-prod=Synced/Progressing storefront-gateway-prod=Synced/Progressing storefront-orders-prod=Synced/Progressing 
+t+  10s  14/16 Synced+Healthy; not yet: storefront-catalog-prod=Synced/Progressing storefront-orders-prod=Synced/Progressing 
+t+  20s  16/16 Synced+Healthy; not yet: 
+all 16 applications Synced and Healthy after 20s
+
+$ kubectl -n storefront get pods -o custom-columns=NAME:.metadata.name,READY:.status.containerStatuses[0].ready,RESTARTS:.status.containerStatuses[0].restartCount,IMAGE:.spec.containers[0].image
+NAME                         READY   RESTARTS   IMAGE
+catalog-7ffc6f9889-jrmw8     true    0          localhost:5001/storefront:a7041d0
+catalog-7ffc6f9889-sx787     true    0          localhost:5001/storefront:a7041d0
+catalog-86d97c6d9d-z294q     true    0          localhost:5001/storefront:b00dd1e
+gateway-786fdccd48-g27sq     true    0          localhost:5001/storefront:a7041d0
+gateway-786fdccd48-lrdgm     true    0          localhost:5001/storefront:a7041d0
+inventory-5dc5445569-ldbrn   true    0          localhost:5001/storefront:a7041d0
+inventory-5dc5445569-z79wf   true    0          localhost:5001/storefront:a7041d0
+notifier-5fbc6b7555-zx6zs    true    0          localhost:5001/storefront:a7041d0
+orders-5cf5fb5767-s6ghv      true    0          localhost:5001/storefront:a7041d0
+orders-5cf5fb5767-w2cls      true    0          localhost:5001/storefront:a7041d0
+orders-79459dc5cd-5j96f      true    0          localhost:5001/storefront:b00dd1e
+payments-6449975555-fk66w    true    0          localhost:5001/storefront:a7041d0
+payments-6449975555-xjbvh    true    0          localhost:5001/storefront:a7041d0
+

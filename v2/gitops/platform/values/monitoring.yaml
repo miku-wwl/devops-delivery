@@ -14,7 +14,7 @@ prometheus:
     evaluationInterval: 15s
     enableRemoteWriteReceiver: true          # Tempo's metrics generator pushes span metrics
     enableFeatures: [exemplar-storage]       # exemplars link a latency bucket to a trace (E9)
-    resources: {requests: {cpu: 200m, memory: 512Mi}, limits: {memory: 1536Mi}}
+    resources: {requests: {cpu: 200m, memory: 640Mi}, limits: {memory: 1536Mi}}   # E1: 526 MiB
     serviceMonitorSelectorNilUsesHelmValues: false   # scrape every ServiceMonitor/PodMonitor
     podMonitorSelectorNilUsesHelmValues: false
     ruleSelectorNilUsesHelmValues: false
@@ -44,8 +44,9 @@ grafana:
     existingSecret: grafana-admin            # created by bootstrap.sh, never in Git
     userKey: admin-user
     passwordKey: admin-password
-  resources: {requests: {cpu: 50m, memory: 128Mi}, limits: {memory: 384Mi}}
+  resources: {requests: {cpu: 50m, memory: 320Mi}, limits: {memory: 512Mi}}   # E1: 297 MiB
   sidecar:
+    resources: {requests: {cpu: 5m, memory: 96Mi}, limits: {memory: 192Mi}}     # E1: 77-80 MiB each
     dashboards: {enabled: true, searchNamespace: ALL}
   additionalDataSources:
     - name: Tempo
