@@ -1,0 +1,23 @@
+# transcript: E1: how long each PostgreSQL replica took to join
+# recorded: 2026-11-07T04:36:02Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl -n data get pods -l cnpg.io/cluster=pg-main -o custom-columns=NAME:.metadata.name,PHASE:.status.phase,START:.status.startTime,FINISHED:.status.containerStatuses[0].state.terminated.finishedAt
+NAME        PHASE     START                  FINISHED
+pg-main-1   Running   2026-11-07T03:54:06Z   <none>
+pg-main-2   Running   2026-11-07T03:59:26Z   <none>
+pg-main-3   Running   2026-11-07T04:00:14Z   <none>
+
+$ for p in $(kubectl -n data get pods -l cnpg.io/cluster=pg-main -o name | grep join); do echo "== $p"; kubectl -n data logs $p -c join 2>/dev/null | jq -r "select(.logger==\"pg_basebackup\" or (.msg|test(\"backup|checkpoint|completed\";\"i\"))) | \"\(.ts) \(.msg)\"" | cut -c1-140 | head -8; done
+
+$ kubectl -n data get pod -l cnpg.io/cluster=pg-main -o json | jq -r ".items[] | select(.metadata.name|test(\"join\")|not) | \"\(.metadata.name) instance started \(.status.startTime)\""
+pg-main-1 instance started 2026-11-07T03:54:06Z
+pg-main-2 instance started 2026-11-07T03:59:26Z
+pg-main-3 instance started 2026-11-07T04:00:14Z
+
+$ kubectl get --raw "/api/v1/namespaces/data/pods/pg-main-1/proxy/" >/dev/null 2>&1; kubectl -n data exec pg-main-1 -c postgres -- psql -tAc "SELECT name, setting, unit FROM pg_settings WHERE name IN (\x27checkpoint_timeout\x27, \x27checkpoint_completion_target\x27)"
+ERROR:  syntax error at or near "\"
+LINE 1: ...me, setting, unit FROM pg_settings WHERE name IN (\x27checkp...
+                                                             ^
+command terminated with exit code 1
+[exit 1]
+

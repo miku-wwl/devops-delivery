@@ -1,0 +1,30 @@
+# transcript: E1: request share per replica during the 5-minute baseline (L4 balancing, keep-alive clients)
+# recorded: 2026-11-07T04:38:08Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/load/distribution.sh 5m
+catalog    catalog-7f9b4d4c77-ntmqr           5081   49.0%
+catalog    catalog-7f9b4d4c77-trxzq           5287   51.0%
+gateway    gateway-5476f9c8fb-rh4wf           5810   57.4%
+gateway    gateway-5476f9c8fb-xhv76           4309   42.6%
+inventory  inventory-5ff4675997-c9rz5         1403   92.1%
+inventory  inventory-5ff4675997-cw4t8          121    7.9%
+orders     orders-6b8b5f4579-z9ctm            1629   91.3%
+orders     orders-6b8b5f4579-zq89c             156    8.7%
+payments   payments-569c98ff59-4kbv5           174   11.7%
+payments   payments-569c98ff59-94k6l          1312   88.3%
+service    pod                            requests   share
+
+$ kubectl top pods -n storefront --sort-by=cpu
+NAME                         CPU(cores)   MEMORY(bytes)   
+orders-6b8b5f4579-z9ctm      164m         67Mi            
+gateway-5476f9c8fb-rh4wf     142m         71Mi            
+gateway-5476f9c8fb-xhv76     103m         63Mi            
+catalog-7f9b4d4c77-ntmqr     73m          61Mi            
+catalog-7f9b4d4c77-trxzq     71m          61Mi            
+payments-569c98ff59-94k6l    46m          59Mi            
+inventory-5ff4675997-c9rz5   44m          60Mi            
+orders-6b8b5f4579-zq89c      30m          65Mi            
+notifier-5f4d566b9f-pmgh8    27m          62Mi            
+payments-569c98ff59-4kbv5    5m           60Mi            
+inventory-5ff4675997-cw4t8   4m           58Mi            
+
