@@ -51,7 +51,8 @@ Hook = Callable[[FastAPI], Awaitable[None]]
 class Faults(BaseModel):
     latency_ms: float = Field(0, ge=0, le=60_000)
     error_rate: float = Field(0, ge=0, le=1)
-    # 500 by default; 503 matters for meshes: Istio retries 503 by default (chapter 3)
+    # 500 by default; 503 lets experiments check whether a proxy retries on status codes
+    # (Istio's default route policy does not - it retries only connection failures; chapter 3)
     status: int = Field(500, ge=500, le=599)
 
 

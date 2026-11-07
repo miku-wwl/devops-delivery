@@ -74,6 +74,9 @@ class LoopWatch:
     async def run(self) -> None:
         self._loop_tid = threading.get_native_id()
         self._loop_ident = threading.get_ident()
+        # The heartbeat starts now, not when the object was built: the time between building the
+        # app and starting the loop is start-up, not a stall (first version reported it).
+        self._beat = time.monotonic()
         gc.callbacks.append(self._on_gc)
         threading.Thread(target=self._watch, name="loopwatch", daemon=True).start()
         try:
@@ -89,8 +92,10 @@ class LoopWatch:
 
     def _watch(self) -> None:
         reported = False
-        cpu0 = run0 = 0.0
-        proc0 = 0.0
+        # baselines from the start, so the first report is not "CPU time since process start"
+        cpu0, run0 = _schedstat(self._loop_tid or 0)
+        t0 = os.times()
+        proc0 = t0.user + t0.system
         while not self._stop.wait(self.stall_s / 5):
             blocked = time.monotonic() - self._beat
             if blocked < self.stall_s:

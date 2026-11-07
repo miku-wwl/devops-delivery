@@ -1,0 +1,36 @@
+# transcript: E2: retry layering - payments fails every charge
+# recorded: 2026-11-07T08:18:38Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e2/retry-matrix.sh
+scenario=S1-L7-500 payments answers 500
+  customer orders (gateway POST /api/orders):   61
+  orders POST /orders received:                 44   (0.72 per customer order)
+  orders -> payments attempts (app side):       25   (0.41 per customer order)
+  payments POST /charges received (server):     25   (0.41 per customer order)
+  extra calls added between orders and payments: 0
+scenario=S2-L7-503 payments answers 503
+  customer orders (gateway POST /api/orders):   61
+  orders POST /orders received:                 11   (0.18 per customer order)
+  orders -> payments attempts (app side):       8   (0.13 per customer order)
+  payments POST /charges received (server):     8   (0.13 per customer order)
+  extra calls added between orders and payments: 0
+Accepted ResolvedRefs ResolvedWaypoints=True True True
+scenario=S3-L7-503-route-retry3 payments answers 503
+  customer orders (gateway POST /api/orders):   61
+  orders POST /orders received:                 11   (0.18 per customer order)
+  orders -> payments attempts (app side):       7   (0.11 per customer order)
+  payments POST /charges received (server):     28   (0.46 per customer order)
+  extra calls added between orders and payments: 21
+scenario=S4-L4-503 payments answers 503
+  customer orders (gateway POST /api/orders):   61
+  orders POST /orders received:                 11   (0.18 per customer order)
+  orders -> payments attempts (app side):       6   (0.10 per customer order)
+  payments POST /charges received (server):     6   (0.10 per customer order)
+  extra calls added between orders and payments: 0
+restored: no HTTPRoute, namespace uses the waypoint, Argo CD automated sync on
+
+$ kubectl get ns storefront --show-labels; kubectl -n storefront get httproute 2>&1 | head -2
+NAME         STATUS   AGE     LABELS
+storefront   Active   4h36m   istio.io/dataplane-mode=ambient,istio.io/use-waypoint=waypoint,kubernetes.io/metadata.name=storefront
+No resources found in storefront namespace.
+

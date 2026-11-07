@@ -1,0 +1,40 @@
+# transcript: E2: deploy the waypoint (and the new image) from Git
+# recorded: 2026-11-07T08:02:15Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ TAG=$(bash v2/platform/bootstrap/build-image.sh 2>/dev/null); echo "image tag $TAG"
+image tag 8441576
+
+$ bash v2/platform/bootstrap/publish-gitops.sh "$TAG" "storefront $TAG (loop watchdog); waypoint and mesh monitoring"
+platform-gitops: pushed 56c4cfe (storefront 8441576 (loop watchdog); waypoint and mesh monitoring)
+
+$ kubectl -n argocd annotate application platform-root argocd.argoproj.io/refresh=normal --overwrite >/dev/null; kubectl -n argocd annotate applications -l storefront/env=prod argocd.argoproj.io/refresh=normal --overwrite >/dev/null
+
+$ for i in $(seq 90); do [ "$(kubectl -n storefront get deploy waypoint -o jsonpath={.status.readyReplicas} 2>/dev/null)" = 1 ] && [ "$(kubectl get ns storefront -o jsonpath="{.metadata.labels.istio\.io/use-waypoint}")" = waypoint ] && break; sleep 5; done
+
+$ kubectl get ns storefront --show-labels
+NAME         STATUS   AGE     LABELS
+storefront   Active   4h17m   istio.io/dataplane-mode=ambient,istio.io/use-waypoint=waypoint,kubernetes.io/metadata.name=storefront
+
+$ kubectl -n storefront get gateway waypoint
+NAME       CLASS            ADDRESS        PROGRAMMED   AGE
+waypoint   istio-waypoint   10.96.127.48   True         23s
+
+$ kubectl -n storefront get pods -l gateway.networking.k8s.io/gateway-name=waypoint -o wide | awk "{print \$1, \$2, \$3, \$7}"
+NAME READY STATUS NODE
+waypoint-6c97c95658-x7x82 1/1 Running ent-worker2
+
+$ for d in gateway catalog inventory payments orders notifier; do kubectl -n storefront rollout status deploy/$d --timeout=300s | tail -1; done
+deployment "gateway" successfully rolled out
+deployment "catalog" successfully rolled out
+deployment "inventory" successfully rolled out
+deployment "payments" successfully rolled out
+deployment "orders" successfully rolled out
+deployment "notifier" successfully rolled out
+
+$ bash v2/platform/bootstrap/wait-apps.sh 600 | tail -2
+t+   0s  23/23 Synced+Healthy; not yet: 
+all 23 applications Synced and Healthy after 0s
+
+$ kubectl -n storefront get pods -l gateway.networking.k8s.io/gateway-name=waypoint -o jsonpath="{.items[0].spec.containers[0].resources}"; echo
+{"limits":{"cpu":"2","memory":"1Gi"},"requests":{"cpu":"100m","memory":"128Mi"}}
+

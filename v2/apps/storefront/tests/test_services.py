@@ -309,13 +309,16 @@ async def test_loopwatch_reports_a_blocked_event_loop_with_its_stack():
         def emit(self, record: logging.LogRecord) -> None:
             records.append(record)
 
+    logging.getLogger("storefront.loopwatch").addHandler(Keep())
+    # time between building the app and starting it (module import, uvicorn start-up) is not a
+    # stall - the first deployed version reported it as one
+    time.sleep(0.4)  # noqa: ASYNC251
     async with running(app):
-        logging.getLogger("storefront.loopwatch").addHandler(Keep())
         await asyncio.sleep(0.2)
         time.sleep(0.6)  # noqa: ASYNC251 - block the event loop on purpose
         await asyncio.sleep(0.3)
     stalls = [r for r in records if r.getMessage() == "event loop blocked"]
-    assert stalls, "the watchdog did not report the stall"
+    assert len(stalls) == 1, "exactly the one deliberate stall - start-up must not count"
     assert stalls[0].blocked_ms >= 450
     assert "time.sleep" in stalls[0].stack or "test_loopwatch" in stalls[0].stack
     assert stalls[0].cpu_ms < 300  # sleeping, not computing

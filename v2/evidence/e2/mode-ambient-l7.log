@@ -1,0 +1,59 @@
+# transcript: E2: ambient with waypoint (L7), 20 it/s for 3 minutes
+# recorded: 2026-11-07T08:03:46Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e2/measure-mode.sh ambient-l7
+mode=ambient-l7 target=http://172.20.0.8:8080 start=2026-11-07T08:03:47Z
+--- connections at t=120s
+server pod (port 8080)         client                                   established
+catalog-79bb785c45-jl98q       waypoint-6c97c95658-x7x82                4
+catalog-79bb785c45-rhtvq       waypoint-6c97c95658-x7x82                2
+gateway-cf9bb66b4-6smx9        10.240.2.1                               5
+gateway-cf9bb66b4-74wzq        10.240.1.1                               4
+inventory-68654bcbd9-msmdp     waypoint-6c97c95658-x7x82                2
+inventory-68654bcbd9-mz7kb     waypoint-6c97c95658-x7x82                2
+orders-6556bc5795-8hvxt        waypoint-6c97c95658-x7x82                3
+orders-6556bc5795-lkcsr        waypoint-6c97c95658-x7x82                3
+payments-5fbcb59cc9-gbdnd      waypoint-6c97c95658-x7x82                2
+payments-5fbcb59cc9-lh5gd      waypoint-6c97c95658-x7x82                2
+--- k6
+rate=20/s duration=3m iterations=3601 dropped=0
+requests=6128 (34.1/s) failed=0.00%
+browse: p50=15.3 p95=29.6 p99=56.0 max=219.2 ms
+order:  p50=138.0 p95=275.0 p99=382.0 max=717.0 ms
+checks: 100.00% passed
+--- request share per replica over the run
+service    pod                            requests   share
+catalog    catalog-79bb785c45-jl98q           2796   50.0%
+catalog    catalog-79bb785c45-rhtvq           2792   50.0%
+gateway    gateway-cf9bb66b4-6smx9            2832   49.4%
+gateway    gateway-cf9bb66b4-74wzq            2901   50.6%
+inventory  inventory-68654bcbd9-msmdp          427   49.7%
+inventory  inventory-68654bcbd9-mz7kb          433   50.3%
+orders     orders-6556bc5795-8hvxt             454   46.9%
+orders     orders-6556bc5795-lkcsr             513   53.1%
+payments   payments-5fbcb59cc9-gbdnd           380   48.2%
+payments   payments-5fbcb59cc9-lh5gd           408   51.8%
+--- resources
+catalog-79bb785c45-jl98q     97m    62Mi   
+catalog-79bb785c45-rhtvq     73m    62Mi   
+gateway-cf9bb66b4-6smx9      150m   70Mi   
+gateway-cf9bb66b4-74wzq      147m   66Mi   
+inventory-68654bcbd9-msmdp   35m    60Mi   
+inventory-68654bcbd9-mz7kb   43m    60Mi   
+notifier-6585d69bf9-z495k    41m    65Mi   
+orders-6556bc5795-8hvxt      113m   67Mi   
+orders-6556bc5795-lkcsr      111m   68Mi   
+payments-5fbcb59cc9-gbdnd    36m    62Mi   
+payments-5fbcb59cc9-lh5gd    33m    59Mi   
+waypoint-6c97c95658-x7x82    91m    35Mi   
+istio-cni-node-djwqf     1m    19Mi   
+istio-cni-node-tz2zj     1m    20Mi   
+istio-cni-node-vxhq7     1m    15Mi   
+istio-cni-node-wr8w9     1m    25Mi   
+istiod-94db8467c-7rn9f   5m    72Mi   
+ztunnel-2gc4b            62m   7Mi    
+ztunnel-6r97l            41m   7Mi    
+ztunnel-lb62h            1m    4Mi    
+ztunnel-zd5ms            56m   6Mi    
+end=2026-11-07T08:07:07Z
+
