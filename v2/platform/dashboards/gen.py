@@ -81,6 +81,26 @@ def storefront() -> dict:
             "time": {"from": "now-30m", "to": "now"}, "panels": p}
 
 
+def traces() -> dict:
+    """One trace by id (variable trace_id) and the service graph from Tempo's metrics generator.
+    A dashboard rather than Explore: read-only viewers can open dashboards, not Explore."""
+    tempo = {"type": "tempo", "uid": "tempo"}
+    return {
+        "uid": "storefront-traces", "title": "Storefront: trace and service graph",
+        "tags": ["storefront", "v2"], "timezone": "utc", "schemaVersion": 39,
+        "time": {"from": "now-1h", "to": "now"},
+        "templating": {"list": [{"name": "trace_id", "type": "textbox", "label": "Trace ID", "query": ""}]},
+        "panels": [
+            {"type": "nodeGraph", "title": "Service graph (Tempo metrics generator)",
+             "gridPos": {"x": 0, "y": 0, "w": 24, "h": 11}, "datasource": tempo,
+             "targets": [{"refId": "A", "datasource": tempo, "queryType": "serviceMap"}]},
+            {"type": "traces", "title": "Trace ${trace_id}",
+             "gridPos": {"x": 0, "y": 11, "w": 24, "h": 22}, "datasource": tempo,
+             "targets": [{"refId": "A", "datasource": tempo, "queryType": "traceql", "query": "${trace_id}"}]},
+        ],
+    }
+
+
 def configmap(name: str, dashboard: dict) -> str:
     body = json.dumps(dashboard, indent=1)
     indented = "\n".join("    " + line for line in body.splitlines())
@@ -91,5 +111,6 @@ def configmap(name: str, dashboard: dict) -> str:
 
 if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)
-    (OUT / "storefront.yaml").write_text(configmap("storefront", storefront()), encoding="utf-8", newline="\n")
-    print(f"wrote {OUT / 'storefront.yaml'}")
+    for name, build in (("storefront", storefront), ("storefront-traces", traces)):
+        (OUT / f"{name}.yaml").write_text(configmap(name, build()), encoding="utf-8", newline="\n")
+        print(f"wrote {OUT / f'{name}.yaml'}")
