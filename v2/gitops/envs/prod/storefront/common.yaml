@@ -1,0 +1,6 @@
+# Values shared by every storefront service in prod (namespace "storefront").
+image:
+  repository: localhost:5001/storefront
+  tag: "IMAGE_TAG"   # replaced by publish.sh with the built commit; one image for all services
+resilienceMode: resilient
+otelEndpoint: http://otel-collector.observability.svc:4318

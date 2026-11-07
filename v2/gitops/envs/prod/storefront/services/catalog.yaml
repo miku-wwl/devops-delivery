@@ -1,0 +1,8 @@
+service: catalog
+replicas: 2
+migrations: true
+env:
+  VALKEY_URL: redis://valkey.data.svc:6379/0
+  DB_POOL_MAX: "10"
+secretEnv:
+  DATABASE_URL: {secret: db-catalog, key: url}

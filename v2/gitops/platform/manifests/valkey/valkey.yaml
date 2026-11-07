@@ -1,0 +1,87 @@
+# Valkey 9.1.3, one instance with an append-only file. It holds three kinds of keys:
+#   db0 catalog cache (losable), db1 payment idempotency (must not be evicted), db2 notifier dedupe.
+# maxmemory-policy noeviction: when full, writes fail (catalog tolerates it) instead of silently
+# evicting idempotency keys, which would allow a double charge. Production would separate the
+# cache from the stateful keys; chapter 2 discusses it.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: valkey
+  namespace: data
+data:
+  valkey.conf: |
+    appendonly yes
+    appendfsync everysec
+    maxmemory 160mb
+    maxmemory-policy noeviction
+    protected-mode no
+    save ""
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: valkey
+  namespace: data
+  labels: {app.kubernetes.io/name: valkey}
+spec:
+  serviceName: valkey
+  replicas: 1
+  selector:
+    matchLabels: {app.kubernetes.io/name: valkey}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/name: valkey}
+    spec:
+      securityContext: {runAsNonRoot: true, runAsUser: 999, fsGroup: 999, seccompProfile: {type: RuntimeDefault}}
+      containers:
+        - name: valkey
+          image: valkey/valkey:9.1.3
+          args: ["/etc/valkey/valkey.conf"]
+          ports: [{name: valkey, containerPort: 6379}]
+          securityContext: {allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}}
+          resources: {requests: {cpu: 20m, memory: 64Mi}, limits: {memory: 256Mi}}
+          readinessProbe:
+            exec: {command: ["valkey-cli", "ping"]}
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket: {port: valkey}
+            periodSeconds: 10
+          volumeMounts:
+            - {name: config, mountPath: /etc/valkey}
+            - {name: data, mountPath: /data}
+        - name: exporter
+          image: oliver006/redis_exporter:v1.96.0
+          env: [{name: REDIS_ADDR, value: "redis://localhost:6379"}]
+          ports: [{name: metrics, containerPort: 9121}]
+          securityContext: {allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}}
+          resources: {requests: {cpu: 5m, memory: 16Mi}, limits: {memory: 64Mi}}
+      volumes:
+        - name: config
+          configMap: {name: valkey}
+  volumeClaimTemplates:
+    - metadata: {name: data}
+      spec:
+        accessModes: [ReadWriteOnce]
+        resources: {requests: {storage: 1Gi}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: valkey
+  namespace: data
+  labels: {app.kubernetes.io/name: valkey}
+spec:
+  selector: {app.kubernetes.io/name: valkey}
+  ports:
+    - {name: valkey, port: 6379, targetPort: valkey}
+    - {name: metrics, port: 9121, targetPort: metrics}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: valkey
+  namespace: data
+spec:
+  selector:
+    matchLabels: {app.kubernetes.io/name: valkey}
+  endpoints: [{port: metrics, interval: 15s}]

@@ -1,0 +1,11 @@
+# grafana/tempo 1.24.4 (single binary, Tempo 2.9.0). The metrics generator turns spans into
+# request-rate/latency series and the service graph, pushed to Prometheus by remote write.
+tempo:
+  retention: 24h
+  resources: {requests: {cpu: 50m, memory: 192Mi}, limits: {memory: 768Mi}}
+  metricsGenerator:
+    enabled: true
+    remoteWriteUrl: http://kps-prometheus.monitoring:9090/api/v1/write
+persistence:
+  enabled: true
+  size: 2Gi

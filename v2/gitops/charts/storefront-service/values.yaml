@@ -1,0 +1,23 @@
+# Values for one storefront service. Environment files (envs/<env>/storefront/) override them.
+service: ""                    # gateway | catalog | inventory | payments | orders | notifier
+image:
+  repository: localhost:5001/storefront
+  tag: ""                      # required; the git commit of v2/apps/storefront that was built
+  pullPolicy: IfNotPresent
+replicas: 2
+resilienceMode: resilient      # resilient | naive (E6 baseline)
+migrations: false              # run "storefront.common.db migrate <service>" as an init container
+env: {}                        # plain variables, NAME: value
+secretEnv: {}                  # NAME: {secret: <name>, key: <key>}
+resources:
+  requests: {cpu: 50m, memory: 96Mi}
+  limits: {memory: 256Mi}
+otelEndpoint: http://otel-collector.observability.svc:4318
+loadBalancer: false            # expose with a LoadBalancer Service (only the gateway, until E2)
+podDisruptionBudget:
+  minAvailable: 1
+terminationGracePeriodSeconds: 30
+preStopSleepSeconds: 5         # let endpoint removal propagate before the process stops
+uvicornArgs: ["--loop", "uvloop", "--http", "httptools", "--no-access-log",
+              "--timeout-graceful-shutdown", "20"]
+podAnnotations: {}

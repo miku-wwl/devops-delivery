@@ -1,0 +1,57 @@
+# Data services in namespace "data": NATS JetStream and Valkey (wave -1), then the PostgreSQL
+# cluster (wave 0, needs the CloudNativePG CRDs from wave -2).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nats
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-1"}
+spec:
+  project: platform
+  sources:
+    - repoURL: https://nats-io.github.io/k8s/helm/charts
+      chart: nats
+      targetRevision: 2.15.2
+      helm: {releaseName: nats, valueFiles: [$values/platform/values/nats.yaml]}
+    - {repoURL: "http://gitlab:8929/root/platform-gitops.git", targetRevision: main, ref: values}
+  destination: {server: "https://kubernetes.default.svc", namespace: data}
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    syncOptions: [CreateNamespace=true]
+    retry: {limit: 10, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: valkey
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-1"}
+spec:
+  project: platform
+  source:
+    repoURL: http://gitlab:8929/root/platform-gitops.git
+    targetRevision: main
+    path: platform/manifests/valkey
+  destination: {server: "https://kubernetes.default.svc", namespace: data}
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    syncOptions: [CreateNamespace=true]
+    retry: {limit: 10, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: pg-main
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "0"}
+spec:
+  project: platform
+  source:
+    repoURL: http://gitlab:8929/root/platform-gitops.git
+    targetRevision: main
+    path: platform/manifests/data
+  destination: {server: "https://kubernetes.default.svc", namespace: data}
+  syncPolicy:
+    automated: {prune: false, selfHeal: true}   # never let a Git mistake prune the database
+    syncOptions: [CreateNamespace=true]
+    retry: {limit: 10, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}

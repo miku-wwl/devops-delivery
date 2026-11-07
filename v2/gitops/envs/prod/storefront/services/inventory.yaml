@@ -1,0 +1,7 @@
+service: inventory
+replicas: 2
+migrations: true
+env:
+  DB_POOL_MAX: "10"
+secretEnv:
+  DATABASE_URL: {secret: db-inventory, key: url}

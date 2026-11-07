@@ -1,0 +1,43 @@
+# Two Argo CD projects. "platform" may install cluster-wide components; "storefront" may only
+# deploy namespaced resources into the storefront namespaces, from this repository.
+# E5 tightens both (per-tenant projects, roles, sync windows).
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: platform
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-10"}
+spec:
+  description: Shared platform components (operators, observability, data services)
+  sourceRepos:
+    - http://gitlab:8929/root/platform-gitops.git
+    - https://prometheus-community.github.io/helm-charts
+    - https://grafana.github.io/helm-charts
+    - https://open-telemetry.github.io/opentelemetry-helm-charts
+    - https://cloudnative-pg.github.io/charts
+    - https://nats-io.github.io/k8s/helm/charts
+  destinations:
+    - {server: https://kubernetes.default.svc, namespace: "*"}
+  clusterResourceWhitelist:
+    - {group: "*", kind: "*"}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: storefront
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-10"}
+spec:
+  description: The storefront services
+  sourceRepos:
+    - http://gitlab:8929/root/platform-gitops.git
+  destinations:
+    - {server: https://kubernetes.default.svc, namespace: "storefront*"}
+  clusterResourceWhitelist:
+    - {group: "", kind: Namespace}
+  namespaceResourceWhitelist:
+    - {group: "", kind: "*"}
+    - {group: apps, kind: "*"}
+    - {group: policy, kind: PodDisruptionBudget}
+    - {group: autoscaling, kind: HorizontalPodAutoscaler}
+    - {group: monitoring.coreos.com, kind: ServiceMonitor}

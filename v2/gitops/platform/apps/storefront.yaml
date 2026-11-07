@@ -1,0 +1,42 @@
+# Wave 1: one Application per service and environment, generated from the files
+# envs/<env>/storefront/services/<service>.yaml. Adding a service = adding a file.
+# Namespace: "storefront" for prod, "storefront-<env>" otherwise (E8 adds staging).
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: storefront
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "1"}
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - git:
+        repoURL: http://gitlab:8929/root/platform-gitops.git
+        revision: main
+        files:
+          - path: "envs/*/storefront/services/*.yaml"
+  template:
+    metadata:
+      name: 'storefront-{{ .service }}-{{ index .path.segments 1 }}'
+      labels:
+        storefront/env: '{{ index .path.segments 1 }}'
+        storefront/service: '{{ .service }}'
+    spec:
+      project: storefront
+      source:
+        repoURL: http://gitlab:8929/root/platform-gitops.git
+        targetRevision: main
+        path: charts/storefront-service
+        helm:
+          releaseName: '{{ .service }}'
+          valueFiles:
+            - '../../envs/{{ index .path.segments 1 }}/storefront/common.yaml'
+            - '../../{{ .path.path }}/{{ .path.filename }}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{ if eq (index .path.segments 1) "prod" }}storefront{{ else }}storefront-{{ index .path.segments 1 }}{{ end }}'
+      syncPolicy:
+        automated: {prune: true, selfHeal: true}
+        syncOptions: [CreateNamespace=true]
+        retry: {limit: 10, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}

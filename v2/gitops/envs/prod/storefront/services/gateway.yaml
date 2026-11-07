@@ -1,0 +1,7 @@
+service: gateway
+replicas: 2
+loadBalancer: true
+env:
+  CATALOG_URL: http://catalog:8080
+  ORDERS_URL: http://orders:8080
+  GATEWAY_DEADLINE_S: "3"

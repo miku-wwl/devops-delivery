@@ -1,0 +1,66 @@
+# kube-prometheus-stack 92.22.0 (Prometheus Operator, Prometheus, Alertmanager, Grafana,
+# kube-state-metrics, node-exporter). Sized for the 3 x 3 GiB worker budget (chapter 1).
+fullnameOverride: kps
+crds:
+  enabled: true
+alertmanager:
+  alertmanagerSpec:
+    resources: {requests: {cpu: 10m, memory: 32Mi}, limits: {memory: 128Mi}}
+prometheus:
+  prometheusSpec:
+    retention: 3d
+    retentionSize: 3GB
+    scrapeInterval: 15s
+    evaluationInterval: 15s
+    enableRemoteWriteReceiver: true          # Tempo's metrics generator pushes span metrics
+    enableFeatures: [exemplar-storage]       # exemplars link a latency bucket to a trace (E9)
+    resources: {requests: {cpu: 200m, memory: 512Mi}, limits: {memory: 1536Mi}}
+    serviceMonitorSelectorNilUsesHelmValues: false   # scrape every ServiceMonitor/PodMonitor
+    podMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: [ReadWriteOnce]
+          resources: {requests: {storage: 5Gi}}
+prometheusOperator:
+  resources: {requests: {cpu: 20m, memory: 64Mi}, limits: {memory: 256Mi}}
+kube-state-metrics:
+  resources: {requests: {cpu: 10m, memory: 48Mi}, limits: {memory: 192Mi}}
+prometheus-node-exporter:
+  resources: {requests: {cpu: 10m, memory: 24Mi}, limits: {memory: 64Mi}}
+# control-plane components bind 0.0.0.0 in this cluster (platform/cluster/create.sh)
+kubeControllerManager:
+  serviceMonitor: {https: true, insecureSkipVerify: true}
+kubeScheduler:
+  serviceMonitor: {https: true, insecureSkipVerify: true}
+kubeEtcd:
+  service: {port: 2381, targetPort: 2381}
+  serviceMonitor: {scheme: http}
+kubeProxy:
+  service: {port: 10249, targetPort: 10249}
+grafana:
+  admin:
+    existingSecret: grafana-admin            # created by bootstrap.sh, never in Git
+    userKey: admin-user
+    passwordKey: admin-password
+  resources: {requests: {cpu: 50m, memory: 128Mi}, limits: {memory: 384Mi}}
+  sidecar:
+    dashboards: {enabled: true, searchNamespace: ALL}
+  additionalDataSources:
+    - name: Tempo
+      type: tempo
+      uid: tempo
+      url: http://tempo.observability:3200
+      jsonData:
+        tracesToLogsV2: {datasourceUid: loki, filterByTraceID: true, spanStartTimeShift: "-5m", spanEndTimeShift: "5m"}
+        tracesToMetrics: {datasourceUid: prometheus}
+        serviceMap: {datasourceUid: prometheus}
+        nodeGraph: {enabled: true}
+    - name: Loki
+      type: loki
+      uid: loki
+      url: http://loki.observability:3100
+      jsonData:
+        derivedFields:
+          - {name: TraceID, matcherType: label, matcherRegex: trace_id, datasourceUid: tempo, url: "$${__value.raw}"}
