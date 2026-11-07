@@ -1,0 +1,25 @@
+# transcript: E3: Little s law per pod from 20 samples per second, 40 it/s
+# recorded: 2026-11-07T13:13:34Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e3/little.sh 40 90 gateway orders payments catalog
+=== gateway
+1664 samples in 89.9 s (18.5 per s)
+X = 17.9 requests/s, R = 41.8 ms, X * R = 0.747
+N (mean of all samples) = 0.788
+a sampler every 15 s would have reported N between 0.000 and 1.167 depending on its phase (7 readings each)
+=== orders
+1663 samples in 89.9 s (18.5 per s)
+X = 5.5 requests/s, R = 115.5 ms, X * R = 0.631
+N (mean of all samples) = 0.600
+a sampler every 15 s would have reported N between 0.167 and 1.000 depending on its phase (7 readings each)
+=== payments
+1769 samples in 89.9 s (19.7 per s)
+X = 5.2 requests/s, R = 63.8 ms, X * R = 0.332
+N (mean of all samples) = 0.326
+a sampler every 15 s would have reported N between 0.167 and 0.667 depending on its phase (6 readings each)
+=== catalog
+1752 samples in 89.9 s (19.5 per s)
+X = 14.5 requests/s, R = 2.4 ms, X * R = 0.035
+N (mean of all samples) = 0.088
+a sampler every 15 s would have reported N between 0.000 and 0.333 depending on its phase (6 readings each)
+

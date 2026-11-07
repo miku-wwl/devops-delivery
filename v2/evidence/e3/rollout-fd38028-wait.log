@@ -1,0 +1,51 @@
+# transcript: E3: Argo CD picks up storefront fd38028
+# recorded: 2026-11-07T13:00:46Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ for a in $(kubectl -n argocd get applications -o name | grep storefront-); do kubectl -n argocd annotate $a argocd.argoproj.io/refresh=normal --overwrite > /dev/null; done; echo refreshed
+refreshed
+
+$ for i in $(seq 1 60); do n=$(kubectl -n storefront get deploy -o jsonpath="{range .items[*]}{.spec.template.spec.containers[0].image}{'\n'}{end}" | grep -c fd38028); [ "$n" -ge 6 ] && break; sleep 5; done; echo "deployments on fd38028: $n of 6 after $((i * 5)) s"
+deployments on fd38028: 6 of 6 after 10 s
+
+$ for d in gateway catalog orders inventory payments notifier; do kubectl -n storefront rollout status deploy/$d --timeout=300s; done
+deployment "gateway" successfully rolled out
+Waiting for deployment "catalog" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "catalog" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "catalog" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "catalog" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "catalog" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "catalog" rollout to finish: 1 old replicas are pending termination...
+deployment "catalog" successfully rolled out
+deployment "orders" successfully rolled out
+deployment "inventory" successfully rolled out
+deployment "payments" successfully rolled out
+deployment "notifier" successfully rolled out
+
+$ kubectl -n storefront get pods -o custom-columns=POD:.metadata.name,NODE:.spec.nodeName,IMAGE:.spec.containers[0].image,READY:.status.containerStatuses[0].ready
+POD                          NODE          IMAGE                                       READY
+catalog-5486d76849-8bh5g     ent-worker    localhost:5001/storefront:f3d9043           true
+catalog-cdb4f59b9-cb767      ent-worker2   localhost:5001/storefront:fd38028           true
+catalog-cdb4f59b9-ktzjq      ent-worker3   localhost:5001/storefront:fd38028           true
+gateway-fcbf876d9-746cl      ent-worker3   localhost:5001/storefront:fd38028           true
+gateway-fcbf876d9-d6st4      ent-worker    localhost:5001/storefront:fd38028           true
+inventory-7f7684694c-8qfxf   ent-worker3   localhost:5001/storefront:fd38028           true
+inventory-7f7684694c-z4lz4   ent-worker    localhost:5001/storefront:fd38028           true
+inventory-868559bc67-8hj95   ent-worker    localhost:5001/storefront:f3d9043           true
+notifier-7c54d54fc4-p28cf    ent-worker3   localhost:5001/storefront:fd38028           true
+notifier-9bff59886-8nlbx     ent-worker    localhost:5001/storefront:f3d9043           true
+orders-5cd5d8df65-bhcp2      ent-worker3   localhost:5001/storefront:fd38028           true
+orders-5cd5d8df65-tvqsm      ent-worker    localhost:5001/storefront:fd38028           true
+payments-7b7bb7b75d-rlnst    ent-worker3   localhost:5001/storefront:f3d9043           true
+payments-856b5fddf8-7dgmd    ent-worker2   localhost:5001/storefront:fd38028           true
+payments-856b5fddf8-pr5dq    ent-worker    localhost:5001/storefront:fd38028           true
+waypoint-6c97c95658-x7x82    ent-worker2   docker.io/istio/proxyv2:1.31.4-distroless   true
+
+$ kubectl -n argocd get applications -o custom-columns=APP:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status | grep -E "APP|storefront"
+APP                         SYNC     HEALTH
+storefront-catalog-prod     Synced   Healthy
+storefront-gateway-prod     Synced   Healthy
+storefront-inventory-prod   Synced   Healthy
+storefront-notifier-prod    Synced   Healthy
+storefront-orders-prod      Synced   Healthy
+storefront-payments-prod    Synced   Healthy
+

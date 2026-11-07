@@ -1,0 +1,3 @@
+gateway-778cc68bb5-fdhx7          ent-worker2   localhost:5001/storefront:f3d9043
+gateway-778cc68bb5-qm2pv          ent-worker    localhost:5001/storefront:f3d9043
+gateway-canary-5f5457576d-vv4n5   ent-worker3   localhost:5001/storefront:fd38028

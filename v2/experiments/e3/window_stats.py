@@ -3,8 +3,9 @@
     python3 window_stats.py <start-iso> <end-iso> [--json out.json]
 
 Per storefront service: request rate, CPU cores, CPU milliseconds per request (the "service
-demand" D of the utilization law U = X * D), busiest pod's CPU, mean requests in flight (for
-Little's law N = X * R), event-loop lag p99 and DB-pool wait p95. Per worker node: CPU cores of
+demand" D of the utilization law U = X * D), busiest pod's CPU, mean and p95 response time,
+mean requests in flight as measured (gauge) and as Little's law predicts it (N = X * R),
+event-loop lag p99 and DB-pool wait p95. Per worker node: CPU cores of
 all containers on it. Platform components: waypoint, ztunnels,
 OTel collector, Tempo, PostgreSQL. Run on the WSL host (python3 3.12, stdlib only).
 """
@@ -39,6 +40,10 @@ def window(start: datetime, end: datetime) -> dict:
     cpu_max = by(query(f'max by (service) (label_replace(rate(container_cpu_usage_seconds_total{{{NS},container="app"}}[{w}]),'
                        f' "service", "$1", "pod", "(.+)-[^-]+-[^-]+"))', end), "service")
     inflight = by(query(f"sum by (service) (avg_over_time(http_server_inflight_requests{{{NS}}}[{w}]))", end), "service")
+    mean = by(query(f"sum by (service) (rate(http_server_request_duration_seconds_sum{{{NS}}}[{w}]))"
+                    f" / sum by (service) (rate(http_server_request_duration_seconds_count{{{NS}}}[{w}]))", end), "service")
+    p95 = by(query(f"histogram_quantile(0.95, sum by (service, le) "
+                   f"(rate(http_server_request_duration_seconds_bucket{{{NS}}}[{w}])))", end), "service")
     lag = by(query(f"histogram_quantile(0.99, sum by (service, le) (rate(event_loop_lag_seconds_bucket{{{NS}}}[{w}])))", end), "service")
     pool = by(query(f"histogram_quantile(0.95, sum by (service, le) (rate(db_pool_acquire_seconds_bucket{{{NS}}}[{w}])))", end), "service")
     # cAdvisor's root-cgroup series (id="/") are not kept by kube-prometheus-stack; the sum over
@@ -51,7 +56,11 @@ def window(start: datetime, end: datetime) -> dict:
     services = {}
     for svc in sorted(set(rate) | set(cpu)):
         x, c = rate.get(svc, 0.0), cpu.get(svc, 0.0)
+        r = mean.get(svc, float("nan"))
         services[svc] = {"req_per_s": round(x, 1), "cpu_cores": round(c, 3),
+                         "mean_ms": round(1000 * r, 1) if r == r else None,
+                         "p95_ms": round(1000 * p95[svc], 1) if svc in p95 and p95[svc] == p95[svc] else None,
+                         "little_n": round(x * r, 2) if r == r else None,
                          "cpu_ms_per_req": round(1000 * c / x, 2) if x else None,
                          "busiest_pod_cores": round(cpu_max.get(svc, 0.0), 3),
                          "inflight": round(inflight.get(svc, 0.0), 2),
@@ -65,10 +74,11 @@ def window(start: datetime, end: datetime) -> dict:
 def show(d: dict) -> None:
     print(f"window {d['start']} .. {d['end']}")
     print(f"  {'service':10s} {'req/s':>7s} {'cores':>6s} {'ms CPU/req':>10s} {'busiest pod':>11s} "
-          f"{'in flight':>9s} {'loop p99':>8s} {'pool p95':>8s}")
+          f"{'R ms':>7s} {'p95 ms':>7s} {'in flight':>9s} {'X*R':>6s} {'loop p99':>8s} {'pool p95':>8s}")
     for svc, s in d["services"].items():
         print(f"  {svc:10s} {s['req_per_s']:7.1f} {s['cpu_cores']:6.3f} {s['cpu_ms_per_req'] or 0:10.2f} "
-              f"{s['busiest_pod_cores']:11.3f} {s['inflight']:9.2f} {s['loop_lag_p99_ms'] or 0:8.1f} "
+              f"{s['busiest_pod_cores']:11.3f} {s['mean_ms'] or 0:7.1f} {s['p95_ms'] or 0:7.1f} "
+              f"{s['inflight']:9.2f} {s['little_n'] or 0:6.2f} {s['loop_lag_p99_ms'] or 0:8.1f} "
               f"{s['pool_wait_p95_ms'] or 0:8.2f}")
     print("  nodes (cores):", ", ".join(f"{k}={v}" for k, v in d["nodes_cpu_cores"].items()))
     print("  platform (cores):", ", ".join(f"{k}={v}" for k, v in d["platform_cpu_cores"].items()))
