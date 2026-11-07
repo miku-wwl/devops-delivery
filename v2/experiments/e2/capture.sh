@@ -6,6 +6,16 @@
 # Port 8080 = the services' plain HTTP; port 15008 = Istio HBONE (mTLS tunnel).
 set -uo pipefail
 LABEL=${1:?label}
+summarize() {   # $1 = capture file
+  echo "== packets on ent-worker eth0 by destination port (10 s)"
+  grep -oE '^[0-9:.]+ IP [0-9.]+\.[0-9]+ > [0-9.]+\.(8080|15008):' "$1" | grep -oE '(8080|15008):$' |
+    sort | uniq -c | sed -E 's/^ *([0-9]+) ([0-9]+):$/  \1 packets to port \2/'
+  echo "== plaintext HTTP request lines on the wire"
+  echo "  north-south (public /api/... paths, from the load balancer): $(grep -acE '(GET|POST) /api/[^ ]* HTTP/1\.1' "$1")"
+  echo "  east-west (service-to-service paths):                         $(grep -acE '(GET|POST) /(products|reservations|charges|orders)[^ ]* HTTP/1\.1' "$1")"
+  grep -aoE '(GET|POST) /(products|reservations|charges|orders)[^ ]* HTTP/1\.1' "$1" | sed -E 's#/sku-[0-9]+#/{id}#; s#/[0-9a-f-]{36}#/{id}#' | sort | uniq -c | sed 's/^/    /' | head -5 || true
+}
+[ "${2:-}" = "--summary-only" ] && { summarize "/tmp/cap-$LABEL.txt"; exit 0; }
 IMG=nicolaka/netshoot:v0.16
 GW=$(kubectl -n storefront get svc gateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
 docker image inspect "$IMG" >/dev/null 2>&1 || docker pull -q "$IMG" >/dev/null
@@ -19,12 +29,4 @@ docker image inspect "$IMG" >/dev/null 2>&1 || docker pull -q "$IMG" >/dev/null
 docker run --rm --net container:ent-worker --cap-add NET_RAW --cap-add NET_ADMIN "$IMG" \
   timeout 10 tcpdump -i eth0 -nn -s 0 -A 'tcp port 8080 or tcp port 15008' 2>/dev/null > "/tmp/cap-$LABEL.txt"
 wait
-echo "== packets on ent-worker eth0 by destination port (10 s)"
-grep -oE '^[0-9:.]+ IP [0-9.]+\.[0-9]+ > [0-9.]+\.(8080|15008):' "/tmp/cap-$LABEL.txt" | grep -oE '\.(8080|15008):$' |
-  sort | uniq -c | sed 's/[.:]//g; s/^ */  /; s/ \([0-9]*\)$/ packets to port \1/'
-echo "== plaintext HTTP request lines visible on the wire"
-grep -aoE '(GET|POST) /[a-z/{}._0-9-]+ HTTP/1\.1' "/tmp/cap-$LABEL.txt" | sort | uniq -c | head -8
-echo "== readable header fields (X-Request-ID, Idempotency-Key)"
-grep -aoiE '(x-request-id|idempotency-key): [A-Za-z0-9._-]+' "/tmp/cap-$LABEL.txt" | head -4
-echo "== TLS on port 15008? (record type 0x16 handshake / 0x17 application data in the payload)"
-grep -acE 'HTTP/1\.1' "/tmp/cap-$LABEL.txt" | sed 's/^/  lines containing HTTP\/1.1: /'
+summarize "/tmp/cap-$LABEL.txt"

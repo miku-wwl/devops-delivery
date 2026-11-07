@@ -1,0 +1,48 @@
+# transcript: E2: the trace of the charged-but-failed order
+# recorded: 2026-11-07T07:51:09Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl get --raw "/api/v1/namespaces/observability/services/tempo:3200/proxy/api/traces/300c0db4c007fbfec611dcbec2f92ea7" > /tmp/amb-trace.json; python3 v2/experiments/e1/trace_tree.py /tmp/amb-trace.json | grep -vE "http (send|receive)$|http send|http receive"
+72 spans, 5 services: catalog, gateway, inventory, orders, payments; total 1319.8 ms
+      0.0 ms   1109.8 ms  gateway   SERVER   POST /api/orders  http.route=/api/orders
+      3.2 ms   1012.1 ms    gateway   CLIENT   POST
+     16.6 ms   1153.8 ms      orders    SERVER   POST /orders  http.route=/orders order.id=5be7495e-5461-47d2-9f36-71e8f7a79ce2 order.status=FAILED
+     20.6 ms      4.6 ms        orders    CLIENT   INSERT   sql='INSERT INTO orders (id, idempotency_key, custome'
+     25.9 ms      1.1 ms        orders    CLIENT   SELECT   sql='SELECT pg_advisory_unlock_all();\nCLOSE ALL;\nUNLI'
+     28.1 ms      7.5 ms        orders    CLIENT   GET
+     30.8 ms      3.8 ms          catalog   SERVER   GET /products/{product_id}  http.route=/products/{product_id}
+     32.1 ms      1.4 ms            catalog   CLIENT   GET   sql='GET ?'
+     39.0 ms     24.4 ms        orders    CLIENT   POST
+     42.9 ms     19.6 ms          inventory SERVER   POST /reservations  http.route=/reservations
+     45.5 ms      1.5 ms            inventory CLIENT   BEGIN;   sql='BEGIN;'
+     47.3 ms      1.4 ms            inventory CLIENT   SELECT   sql='SELECT status FROM reservations WHERE order_id ='
+     49.0 ms      4.1 ms            inventory CLIENT   UPDATE   sql='UPDATE stock SET available = available - $2, res'
+     53.7 ms      1.1 ms            inventory CLIENT   INSERT   sql='INSERT INTO reservations (order_id, items, statu'
+     55.0 ms      4.4 ms            inventory CLIENT   COMMIT;   sql='COMMIT;'
+     59.9 ms      1.3 ms            inventory CLIENT   SELECT   sql='SELECT pg_advisory_unlock_all();\nCLOSE ALL;\nUNLI'
+     66.5 ms   1036.3 ms        orders    CLIENT   POST
+     75.0 ms   1244.8 ms          payments  SERVER   POST /charges  http.route=/charges
+    994.8 ms      3.2 ms            payments  CLIENT   GET   sql='GET ?'
+    998.2 ms      2.8 ms            payments  CLIENT   SET   sql='SET ? ? ? ? ?'
+   1315.7 ms      1.4 ms            payments  CLIENT   SET   sql='SET ? ? ? ?'
+   1317.4 ms      0.8 ms            payments  CLIENT   DEL   sql='DEL ?'
+   1123.8 ms     17.8 ms        orders    CLIENT   POST
+   1128.1 ms     11.1 ms          payments  SERVER   POST /charges  http.route=/charges
+   1131.2 ms      1.9 ms            payments  CLIENT   GET   sql='GET ?'
+   1133.4 ms      3.8 ms            payments  CLIENT   SET   sql='SET ? ? ? ? ?'
+   1145.3 ms     16.4 ms        orders    CLIENT   POST
+   1148.2 ms     12.3 ms          inventory SERVER   POST /reservations/{order_id}/release  http.route=/reservations/{order_id}/release
+   1149.7 ms      1.7 ms            inventory CLIENT   BEGIN;   sql='BEGIN;'
+   1151.6 ms      1.5 ms            inventory CLIENT   SELECT   sql='SELECT status, items FROM reservations WHERE ord'
+   1153.4 ms      1.0 ms            inventory CLIENT   UPDATE   sql='UPDATE stock SET available = available + $2, res'
+   1154.5 ms      0.8 ms            inventory CLIENT   UPDATE   sql="UPDATE reservations SET status = 'RELEASED', upd"
+   1155.4 ms      2.3 ms            inventory CLIENT   COMMIT;   sql='COMMIT;'
+   1158.2 ms      1.0 ms            inventory CLIENT   SELECT   sql='SELECT pg_advisory_unlock_all();\nCLOSE ALL;\nUNLI'
+   1164.0 ms      3.5 ms        orders    CLIENT   UPDATE   sql='UPDATE orders SET status = $2, total_cents = $3,'
+   1167.8 ms      1.0 ms        orders    CLIENT   SELECT   sql='SELECT pg_advisory_unlock_all();\nCLOSE ALL;\nUNLI'
+   1060.3 ms     44.5 ms    gateway   CLIENT   POST
+   1087.1 ms     16.7 ms      orders    SERVER   POST /orders  http.route=/orders
+   1089.9 ms      6.1 ms        orders    CLIENT   INSERT   sql='INSERT INTO orders (id, idempotency_key, custome'
+   1096.4 ms      1.9 ms        orders    CLIENT   SELECT   sql='SELECT pg_advisory_unlock_all();\nCLOSE ALL;\nUNLI'
+   1098.9 ms      2.4 ms        orders    CLIENT   SELECT   sql='SELECT id, customer_id, status, items, total_cen'
+   1101.7 ms      0.5 ms        orders    CLIENT   SELECT   sql='SELECT pg_advisory_unlock_all();\nCLOSE ALL;\nUNLI'
+

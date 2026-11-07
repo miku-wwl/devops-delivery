@@ -3,7 +3,7 @@
   /healthz   liveness: the process can answer (never checks dependencies)
   /readyz    readiness: startup finished, not draining, own readiness checks pass
   /metrics   Prometheus text format
-  /admin/faults  GET/PUT the injected fault ([注入]: latency and error rate)
+  /admin/faults  GET/PUT the injected fault ([注入]: latency, error rate, status code)
 Middleware: request ID and deadline, RED metrics by route template, sampled access log,
 fault injection. UpstreamError and pool timeouts become 502/503/504 with a JSON body.
 """
@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
 import random
 import time
 from collections.abc import AsyncIterator, Awaitable, Callable
@@ -26,6 +27,7 @@ from starlette.routing import Match
 from . import context
 from .db import PoolTimeoutError
 from .logs import configure_logging
+from .loopwatch import LoopWatch
 from .metrics import Metrics
 from .settings import Settings
 from .telemetry import configure_telemetry
@@ -49,6 +51,8 @@ Hook = Callable[[FastAPI], Awaitable[None]]
 class Faults(BaseModel):
     latency_ms: float = Field(0, ge=0, le=60_000)
     error_rate: float = Field(0, ge=0, le=1)
+    # 500 by default; 503 matters for meshes: Istio retries 503 by default (chapter 3)
+    status: int = Field(500, ge=500, le=599)
 
 
 def route_template(app: FastAPI, request: Request) -> str:
@@ -77,6 +81,7 @@ def create_app(
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         if startup:
             await startup(app)
+        watch_task = asyncio.create_task(app.state.loopwatch.run(), name="loopwatch")
         app.state.ready = True
         logging.getLogger("storefront").info(
             "started", extra={"version": settings.version, "resilience": settings.resilience_mode}
@@ -85,6 +90,8 @@ def create_app(
         app.state.ready = False  # uvicorn stops accepting first; this covers readiness probes
         if shutdown:
             await shutdown(app)
+        app.state.loopwatch.stop()
+        watch_task.cancel()
 
     app = FastAPI(
         title=f"storefront-{settings.service}",
@@ -94,6 +101,9 @@ def create_app(
         redoc_url=None,
     )
     app.state.settings, app.state.metrics, app.state.ready = settings, metrics, False
+    app.state.loopwatch = LoopWatch(
+        metrics.registry, stall_s=float(os.environ.get("LOOP_STALL_MS", 250)) / 1000
+    )
     app.state.faults = Faults(latency_ms=settings.fault_latency_ms, error_rate=settings.fault_error_rate)
 
     @app.middleware("http")
@@ -108,7 +118,7 @@ def create_app(
             if not operational and faults.latency_ms:
                 await asyncio.sleep(faults.latency_ms / 1000)
             if not operational and faults.error_rate and random.random() < faults.error_rate:  # noqa: S311
-                response: Response = JSONResponse({"error": "injected fault"}, status_code=500)
+                response: Response = JSONResponse({"error": "injected fault"}, status_code=faults.status)
             else:
                 response = await call_next(request)
         finally:

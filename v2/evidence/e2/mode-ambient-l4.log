@@ -1,0 +1,64 @@
+# transcript: E2: ambient L4 (ztunnel, mTLS), 20 it/s for 3 minutes
+# recorded: 2026-11-07T07:38:05Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e2/measure-mode.sh ambient-l4
+mode=ambient-l4 target=http://172.20.0.8:8080 start=2026-11-07T07:38:05Z
+--- connections at t=120s
+server pod (port 8080)         client                                   established
+catalog-7f9b4d4c77-ntmqr       orders-6b8b5f4579-zq89c                  2
+catalog-7f9b4d4c77-ntmqr       orders-6b8b5f4579-z9ctm                  1
+catalog-7f9b4d4c77-ntmqr       gateway-5476f9c8fb-xhv76                 1
+catalog-7f9b4d4c77-trxzq       gateway-5476f9c8fb-rh4wf                 2
+gateway-5476f9c8fb-rh4wf       10.240.1.1                               5
+gateway-5476f9c8fb-xhv76       10.240.3.1                               6
+inventory-5ff4675997-c9rz5     orders-6b8b5f4579-zq89c                  1
+inventory-5ff4675997-c9rz5     orders-6b8b5f4579-z9ctm                  1
+inventory-5ff4675997-cw4t8     orders-6b8b5f4579-zq89c                  1
+orders-6b8b5f4579-z9ctm        gateway-5476f9c8fb-rh4wf                 1
+orders-6b8b5f4579-z9ctm        gateway-5476f9c8fb-xhv76                 1
+orders-6b8b5f4579-zq89c        gateway-5476f9c8fb-rh4wf                 2
+orders-6b8b5f4579-zq89c        gateway-5476f9c8fb-xhv76                 2
+payments-569c98ff59-4kbv5      orders-6b8b5f4579-zq89c                  1
+payments-569c98ff59-4kbv5      orders-6b8b5f4579-z9ctm                  1
+payments-569c98ff59-94k6l      orders-6b8b5f4579-zq89c                  1
+--- k6
+rate=20/s duration=3m iterations=3600 dropped=0
+requests=6124 (34.2/s) failed=0.03%
+browse: p50=14.8 p95=27.7 p99=42.5 max=639.7 ms
+order:  p50=138.4 p95=253.4 p99=365.9 max=1193.1 ms
+checks: 99.97% passed
+--- request share per replica over the run
+service    pod                            requests   share
+catalog    catalog-7f9b4d4c77-ntmqr           3313   57.8%
+catalog    catalog-7f9b4d4c77-trxzq           2422   42.2%
+gateway    gateway-5476f9c8fb-rh4wf           2882   50.7%
+gateway    gateway-5476f9c8fb-xhv76           2800   49.3%
+inventory  inventory-5ff4675997-c9rz5          791   97.2%
+inventory  inventory-5ff4675997-cw4t8           23    2.8%
+orders     orders-6b8b5f4579-z9ctm             105   11.2%
+orders     orders-6b8b5f4579-zq89c             835   88.8%
+payments   payments-569c98ff59-4kbv5           121   15.0%
+payments   payments-569c98ff59-94k6l           686   85.0%
+--- resources
+catalog-7f9b4d4c77-ntmqr     109m   70Mi   
+catalog-7f9b4d4c77-trxzq     74m    65Mi   
+gateway-5476f9c8fb-rh4wf     156m   72Mi   
+gateway-5476f9c8fb-xhv76     105m   81Mi   
+inventory-5ff4675997-c9rz5   50m    62Mi   
+inventory-5ff4675997-cw4t8   9m     59Mi   
+notifier-5f4d566b9f-pmgh8    21m    64Mi   
+orders-6b8b5f4579-z9ctm      47m    70Mi   
+orders-6b8b5f4579-zq89c      107m   75Mi   
+payments-569c98ff59-4kbv5    7m     75Mi   
+payments-569c98ff59-94k6l    39m    64Mi   
+istio-cni-node-djwqf     1m    16Mi   
+istio-cni-node-tz2zj     1m    15Mi   
+istio-cni-node-vxhq7     2m    16Mi   
+istio-cni-node-wr8w9     1m    19Mi   
+istiod-94db8467c-7rn9f   6m    46Mi   
+ztunnel-2gc4b            51m   6Mi    
+ztunnel-6r97l            56m   7Mi    
+ztunnel-lb62h            1m    4Mi    
+ztunnel-zd5ms            19m   5Mi    
+end=2026-11-07T07:41:26Z
+

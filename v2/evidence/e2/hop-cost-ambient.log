@@ -1,0 +1,21 @@
+# transcript: E2: cost of one round trip through ambient (2x2)
+# recorded: 2026-11-07T07:42:30Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e2/hop-cost.sh ambient
+image localhost:5001/storefront:82acb8a; http target catalog pod 10.240.2.8:8080; valkey pod 10.240.3.6:6379 (ent-worker3)
+== client in namespace storefront (in the mesh)
+http    n=2000  p50=   2007 us  p90=   3917 us  p99=   8112 us  mean=   2404 us
+valkey  n=2000  p50=    339 us  p90=    551 us  p99=   2730 us  mean=    421 us
+== client in namespace e2-bench (outside the mesh)
+http    n=2000  p50=   1572 us  p90=   3028 us  p99=   6632 us  mean=   1841 us
+valkey  n=2000  p50=    170 us  p90=    216 us  p99=    390 us  mean=    189 us
+
+$ bash v2/experiments/e2/hop-cost.sh ambient-repeat
+image localhost:5001/storefront:82acb8a; http target catalog pod 10.240.2.8:8080; valkey pod 10.240.3.6:6379 (ent-worker3)
+== client in namespace storefront (in the mesh)
+http    n=2000  p50=   1706 us  p90=   3393 us  p99=   7650 us  mean=   2098 us
+valkey  n=2000  p50=    372 us  p90=    640 us  p99=   2444 us  mean=    466 us
+== client in namespace e2-bench (outside the mesh)
+http    n=2000  p50=   1878 us  p90=   3282 us  p99=   6987 us  mean=   2143 us
+valkey  n=2000  p50=    252 us  p90=    360 us  p99=   2811 us  mean=    319 us
+

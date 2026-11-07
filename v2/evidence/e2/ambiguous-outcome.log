@@ -1,0 +1,31 @@
+# transcript: E2: a real charged-but-failed order (the ambiguous outcome of chapter 2)
+# recorded: 2026-11-07T07:50:44Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# the request (logs of three services, same request ID and trace ID)
+$ for s in gateway orders payments; do for p in $(kubectl -n storefront get pods -l app.kubernetes.io/name=$s -o name); do kubectl -n storefront logs $p --since=90m 2>/dev/null | grep -F 3f20eb48e7464687a388acad8afa98e5 | jq -c "{ts, service, msg, duration_ms}"; done; done | sort
+{"ts":"2026-11-07T07:40:24.807+00:00","service":"gateway","msg":"POST /api/orders 200","duration_ms":1106.8}
+{"ts":"2026-11-07T07:40:24.869+00:00","service":"orders","msg":"POST /orders 503","duration_ms":1152.1}
+{"ts":"2026-11-07T07:40:25.019+00:00","service":"payments","msg":"POST /charges 201","duration_ms":1243.0}
+[exit 1]
+
+# every order that failed on payments, and what payments recorded for it
+$ PRIMARY=$(kubectl -n data get cluster pg-main -o jsonpath="{.status.currentPrimary}"); echo "primary $PRIMARY"
+primary pg-main-3
+
+$ kubectl -n data exec $PRIMARY -c postgres -- psql -d orders -tA -F " | " -c "SELECT id, status, failure_reason, total_cents, to_char(created_at, chr(72)||chr(72)||chr(50)||chr(52)||chr(58)||chr(77)||chr(73)||chr(58)||chr(83)||chr(83)) FROM orders WHERE failure_reason LIKE chr(112)||chr(97)||chr(121)||chr(37) ORDER BY created_at" | tee /tmp/failed-payments.txt
+5be7495e-5461-47d2-9f36-71e8f7a79ce2 | FAILED | payments HTTP 409 | 5625 | 07:40:23
+
+$ for id in $(cut -d" " -f1 /tmp/failed-payments.txt); do echo "$id -> payments: $(kubectl -n storefront exec deploy/payments -c app -- python -c "import urllib.request,json,sys
+automation/evidence/transcript.sh: eval: line 46: unexpected EOF while looking for matching `"'
+[exit 2]
+
+$ try: print(json.load(urllib.request.urlopen(\"http://localhost:8080/charges/$id\"))[\"status\"])
+automation/evidence/transcript.sh: eval: line 46: syntax error near unexpected token `('
+automation/evidence/transcript.sh: eval: line 46: `try: print(json.load(urllib.request.urlopen(\"http://localhost:8080/charges/$id\"))[\"status\"])'
+[exit 2]
+
+$ except Exception as e: print(e)")"; done
+automation/evidence/transcript.sh: eval: line 46: syntax error near unexpected token `('
+automation/evidence/transcript.sh: eval: line 46: `except Exception as e: print(e)")"; done'
+[exit 2]
+

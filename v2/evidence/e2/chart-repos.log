@@ -1,0 +1,19 @@
+# transcript: E2: where the Istio 1.31 charts are published
+# recorded: 2026-11-07T07:57:35Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ helm repo add istio-old https://istio-release.storage.googleapis.com/charts --force-update >/dev/null; helm repo update istio-old >/dev/null; helm search repo istio-old/istiod --versions | head -3
+NAME                   	CHART VERSION	APP VERSION	DESCRIPTION                                       
+istio-old/istiod       	1.30.8       	1.30.8     	Helm chart for istio control plane                
+istio-old/istiod       	1.30.7       	1.30.7     	Helm chart for istio control plane                
+
+$ helm show chart oci://gcr.io/istio-release/charts/istiod --version 1.31.4 2>&1 | tail -1
+Error: failed to perform "FetchReference" on source: gcr.io/istio-release/charts/istiod:1.31.4: not found
+[exit 1]
+
+$ helm search repo istio/istiod --version 1.31.4
+NAME        	CHART VERSION	APP VERSION	DESCRIPTION                       
+istio/istiod	1.31.4       	1.31.4     	Helm chart for istio control plane
+
+$ gh_go() { curl -fsSL "https://raw.githubusercontent.com/istio/istio/1.31.4/go.mod" | grep -E "sigs.k8s.io/gateway-api "; }; gh_go
+	sigs.k8s.io/gateway-api v1.6.0
+

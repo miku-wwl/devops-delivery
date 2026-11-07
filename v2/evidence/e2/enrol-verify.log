@@ -1,0 +1,49 @@
+# transcript: E2: enrolled pods, identities and mTLS on the wire
+# recorded: 2026-11-07T07:36:25Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl -n storefront get pods -o custom-columns=NAME:.metadata.name,RESTARTS:.status.containerStatuses[0].restartCount,REDIRECTION:.metadata.annotations.ambient\.istio\.io/redirection --no-headers
+catalog-7f9b4d4c77-ntmqr     1     <none>
+catalog-7f9b4d4c77-trxzq     1     <none>
+gateway-5476f9c8fb-rh4wf     1     <none>
+gateway-5476f9c8fb-xhv76     1     <none>
+inventory-5ff4675997-c9rz5   1     <none>
+inventory-5ff4675997-cw4t8   1     <none>
+notifier-5f4d566b9f-pmgh8    1     <none>
+orders-6b8b5f4579-z9ctm      1     <none>
+orders-6b8b5f4579-zq89c      1     <none>
+payments-569c98ff59-4kbv5    1     <none>
+payments-569c98ff59-94k6l    1     <none>
+
+$ GW=$(kubectl -n storefront get svc gateway -o jsonpath="{.status.loadBalancer.ingress[0].ip}"); for i in $(seq 10); do curl -s -o /dev/null -w "%{http_code} " "http://$GW:8080/api/orders" -H "Content-Type: application/json" -H "Idempotency-Key: enrol-check-$i-$RANDOM" -d "{\"customer_id\":\"c-e\",\"items\":[{\"product_id\":\"sku-004\",\"qty\":1}]}"; done; echo
+201 201 201 201 201 201 201 201 201 201 
+
+$ sleep 3
+
+# ztunnel connection log: who called whom, under which SPIFFE identity
+$ kubectl -n istio-system logs ds/ztunnel --all-containers --since=60s --max-log-requests=4 2>/dev/null | grep -E "connection complete" | grep -oE "src\.identity=\"spiffe://[^\"]+\" dst\.identity=\"spiffe://[^\"]+\"" | sed -E "s#spiffe://cluster.local/ns/##g" | sort | uniq -c
+[exit 1]
+
+$ kubectl -n istio-system logs ds/ztunnel --all-containers --since=60s --max-log-requests=4 2>/dev/null | grep -m1 "connection complete" | cut -c1-400
+2026-11-07T07:36:00.014192Z	info	access	connection complete	src.addr=10.240.2.4:51070 src.workload="prometheus-kps-prometheus-0" src.namespace="monitoring" src.cluster="Kubernetes" dst.addr=10.240.1.9:8080 dst.service="payments.storefront.svc.cluster.local" dst.workload="payments-569c98ff59-94k6l" dst.namespace="storefront" dst.cluster="Kubernetes" direction="inbound" bytes_sent=8002 bytes_recv=36
+
+$ bash v2/experiments/e2/capture.sh ambient
+== packets on ent-worker eth0 by destination port (10 s)
+  120 packets to port 15008
+  249 packets to port 8080
+== plaintext HTTP request lines visible on the wire
+      6 GET /api/products/sku-001 HTTP/1.1
+      2 GET /api/products/sku-002 HTTP/1.1
+      4 GET /api/products/sku-003 HTTP/1.1
+      2 GET /api/products/sku-004 HTTP/1.1
+      4 GET /api/products/sku-005 HTTP/1.1
+      2 GET /api/products/sku-006 HTTP/1.1
+      4 GET /api/products/sku-007 HTTP/1.1
+      4 GET /api/products/sku-009 HTTP/1.1
+== readable header fields (X-Request-ID, Idempotency-Key)
+Idempotency-Key: capture-ambient-3-28745
+x-request-id: d5dafd0330ea40e3baf689242215cae1
+x-request-id: 769c33df5e8142efb91933cbbea3d39f
+x-request-id: 929cca1434fe41afbe23155f3269b01a
+== TLS on port 15008? (record type 0x16 handshake / 0x17 application data in the payload)
+  lines containing HTTP/1.1: 124
+

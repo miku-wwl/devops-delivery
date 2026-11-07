@@ -1,0 +1,16 @@
+# E2 step 3: an L7 proxy (Envoy) for the storefront namespace. With the namespace label
+# istio.io/use-waypoint=waypoint, traffic to every storefront service goes through it:
+# per-request load balancing, HTTP metrics, L7 policy and routing (retries, weights, headers).
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: waypoint
+  namespace: storefront
+  labels:
+    istio.io/waypoint-for: service
+spec:
+  gatewayClassName: istio-waypoint
+  listeners:
+    - name: mesh
+      port: 15008
+      protocol: HBONE

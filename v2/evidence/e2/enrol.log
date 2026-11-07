@@ -1,0 +1,37 @@
+# transcript: E2: enrol storefront in ambient mode (no pod restarts)
+# recorded: 2026-11-07T07:35:32Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl -n storefront get pods -o custom-columns=NAME:.metadata.name,RESTARTS:.status.containerStatuses[0].restartCount,STARTED:.status.startTime --no-headers | head -4
+catalog-7f9b4d4c77-ntmqr     1     2026-11-07T04:32:41Z
+catalog-7f9b4d4c77-trxzq     1     2026-11-07T04:32:29Z
+gateway-5476f9c8fb-rh4wf     1     2026-11-07T04:32:29Z
+gateway-5476f9c8fb-xhv76     1     2026-11-07T04:32:39Z
+
+$ TAG=$(git log -1 --format=%h -- v2/apps/storefront); bash v2/platform/bootstrap/publish-gitops.sh "$TAG" "storefront namespace: ambient mesh"
+platform-gitops: pushed c8601a8 (storefront namespace: ambient mesh)
+
+$ kubectl -n argocd annotate application platform-root argocd.argoproj.io/refresh=normal --overwrite >/dev/null
+
+$ for i in $(seq 60); do [ "$(kubectl get ns storefront -o jsonpath="{.metadata.labels.istio\.io/dataplane-mode}")" = ambient ] && break; sleep 5; done; kubectl get ns storefront --show-labels
+NAME         STATUS   AGE     LABELS
+storefront   Active   3h49m   istio.io/dataplane-mode=ambient,kubernetes.io/metadata.name=storefront
+
+$ sleep 15
+
+# ztunnel now carries the namespace: workloads it knows, with their SPIFFE identities
+$ kubectl -n istio-system logs ds/ztunnel --tail=200 2>/dev/null | grep -E "storefront" | grep -oE "(src|dst)\.identity=\"[^\"]+\"" | sort | uniq -c | head -8
+[exit 1]
+
+$ kubectl -n storefront get pods -o custom-columns=NAME:.metadata.name,RESTARTS:.status.containerStatuses[0].restartCount,STARTED:.status.startTime,AMBIENT:.metadata.annotations.ambient\.istio\.io/redirection --no-headers
+catalog-7f9b4d4c77-ntmqr     1     2026-11-07T04:32:41Z   <none>
+catalog-7f9b4d4c77-trxzq     1     2026-11-07T04:32:29Z   <none>
+gateway-5476f9c8fb-rh4wf     1     2026-11-07T04:32:29Z   <none>
+gateway-5476f9c8fb-xhv76     1     2026-11-07T04:32:39Z   <none>
+inventory-5ff4675997-c9rz5   1     2026-11-07T04:32:42Z   <none>
+inventory-5ff4675997-cw4t8   1     2026-11-07T04:32:29Z   <none>
+notifier-5f4d566b9f-pmgh8    1     2026-11-07T04:32:29Z   <none>
+orders-6b8b5f4579-z9ctm      1     2026-11-07T04:32:29Z   <none>
+orders-6b8b5f4579-zq89c      1     2026-11-07T04:32:42Z   <none>
+payments-569c98ff59-4kbv5    1     2026-11-07T04:32:39Z   <none>
+payments-569c98ff59-94k6l    1     2026-11-07T04:32:30Z   <none>
+

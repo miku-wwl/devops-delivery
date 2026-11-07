@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import random
 import statistics
@@ -135,6 +136,9 @@ async def test_operational_endpoints_and_injected_faults():
         assert (await c.put("/admin/faults", json={"error_rate": 1})).status_code == 200
         assert (await c.get("/products/sku-001")).status_code == 500
         assert (await c.get("/healthz")).status_code == 200  # operational routes are exempt
+        assert (await c.put("/admin/faults", json={"error_rate": 1, "status": 503})).status_code == 200
+        assert (await c.get("/products/sku-001")).status_code == 503
+        assert (await c.put("/admin/faults", json={"error_rate": 1})).status_code == 200
         text = (await c.get("/metrics")).text
         assert "storefront_build_info" in text and "http_server_requests_total" in text
         # the injected 500 is counted under the route template, not as "unmatched"
@@ -290,3 +294,29 @@ async def test_notifier_sends_once_per_event_id():
         assert await worker.handle("orders.confirmed", data, {"Nats-Msg-Id": "e-1"}) == "duplicate"
         recent = (await c.get("/notifications/recent")).json()
         assert [n["order_id"] for n in recent] == ["o-1"]
+
+
+async def test_loopwatch_reports_a_blocked_event_loop_with_its_stack():
+    """E2: ~0.9 s stalls were seen in traces; the watchdog must report such a stall, its length,
+    and where the event loop thread was."""
+    import logging
+    import time
+
+    app = build_catalog(Settings(service="catalog"), store=FakeProducts(), cache=MemoryCache())
+    records: list[logging.LogRecord] = []
+
+    class Keep(logging.Handler):
+        def emit(self, record: logging.LogRecord) -> None:
+            records.append(record)
+
+    async with running(app):
+        logging.getLogger("storefront.loopwatch").addHandler(Keep())
+        await asyncio.sleep(0.2)
+        time.sleep(0.6)  # noqa: ASYNC251 - block the event loop on purpose
+        await asyncio.sleep(0.3)
+    stalls = [r for r in records if r.getMessage() == "event loop blocked"]
+    assert stalls, "the watchdog did not report the stall"
+    assert stalls[0].blocked_ms >= 450
+    assert "time.sleep" in stalls[0].stack or "test_loopwatch" in stalls[0].stack
+    assert stalls[0].cpu_ms < 300  # sleeping, not computing
+    assert metric(app, "event_loop_lag_seconds_count") > 0
