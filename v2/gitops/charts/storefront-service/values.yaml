@@ -13,6 +13,8 @@ resources:
   requests: {cpu: 50m, memory: 96Mi}
   limits: {memory: 256Mi}
 otelEndpoint: http://otel-collector.observability.svc:4318
+# share of traces kept, decided once at the edge and followed downstream (parent-based)
+tracesSampleRatio: "1.0"
 loadBalancer: false            # expose with a LoadBalancer Service (only the gateway, until E2)
 podDisruptionBudget:
   minAvailable: 1

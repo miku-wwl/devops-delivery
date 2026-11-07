@@ -113,7 +113,10 @@ def create_app(
         context.set_request(rid, context.deadline_from(request.headers.get(context.DEADLINE_HEADER)))
         operational = request.url.path.startswith(OPERATIONAL)
         started = time.perf_counter()
-        metrics.inflight.inc()
+        # operational requests are not counted: a scrape of /metrics would otherwise always see
+        # itself in flight (E3 found the gauge never below 1 - useless for Little's law)
+        if not operational:
+            metrics.inflight.inc()
         try:
             faults: Faults = app.state.faults
             if not operational and faults.latency_ms:
@@ -123,7 +126,8 @@ def create_app(
             else:
                 response = await call_next(request)
         finally:
-            metrics.inflight.dec()
+            if not operational:
+                metrics.inflight.dec()
         elapsed = time.perf_counter() - started
         template = route_template(app, request)
         if not operational:

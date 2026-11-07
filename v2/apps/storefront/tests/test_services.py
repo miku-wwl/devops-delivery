@@ -141,6 +141,8 @@ async def test_operational_endpoints_and_injected_faults():
         assert (await c.put("/admin/faults", json={"error_rate": 1})).status_code == 200
         text = (await c.get("/metrics")).text
         assert "storefront_build_info" in text and "http_server_requests_total" in text
+        # the scrape does not count itself as a request in flight
+        assert "http_server_inflight_requests 0.0" in text
         # the injected 500 is counted under the route template, not as "unmatched"
         labels = {"method": "GET", "route": "/products/{product_id}", "code": "500"}
         assert metric(app, "http_server_requests_total", labels) == 1

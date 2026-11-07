@@ -25,6 +25,10 @@ app.kubernetes.io/part-of: storefront
   value: {{ .Values.resilienceMode | quote }}
 - name: OTEL_EXPORTER_OTLP_ENDPOINT
   value: {{ .Values.otelEndpoint | quote }}
+- name: OTEL_TRACES_SAMPLER
+  value: parentbased_traceidratio
+- name: OTEL_TRACES_SAMPLER_ARG
+  value: {{ .Values.tracesSampleRatio | quote }}
 - name: K8S_POD_NAME
   valueFrom: {fieldRef: {fieldPath: metadata.name}}
 - name: K8S_NODE_NAME

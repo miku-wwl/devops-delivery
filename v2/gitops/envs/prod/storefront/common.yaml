@@ -4,3 +4,4 @@ image:
   tag: "IMAGE_TAG"   # replaced by publish.sh with the built commit; one image for all services
 resilienceMode: resilient
 otelEndpoint: http://otel-collector.observability.svc:4318
+tracesSampleRatio: "1.0"   # E3 measures the cost of tracing, then load tests run at 0.1
