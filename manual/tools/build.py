@@ -76,6 +76,9 @@ def main() -> int:
     ap.add_argument("--chapters", default=str(MANUAL / "chapters" / "*.md"))
     ap.add_argument("--out", default=str(MANUAL / "dist" / "DevOps-Delivery-Observability-Handbook.pdf"))
     ap.add_argument("--html-only", action="store_true")
+    ap.add_argument("--allow-warnings", action="store_true",
+                    help="exit 0 even if TOC page numbers may be wrong (headings missing from the outline, "
+                         "page count changed between passes); by default these fail the build")
     args = ap.parse_args()
 
     chapters = sorted(Path(p).resolve() for p in glob.glob(args.chapters))
@@ -130,8 +133,9 @@ def main() -> int:
                     cursor = i + 1
                     break
         missing = [h["text"].strip() for h in headings if h["id"] and h["id"] not in pages]
+        problems: list[str] = []
         if missing:
-            print(f"warning: {len(missing)} heading(s) not found in outline: {missing[:5]}", file=sys.stderr)
+            problems.append(f"{len(missing)} heading(s) not found in the PDF outline, their TOC page numbers are blank: {missing[:5]}")
 
         page.evaluate(
             """(pages) => {
@@ -170,8 +174,11 @@ def main() -> int:
     print(f"pdf: {out.relative_to(ROOT) if out.is_relative_to(ROOT) else out} | pages={n2} (pass1={n1}) "
           f"| headings mapped={len(pages)}/{len(headings)} | {size_mb:.1f} MB | {time.time() - t0:.0f}s")
     if n1 != n2:
-        print("warning: page count changed between passes; TOC numbers may be off by one", file=sys.stderr)
-    return 0
+        problems.append(f"page count changed between passes ({n1} -> {n2}); TOC page numbers may be off by one")
+    for p in problems:
+        print(f"{'warning' if args.allow_warnings else 'error'}: {p}", file=sys.stderr)
+    # Up to v1.0 these were warnings only and the build still exited 0.
+    return 3 if problems and not args.allow_warnings else 0
 
 
 if __name__ == "__main__":

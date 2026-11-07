@@ -87,9 +87,9 @@ manual/                handbook sources, styles, build and QA tools, built PDF
 
 ## Open items
 
-These need the repository owner and were deliberately not done by automation:
+These need the repository owner and were deliberately not done by automation. The integration plan is in [docs/RELEASE_v1.0.md](docs/RELEASE_v1.0.md):
 
-1. Review and merge PRs #1–#3 and the stacked phase branches (`p4/…` to `p12/…`); then add the `security` check to the `protect-main` ruleset.
+1. Merge **only** the integration PR `release/v1.0` → `main` (it contains every phase and the v1.0 fixes; the `v1.0.0` tag marks the same commit). Close #1 and #3 as superseded and **do not merge #2**, which is the P1 failure-drill branch. Then add the `security` and `manual QA` checks to the `protect-main` ruleset.
 2. Approve or reject the waiting production-gate run 42142945642.
 3. Mark the GitGuardian finding from P2 as a false positive.
 4. Do the official GitHub Skills exercise "Hello GitHub Actions".

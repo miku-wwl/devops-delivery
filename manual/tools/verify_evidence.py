@@ -1,8 +1,12 @@
 """Check that the manual's claims are backed by the evidence in the repository.
 
-  manual/.venv/Scripts/python.exe manual/tools/verify_evidence.py [--out manual/build/evidence-check.md]
+  manual/.venv/Scripts/python.exe manual/tools/verify_evidence.py [--out manual/build/evidence-check.md] [--root DIR]
 
-Checks (a failure in 1-6 makes the exit code non-zero):
+Exit code 0 only if every check below finds nothing; any problem in any check gives 1.
+(Up to v1.0 the exercise and spot checks were reported but did not fail the run.)
+--root runs the checks against another copy of the repository (used by test_qa_tools.py).
+
+Checks:
   1. every image referenced by a chapter exists
   2. every evidence path (evidence/pN/...) and every bare *.log / *.png name quoted in the
      chapters, experiment records, RCAs and STATUS exists under evidence/
@@ -22,11 +26,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
-CHAPTERS = sorted((ROOT / "manual" / "chapters").glob("*.md"))
-DOCS = [p for p in (ROOT / "docs").rglob("*.md") if "templates" not in p.parts]
-EVIDENCE = ROOT / "evidence"
+DEFAULT_ROOT = Path(__file__).resolve().parents[2]
 TEXT_SUFFIXES = {".log", ".md", ".json", ".txt", ".yaml", ".yml"}
+SOURCE_SUFFIXES = {".yaml", ".yml", ".env", ".sh", ".py", ".toml"}
 
 # claim in the book -> (file that states it, text in that file, evidence file, text in evidence)
 SPOT_CHECKS = [
@@ -80,25 +82,41 @@ def read(path: Path) -> str:
     return path.read_text(encoding="utf-8", errors="replace")
 
 
-def evidence_text() -> str:
+def evidence_text(evidence: Path) -> str:
     parts = []
-    for p in EVIDENCE.rglob("*"):
+    for p in evidence.rglob("*"):
         if p.is_file() and p.suffix in TEXT_SUFFIXES:
             parts.append(read(p))
     return "\n".join(parts)
 
 
+def source_files(root: Path) -> list[Path]:
+    """Version-controlled source files; a plain directory walk when root is not a git checkout."""
+    try:
+        out = subprocess.run(["git", "ls-files"], cwd=root, capture_output=True, text=True, check=True).stdout
+        files = [root / f for f in out.split()]
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        files = [p for p in root.rglob("*") if not {".git", ".venv", "node_modules", "collections"} & set(p.parts)]
+    return [p for p in files if (p.suffix in SOURCE_SUFFIXES or p.name == "Dockerfile") and p.is_file()]
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--out", default=str(ROOT / "manual" / "build" / "evidence-check.md"))
+    ap.add_argument("--root", default=str(DEFAULT_ROOT), help="repository copy to check")
+    ap.add_argument("--out", help="report path (default: <root>/manual/build/evidence-check.md)")
     args = ap.parse_args()
+    ROOT = Path(args.root).resolve()  # noqa: N806 - kept upper-case: it is used like the old constant
+    EVIDENCE = ROOT / "evidence"  # noqa: N806
+    chapter_files = sorted((ROOT / "manual" / "chapters").glob("*.md"))
+    doc_files = [p for p in (ROOT / "docs").rglob("*.md") if "templates" not in p.parts]
+    if not chapter_files:
+        print(f"no chapters under {ROOT / 'manual' / 'chapters'} - nothing to verify is a failure, not a pass", file=sys.stderr)
+        return 1
 
-    chapters = {p.name: read(p) for p in CHAPTERS}
-    docs = {str(p.relative_to(ROOT)): read(p) for p in DOCS}
-    ev_text = evidence_text()
-    tracked = subprocess.run(["git", "ls-files"], cwd=ROOT, capture_output=True, text=True, check=True).stdout.split()
-    src_text = "\n".join(read(ROOT / f) for f in tracked
-                         if (Path(f).suffix in {".yaml", ".yml", ".env", ".sh", ".py", ".toml"} or Path(f).name == "Dockerfile") and (ROOT / f).is_file())
+    chapters = {p.name: read(p) for p in chapter_files}
+    docs = {str(p.relative_to(ROOT)): read(p) for p in doc_files}
+    ev_text = evidence_text(EVIDENCE)
+    src_text = "\n".join(read(p) for p in source_files(ROOT))
     evidence_names = {p.name for p in EVIDENCE.rglob("*") if p.is_file()}
     results: dict[str, list[str]] = {}
 
@@ -189,16 +207,21 @@ def main() -> int:
             answer_counts[int(m.group(1))] = len(re.findall(r"^\d+\. ", block, re.M))
     mismatch = []
     n_ex = 0
+    exercise_chapters = set()
     for name, text in chapters.items():
         m = re.match(r"(\d\d)-", name)
         chap = int(m.group(1)) if m else None
         ex = re.search(r"^::: exercise\n(.*?)^:::", text, re.S | re.M)
         if not ex:
             continue
+        exercise_chapters.add(chap)
         n = len(re.findall(r"^\d+\. ", ex.group(1), re.M))
         n_ex += n
         if answer_counts.get(chap) != n:
             mismatch.append(f"chapter {chap}: {n} exercises, {answer_counts.get(chap)} answers")
+    # the other direction: answers whose chapter has no exercise block (it was deleted or renamed)
+    for chap in sorted(set(answer_counts) - exercise_chapters):
+        mismatch.append(f"chapter {chap}: {answer_counts[chap]} answers, but the chapter has no exercise block")
     results["7 exercises"] = mismatch
     counts["exercises"] = n_ex
 
@@ -213,7 +236,7 @@ def main() -> int:
     results["8 spot checks"] = failed
     counts["spot checks"] = len(SPOT_CHECKS)
 
-    hard = [k for k in results if k[0] in "123456" and results[k]]
+    failed_checks = [k for k, problems in results.items() if problems]
     lines = ["# 证据核验报告", "", "| 检查 | 数量 | 问题 |", "|---|---|---|"]
     count_keys = ["images", "evidence references", "run IDs", "digests", "internal links",
                   "files scanned for secrets", "exercises", "spot checks"]
@@ -222,12 +245,13 @@ def main() -> int:
     for key, problems in results.items():
         if problems:
             lines += ["", f"## {key}", ""] + [f"- {p}" for p in problems]
-    out = Path(args.out)
+    lines += ["", f"RESULT: {'FAIL - ' + ', '.join(failed_checks) if failed_checks else 'PASS'}"]
+    out = Path(args.out) if args.out else ROOT / "manual" / "build" / "evidence-check.md"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text("\n".join(lines) + "\n", encoding="utf-8")
     (out.with_suffix(".json")).write_text(json.dumps({"counts": counts, "results": results}, ensure_ascii=False, indent=1), encoding="utf-8")
     print("\n".join(lines))
-    return 1 if hard else 0
+    return 1 if failed_checks else 0
 
 
 if __name__ == "__main__":
