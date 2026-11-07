@@ -1,0 +1,25 @@
+# transcript: v1.0 release: CI on the integration PR #5 (Windows gh CLI)
+# recorded: 2026-11-07T02:43:35Z | host: jiejie | user: weila | cwd: /d/workshop/nov/devops-delivery
+
+$ gh pr view 5 --json number,baseRefName,headRefName,headRefOid,mergeable,mergeStateStatus --jq '"PR #\(.number) \(.headRefName) -> \(.baseRefName) head=\(.headRefOid[0:7]) mergeable=\(.mergeable) mergeStateStatus=\(.mergeStateStatus)"'
+PR #5 release/v1.0 -> main head=3422587 mergeable=MERGEABLE mergeStateStatus=UNSTABLE
+
+$ gh pr checks 5 | cut -f1,2,3
+GitGuardian Security Checks	fail	4s
+container image	pass	53s
+manual QA	pass	2m37s
+manual QA	pass	2m11s
+python / lint	pass	14s
+python / test	pass	18s
+security	pass	16s
+[exit 1]
+
+$ gh run view 42330423035 --log | grep -E "Ran [0-9]+ tests|^OK$|RESULT:" | sed -E 's/^[^\t]*\t[^\t]*\t[0-9TZ:.-]+ //'
+Ran 11 tests in 81.847s
+RESULT: PASS
+RESULT: PASS
+
+# Required checks of the protect-main ruleset (all three are reported by GitHub Actions on this PR)
+$ gh api repos/miku-wwl/devops-delivery/rulesets/26657635 --jq '[.rules[] | select(.type == "required_status_checks") | .parameters.required_status_checks[].context]'
+["python / lint","python / test","container image"]
+

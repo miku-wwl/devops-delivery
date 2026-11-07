@@ -1,0 +1,18 @@
+# gh run view 42195568852 (push to p9/synthetic-gate) - recorded 2026-11-06T09:41:23Z
+event=push status=completed conclusion=success sha=70ae35c
+  job: synthetic gate / synthetic API test (kind + k6) -> success
+  job: build, scan, sign, attest -> success
+# k6 verdict from the synthetic job log:
+==> candidate demo-api:candidate  fault=none  namespace=synthetic-1793957528
+synthetic gate: PASS  (base http://127.0.0.1:18080, 720 requests, checks 1440 passed / 0 failed)
+  [ok  ] http_req_duration{name:GET /api/v1/orders/:id}  p(95)<300  observed 1.3 ms
+  [ok  ] http_req_duration{name:POST /api/v1/orders}  p(95)<300  observed 1.7 ms
+  [ok  ] http_req_failed  rate<0.01  observed 0.00%
+  [ok  ] http_req_duration{name:GET /api/v1/info}  p(95)<300  observed 2.2 ms
+  [ok  ] checks  rate>0.99  observed 100.00%
+==> synthetic gate PASSED
+# release job: image pushed and signed
+  image: ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:27919359a4612728dc047402d739252c02dabaa50108eea3ff78cda3825a4dae
+[command]/opt/hostedtoolcache/syft/1.54.0/x64/syft scan ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:27919359a4612728dc047402d739252c02dabaa50108eea3ff78cda3825a4dae -o spdx-json
+  subject-digest: sha256:27919359a4612728dc047402d739252c02dabaa50108eea3ff78cda3825a4dae
+  subject-digest: sha256:27919359a4612728dc047402d739252c02dabaa50108eea3ff78cda3825a4dae

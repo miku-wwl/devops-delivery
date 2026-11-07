@@ -1,0 +1,105 @@
+# Default values for demo-api. Environment files (values-dev.yaml, values-prod.yaml)
+# override only what differs. Validated by values.schema.json on lint/install.
+
+# -- Number of pods (ignored when autoscaling.enabled is true)
+replicaCount: 1
+
+image:
+  # -- Image repository. The lab's local registry is localhost:5001 (see delivery/kind).
+  repository: localhost:5001/demo-api
+  # -- Image tag; defaults to the chart's appVersion
+  tag: ""
+  # -- Image digest (sha256:...). When set, the image is pulled by digest and tag is ignored.
+  digest: ""
+  pullPolicy: IfNotPresent
+
+# -- Logical environment name, added as a pod label (dev | staging | prod)
+environment: dev
+
+# -- Fault injection for drills (maps to FAULT_ERROR_RATE / FAULT_LATENCY_MS)
+faults:
+  errorRate: 0
+  latencyMs: 0
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+# -- Add prometheus.io/* annotations so annotation-based scrape configs find the pods
+metricsAnnotations: true
+
+# -- Prometheus Operator PodMonitor (requires the monitoring.coreos.com CRDs)
+podMonitor:
+  enabled: false
+
+# OpenTelemetry export of traces and logs (sets OTEL_EXPORTER_OTLP_ENDPOINT).
+otel:
+  enabled: false
+  # -- OTLP/HTTP endpoint of the collector (the SDK appends /v1/traces and /v1/logs)
+  endpoint: http://otel-collector.observability.svc:4318
+
+# Argo Rollouts canary instead of a Deployment (requires the Argo Rollouts controller).
+rollout:
+  enabled: false
+  # -- Canary steps. Without a traffic router, weights are approximated by replica counts.
+  steps:
+    - setWeight: 20
+    - pause: {duration: 60s}
+    - setWeight: 50
+    - pause: {duration: 60s}
+    - setWeight: 80
+    - pause: {duration: 30s}
+  analysis:
+    enabled: true
+    prometheusAddress: http://kube-prometheus-stack-prometheus.monitoring.svc:9090
+    # -- Abort when the canary's non-5xx ratio drops below this value
+    minSuccessRate: 0.95
+    # -- Abort when the canary's p95 latency reaches this value
+    maxP95LatencySeconds: 0.5
+    initialDelay: 45s
+    interval: 20s
+    # -- More than this many failed measurements abort the rollout
+    failureLimit: 1
+    # -- More than this many "no data" measurements pause the rollout for a human
+    inconclusiveLimit: 2
+
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+
+autoscaling:
+  # -- Requires metrics-server in the cluster
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+
+# Secure defaults that satisfy the "restricted" Pod Security Standard.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: ["ALL"]
+
+# -- "soft": prefer spreading pods over nodes (built from the chart's selector labels)
+podAntiAffinityPreset: ""
+
+nodeSelector: {}
+tolerations: []
+# -- Full custom affinity; takes precedence over podAntiAffinityPreset
+affinity: {}

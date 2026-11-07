@@ -1,0 +1,12 @@
+# transcript: P10: consumer-side signature check before promotion (lab)
+# recorded: 2026-11-06T10:16:19Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ IMG=ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:4bb4aac303ab48d036af1808c98312c16acbe8eef3c8f6fcdc42dc4f77711f38
+
+$ cosign verify "$IMG" --certificate-identity-regexp "^https://github.com/miku-wwl/devops-delivery/\.github/workflows/release\.yml@refs/heads/" --certificate-oidc-issuer https://token.actions.githubusercontent.com 2>&1 >/dev/null | grep -vE "^\s*$"
+Verification for ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:4bb4aac303ab48d036af1808c98312c16acbe8eef3c8f6fcdc42dc4f77711f38 --
+The following checks were performed on each of these signatures:
+  - The cosign claims were validated
+  - Existence of the claims in the transparency log was verified offline
+  - The code-signing certificate was verified using trusted certificate authority certificates
+

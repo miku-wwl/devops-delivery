@@ -1,0 +1,12 @@
+# transcript: P6 production gate: the job waits for a required reviewer
+# recorded: 2026-11-06T01:18:40Z | host: jiejie | user: weila | cwd: /d/workshop/nov/devops-delivery
+
+$ gh run view 42142945642 --json status,conclusion,event,headBranch --jq '{status, conclusion, event, headBranch}'
+{"conclusion":"","event":"push","headBranch":"p6/progressive-delivery","status":"waiting"}
+
+$ gh api repos/miku-wwl/devops-delivery/actions/runs/42142945642/pending_deployments --jq '.[] | {environment: .environment.name, wait_timer, current_user_can_approve, reviewers: [.reviewers[] | .reviewer.login]}'
+{"current_user_can_approve":true,"environment":"production","reviewers":["miku-wwl"],"wait_timer":0}
+
+$ gh api repos/miku-wwl/devops-delivery/environments/production --jq '{name, protection_rules: [.protection_rules[] | .type], branch_policy: .deployment_branch_policy}'
+{"branch_policy":{"custom_branch_policies":true,"protected_branches":false},"name":"production","protection_rules":["required_reviewers","branch_policy"]}
+

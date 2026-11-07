@@ -1,0 +1,33 @@
+# transcript: P11 second run: nothing to change (idempotency)
+# recorded: 2026-11-06T09:38:35Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ cd ansible && export PATH="$HOME/work/ansible-venv/bin:$PATH" ANSIBLE_FORCE_COLOR=0 ANSIBLE_CONFIG="$PWD/ansible.cfg"
+
+$ ansible-playbook site.yml | sed -n '/PLAY RECAP/,$p'
+PLAY RECAP *********************************************************************
+localhost                  : ok=1    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+node1                      : ok=8    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+node2                      : ok=8    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+
+# what the template rendered on each node (node2 overrides env and replicas in host_vars)
+$ for n in node1 node2; do echo "--- $n"; docker exec "$n" cat /opt/demo-api/config/config.yaml; docker exec "$n" stat -c '%U:%G %a %n' /opt/demo-api/config/config.yaml; done
+--- node1
+# Ansible managed
+service: demo-api
+environment: lab
+listen: "0.0.0.0:8080"
+replicas: 1
+host: node1
+os: "Ubuntu 24.04"
+demo:demo 640 /opt/demo-api/config/config.yaml
+--- node2
+# Ansible managed
+service: demo-api
+environment: staging
+listen: "0.0.0.0:8080"
+replicas: 2
+host: node2
+os: "Ubuntu 24.04"
+demo:demo 640 /opt/demo-api/config/config.yaml
+

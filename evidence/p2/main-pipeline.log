@@ -1,0 +1,22 @@
+# transcript: P2 first pipeline on main
+# recorded: 2026-11-05T23:32:50Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ export GL_TOKEN="$(cat ~/.lab-secrets/gitlab-root-token)"
+
+# validate the CI configuration with GitLab's own linter
+$ curl -s -H "PRIVATE-TOKEN: $GL_TOKEN" "http://localhost:8929/api/v4/projects/1/ci/lint?ref=main" | jq '{valid, errors, warnings, jobs: [.jobs[]?.name]}' 2>/dev/null || curl -s -H "PRIVATE-TOKEN: $GL_TOKEN" "http://localhost:8929/api/v4/projects/1/ci/lint?ref=main" | jq '{valid, errors, warnings}'
+{
+  "valid": true,
+  "errors": [],
+  "warnings": [],
+  "jobs": []
+}
+
+$ bash automation/gitlab/wait-pipeline.sh main
+pipeline #1 [push] ref=main sha=034fd907 status=manual duration=85s
+  lint    lint         success  35s
+  test    test         success  40s
+  build   build-image  success  32s
+  deploy  deploy-dev   success  11s
+  deploy  deploy-prod  manual   0s
+

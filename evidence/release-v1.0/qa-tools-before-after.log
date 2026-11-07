@@ -1,0 +1,49 @@
+# transcript: v1.0 release: acceptance tools that found problems but exited 0 - before and after the fix (Windows Git Bash)
+# recorded: 2026-11-07T02:24:19Z | host: jiejie | user: weila | cwd: /d/workshop/nov/devops-delivery
+
+$ PY=manual/.venv/Scripts/python.exe; T=$(mktemp -d); echo "scratch copy: $T"
+scratch copy: /tmp/tmp.6W3kjoupDT
+
+$ $PY -c "import sys; sys.path.insert(0, 'manual/tools'); import test_qa_tools as t; from pathlib import Path; t.make_copy(Path(sys.argv[1]))" "$T"
+
+# Break one key number in the copy: chapter 12 now claims a peak burn rate of 3.122, the evidence says 3.121
+$ sed -i 's/3\.121/3.122/' "$T/manual/chapters/12-p10-closed-loop.md"; grep -c '3\.122' "$T/manual/chapters/12-p10-closed-loop.md"
+1
+
+# 1a. v1.0 verifier (from p12/manual), run inside the copy: it reports the failed spot check but exits 0
+$ git -C "$T" init -q && git -C "$T" -c core.autocrlf=false -c core.safecrlf=false add -A 2>/dev/null && git show p12/manual:manual/tools/verify_evidence.py > "$T/manual/tools/verify_evidence.py" && mkdir -p "$T/manual/build"
+
+$ $PY "$T/manual/tools/verify_evidence.py" --out "$T/old.md" > "$T/old.txt"; echo "v1.0 verify_evidence.py exit code: $?"; grep -E '^\| 8 spot checks|^- P10 peak' "$T/old.txt"
+v1.0 verify_evidence.py exit code: 0
+| 8 spot checks | 31 | 1 |
+- P10 peak burn rate 3.121: text=MISSING evidence=ok (evidence/p10/drill-4-slo.log)
+
+# 1b. fixed verifier on the same copy
+$ $PY manual/tools/verify_evidence.py --root "$T" --out "$T/new.md" > "$T/new.txt"; echo "fixed verify_evidence.py exit code: $?"; grep -E '^\| 8 spot checks|^RESULT' "$T/new.txt"
+fixed verify_evidence.py exit code: 1
+| 8 spot checks | 31 | 1 |
+RESULT: FAIL - 8 spot checks
+
+# 2. layout checker on the released PDF, which has 4 reviewed gaps
+$ git show p12/manual:manual/tools/layout_check.py > "$T/old_layout.py"; $PY "$T/old_layout.py" manual/dist/DevOps-Delivery-Observability-Handbook.pdf | grep -E '^gaps|^blank'; echo "v1.0 layout_check.py exit code: ${PIPESTATUS[0]}"
+gaps (< 60% of the text area used, next page is not a chapter start): 4
+blank pages: []
+v1.0 layout_check.py exit code: 0
+
+$ $PY manual/tools/layout_check.py manual/dist/DevOps-Delivery-Observability-Handbook.pdf | grep -E '^RESULT'; echo "fixed layout_check.py, no gaps accepted, exit code: ${PIPESTATUS[0]}"
+RESULT: FAIL - unreviewed gaps on pages [12, 183, 192, 198]
+fixed layout_check.py, no gaps accepted, exit code: 1
+
+$ $PY manual/tools/layout_check.py manual/dist/DevOps-Delivery-Observability-Handbook.pdf --accept-gaps 12,183,192,198 | grep -E '^RESULT'; echo "fixed layout_check.py, reviewed gaps accepted, exit code: ${PIPESTATUS[0]}"
+RESULT: PASS
+fixed layout_check.py, reviewed gaps accepted, exit code: 0
+
+# 3. transcript recorder: 256 failed commands
+$ git show p12/manual:automation/evidence/transcript.sh > "$T/old_transcript.sh"; for i in $(seq 256); do echo false; done | bash "$T/old_transcript.sh" "$T/o.log" x > /dev/null; echo "v1.0 transcript.sh, 256 failed commands, exit code: $?"
+v1.0 transcript.sh, 256 failed commands, exit code: 0
+
+$ for i in $(seq 256); do echo false; done | bash automation/evidence/transcript.sh "$T/n.log" x > /dev/null; echo "fixed transcript.sh, 256 failed commands, exit code: $?"
+fixed transcript.sh, 256 failed commands, exit code: 125
+
+$ rm -rf "$T"
+

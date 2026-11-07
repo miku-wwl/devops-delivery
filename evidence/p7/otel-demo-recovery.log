@@ -1,0 +1,24 @@
+# transcript: P7 OpenTelemetry Demo: recovery verified by span start time (flag off at 03:50:23Z)
+# recorded: 2026-11-06T03:54:06Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ date -u +"now: %H:%M:%SZ"
+now: 03:54:06Z
+
+# Count payment Charge spans by their own start time - not by Jaeger's trace search window,
+# which also returned older multi-minute traces and made the first count misleading.
+$ curl -s 'http://localhost:8080/jaeger/ui/api/traces?service=payment&operation=oteldemo.PaymentService/Charge&lookback=15m&limit=500' | jq -r --arg off "2026-11-06T03:50:23Z" '($off | fromdateiso8601 * 1000000) as $t0 | [.data[].spans[] | select(.operationName=="oteldemo.PaymentService/Charge") | {after: (.startTime >= $t0), error: ([.tags[] | select(.key=="error" and .value==true)] | length > 0)}] | group_by(.after) | map({period: (if .[0].after then "after flag off" else "before flag off" end), charge_spans: length, failed: (map(select(.error)) | length)})[]'
+{
+  "period": "before flag off",
+  "charge_spans": 44,
+  "failed": 16
+}
+{
+  "period": "after flag off",
+  "charge_spans": 20,
+  "failed": 0
+}
+
+# payment's own logs: last "Invalid token" error
+$ docker logs payment --since 20m 2>&1 | grep 'Invalid token' | tail -1 | jq -r '"last payment failure in the payment log: \(.time / 1000 | strftime("%H:%M:%SZ"))"'
+last payment failure in the payment log: 03:49:39Z
+

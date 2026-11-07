@@ -1,0 +1,107 @@
+# transcript: P6 switch dev and prod from Deployment to Argo Rollout through Git
+# recorded: 2026-11-06T00:43:46Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl apply -f delivery/loadgen/k6-loadgen.yaml
+namespace/loadgen created
+configmap/k6-script created
+deployment.apps/k6 created
+
+$ kubectl -n loadgen rollout status deploy/k6 --timeout=120s
+Waiting for deployment "k6" rollout to finish: 0 of 1 updated replicas are available...
+deployment "k6" successfully rolled out
+
+# 1. ship chart 0.2.0 (Rollout/AnalysisTemplate/PodMonitor templates, still disabled by default)
+$ bash delivery/argocd/update-chart.sh --merge
+ 9 files changed, 238 insertions(+), 74 deletions(-)
+merge request !7: http://localhost:8929/root/delivery-gitops/-/merge_requests/7
+merged !7 -> main @ 7321e29
+
+$ bash delivery/argocd/wait-sync.sh demo-api-prod
+t+0s  revision=81402f6 sync=Synced health=Healthy operation=Succeeded
+t+87s  revision=7321e29 sync=OutOfSync health=Healthy operation=Running
+t+90s  revision=7321e29 sync=Synced health=Progressing operation=Succeeded
+t+113s  revision=7321e29 sync=Synced health=Healthy operation=Succeeded
+reached Synced/Healthy at 7321e29 after 113s
+
+# 2. enable progressive delivery per environment (deep-merged YAML patches)
+$ bash delivery/argocd/promote.sh dev @$PWD/delivery/gitops/patches/dev-rollout.yaml --merge --title "dev: progressive delivery with Argo Rollouts"
+ envs/dev/values.yaml | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+@@ -5 +5,9 @@ image:
+   digest: sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74
++# Progressive delivery for dev: automatic canary, no manual gate.
++podMonitor:
++  enabled: true
++rollout:
++  enabled: true
++  steps:
++    - setWeight: 50
++    - pause: {duration: 30s}
+curl: (22) The requested URL returned error: 400
+[exit 22]
+
+$ bash delivery/argocd/promote.sh prod @$PWD/delivery/gitops/patches/prod-rollout.yaml --merge --title "prod: progressive delivery with Argo Rollouts"
+ envs/prod/values.yaml | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+@@ -5 +5,15 @@ image:
+   digest: sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74
++# Progressive delivery for prod: 5 replicas (20% steps = 1 pod), metrics scraped
++# by Prometheus, and a canary with a manual gate after the first step.
++replicaCount: 5
++podMonitor:
++  enabled: true
++rollout:
++  enabled: true
++  steps:
++    - setWeight: 20
++    - pause: {} # manual gate: kubectl argo rollouts promote demo-api-prod -n prod
++    - setWeight: 50
++    - pause: {duration: 60s}
++    - setWeight: 80
++    - pause: {duration: 30s}
+merge request !8: http://localhost:8929/root/delivery-gitops/-/merge_requests/8
+merged !8 -> main @ 8b890f3 by root
+
+$ bash delivery/argocd/wait-sync.sh demo-api-prod
+t+0s  revision=7321e29 sync=Synced health=Healthy operation=Succeeded
+t+38s  revision=8b890f3 sync=OutOfSync health=Healthy operation=Running
+t+42s  revision=8b890f3 sync=Synced health=Progressing operation=Succeeded
+t+52s  revision=8b890f3 sync=Synced health=Healthy operation=Succeeded
+reached Synced/Healthy at 8b890f3 after 52s
+
+$ kubectl get rollout,analysistemplate,podmonitor,deploy -n prod
+NAME                                DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+rollout.argoproj.io/demo-api-prod   5         5         5            5           12s
+
+NAME                                                AGE
+analysistemplate.argoproj.io/demo-api-prod-health   12s
+
+NAME                                             AGE
+podmonitor.monitoring.coreos.com/demo-api-prod   13s
+
+$ kubectl argo rollouts get rollout demo-api-prod -n prod | head -24
+Name:            demo-api-prod
+Namespace:       prod
+Status:          [32m✔[0m Healthy
+Strategy:        Canary
+  Step:          6/6
+  SetWeight:     100
+  ActualWeight:  100
+Images:          ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74 ([32mstable[0m)
+Replicas:
+  Desired:       5
+  Current:       5
+  Updated:       5
+  Ready:         5
+  Available:     5
+
+NAME                                       KIND        STATUS     AGE  INFO
+⟳ demo-api-prod                            Rollout     [32m✔[0m Healthy  12s  
+└──# revision:1                                                        
+   └──⧉ [32mdemo-api-prod-67859d86c4[0m           ReplicaSet  [32m✔[0m Healthy  12s  [32mstable[0m
+      ├──□ demo-api-prod-67859d86c4-8qfzf  Pod         [32m✔[0m Running  12s  ready:1/1
+      ├──□ demo-api-prod-67859d86c4-99h4j  Pod         [32m✔[0m Running  12s  ready:1/1
+      ├──□ demo-api-prod-67859d86c4-9hzws  Pod         [32m✔[0m Running  12s  ready:1/1
+      ├──□ demo-api-prod-67859d86c4-d6brg  Pod         [32m✔[0m Running  12s  ready:1/1
+      └──□ demo-api-prod-67859d86c4-vscvp  Pod         [32m✔[0m Running  12s  ready:1/1
+

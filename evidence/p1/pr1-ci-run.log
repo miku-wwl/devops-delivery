@@ -1,0 +1,60 @@
+# transcript: P1 first CI run on PR #1 (GitHub-hosted runners)
+# recorded: 2026-11-05T23:01:37Z | host: jiejie | user: weila | cwd: /d/workshop/nov/devops-delivery
+
+$ gh pr checks 1
+GitGuardian Security Checks	pass	1s	https://dashboard.gitguardian.com	
+container image	pass	42s	https://github.com/miku-wwl/devops-delivery/actions/runs/42126140675/job/127590880194	
+python / lint	pass	17s	https://github.com/miku-wwl/devops-delivery/actions/runs/42126140675/job/127590734383	
+python / test	pass	16s	https://github.com/miku-wwl/devops-delivery/actions/runs/42126140675/job/127590734959	
+
+$ gh run view 42126140675
+
+✓ p1/ci-pipeline ci miku-wwl/devops-delivery#1 · 42126140675
+Triggered via pull_request about 1 minute ago
+
+JOBS
+✓ python / lint in 17s (ID 127590734383)
+✓ python / test in 16s (ID 127590734959)
+✓ container image in 42s (ID 127590880194)
+
+ANNOTATIONS
+- "The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748"
+python / lint: .github#1
+
+- "The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748"
+python / test: .github#1
+
+- "The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748"
+container image: .github#1
+
+
+ARTIFACTS
+miku-wwl~devops-delivery~3LXDQX.dockerbuild
+test-reports
+
+For more information about a job, try: gh run view --job=<job-id>
+View this run on GitHub: https://github.com/miku-wwl/devops-delivery/actions/runs/42126140675
+
+$ gh api repos/miku-wwl/devops-delivery/actions/runs/42126140675/artifacts --jq '.artifacts[] | "\(.name)  \(.size_in_bytes) bytes  expires \(.expires_at)"'
+miku-wwl~devops-delivery~3LXDQX.dockerbuild  47400 bytes  expires 2027-02-03T23:00:12Z
+test-reports  46069 bytes  expires 2026-11-12T23:00:27Z
+
+$ gh cache list --limit 10
+10089060475	index-demo-api-1-40a31afc#1	5.16 KiB	2026-11-05T23:01:08Z	2026-11-05T23:01:08Z
+10089060201	buildkit-blob-1-sha256:ff5cdbf43d0df87dc3fda94b060a5c847f463bcdca32bb843f4eed5d83568c32	95 B	2026-11-05T23:01:08Z	2026-11-05T23:01:08Z
+10089059027	buildkit-blob-1-sha256:faa890a31e98e11bc3138d9549c86441024fdb24bd555bb0bca17dc9a6c5b565	11.37 MiB	2026-11-05T23:01:08Z	2026-11-05T23:01:08Z
+10089058743	buildkit-blob-1-sha256:f7a79299dedd5c817d47e3f61cf6eecae73b92cb193a1ef52180a46b0161c50a	248 B	2026-11-05T23:01:06Z	2026-11-05T23:01:06Z
+10089058555	buildkit-blob-1-sha256:e452d468d681ea1f0c9378027d6d11bd0ebab767f31de1ea747cee91cba87ae6	485 B	2026-11-05T23:01:05Z	2026-11-05T23:01:05Z
+10089058319	buildkit-blob-1-sha256:e08c0c819cce15d05b99662587700e673a27e460298c0aa875d2a1bc6bf4cac2	3.88 KiB	2026-11-05T23:01:05Z	2026-11-05T23:01:05Z
+10089057440	buildkit-blob-1-sha256:8bbbe71c0172c101f4a40036d9918aef33eb30a29de21d5eaa9489236130cf24	8.79 MiB	2026-11-05T23:01:05Z	2026-11-05T23:01:05Z
+10089057145	buildkit-blob-1-sha256:83075eb70b6ac7482521f518cf2006aef839d0ffc1b12ef12c3bc21c91de37f3	93 B	2026-11-05T23:01:03Z	2026-11-05T23:01:03Z
+10089054817	buildkit-blob-1-sha256:37fb86c2a767b88d500c6872195f88078f64765fe0d2f9cc375cc2efbd4c0a41	28.47 MiB	2026-11-05T23:01:03Z	2026-11-05T23:01:03Z
+10089054196	buildkit-blob-1-sha256:2989138a598d1a8c5cd0fc519a1357ed45df8e245b98bf1be41d5031ca9336a5	5.48 MiB	2026-11-05T23:00:59Z	2026-11-05T23:00:59Z
+
+$ gh run view 42126140675 --log 2>/dev/null | grep -E 'Cache (restored|saved|not found)|cache (hit|miss)|Received [0-9]+ of|importing cache manifest|exporting to GitHub Actions Cache|=+ [0-9]+ passed' | sed -E 's/^([^\t]+)\t([^\t]+)\t[0-9T:.-]+Z /\1 | /' | head -20
+python / lint | Cache saved with the key: setup-python-Linux-x64-24.04-Ubuntu-python-3.13.18-pip-954275a2989d8237e4e240c9c02dc6b72a007976e9e344b42ff767a41c14e12c
+python / test | ============================== 19 passed in 0.39s ==============================
+container image | #8 importing cache manifest from gha:13274357737122166148
+container image | #8 importing cache manifest from gha:13274357737122166148
+container image | #20 exporting to GitHub Actions Cache
+

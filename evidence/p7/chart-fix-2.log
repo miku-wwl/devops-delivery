@@ -1,0 +1,27 @@
+# transcript: P7 permanent fix: rendered config and the replacement canary in prod
+# recorded: 2026-11-06T04:16:02Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ helm template t delivery/helm/demo-api --set rollout.enabled=true --set faults.latencyMs=800 --show-only templates/rollout.yaml | yq '.spec.template.spec.containers[0].envFrom, (.spec.template.spec.containers[0].env[] | select(.name == "FAULT*"))'
+null
+# Release configuration lives in the pod template, so every ReplicaSet keeps
+# its own copy. (Chart <= 0.3.0 read it from one shared ConfigMap: when an
+# aborted canary scaled the stable ReplicaSet back up, the new *stable* pod
+# started with the canary's bad config - see chapter 9.)
+name: FAULT_ERROR_RATE
+value: "0"
+name: FAULT_LATENCY_MS
+value: "800"
+
+$ for i in $(seq 1 60); do r=$(argocd app get demo-api-prod --grpc-web -o json | jq -r '.status.sync.revision[0:7]'); [ "$r" = c4724f5 ] && break; sleep 5; done; echo "prod synced to $r"
+prod synced to c4724f5
+
+$ for i in $(seq 1 60); do h=$(kubectl -n prod get rollout demo-api-prod -o jsonpath='{.status.currentPodHash}'); [ -n "$h" ] && [ "$h" != 66ffb5d6db ] && break; sleep 3; done; echo "new canary pod hash: $h"
+new canary pod hash: 745d56f9d4
+
+$ bash delivery/rollouts/watch-rollout.sh prod demo-api-prod Paused 300
+t+0s  phase=Progressing step=0 updated=1 available=4 analysis=- message="more replicas need to be updated"
+t+6s  phase=Paused step=1 updated=1 available=5 analysis=Running message="CanaryPauseStep"
+
+$ for p in $(kubectl -n prod get pods -l app.kubernetes.io/name=demo-api,role=canary -o name); do echo "${p#pod/} FAULT_LATENCY_MS=$(kubectl -n prod exec $p -- printenv FAULT_LATENCY_MS) envFrom=$(kubectl -n prod get $p -o jsonpath='{.spec.containers[0].envFrom}')"; done
+demo-api-prod-745d56f9d4-zc8nd FAULT_LATENCY_MS=0 envFrom=
+

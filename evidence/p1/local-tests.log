@@ -1,0 +1,42 @@
+# transcript: P1 local lint and tests (devops-lab)
+# recorded: 2026-11-05T22:56:53Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ cd app
+
+$ ~/.venvs/demo-api/bin/python --version
+Python 3.12.3
+
+$ ~/.venvs/demo-api/bin/ruff check .
+All checks passed!
+
+$ ~/.venvs/demo-api/bin/ruff format --check .
+9 files already formatted
+
+$ ~/.venvs/demo-api/bin/pytest --cov --cov-report=term-missing -p no:cacheprovider
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.2.0, pluggy-1.7.0
+rootdir: /mnt/d/workshop/nov/devops-delivery/app
+configfile: pyproject.toml
+testpaths: tests
+plugins: cov-7.1.0, anyio-4.16.0
+collected 19 items
+
+tests/test_api.py ............                                           [ 63%]
+tests/test_orders_and_config.py .......                                  [100%]
+
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.12.3-final-0 ________________
+
+Name                       Stmts   Miss Branch BrPart  Cover   Missing
+----------------------------------------------------------------------
+src/demo_api/__init__.py       0      0      0      0   100%
+src/demo_api/config.py        21      0      4      0   100%
+src/demo_api/logs.py          19      1      2      1    90%   24
+src/demo_api/main.py          85      0      6      0   100%
+src/demo_api/metrics.py       17      0      0      0   100%
+src/demo_api/orders.py        38      0      0      0   100%
+----------------------------------------------------------------------
+TOTAL                        180      1     12      1    99%
+Required test coverage of 90.0% reached. Total coverage: 98.96%
+============================== 19 passed in 2.79s ==============================
+

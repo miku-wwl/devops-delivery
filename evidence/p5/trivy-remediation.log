@@ -1,0 +1,76 @@
+# transcript: P5 remediation: remove pip from the runtime image and re-scan
+# recorded: 2026-11-06T00:11:55Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ docker build --quiet --build-arg APP_VERSION=0.2.0 --build-arg GIT_SHA=$(git -c safe.directory='*' rev-parse --short HEAD) -t localhost:5001/demo-api:0.2.0 app
+sha256:f8028043baf212770049c20cd58ed052f4501118936d37179049585be561db55
+
+$ docker run --rm --entrypoint sh localhost:5001/demo-api:0.2.0 -c 'python -m pip --version 2>&1 | tail -1; ls /usr/local/lib/python3.13/site-packages | grep -ciE "^pip" || true'
+/usr/local/bin/python: No module named pip
+0
+
+$ docker image ls localhost:5001/demo-api --format '{{.Tag}}  {{.Size}}'
+0.2.0  202MB
+0.1.1  202MB
+0.1.0  202MB
+
+$ trivy image --quiet --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 localhost:5001/demo-api:0.2.0
+
+Report Summary
+
+┌──────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────────────┬─────────┐
+│                                      Target                                      │    Type    │ Vulnerabilities │ Secrets │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+│ localhost:5001/demo-api:0.2.0 (debian 13.7)                                      │   debian   │        0        │    -    │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+│ usr/local/lib/python3.13/site-packages/annotated_doc-0.0.5.dist-info/METADATA    │ python-pkg │        0        │    -    │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+│ usr/local/lib/python3.13/site-packages/annotated_types-0.8.0.dist-info/METADATA  │ python-pkg │        0        │    -    │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+│ usr/local/lib/python3.13/site-packages/anyio-4.16.0.dist-info/METADATA           │ python-pkg │        0        │    -    │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+│ usr/local/lib/python3.13/site-packages/click-8.5.0.dist-info/METADATA            │ python-pkg │        0        │    -    │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+│ usr/local/lib/python3.13/site-packages/fastapi-0.162.0.dist-info/METADATA        │ python-pkg │        0        │    -    │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+│ usr/local/lib/python3.13/site-packages/h11-0.16.0.dist-info/METADATA             │ python-pkg │        0        │    -    │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+│ usr/local/lib/python3.13/site-packages/idna-3.20.dist-info/METADATA              │ python-pkg │        0        │    -    │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+│ usr/local/lib/python3.13/site-packages/opentelemetry_api-1.45.2.dist-info/METAD- │ python-pkg │        0        │    -    │
+│ ATA                                                                              │            │                 │         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+│ usr/local/lib/python3.13/site-packages/prometheus_client-0.26.0.dist-info/METAD- │ python-pkg │        0        │    -    │
+│ ATA                                                                              │            │                 │         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+│ usr/local/lib/python3.13/site-packages/pydantic-2.14.3.dist-info/METADATA        │ python-pkg │        0        │    -    │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+│ usr/local/lib/python3.13/site-packages/pydantic_core-2.50.4.dist-info/METADATA   │ python-pkg │        0        │    -    │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+│ usr/local/lib/python3.13/site-packages/starlette-1.10.0.dist-info/METADATA       │ python-pkg │        0        │    -    │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+│ usr/local/lib/python3.13/site-packages/typing_extensions-4.16.0.dist-info/METAD- │ python-pkg │        0        │    -    │
+│ ATA                                                                              │            │                 │         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+│ usr/local/lib/python3.13/site-packages/typing_inspection-0.4.5.dist-info/METADA- │ python-pkg │        0        │    -    │
+│ TA                                                                               │            │                 │         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+│ usr/local/lib/python3.13/site-packages/uvicorn-0.54.0.dist-info/METADATA         │ python-pkg │        0        │    -    │
+└──────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────────────┴─────────┘
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)
+
+
+$ echo "gate exit code: $?"
+gate exit code: 0
+
+$ trivy image --quiet --severity HIGH,CRITICAL --format json localhost:5001/demo-api:0.2.0 | jq -r '[.Results[] | .Vulnerabilities // [] | .[] | .Status] | group_by(.) | map("\(.[0]): \(length)") | join(", ")'
+affected: 45, fix_deferred: 1
+
+# the container still works
+$ docker run -d --rm --name p5check -p 127.0.0.1:18085:8080 localhost:5001/demo-api:0.2.0 >/dev/null && sleep 3 && curl -s localhost:18085/api/v1/info; echo; docker stop p5check >/dev/null
+{"service":"demo-api","version":"0.2.0","commit":"ff18a55"}
+
+$ docker push --quiet localhost:5001/demo-api:0.2.0
+localhost:5001/demo-api:0.2.0
+

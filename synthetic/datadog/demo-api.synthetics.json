@@ -1,0 +1,12 @@
+{
+  "tests": [
+    {
+      "id": "<public-test-id-info>",
+      "testOverrides": { "startUrl": "http://127.0.0.1:18080/api/v1/info" }
+    },
+    {
+      "id": "<public-test-id-create-order>",
+      "testOverrides": { "startUrl": "http://127.0.0.1:18080/api/v1/orders" }
+    }
+  ]
+}

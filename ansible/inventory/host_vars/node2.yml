@@ -1,0 +1,3 @@
+# Per-host override: node2 plays the "staging" box, so its rendered config differs.
+demo_api_env: staging
+demo_api_replicas: 2

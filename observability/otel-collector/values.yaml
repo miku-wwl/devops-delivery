@@ -1,0 +1,72 @@
+# OpenTelemetry Collector (official Helm chart open-telemetry/opentelemetry-collector).
+# One pipeline for all three signals:
+#   traces, logs  <- OTLP from the instrumented app
+#   metrics       <- Prometheus scrape of annotated pods in dev/prod (+ any OTLP metrics)
+# Every signal is enriched with Kubernetes metadata and exported to the LGTM backend.
+mode: deployment
+fullnameOverride: otel-collector
+image:
+  repository: otel/opentelemetry-collector-contrib
+
+presets:
+  # k8sattributes processor + the RBAC it needs (also lets the Prometheus receiver list pods)
+  kubernetesAttributes:
+    enabled: true
+
+resources:
+  requests: {cpu: 100m, memory: 128Mi}
+  limits: {memory: 512Mi}
+
+config:
+  receivers:
+    otlp:
+      protocols:
+        grpc: {endpoint: "${env:MY_POD_IP}:4317"}
+        http: {endpoint: "${env:MY_POD_IP}:4318"}
+    prometheus:
+      config:
+        scrape_configs:
+          - job_name: demo-api
+            scrape_interval: 15s
+            kubernetes_sd_configs:
+              - role: pod
+                namespaces: {names: [dev, prod]}
+            relabel_configs:
+              # keep pods annotated prometheus.io/scrape: "true"
+              - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+                action: keep
+                regex: "true"
+              # scrape <pod IP>:<prometheus.io/port>  ("$$" escapes "$" for the collector)
+              - source_labels: [__meta_kubernetes_pod_ip, __meta_kubernetes_pod_annotation_prometheus_io_port]
+                action: replace
+                regex: (.+);(.+)
+                replacement: $$1:$$2
+                target_label: __address__
+              - {source_labels: [__meta_kubernetes_namespace], target_label: namespace}
+              - {source_labels: [__meta_kubernetes_pod_name], target_label: pod}
+              - {source_labels: [__meta_kubernetes_pod_label_rollouts_pod_template_hash], target_label: rollouts_pod_template_hash}
+  processors:
+    memory_limiter:
+      check_interval: 1s
+      limit_percentage: 80
+      spike_limit_percentage: 25
+    batch: {}
+  exporters:
+    otlphttp/lgtm:
+      endpoint: http://lgtm.observability.svc:4318
+    debug:
+      verbosity: basic
+  service:
+    pipelines:
+      traces:
+        receivers: [otlp]
+        processors: [memory_limiter, k8sattributes, batch]
+        exporters: [otlphttp/lgtm, debug]
+      logs:
+        receivers: [otlp]
+        processors: [memory_limiter, k8sattributes, batch]
+        exporters: [otlphttp/lgtm]
+      metrics:
+        receivers: [otlp, prometheus]
+        processors: [memory_limiter, batch]
+        exporters: [otlphttp/lgtm]

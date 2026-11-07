@@ -1,0 +1,35 @@
+# transcript: P10: hardened grafana/otel-lgtm, second attempt (with /var/tempo volume)
+# recorded: 2026-11-06T10:05:35Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# Attempt 1 (lgtm-hardening-test.log): Tempo never became ready. With its logs on: "failed to create shutdown marker directory: mkdir /var/tempo: read-only file system".
+$ kubectl create namespace lgtm-hardening-test-2
+namespace/lgtm-hardening-test-2 created
+
+$ kubectl label namespace lgtm-hardening-test-2 pod-security.kubernetes.io/enforce=restricted
+namespace/lgtm-hardening-test-2 labeled
+
+$ yq "select(.kind == \"Deployment\") | .metadata.namespace = \"lgtm-hardening-test-2\"" observability/lgtm/lgtm.yaml | kubectl apply -f -
+deployment.apps/lgtm created
+
+$ kubectl -n lgtm-hardening-test-2 rollout status deploy/lgtm --timeout=300s
+Waiting for deployment "lgtm" rollout to finish: 0 of 1 updated replicas are available...
+deployment "lgtm" successfully rolled out
+
+$ sleep 15
+
+$ kubectl -n lgtm-hardening-test-2 exec deploy/lgtm -- id
+uid=10001 gid=10001 groups=10001
+
+$ kubectl -n lgtm-hardening-test-2 logs deploy/lgtm | grep -E "up and running|Total startup"
+Prometheus is up and running. Startup time: 1 seconds
+Otelcol is up and running. Startup time: 1 seconds
+Tempo is up and running. Startup time: 1 seconds
+Pyroscope is up and running. Startup time: 6 seconds
+Loki is up and running. Startup time: 6 seconds
+Grafana is up and running. Startup time: 16 seconds
+Total startup time: 16 seconds
+The OpenTelemetry collector and the Grafana LGTM stack are up and running. (created /tmp/ready)
+
+$ kubectl delete namespace lgtm-hardening-test-2 --wait=false
+namespace "lgtm-hardening-test-2" deleted
+

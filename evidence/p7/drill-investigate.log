@@ -1,0 +1,43 @@
+# transcript: P7 incident drill: from alert to root cause with metrics, traces and logs
+# recorded: 2026-11-06T04:08:26Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ G=http://127.0.0.1:3001/api/datasources/proxy/uid
+
+$ for i in $(seq 1 30); do s=$(curl -s http://127.0.0.1:9090/api/v1/alerts | jq -r '.data.alerts[] | select(.labels.alertname=="DemoApiHighErrorRate" and .labels.namespace=="dev") | .state'); [ "$s" = firing ] && break; sleep 5; done; echo "DemoApiHighErrorRate (dev): $s"
+DemoApiHighErrorRate (dev): firing
+
+# 1. METRICS - what changed, and when? (recording rules from the PrometheusRule)
+$ curl -s -G http://127.0.0.1:9090/api/v1/query --data-urlencode 'query=demo_api:request_error_ratio:rate1m' | jq -r '.data.result[] | "error ratio \(.metric.namespace): \(.value[1] | tonumber * 100 | floor)%"'
+error ratio dev: 15%
+
+$ curl -s -G http://127.0.0.1:9090/api/v1/query --data-urlencode 'query=demo_api:request_duration_seconds:p95_1m' | jq -r '.data.result[] | "p95 \(.metric.namespace): \(.value[1] | tonumber * 1000 | floor) ms"'
+p95 dev: 956 ms
+p95 prod: 840 ms
+
+$ curl -s -G http://127.0.0.1:9090/api/v1/query --data-urlencode 'query=sum by (route, status) (rate(http_requests_total{namespace="dev", route=~"/api/.*"}[2m]))' | jq -r '.data.result[] | "  \(.metric.route) \(.metric.status): \(.value[1] | tonumber * 100 | floor / 100)/s"' | sort
+  /api/v1/info 200: 1.09/s
+  /api/v1/info 500: 0.19/s
+  /api/v1/orders 201: 2.48/s
+  /api/v1/orders 500: 0.39/s
+
+# 2. TRACES - which operation is slow, and which requests fail? (TraceQL in Tempo)
+$ curl -s -G "$G/tempo/api/search" --data-urlencode 'q={resource.service.name="demo-api" && resource.deployment.environment.name="dev" && name="pricing.calculate" && duration > 500ms}' --data-urlencode 'limit=3' --data-urlencode "start=$(( $(date +%s) - 600 ))" --data-urlencode "end=$(date +%s)" | jq -r '.traces[] | "slow trace \(.traceID): \(.rootTraceName) \(.durationMs) ms"'
+slow trace 2be613243ce876c991622c669428154f: POST /api/v1/orders 605 ms
+slow trace 3b24a9941b5bcc85827dbf4ea036ea86: POST /api/v1/orders 604 ms
+slow trace 435a35b7872ca2d7f799543f6d304567: POST /api/v1/orders 605 ms
+
+$ ERR=$(curl -s -G "$G/tempo/api/search" --data-urlencode 'q={resource.service.name="demo-api" && resource.deployment.environment.name="dev" && status=error}' --data-urlencode 'limit=1' --data-urlencode "start=$(( $(date +%s) - 600 ))" --data-urlencode "end=$(date +%s)" | jq -r '.traces[0].traceID'); echo "failing trace: $ERR"
+failing trace: 44d566595e12d8c0f41e448cc9d17807
+
+$ curl -s "$G/tempo/api/traces/$ERR" | jq -r '[.batches[].scopeSpans[].spans[]] | .[] | "  span \(.name) status=\(.status.code // "UNSET") events=\([.events[]?.name] | join(","))"'
+  span POST /api/v1/orders http receive status=UNSET events=
+  span POST /api/v1/orders http send status=STATUS_CODE_ERROR events=
+  span POST /api/v1/orders http send status=UNSET events=
+  span POST /api/v1/orders http send status=UNSET events=
+  span POST /api/v1/orders status=STATUS_CODE_ERROR events=fault.injected
+
+# 3. LOGS - the same request in Loki, found by its trace id
+$ curl -s -G "$G/loki/loki/api/v1/query_range" --data-urlencode "query={service_name=\"demo-api\"} | trace_id=\"$ERR\"" --data-urlencode 'limit=10' | jq -r '.data.result[] | .stream.severity_text as $sev | .values[] | "  log [\($sev // "?")] \(.[1])"'
+  log [WARN] injected fault: failing request
+  log [INFO] request
+

@@ -1,0 +1,76 @@
+# transcript: P11 ansible-playbook site.yml - first run (fresh nodes)
+# recorded: 2026-11-06T09:36:47Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ cd ansible && export PATH="$HOME/work/ansible-venv/bin:$PATH" ANSIBLE_FORCE_COLOR=0
+
+# the repo is on a drvfs mount (world-writable): ansible.cfg must be named explicitly
+$ export ANSIBLE_CONFIG="$PWD/ansible.cfg"
+
+$ ansible-galaxy collection list community.docker 2>/dev/null | tail -1
+community.docker 5.4.0  
+
+$ ansible-inventory --graph
+@all:
+  |--@ungrouped:
+  |--@lab_nodes:
+  |  |--node1
+  |  |--node2
+
+$ ansible-playbook site.yml
+
+PLAY [Managed nodes exist (containers standing in for VMs)] ********************
+
+TASK [Node containers are running] *********************************************
+changed: [localhost] => (item=node1)
+changed: [localhost] => (item=node2)
+
+PLAY [Bootstrap Python on fresh nodes (raw - modules need python3 first)] ******
+
+TASK [Python 3 is installed] ***************************************************
+changed: [node2]
+changed: [node1]
+
+PLAY [Baseline configuration] **************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [node2]
+ok: [node1]
+
+TASK [baseline : Base packages are present] ************************************
+changed: [node1]
+changed: [node2]
+
+TASK [baseline : Service group exists] *****************************************
+changed: [node1]
+changed: [node2]
+
+TASK [baseline : Service user exists] ******************************************
+changed: [node1]
+changed: [node2]
+
+TASK [baseline : Application directories exist] ********************************
+changed: [node2] => (item=/opt/demo-api)
+changed: [node1] => (item=/opt/demo-api)
+changed: [node2] => (item=/opt/demo-api/config)
+changed: [node1] => (item=/opt/demo-api/config)
+changed: [node2] => (item=/opt/demo-api/logs)
+changed: [node1] => (item=/opt/demo-api/logs)
+
+TASK [baseline : Application configuration is rendered] ************************
+changed: [node2]
+changed: [node1]
+
+TASK [baseline : Log rotation policy is present] *******************************
+changed: [node1]
+changed: [node2]
+
+RUNNING HANDLER [baseline : Restart demo-api] **********************************
+changed: [node1]
+changed: [node2]
+
+PLAY RECAP *********************************************************************
+localhost                  : ok=1    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+node1                      : ok=9    changed=8    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+node2                      : ok=9    changed=8    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+

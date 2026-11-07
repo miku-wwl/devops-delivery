@@ -1,0 +1,34 @@
+# transcript: P10: hardened grafana/otel-lgtm in a scratch namespace (restricted PSS)
+# recorded: 2026-11-06T10:01:39Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# The repository scan found 7 HIGH misconfigurations (KSV-0014, KSV-0118). Test the hardened LGTM before replacing the live one.
+$ kubectl create namespace lgtm-hardening-test
+namespace/lgtm-hardening-test created
+
+$ kubectl label namespace lgtm-hardening-test pod-security.kubernetes.io/enforce=restricted
+namespace/lgtm-hardening-test labeled
+
+$ yq "select(.kind == \"Deployment\") | .metadata.namespace = \"lgtm-hardening-test\"" observability/lgtm/lgtm.yaml | kubectl apply -f -
+deployment.apps/lgtm created
+
+$ kubectl -n lgtm-hardening-test rollout status deploy/lgtm --timeout=300s
+Waiting for deployment "lgtm" rollout to finish: 0 of 1 updated replicas are available...
+deployment "lgtm" successfully rolled out
+
+$ kubectl -n lgtm-hardening-test exec deploy/lgtm -- id
+uid=10001 gid=10001 groups=10001
+
+$ kubectl -n lgtm-hardening-test exec deploy/lgtm -- sh -c "touch /otel-lgtm/x 2>&1; echo exit=\$?"
+touch: cannot touch '/otel-lgtm/x': Read-only file system
+exit=1
+
+$ kubectl -n lgtm-hardening-test logs deploy/lgtm | grep -E "up and running|Total startup|rror|ermission"
+Prometheus is up and running. Startup time: 1 seconds
+Otelcol is up and running. Startup time: 1 seconds
+Pyroscope is up and running. Startup time: 6 seconds
+Loki is up and running. Startup time: 6 seconds
+Grafana is up and running. Startup time: 18 seconds
+
+$ kubectl delete namespace lgtm-hardening-test --wait=false
+namespace "lgtm-hardening-test" deleted
+

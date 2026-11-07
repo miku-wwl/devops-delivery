@@ -1,0 +1,29 @@
+# transcript: P12: inside the SLSA provenance of the X-Request-ID image, and policies built on it (Windows gh CLI)
+# recorded: 2026-11-06T19:22:15Z | host: jiejie | user: weila | cwd: /d/workshop/nov/devops-delivery
+
+$ IMG=ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:4bb4aac303ab48d036af1808c98312c16acbe8eef3c8f6fcdc42dc4f77711f38
+
+# The verified in-toto statement: what it is about (subject), what kind of claim (predicateType), and the claim itself (predicate)
+$ gh attestation verify "oci://$IMG" --repo miku-wwl/devops-delivery --format json --jq '.[0].verificationResult.statement | {_type, subject, predicateType}'
+{"_type":"https://in-toto.io/Statement/v1","predicateType":"https://slsa.dev/provenance/v1","subject":[{"digest":{"sha256":"4bb4aac303ab48d036af1808c98312c16acbe8eef3c8f6fcdc42dc4f77711f38"},"name":"ghcr.io/miku-wwl/devops-delivery/demo-api"}]}
+
+$ gh attestation verify "oci://$IMG" --repo miku-wwl/devops-delivery --format json --jq '.[0].verificationResult.statement.predicate.buildDefinition | {buildType, externalParameters, resolvedDependencies}'
+{"buildType":"https://actions.github.io/buildtypes/workflow/v1","externalParameters":{"workflow":{"path":".github/workflows/release.yml","ref":"refs/heads/p10/closed-loop","repository":"https://github.com/miku-wwl/devops-delivery"}},"resolvedDependencies":[{"digest":{"gitCommit":"85b3a49c7a25849861368913e9372a80ffa3cbe2"},"uri":"git+https://github.com/miku-wwl/devops-delivery@refs/heads/p10/closed-loop"}]}
+
+$ gh attestation verify "oci://$IMG" --repo miku-wwl/devops-delivery --format json --jq '.[0].verificationResult.statement.predicate.runDetails'
+{"builder":{"id":"https://github.com/miku-wwl/devops-delivery/.github/workflows/release.yml@refs/heads/p10/closed-loop"},"metadata":{"invocationId":"https://github.com/miku-wwl/devops-delivery/actions/runs/42198984873/attempts/1"}}
+
+# The signing certificate: the identity that GitHub OIDC vouched for, copied into X.509 extensions by Fulcio
+$ gh attestation verify "oci://$IMG" --repo miku-wwl/devops-delivery --format json --jq '.[0].verificationResult.signature.certificate | {issuer, subjectAlternativeName, githubWorkflowTrigger, githubWorkflowSHA, buildSignerURI, runnerEnvironment, sourceRepositoryVisibilityAtSigning}'
+{"buildSignerURI":"https://github.com/miku-wwl/devops-delivery/.github/workflows/release.yml@refs/heads/p10/closed-loop","githubWorkflowSHA":"85b3a49c7a25849861368913e9372a80ffa3cbe2","githubWorkflowTrigger":"push","issuer":"https://token.actions.githubusercontent.com","runnerEnvironment":"github-hosted","sourceRepositoryVisibilityAtSigning":"public","subjectAlternativeName":"https://github.com/miku-wwl/devops-delivery/.github/workflows/release.yml@refs/heads/p10/closed-loop"}
+
+# Policies built on those fields. Positive: built on a GitHub-hosted runner from exactly commit 85b3a49
+$ gh attestation verify "oci://$IMG" --repo miku-wwl/devops-delivery --deny-self-hosted-runners --source-digest 85b3a49c7a25849861368913e9372a80ffa3cbe2 --format json --jq 'length | "verified attestations: \(.)"'
+verified attestations: 1
+
+# Negative: a policy that admits only images built from main rejects this branch build
+$ gh attestation verify "oci://$IMG" --repo miku-wwl/devops-delivery --source-ref refs/heads/main
+
+Error: expected SourceRepositoryRef to be refs/heads/main, got refs/heads/p10/closed-loop
+[exit 1]
+

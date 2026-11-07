@@ -1,0 +1,11 @@
+# Two "servers" for the lab. They are Docker containers on the WSL host, reached through
+# the community.docker.docker connection plugin (docker exec) instead of SSH.
+all:
+  children:
+    lab_nodes:
+      hosts:
+        node1:
+        node2:
+      vars:
+        ansible_connection: community.docker.docker
+        ansible_python_interpreter: /usr/bin/python3

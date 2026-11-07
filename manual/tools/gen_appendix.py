@@ -1,0 +1,153 @@
+"""Generate manual/chapters/14-appendix.md from manual/appendix-src/ and the chapters.
+
+  manual/.venv/Scripts/python.exe manual/tools/gen_appendix.py
+
+Appendix A and C are static (A-versions.md, C-glossary.md); B is the answer key
+(answers.md) with chapter titles added; D is built from every chapter's FAQ; E is built
+from evidence/ and the last run of verify_evidence.py (manual/build/evidence-check.json).
+Run verify_evidence.py first, then this script, then build.py.
+"""
+from __future__ import annotations
+
+import json
+import re
+from datetime import date
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+SRC = ROOT / "manual" / "appendix-src"
+CHAPTERS = ROOT / "manual" / "chapters"
+OUT = CHAPTERS / "14-appendix.md"
+
+
+def chapter_titles() -> dict[int, str]:
+    titles = {}
+    for p in sorted(CHAPTERS.glob("[0-9][0-9]-*.md")):
+        n = int(p.name[:2])
+        if not 1 <= n <= 13:
+            continue
+        first = p.read_text(encoding="utf-8").splitlines()[0]
+        titles[n] = re.sub(r"\s*\{[^}]*\}\s*$", "", first.lstrip("# ")).strip()
+    return titles
+
+
+def appendix_b(titles: dict[int, str]) -> str:
+    text = (SRC / "answers.md").read_text(encoding="utf-8")
+    out = ["每章练习的参考答案或解题思路。设计类、思考类题目没有唯一答案，这里给出的是一种合理的思路和需要考虑的要点。", ""]
+    for block in re.split(r"^## ", text, flags=re.M)[1:]:
+        m = re.match(r"第 (\d+) 章\s*\n", block)
+        if not m:
+            continue
+        n = int(m.group(1))
+        out += [f"## 第 {n} 章　{titles.get(n, '')} {{- .unlisted}}", "", block[m.end():].strip(), ""]
+    return "\n".join(out)
+
+
+def appendix_d(titles: dict[int, str]) -> str:
+    out = ["按章节列出各章“常见问题”中的条目。遇到问题时，先按症状在这里查找，再翻到对应章节阅读原因与处理方法。", ""]
+    for p in sorted(CHAPTERS.glob("[0-9][0-9]-*.md")):
+        n = int(p.name[:2])
+        if not 2 <= n <= 13:
+            continue
+        text = p.read_text(encoding="utf-8")
+        faq = re.search(r"^## 常见问题.*?\n(.*?)(?=^## )", text, re.S | re.M)
+        if not faq:
+            continue
+        items = re.findall(r"^\*\*(Q\d+)：(.+?)\*\*\s*$", faq.group(1), re.M)
+        if not items:
+            continue
+        out += [f"## 第 {n} 章　{titles[n]} {{- .unlisted}}", "", "::: {.tbl-faq}", "| 编号 | 症状或问题 |", "|---|---|"]
+        for q, question in items:
+            out.append(f"| {q} | {question.replace('|', chr(92) + '|')} |")
+        out += [":::", ""]
+    return "\n".join(out)
+
+
+def appendix_e() -> str:
+    rows = ["| 章 | 阶段 | 证据目录 | 终端记录 | 截图 | 实验记录 |", "|---|---|---|---|---|---|"]
+    for n in range(0, 12):
+        d = ROOT / "evidence" / f"p{n}"
+        if not d.exists():
+            continue
+        logs = len(list(d.glob("*.log")))
+        pngs = len(list(d.glob("*.png")))
+        rec = sorted((ROOT / "docs" / "experiments").glob(f"P{n}-*.md"))
+        rec_name = f"`docs/experiments/{rec[0].name}`" if rec else "—"
+        rows.append(f"| {n + 2} | P{n} | `evidence/p{n}/` | {logs} | {pngs} | {rec_name} |")
+    d12 = ROOT / "evidence" / "p12"
+    if d12.exists():
+        rows.append(f"| — | P12 | `evidence/p12/` | {len(list(d12.glob('*.log')))} | {len(list(d12.glob('*.png')))} | 第 5、7、9、12 章的“深入”一节；`docs/ACCEPTANCE_REPORT.md` |")
+
+    check = ROOT / "manual" / "build" / "evidence-check.json"
+    labels = {
+        "1 images": "书中引用的图片均存在",
+        "2 evidence paths": "引用的证据文件均存在",
+        "3 run IDs": "书中的 GitHub 运行编号均出现在证据中",
+        "4 digests": "书中的镜像 digest 均出现在证据或源文件中",
+        "5 internal links": "章节间的内部链接均有效",
+        "6 secrets": "章节、文档与证据中没有凭据",
+        "7 exercises": "练习数量与附录 B 的答案一致",
+        "8 spot checks": "关键数字与证据原文逐字一致",
+    }
+    count_keys = ["images", "evidence references", "run IDs", "digests", "internal links",
+                  "files scanned for secrets", "exercises", "spot checks"]
+    ver = []
+    if check.exists():
+        data = json.loads(check.read_text(encoding="utf-8"))
+        ver = ["::: {.tbl-check}", "| 检查项 | 检查对象数 | 发现的问题 |", "|---|---|---|"]
+        for (key, problems), ck in zip(data["results"].items(), count_keys):
+            ver.append(f"| {labels.get(key, key)} | {data['counts'][ck]} | {len(problems)} |")
+        ver.append(":::")
+
+    parts = [
+        "## 证据的组织方式 {-}",
+        "",
+        "每个阶段的证据放在 `evidence/pN/` 中：`*.log` 是用 `automation/evidence/transcript.sh` 录制的终端记录（命令与原样输出，非零退出码记为 `[exit N]`），`*.png` 是网页截图或由终端记录渲染的图片。每个阶段还有一份实验记录（`docs/experiments/`），列出步骤、结果和对应的证据文件；阶段状态汇总在 `docs/STATUS.md`。",
+        "",
+        "::: {.tbl-evidence}",
+        *rows,
+        ":::",
+        "",
+        "第 12 章的两份事故复盘在 `docs/rca/` 中，每一行时间线都注明了所依据的证据文件。",
+        "",
+        "## 核验方法 {-}",
+        "",
+        "书中的结论能否被证据支持，用 `manual/tools/verify_evidence.py` 自动检查。它会核对：引用的图片和证据文件是否存在；书中出现的 GitHub 运行编号、镜像 digest 能否在证据中找到；内部链接是否有效；章节、文档和证据中有没有令牌或密钥一类的凭据；每章练习与附录 B 的答案数量是否一致；以及一组关键数字（例如事故影响的请求数、燃烧率峰值、门禁测得的延迟）是否与证据原文逐字一致。PDF 的版面则逐页渲染检查（见 `docs/ACCEPTANCE_REPORT.md`）。",
+        "",
+    ]
+    if ver:
+        parts += [f"最近一次核验的结果（{date.today().isoformat()}）：", "", *ver, ""]
+    return "\n".join(parts)
+
+
+def main() -> None:
+    titles = chapter_titles()
+    doc = [
+        "<!-- generated by manual/tools/gen_appendix.py from manual/appendix-src/ - edit the sources, not this file -->",
+        "",
+        "# 附录 A　版本与命令速查 {#appendix-a .unnumbered}",
+        "",
+        (SRC / "A-versions.md").read_text(encoding="utf-8").strip(),
+        "",
+        "# 附录 B　练习参考答案 {#appendix-b .unnumbered}",
+        "",
+        appendix_b(titles),
+        "# 附录 C　术语表 {#appendix-c .unnumbered}",
+        "",
+        "::: {.tbl-glossary}",
+        (SRC / "C-glossary.md").read_text(encoding="utf-8").strip(),
+        ":::",
+        "",
+        "# 附录 D　故障排查索引 {#appendix-d .unnumbered}",
+        "",
+        appendix_d(titles),
+        "# 附录 E　证据索引与核验 {#appendix-e .unnumbered}",
+        "",
+        appendix_e(),
+    ]
+    OUT.write_text("\n".join(doc).rstrip() + "\n", encoding="utf-8", newline="\n")
+    print(f"wrote {OUT.relative_to(ROOT)}")
+
+
+if __name__ == "__main__":
+    main()

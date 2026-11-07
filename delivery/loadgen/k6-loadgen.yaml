@@ -1,0 +1,75 @@
+# Constant synthetic traffic for dev and prod, so Prometheus has data for canary
+# analysis and dashboards. Lives in its own namespace (outside the image policy).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: loadgen
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: k6-script
+  namespace: loadgen
+data:
+  load.js: |
+    import http from 'k6/http';
+
+    // 70% "checkout" (POST /orders), 30% "browse" (GET /info), at a constant rate.
+    export const options = {
+      discardResponseBodies: true,
+      // A new TCP connection per request: kube-proxy balances *connections*, so with
+      // keep-alive every connection opened before a canary pod existed stays pinned
+      // to the stable pods and the canary would receive no traffic at all.
+      noConnectionReuse: true,
+      scenarios: {
+        prod: { executor: 'constant-arrival-rate', exec: 'prod', rate: 10, timeUnit: '1s',
+                duration: '72h', preAllocatedVUs: 20, maxVUs: 60 },
+        dev:  { executor: 'constant-arrival-rate', exec: 'dev', rate: 4, timeUnit: '1s',
+                duration: '72h', preAllocatedVUs: 10, maxVUs: 30 },
+      },
+    };
+    const order = JSON.stringify({ sku: 'BOOK-001', quantity: 2 });
+    const params = { headers: { 'Content-Type': 'application/json' }, timeout: '5s' };
+    function hit(base) {
+      if (Math.random() < 0.7) http.post(`${base}/api/v1/orders`, order, params);
+      else http.get(`${base}/api/v1/info`, params);
+    }
+    export function prod() { hit('http://demo-api-prod.prod.svc'); }
+    export function dev() { hit('http://demo-api-dev.dev.svc'); }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k6
+  namespace: loadgen
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: k6}
+  template:
+    metadata:
+      labels: {app: k6}
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 12345
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: k6
+          image: grafana/k6:2.3.0
+          # k6 v2 replaced the old --no-summary flag with --summary-mode=disabled
+          args: ["run", "--summary-mode=disabled", "--quiet", "/scripts/load.js"]
+          resources:
+            requests: {cpu: 50m, memory: 64Mi}
+            limits: {cpu: 500m, memory: 256Mi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
+          volumeMounts:
+            - {name: script, mountPath: /scripts}
+      volumes:
+        - name: script
+          configMap: {name: k6-script}

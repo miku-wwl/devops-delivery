@@ -1,0 +1,38 @@
+# transcript: P6 good canary: manual promotion to 100%
+# recorded: 2026-11-06T01:09:00Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl argo rollouts promote demo-api-prod -n prod
+rollout 'demo-api-prod' promoted
+
+$ bash delivery/rollouts/watch-rollout.sh prod demo-api-prod Healthy 420
+t+1s  phase=Progressing step=2 updated=1 available=4 analysis=Running message="more replicas need to be updated"
+t+4s  phase=Progressing step=2 updated=3 available=4 analysis=Running message="more replicas need to be updated"
+t+11s  phase=Progressing step=2 updated=3 available=5 analysis=Running message="more replicas need to be updated"
+t+17s  phase=Paused step=3 updated=3 available=6 analysis=Running message="CanaryPauseStep"
+t+77s  phase=Progressing step=4 updated=4 available=4 analysis=Running message="more replicas need to be updated"
+t+83s  phase=Paused step=5 updated=4 available=5 analysis=Running message="CanaryPauseStep"
+t+114s  phase=Progressing step=6 updated=5 available=4 analysis=Running message="updated replicas are still becoming available"
+t+120s  phase=Healthy step=6 updated=5 available=5 analysis=- message="-"
+
+$ AR=$(kubectl -n prod get analysisrun --sort-by=.metadata.creationTimestamp -o jsonpath='{.items[-1:].metadata.name}')
+
+$ kubectl -n prod get analysisrun "$AR" -o json | jq -r '"\(.metadata.name): \(.status.phase)", (.status.metricResults[] | "  \(.name): successful=\(.successful // 0) failed=\(.failed // 0) inconclusive=\(.inconclusive // 0)")'
+demo-api-prod-6bdb67694c-3.1: Successful
+  p95-latency-seconds: successful=12 failed=0 inconclusive=0
+  success-rate: successful=12 failed=0 inconclusive=0
+
+$ kubectl argo rollouts get rollout demo-api-prod -n prod | sed -E 's/\x1b\[[0-9;]*m//g' | sed -n '1,10p'
+Name:            demo-api-prod
+Namespace:       prod
+Status:          ✔ Healthy
+Strategy:        Canary
+  Step:          6/6
+  SetWeight:     100
+  ActualWeight:  100
+Images:          ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:7826c3b200f29420237e75169e25d4780192439e9ca01c5d1b17988e513b2559 (stable)
+Replicas:
+  Desired:       5
+
+$ kubectl get pods -n prod -l app.kubernetes.io/name=demo-api -o jsonpath='{range .items[*]}{.status.containerStatuses[0].imageID}{"\n"}{end}' | sort | uniq -c
+      5 ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:7826c3b200f29420237e75169e25d4780192439e9ca01c5d1b17988e513b2559
+

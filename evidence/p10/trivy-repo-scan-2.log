@@ -1,0 +1,60 @@
+# transcript: P10: repository scan with the CI command on a clean copy of the tracked files
+# recorded: 2026-11-06T10:11:46Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# Attempt 1 timed out (5 min): the drvfs work tree also holds untracked, git-ignored directories. CI scans a clean checkout, so scan only tracked files (with the uncommitted fixes) on the Linux filesystem.
+$ rm -rf /tmp/p10-scan && mkdir /tmp/p10-scan
+
+$ git ls-files -z | xargs -0 cp --parents -t /tmp/p10-scan
+
+$ cd /tmp/p10-scan
+
+$ trivy fs --scanners vuln,secret,misconfig --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 --skip-dirs manual .
+2026-11-06T23:11:49+13:00	INFO	[vuln] Vulnerability scanning is enabled
+2026-11-06T23:11:49+13:00	INFO	[misconfig] Misconfiguration scanning is enabled
+2026-11-06T23:11:49+13:00	INFO	[checks-client] Using existing checks from cache	path="/home/devops/.cache/trivy/policy/content"
+2026-11-06T23:11:51+13:00	INFO	[secret] Secret scanning is enabled
+2026-11-06T23:11:51+13:00	INFO	[secret] If your scanning is slow, please try '--scanners vuln,misconfig' to disable secret scanning
+2026-11-06T23:11:51+13:00	INFO	[secret] Please see https://trivy.dev/docs/v0.76/guide/scanner/secret#recommendation for faster secret detection
+2026-11-06T23:11:51+13:00	WARN	[pip] Unable to find python `site-packages` directory. License detection is skipped.	err="site-packages directory not found"
+2026-11-06T23:11:52+13:00	INFO	Number of language-specific files	num=1
+2026-11-06T23:11:52+13:00	INFO	[pip] Detecting vulnerabilities...
+2026-11-06T23:11:52+13:00	INFO	Detected config files	num=13
+
+Report Summary
+
+┌──────────────────────────────────────────────────────┬────────────┬─────────────────┬─────────┬───────────────────┐
+│                        Target                        │    Type    │ Vulnerabilities │ Secrets │ Misconfigurations │
+├──────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┼───────────────────┤
+│ app/requirements.txt                                 │    pip     │        0        │    -    │         -         │
+├──────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┼───────────────────┤
+│ app/Dockerfile                                       │ dockerfile │        -        │    -    │         0         │
+├──────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┼───────────────────┤
+│ delivery/gitops/apps/demo-api-dev.yaml               │ kubernetes │        -        │    -    │         0         │
+├──────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┼───────────────────┤
+│ delivery/gitops/apps/demo-api-prod.yaml              │ kubernetes │        -        │    -    │         0         │
+├──────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┼───────────────────┤
+│ delivery/gitops/apps/project.yaml                    │ kubernetes │        -        │    -    │         0         │
+├──────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┼───────────────────┤
+│ delivery/helm/demo-api/templates/configmap.yaml      │    helm    │        -        │    -    │         0         │
+├──────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┼───────────────────┤
+│ delivery/helm/demo-api/templates/deployment.yaml     │    helm    │        -        │    -    │         0         │
+├──────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┼───────────────────┤
+│ delivery/helm/demo-api/templates/service.yaml        │    helm    │        -        │    -    │         0         │
+├──────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┼───────────────────┤
+│ delivery/helm/demo-api/templates/serviceaccount.yaml │    helm    │        -        │    -    │         0         │
+├──────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┼───────────────────┤
+│ delivery/loadgen/k6-loadgen.yaml                     │ kubernetes │        -        │    -    │         0         │
+├──────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┼───────────────────┤
+│ delivery/policies/tests/admission-test-pods.yaml     │ kubernetes │        -        │    -    │         0         │
+├──────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┼───────────────────┤
+│ delivery/policies/verify-release-signature.yaml      │ kubernetes │        -        │    -    │         0         │
+├──────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┼───────────────────┤
+│ observability/alerts/demo-api-rules.yaml             │ kubernetes │        -        │    -    │         0         │
+├──────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┼───────────────────┤
+│ observability/lgtm/lgtm.yaml                         │ kubernetes │        -        │    -    │         0         │
+└──────────────────────────────────────────────────────┴────────────┴─────────────────┴─────────┴───────────────────┘
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)
+
+

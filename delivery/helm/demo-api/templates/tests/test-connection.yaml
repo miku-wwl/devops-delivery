@@ -1,0 +1,34 @@
+# "helm test <release>" runs this pod; it must exit 0 for the test to pass.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "demo-api.fullname" . }}-smoke-test
+  labels:
+    {{- include "demo-api.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  restartPolicy: Never
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 100
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: smoke
+      image: curlimages/curl:8.23.0
+      command:
+        - sh
+        - -c
+        - |
+          set -e
+          base="http://{{ include "demo-api.fullname" . }}:{{ .Values.service.port }}"
+          curl -fsS "$base/healthz"; echo
+          curl -fsS "$base/api/v1/info"; echo
+          curl -fsS -X POST "$base/api/v1/orders" -H 'content-type: application/json' \
+            -d '{"sku":"PEN-002","quantity":2}'; echo
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: ["ALL"]

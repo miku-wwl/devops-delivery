@@ -1,0 +1,15 @@
+# transcript: P2 push to local GitLab main
+# recorded: 2026-11-05T23:32:31Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ export GL_TOKEN="$(cat ~/.lab-secrets/gitlab-root-token)"
+
+# the token travels in an HTTP header supplied through GIT_CONFIG_* variables - never in the URL or in .git/config
+$ export GIT_CONFIG_COUNT=2 GIT_CONFIG_KEY_0=http.extraHeader GIT_CONFIG_VALUE_0="Authorization: Basic $(printf 'oauth2:%s' "$GL_TOKEN" | base64 -w0)" GIT_CONFIG_KEY_1=safe.directory GIT_CONFIG_VALUE_1='*'
+
+$ git push http://localhost:8929/root/devops-delivery.git p2/gitlab-ci:refs/heads/main 2>&1 | grep -v '^remote: *$'
+To http://localhost:8929/root/devops-delivery.git
+ * [new branch]      p2/gitlab-ci -> main
+
+$ curl -s -H "PRIVATE-TOKEN: $GL_TOKEN" "http://localhost:8929/api/v4/projects/1/repository/branches" | jq -r '.[] | .name + "  " + .commit.short_id + "  " + .commit.title'
+main  034fd907  feat(p2): GitLab CI/CD pipeline and local GitLab CE lab
+

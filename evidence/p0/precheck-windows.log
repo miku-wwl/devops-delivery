@@ -1,0 +1,38 @@
+# transcript: P0 Windows host pre-checks
+# recorded: 2026-11-05T22:48:23Z | host: JIEJIE | shell: PowerShell 7.6.9
+
+PS> Get-CimInstance Win32_ComputerSystem | Select-Object @{n="RAM_GB";e={[math]::Round($_.TotalPhysicalMemory/1GB,1)}},NumberOfLogicalProcessors,HypervisorPresent | Format-List
+
+RAM_GB                    : 31.3
+NumberOfLogicalProcessors : 16
+HypervisorPresent         : True
+
+PS> (Get-CimInstance Win32_Processor).VirtualizationFirmwareEnabled
+True
+
+PS> Get-PSDrive C,D | Select-Object Name,@{n="FreeGB";e={[math]::Round($_.Free/1GB,1)}} | Format-Table -AutoSize
+
+Name FreeGB
+---- ------
+C     26.70
+D    255.00
+
+PS> wsl.exe --version
+WSL 版本: 2.7.3.0
+内核版本: 6.6.114.1-1
+WSLg 版本: 1.0.73
+MSRDC 版本: 1.2.6676
+Direct3D 版本: 1.611.1-81528511
+DXCore 版本: 10.0.26100.1-240331-1435.ge-release
+Windows: 10.0.26200.9711
+
+PS> Get-Content "$env:USERPROFILE\.wslconfig"
+[wsl2]
+networkingMode=mirrored
+
+PS> foreach ($u in "https://registry-1.docker.io/v2/","https://ghcr.io/v2/","https://registry.k8s.io/v2/","https://github.com") { "{0,-36} HTTP {1}" -f $u, (curl.exe -s -o NUL -w "%{http_code}" --max-time 10 $u) }
+https://registry-1.docker.io/v2/     HTTP 401
+https://ghcr.io/v2/                  HTTP 401
+https://registry.k8s.io/v2/          HTTP 401
+https://github.com                   HTTP 200
+

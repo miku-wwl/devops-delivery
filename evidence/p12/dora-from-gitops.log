@@ -1,0 +1,37 @@
+# transcript: P12: deployment metrics from the history of the GitOps repository
+# recorded: 2026-11-06T19:19:47Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# DORA-style metrics from the GitOps repository. A merge affects prod if it changes envs/prod/ or the shared chart.
+$ source delivery/argocd/lib.sh; cd ~/work/delivery-gitops && timeout 60 git fetch -q origin && git log -1 --format='origin/main %h %cI' origin/main
+origin/main 39ee3f2 2026-11-06T13:44:01+00:00
+
+$ git log --first-parent --reverse --format='%h %cI %s' 7e0c4d3..origin/main -- envs/prod charts | awk '{kind = ($0 ~ /revert\//) ? "revert" : "deploy"; print kind, $1, $2, $5}' | tee /tmp/prod-changes.txt
+deploy f65c674 2026-11-05T23:52:10+00:00 'change/prod-20261106125206'
+deploy 5f5c823 2026-11-05T23:57:40+00:00 'change/prod-20261106125734'
+revert 3e45aa3 2026-11-05T23:59:02+00:00 'revert/5f5c823-125857'
+deploy 81402f6 2026-11-06T00:21:41+00:00 'change/prod-20261106132137'
+deploy 7321e29 2026-11-06T00:44:02+00:00 'chart/demo-api-0.2.0-134354'
+deploy 8b890f3 2026-11-06T00:46:03+00:00 'change/prod-20261106134559'
+deploy c7efb5a 2026-11-06T00:55:12+00:00 'change/prod-20261106135506'
+deploy 3b6428c 2026-11-06T01:01:10+00:00 'chart/demo-api-0.2.1-140100'
+deploy 5234a32 2026-11-06T01:11:25+00:00 'change/prod-20261106141121'
+revert d6225fa 2026-11-06T01:15:13+00:00 'revert/5234a32-141503'
+deploy 5e0b522 2026-11-06T04:01:32+00:00 'chart/demo-api-0.3.0-170123'
+deploy c4724f5 2026-11-06T04:15:45+00:00 'chart/demo-api-0.3.1-171541'
+deploy f49539c 2026-11-06T13:29:22+00:00 'change/prod-20261107022913'
+deploy 10a6786 2026-11-06T13:36:16+00:00 'change/prod-20261107023609'
+revert 39ee3f2 2026-11-06T13:44:01+00:00 'revert/10a6786-024356'
+
+$ awk '{n[$1]++} END {printf "prod changes after the seed: %d deployments, %d reverts\n", n["deploy"], n["revert"]}' /tmp/prod-changes.txt
+prod changes after the seed: 12 deployments, 3 reverts
+
+$ echo "window: $(head -1 /tmp/prod-changes.txt | cut -d' ' -f3) .. $(tail -1 /tmp/prod-changes.txt | cut -d' ' -f3)"
+window: 2026-11-05T23:52:10+00:00 .. 2026-11-06T13:44:01+00:00
+
+# Restore time in Git: from the merge of the bad change to the merge of its revert (every environment)
+$ git log --first-parent --format='%h %cI %s' origin/main | grep 'revert/' | tac | while read h t rest; do r=$(echo "$rest" | grep -o 'revert/[0-9a-f]*' | cut -d/ -f2); rt=$(git log -1 --format=%cI $r); env=$(git diff --name-only $h^1 $h | head -1 | cut -d/ -f2); echo "$env: $r reverted by $h after $(( $(date -d $t +%s) - $(date -d $rt +%s) )) s"; done
+prod: 5f5c823 reverted by 3e45aa3 after 82 s
+prod: 5234a32 reverted by d6225fa after 228 s
+dev: fa135cf reverted by 9d2430c after 325 s
+prod: 10a6786 reverted by 39ee3f2 after 465 s
+

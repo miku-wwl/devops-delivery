@@ -1,0 +1,31 @@
+# transcript: P6 canary of a good version (retry with traffic reaching the canary)
+# recorded: 2026-11-06T01:05:32Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl argo rollouts get rollout demo-api-prod -n prod | sed -E 's/\x1b\[[0-9;]*m//g' | sed -n '1,9p;/revision:3/,/revision:2/p' | head -24
+Name:            demo-api-prod
+Namespace:       prod
+Status:          ॥ Paused
+Message:         CanaryPauseStep
+Strategy:        Canary
+  Step:          1/6
+  SetWeight:     20
+  ActualWeight:  20
+Images:          ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:7826c3b200f29420237e75169e25d4780192439e9ca01c5d1b17988e513b2559 (canary)
+├──# revision:3                                                                
+│  ├──⧉ demo-api-prod-6bdb67694c           ReplicaSet   ✔ Healthy       3m23s  canary
+│  │  └──□ demo-api-prod-6bdb67694c-65knw  Pod          ✔ Running       3m23s  ready:1/1
+│  └──α demo-api-prod-6bdb67694c-3         AnalysisRun  ? Inconclusive  3m14s  ? 6
+├──# revision:2                                                                
+
+$ AR=$(kubectl -n prod get rollout demo-api-prod -o jsonpath='{.status.canary.currentBackgroundAnalysisRunStatus.name}'); echo "analysisrun: $AR"
+analysisrun: demo-api-prod-6bdb67694c-3
+
+$ for _ in $(seq 1 60); do n=$(kubectl -n prod get analysisrun "$AR" -o json | jq '[.status.metricResults[]?.measurements | length] | min // 0'); [ "$n" -ge 3 ] && break; sleep 3; done
+
+$ kubectl -n prod get analysisrun "$AR" -o json | jq -r '.status.metricResults[] | "\(.name): phase=\(.phase) successful=\(.successful // 0) failed=\(.failed // 0) inconclusive=\(.inconclusive // 0) values=\([.measurements[].value] | join(", "))"'
+p95-latency-seconds: phase=Inconclusive successful=0 failed=0 inconclusive=3 values=[], [], []
+success-rate: phase=Inconclusive successful=0 failed=0 inconclusive=3 values=[], [], []
+
+$ curl -s 'http://127.0.0.1:9090/api/v1/query' --data-urlencode 'query=sum by (role) (rate(http_requests_total{namespace="prod", route=~"/api/.*"}[1m]))' | jq -r '.data.result[] | "\(.metric.role): \(.value[1] | tonumber | . * 10 | floor / 10) req/s"'
+stable: 10 req/s
+

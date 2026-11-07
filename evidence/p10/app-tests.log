@@ -1,0 +1,30 @@
+# transcript: P10 step 1: X-Request-ID feature, local lint and tests
+# recorded: 2026-11-06T09:57:44Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ cd app
+
+$ ~/.venvs/demo-api/bin/ruff format --check .
+11 files already formatted
+
+$ ~/.venvs/demo-api/bin/ruff check .
+All checks passed!
+
+$ ~/.venvs/demo-api/bin/pytest --cov --cov-report=term -p no:cacheprovider -q
+..................................                                       [100%]
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.12.3-final-0 ________________
+
+Name                        Stmts   Miss Branch BrPart  Cover   Missing
+-----------------------------------------------------------------------
+src/demo_api/__init__.py        0      0      0      0   100%
+src/demo_api/config.py         21      0      4      0   100%
+src/demo_api/logs.py           24      1      4      1    93%   37
+src/demo_api/main.py          109      0      8      0   100%
+src/demo_api/metrics.py        17      0      0      0   100%
+src/demo_api/orders.py         38      0      0      0   100%
+src/demo_api/telemetry.py      32     11      4      1    61%   49-62
+-----------------------------------------------------------------------
+TOTAL                         241     12     20      2    94%
+Required test coverage of 90.0% reached. Total coverage: 93.87%
+34 passed in 3.40s
+

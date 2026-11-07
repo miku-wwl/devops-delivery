@@ -1,0 +1,38 @@
+# transcript: P4 drift in dev is reverted automatically (selfHeal)
+# recorded: 2026-11-05T23:54:04Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl -n dev get deploy demo-api-dev -o jsonpath='replicas={.spec.replicas}{"\n"}'
+replicas=1
+
+# someone "fixes" dev by hand, outside Git
+$ kubectl -n dev scale deploy demo-api-dev --replicas=3
+deployment.apps/demo-api-dev scaled
+
+$ for i in $(seq 1 10); do echo "t+$((i*2))s  spec.replicas=$(kubectl -n dev get deploy demo-api-dev -o jsonpath='{.spec.replicas}')  sync=$(argocd app get demo-api-dev --grpc-web -o json | jq -r .status.sync.status)"; sleep 2; done
+t+2s  spec.replicas=3  sync=OutOfSync
+t+4s  spec.replicas=1  sync=Synced
+t+6s  spec.replicas=1  sync=Synced
+t+8s  spec.replicas=1  sync=Synced
+t+10s  spec.replicas=1  sync=Synced
+t+12s  spec.replicas=1  sync=Synced
+t+14s  spec.replicas=1  sync=Synced
+t+16s  spec.replicas=1  sync=Synced
+t+18s  spec.replicas=1  sync=Synced
+t+20s  spec.replicas=1  sync=Synced
+
+$ argocd app get demo-api-dev --grpc-web -o json | jq '{lastOperation: .status.operationState.operation.initiatedBy, phase: .status.operationState.phase, message: .status.operationState.message, finishedAt: .status.operationState.finishedAt}'
+{
+  "lastOperation": {
+    "automated": true
+  },
+  "phase": "Succeeded",
+  "message": "successfully synced (all tasks run)",
+  "finishedAt": "2026-11-05T23:54:05Z"
+}
+
+$ kubectl -n argocd get events --field-selector involvedObject.name=demo-api-dev --sort-by=.lastTimestamp -o custom-columns=TIME:.lastTimestamp,REASON:.reason,MESSAGE:.message | tail -4
+2026-11-05T23:54:05Z   OperationStarted     Initiated automated sync to 'f65c674eb8b0d951255c26798a1a1ca12f7c9402'
+2026-11-05T23:54:05Z   ResourceUpdated      Updated sync status: OutOfSync -> Synced
+2026-11-05T23:54:05Z   ResourceUpdated      Updated health status: Progressing -> Healthy
+2026-11-05T23:54:05Z   OperationCompleted   Partial sync operation to f65c674eb8b0d951255c26798a1a1ca12f7c9402 succeeded
+

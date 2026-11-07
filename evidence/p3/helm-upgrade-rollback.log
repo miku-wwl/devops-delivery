@@ -1,0 +1,66 @@
+# transcript: P3 upgrade, bad release and rollback
+# recorded: 2026-11-05T23:22:02Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# revision 2: a new application version
+$ docker build --quiet --build-arg APP_VERSION=0.1.1 --build-arg GIT_SHA=$(git -c safe.directory='*' rev-parse --short HEAD) -t localhost:5001/demo-api:0.1.1 app
+sha256:f9519d2a91be04b0d78c7ee6b85980e66d717e705c743bec9ac7ac619210097c
+
+$ docker push --quiet localhost:5001/demo-api:0.1.1
+localhost:5001/demo-api:0.1.1
+
+$ helm upgrade demo-api-prod delivery/helm/demo-api -n prod -f delivery/helm/demo-api/values-prod.yaml --set image.tag=0.1.1 --wait --timeout 3m | head -6
+Release "demo-api-prod" has been upgraded. Happy Helming!
+NAME: demo-api-prod
+LAST DEPLOYED: Fri Nov  6 12:22:10 2026
+NAMESPACE: prod
+STATUS: deployed
+REVISION: 2
+
+$ bash delivery/kind/probe.sh prod demo-api-prod /api/v1/info 20
+HTTP status count: 20 200
+
+$ kubectl -n prod exec deploy/demo-api-prod -- python -c "import urllib.request; print(urllib.request.urlopen('http://127.0.0.1:8080/api/v1/info').read().decode())"
+{"service":"demo-api","version":"0.1.1","commit":"084e5fc"}
+
+# revision 3: a bad configuration release (50% injected errors)
+$ helm upgrade demo-api-prod delivery/helm/demo-api -n prod -f delivery/helm/demo-api/values-prod.yaml --set image.tag=0.1.1 --set faults.errorRate=0.5 --wait --timeout 3m | head -6
+Error: UPGRADE FAILED: values don't meet the specifications of the schema(s) in the following chart(s):
+demo-api:
+- at '/faults/errorRate': got string, want number
+
+[exit 1]
+
+$ kubectl -n prod get configmap demo-api-prod -o jsonpath='{.data}'; echo
+{"FAULT_ERROR_RATE":"0","FAULT_LATENCY_MS":"0"}
+
+$ bash delivery/kind/probe.sh prod demo-api-prod /api/v1/info 40
+HTTP status count: 40 200
+
+$ helm history demo-api-prod -n prod
+REVISION	UPDATED                 	STATUS    	CHART         	APP VERSION	DESCRIPTION     
+1       	Fri Nov  6 12:21:11 2026	superseded	demo-api-0.1.0	0.1.0      	Install complete
+2       	Fri Nov  6 12:22:10 2026	deployed  	demo-api-0.1.0	0.1.0      	Upgrade complete
+
+# roll back to the last good revision
+$ helm rollback demo-api-prod 2 -n prod --wait --timeout 3m
+Rollback was a success! Happy Helming!
+
+$ helm history demo-api-prod -n prod
+REVISION	UPDATED                 	STATUS    	CHART         	APP VERSION	DESCRIPTION     
+1       	Fri Nov  6 12:21:11 2026	superseded	demo-api-0.1.0	0.1.0      	Install complete
+2       	Fri Nov  6 12:22:10 2026	superseded	demo-api-0.1.0	0.1.0      	Upgrade complete
+3       	Fri Nov  6 12:22:37 2026	deployed  	demo-api-0.1.0	0.1.0      	Rollback to 2   
+
+$ kubectl -n prod get configmap demo-api-prod -o jsonpath='{.data}'; echo
+{"FAULT_ERROR_RATE":"0","FAULT_LATENCY_MS":"0"}
+
+$ bash delivery/kind/probe.sh prod demo-api-prod /api/v1/info 40
+HTTP status count: 40 200
+
+$ kubectl -n prod rollout history deploy/demo-api-prod
+deployment.apps/demo-api-prod 
+REVISION  CHANGE-CAUSE
+1         <none>
+2         <none>
+
+

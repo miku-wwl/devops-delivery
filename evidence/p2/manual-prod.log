@@ -1,0 +1,41 @@
+# transcript: P2 dev deployment and manual promotion to prod
+# recorded: 2026-11-05T23:34:25Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ export GL_TOKEN="$(cat ~/.lab-secrets/gitlab-root-token)"
+
+$ curl -s localhost:18081/api/v1/info; echo
+{"service":"demo-api","version":"gl-1","commit":"034fd907"}
+
+$ JOB=$(curl -s -H "PRIVATE-TOKEN: $GL_TOKEN" "http://localhost:8929/api/v4/projects/1/pipelines/1/jobs?scope=manual" | jq -r '.[] | select(.name=="deploy-prod") | .id'); echo "deploy-prod job id: $JOB"
+deploy-prod job id: 5
+
+$ curl -s -X POST -H "PRIVATE-TOKEN: $GL_TOKEN" "http://localhost:8929/api/v4/projects/1/jobs/$JOB/play" | jq '{name, status, user: .user.username}'
+{
+  "name": "deploy-prod",
+  "status": "pending",
+  "user": "root"
+}
+
+$ bash automation/gitlab/wait-pipeline.sh main
+pipeline #1 [push] ref=main sha=034fd907 status=success duration=97s
+  lint    lint         success  35s
+  test    test         success  40s
+  build   build-image  success  32s
+  deploy  deploy-dev   success  11s
+  deploy  deploy-prod  success  11s
+
+$ curl -s localhost:18082/api/v1/info; echo
+{"service":"demo-api","version":"gl-1","commit":"034fd907"}
+
+$ curl -s -H "PRIVATE-TOKEN: $GL_TOKEN" "http://localhost:8929/api/v4/projects/1/environments" | jq -r '.[] | "\(.name)\t\(.state)\t\(.external_url)"'
+dev	available	http://localhost:18081/api/v1/info
+prod	available	http://localhost:18082/api/v1/info
+
+$ curl -s -H "PRIVATE-TOKEN: $GL_TOKEN" "http://localhost:8929/api/v4/projects/1/deployments?order_by=id" | jq -r '.[] | "deployment #\(.iid) env=\(.environment.name) status=\(.status) sha=\(.sha[0:8]) by=\(.user.username)"'
+deployment #1 env=dev status=success sha=034fd907 by=root
+deployment #2 env=prod status=success sha=034fd907 by=root
+
+$ docker ps --filter name=demo-api- --format '{{.Names}}  {{.Image}}  {{.Ports}}'
+demo-api-prod  demo-api:gl-034fd907  127.0.0.1:18082->8080/tcp
+demo-api-dev  demo-api:gl-034fd907  127.0.0.1:18081->8080/tcp
+

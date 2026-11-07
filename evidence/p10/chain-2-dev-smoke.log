@@ -1,0 +1,39 @@
+# transcript: P10 part A: why the first smoke test missed the new pod, and the repeated test
+# recorded: 2026-11-06T13:27:11Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# chain-1-dev.log: HTTP 201 but no X-Request-ID header and no log line. Was the request served by the new pod at all?
+$ docker ps --format "{{.Names}}\t{{.Ports}}" | grep demo-api
+demo-api-dev	127.0.0.1:18081->8080/tcp
+demo-api-prod	127.0.0.1:18082->8080/tcp
+
+$ kubectl -n dev port-forward svc/demo-api-dev 18081:80 2>&1 & PF=$!; sleep 3; kill $PF
+Forwarding from [::1]:18081 -> 8080
+
+$ curl -s http://127.0.0.1:18081/api/v1/info
+{"service":"demo-api","version":"gl-4","commit":"dd38a063"}
+# 127.0.0.1:18081 belongs to the P2 Docker container (GitLab deploy job); port-forward bound only [::1]:18081 and kept running. Use a free port and check where it listens.
+$ kubectl -n dev port-forward svc/demo-api-dev 18090:80 > /tmp/pf-dev.log 2>&1 & PF=$!; sleep 3; cat /tmp/pf-dev.log
+Forwarding from 127.0.0.1:18090 -> 8080
+Forwarding from [::1]:18090 -> 8080
+
+$ curl -s http://127.0.0.1:18090/api/v1/info
+{"service":"demo-api","version":"p10/closed-loop-10","commit":"85b3a49c7a25849861368913e9372a80ffa3cbe2"}
+$ curl -s -D - -o /dev/null -H "X-Request-ID: p10-smoke-2" -H "Content-Type: application/json" -d "{\"sku\":\"BOOK-001\",\"quantity\":2}" http://127.0.0.1:18090/api/v1/orders | grep -i -E "^HTTP|^x-request-id"
+HTTP/1.1 201 Created
+x-request-id: p10-smoke-2
+
+$ curl -s -D - -o /dev/null -H "X-Request-ID: <script>" http://127.0.0.1:18090/api/v1/info | grep -i "^x-request-id"
+x-request-id: 0faac77562c4400e88cb480f5cef1760
+
+$ kill $PF; sleep 15
+
+$ kubectl -n dev logs -l app.kubernetes.io/name=demo-api --since=3m --prefix=false | grep "\"request_id\": \"p10-smoke-2\"" | jq -c "{msg, method, route, status, request_id, trace_id}"
+[exit 1]
+
+$ G=http://127.0.0.1:3001/api/datasources/proxy/uid
+
+$ curl -s -G "$G/loki/loki/api/v1/query_range" --data-urlencode "query={service_name=\"demo-api\"} | request_id=\"p10-smoke-2\"" --data-urlencode "start=$(( $(date +%s) - 300 ))000000000" | jq -r ".data.result[] | .values[] | \"loki: \(.[1])\""
+loki: request
+
+$ curl -s -G "$G/tempo/api/search" --data-urlencode "q={span.request.id=\"p10-smoke-2\"}" --data-urlencode "start=$(( $(date +%s) - 300 ))" --data-urlencode "end=$(date +%s)" | jq -r ".traces[] | \"tempo: trace \(.traceID) \(.rootTraceName) \(.durationMs // 0) ms\""
+

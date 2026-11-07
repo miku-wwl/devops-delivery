@@ -1,0 +1,12 @@
+# transcript: P6 good canary: analysis with real canary traffic
+# recorded: 2026-11-06T01:06:37Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ AR=$(kubectl -n prod get rollout demo-api-prod -o jsonpath='{.status.canary.currentBackgroundAnalysisRunStatus.name}'); echo "analysisrun: $AR"
+analysisrun: demo-api-prod-6bdb67694c-3.1
+
+$ for _ in $(seq 1 60); do n=$(kubectl -n prod get analysisrun "$AR" -o json | jq '[.status.metricResults[]?.measurements | length] | min // 0'); [ "$n" -ge 4 ] && break; sleep 3; done
+
+$ kubectl -n prod get analysisrun "$AR" -o json | jq -r '.status.metricResults[] | "\(.name): phase=\(.phase) successful=\(.successful // 0) failed=\(.failed // 0) inconclusive=\(.inconclusive // 0) values=\([.measurements[].value] | join(", "))"'
+p95-latency-seconds: phase=Running successful=4 failed=0 inconclusive=0 values=[0.004845536857013795], [0.0048146093683584116], [0.00481012658227848], [0.0048]
+success-rate: phase=Running successful=4 failed=0 inconclusive=0 values=[1], [1], [1], [1]
+

@@ -1,4 +1,6 @@
 title: "DevOps 软件交付与可观测性实战手册"
+# The cover breaks the title between words instead of wherever the line runs out.
+cover-title: "DevOps 软件交付<br/>与可观测性实战手册"
 subtitle: "CI/CD · GitOps · DevSecOps · 渐进式交付 · 可观测性 —— 从零开始、每一步都实际运行"
 cover-lines:
   - "实验仓库：github.com/miku-wwl/devops-delivery"

@@ -1,0 +1,17 @@
+# transcript: P9 synthetic gate in the lab cluster: candidate with a slow dependency (fault=latency)
+# recorded: 2026-11-06T09:25:27Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash synthetic/run-gate.sh --image ghcr.io/miku-wwl/devops-delivery/demo-api --digest sha256:9f45ec009f30fd01ec98998c8b86f74106721346475f3847bf6911d8ab318c81 --fault latency --summary-dir /tmp/gate-fail
+==> candidate ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:9f45ec009f30fd01ec98998c8b86f74106721346475f3847bf6911d8ab318c81  fault=latency  namespace=synthetic-1793957127
+demo-api-gate-8474c5bdcb-wj7cr   1/1   Running   0     7s    10.244.2.53   lab-worker   <none>   <none>
+{"service":"demo-api","version":"p7/observability-5","commit":"0e551ad2d628eb0e30897536485961763c704216"}
+synthetic gate: FAIL  (base http://127.0.0.1:18080, 720 requests, checks 1440 passed / 0 failed)
+  [ok  ] http_req_duration{name:GET /api/v1/orders/:id}  p(95)<300  observed 7.9 ms
+  [FAIL] http_req_duration{name:POST /api/v1/orders}  p(95)<300  observed 610.5 ms
+  [ok  ] checks  rate>0.99  observed 100.00%
+  [ok  ] http_req_failed  rate<0.01  observed 0.00%
+  [ok  ] http_req_duration{name:GET /api/v1/info}  p(95)<300  observed 10.1 ms
+time="2026-11-06T22:26:36+13:00" level=error msg="thresholds on metrics 'http_req_duration{name:POST /api/v1/orders}' have been crossed"
+==> synthetic gate FAILED (k6 exit 99)
+[exit 99]
+

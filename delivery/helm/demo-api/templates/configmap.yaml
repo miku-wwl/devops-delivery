@@ -1,0 +1,13 @@
+# Deprecated since chart 0.3.1 and no longer read by the pods (the values moved into
+# the pod template). Kept for one release ("expand/contract"): ReplicaSets created by
+# chart <= 0.3.0 still reference it with envFrom, and pruning it would break their
+# pods on the next restart. Remove it once no such ReplicaSet exists.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "demo-api.fullname" . }}
+  labels:
+    {{- include "demo-api.labels" . | nindent 4 }}
+data:
+  FAULT_ERROR_RATE: {{ .Values.faults.errorRate | quote }}
+  FAULT_LATENCY_MS: {{ .Values.faults.latencyMs | quote }}

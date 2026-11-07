@@ -1,0 +1,33 @@
+# transcript: P5 admission control: only images with release.yml provenance may run
+# recorded: 2026-11-06T00:28:17Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl apply -f delivery/policies/verify-release-signature.yaml 2>/dev/null
+clusterpolicy.kyverno.io/verify-release-signature configured
+
+$ sleep 8
+
+# 1. signed image by digest -> admitted
+$ yq 'select(.metadata.name == "sig-test-digest")' delivery/policies/tests/admission-test-pods.yaml | kubectl apply -f -
+pod/sig-test-digest created
+
+# 2. same image by tag -> admitted, tag replaced by the verified digest
+$ yq 'select(.metadata.name == "sig-test-tag")' delivery/policies/tests/admission-test-pods.yaml | kubectl apply -f -
+pod/sig-test-tag created
+
+$ kubectl -n prod get pod sig-test-tag -o jsonpath='image after admission: {.spec.containers[0].image}{"\n"}'
+image after admission: ghcr.io/miku-wwl/devops-delivery/demo-api:sha-04a724f@sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74
+
+# 3. an image without our provenance -> denied
+$ yq 'select(.metadata.name == "sig-test-unsigned")' delivery/policies/tests/admission-test-pods.yaml | kubectl apply -f -
+Error from server: error when creating "STDIN": admission webhook "mutate.kyverno.svc-fail" denied the request: 
+
+resource Pod/prod/sig-test-unsigned was blocked due to the following policies 
+
+verify-release-signature:
+  require-release-provenance: 'image attestations verification failed, verifiedCount: 0, requiredCount: 1, error: sigstore bundle verification failed: no matching signatures found'
+[exit 1]
+
+$ kubectl -n prod delete pod sig-test-digest sig-test-tag --ignore-not-found --wait=false
+pod "sig-test-digest" deleted from prod namespace
+pod "sig-test-tag" deleted from prod namespace
+

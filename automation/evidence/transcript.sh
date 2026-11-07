@@ -14,12 +14,14 @@
 #   * commands run one after another in the same shell, so cd/export persist
 #   * a non-zero exit status is recorded as "[exit N]" and the run continues
 #   * commands get /dev/null as stdin (the command list itself is never consumed)
-#   * the script exits with the number of failed commands (0 = all succeeded)
+#   * the script exits with the number of failed commands (0 = all succeeded), capped at
+#     125: exit statuses are 8 bits, so 256 failures would otherwise wrap around to 0
 set -uo pipefail
 
 out="${1:?usage: transcript.sh OUTFILE [TITLE] < commands}"
 title="${2:-$(basename "$out" .log)}"
 mkdir -p "$(dirname "$out")"
+out="$(cd "$(dirname "$out")" && pwd)/$(basename "$out")"   # absolute: commands may cd
 : > "$out"
 
 emit() { printf '%s\n' "$*" | tee -a "$out"; }
@@ -61,4 +63,4 @@ for line in "${LINES[@]}"; do
 done
 [ -n "$cmd" ] && run_cmd
 
-exit "$failures"
+exit $(( failures > 125 ? 125 : failures ))

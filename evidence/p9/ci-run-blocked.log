@@ -1,0 +1,15 @@
+# gh run view 42196278404 (workflow_dispatch release.yml, synthetic_fault=latency) - recorded 2026-11-06T09:40:52Z
+event=workflow_dispatch status=completed conclusion=failure sha=70ae35c
+  job: synthetic gate / synthetic API test (kind + k6) -> failure
+  job: build, scan, sign, attest -> skipped
+# k6 verdict from the failed job log:
+==> candidate demo-api:candidate  fault=latency  namespace=synthetic-1793957833
+synthetic gate: FAIL  (base http://127.0.0.1:18080, 723 requests, checks 1446 passed / 0 failed)
+  [FAIL] http_req_duration{name:POST /api/v1/orders}  p(95)<300  observed 603.6 ms
+  [ok  ] http_req_failed  rate<0.01  observed 0.00%
+  [ok  ] http_req_duration{name:GET /api/v1/orders/:id}  p(95)<300  observed 1.3 ms
+  [ok  ] checks  rate>0.99  observed 100.00%
+  [ok  ] http_req_duration{name:GET /api/v1/info}  p(95)<300  observed 2.3 ms
+time="2026-11-06T09:38:21Z" level=error msg="thresholds on metrics 'http_req_duration{name:POST /api/v1/orders}' have been crossed"
+==> synthetic gate FAILED (k6 exit 99)
+##[error]Process completed with exit code 99.

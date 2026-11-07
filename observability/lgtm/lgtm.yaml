@@ -1,0 +1,76 @@
+# Telemetry backend for the lab: grafana/otel-lgtm, Grafana Labs' all-in-one image
+# (an OpenTelemetry Collector in front of Prometheus, Tempo and Loki, plus Grafana
+# with the three data sources and trace <-> log <-> metric correlations pre-wired).
+# Fine for learning; production runs each backend separately and durably.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: observability
+  labels:
+    pod-security.kubernetes.io/enforce: baseline
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lgtm
+  namespace: observability
+  labels: {app: lgtm}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: lgtm}
+  template:
+    metadata:
+      labels: {app: lgtm}
+    spec:
+      # The image runs as root by default, but it writes only below /data and /tmp,
+      # so it works as an unprivileged user with a read-only root filesystem
+      # (Trivy KSV-0014 / KSV-0118, found by the repository scan in P10).
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001   # makes the emptyDir volumes writable for that group
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: lgtm
+          image: grafana/otel-lgtm:0.39.0
+          ports:
+            - {name: grafana, containerPort: 3000}
+            - {name: otlp-grpc, containerPort: 4317}
+            - {name: otlp-http, containerPort: 4318}
+          readinessProbe:
+            httpGet: {path: /api/health, port: grafana}
+            periodSeconds: 10
+          resources:
+            requests: {cpu: 250m, memory: 1Gi}
+            limits: {memory: 3Gi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
+          volumeMounts:
+            - {name: data, mountPath: /data}
+            - {name: tmp, mountPath: /tmp}
+            # Tempo 3 creates its shutdown-marker directory here, outside /data
+            # ("mkdir /var/tempo: read-only file system" without this volume).
+            - {name: tempo-var, mountPath: /var/tempo}
+      volumes:
+        - name: data
+          emptyDir: {}   # telemetry is disposable in the lab
+        - name: tmp
+          emptyDir: {}
+        - name: tempo-var
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lgtm
+  namespace: observability
+spec:
+  selector: {app: lgtm}
+  ports:
+    - {name: grafana, port: 3000, targetPort: grafana}
+    - {name: otlp-grpc, port: 4317, targetPort: otlp-grpc}
+    - {name: otlp-http, port: 4318, targetPort: otlp-http}

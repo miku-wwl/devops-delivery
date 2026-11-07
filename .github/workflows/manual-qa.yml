@@ -1,0 +1,53 @@
+name: manual-qa
+# Acceptance checks for the handbook and its evidence chain (docs/ACCEPTANCE_REPORT.md):
+#   test_qa_tools.py    self-tests: every check must fail on a deliberately broken input
+#   verify_evidence.py  images, evidence files, run IDs, digests, links, secrets, exercises,
+#                       and key numbers compared verbatim with the evidence
+#   layout_check.py     the committed PDF: no overflow, no blank page, no unreviewed gap
+# No paths filter on purpose: a required check must report on every pull request, or the
+# PR waits forever for it (chapter 3, FAQ Q1). The run takes a few minutes.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, "release/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: manual-qa-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  qa:
+    name: manual QA
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+      - name: Install the PDF libraries (versions pinned in manual/requirements.txt)
+        run: |
+          pdf_libs=$(grep -E '^(pypdf|pypdfium2)==' manual/requirements.txt)
+          echo "$pdf_libs"
+          # shellcheck disable=SC2086 # one requirement per word
+          pip install --disable-pip-version-check $pdf_libs
+      - name: Self-tests of the acceptance tools
+        run: python manual/tools/test_qa_tools.py
+      - name: Evidence verification
+        run: python manual/tools/verify_evidence.py --out "$RUNNER_TEMP/evidence-check.md"
+      - name: Layout check of the committed PDF
+        run: >-
+          python manual/tools/layout_check.py manual/dist/DevOps-Delivery-Observability-Handbook.pdf
+          --accept-gaps-file manual/layout-accepted-gaps.txt
+      - name: Job summary
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/evidence-check.md" ]; then cat "$RUNNER_TEMP/evidence-check.md" >> "$GITHUB_STEP_SUMMARY"; fi

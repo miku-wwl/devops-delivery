@@ -1,0 +1,39 @@
+# Lab playbook (roadmap module D10): idempotent configuration of two managed nodes.
+#   cd ansible && ansible-playbook site.yml          # first run: changes
+#   cd ansible && ansible-playbook site.yml          # second run: changed=0
+#   cd ansible && ansible-playbook site.yml --check --diff   # drift detection, no changes made
+
+- name: Managed nodes exist (containers standing in for VMs)
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+    node_image: "ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852"
+  tasks:
+    - name: Node containers are running
+      community.docker.docker_container:
+        name: "{{ item }}"
+        image: "{{ node_image }}"
+        command: sleep infinity
+        state: started
+        restart_policy: unless-stopped
+        labels:
+          purpose: ansible-lab
+      loop: "{{ groups['lab_nodes'] }}"
+
+- name: Bootstrap Python on fresh nodes (raw - modules need python3 first)
+  hosts: lab_nodes
+  gather_facts: false
+  tasks:
+    - name: Python 3 is installed
+      ansible.builtin.raw: >-
+        test -x /usr/bin/python3 && echo present ||
+        (apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3 >/dev/null && echo installed)
+      register: python_bootstrap
+      changed_when: "'installed' in python_bootstrap.stdout"
+
+- name: Baseline configuration
+  hosts: lab_nodes
+  roles:
+    - baseline

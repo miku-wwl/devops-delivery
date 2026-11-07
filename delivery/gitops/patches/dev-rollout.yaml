@@ -1,0 +1,8 @@
+# Progressive delivery for dev: automatic canary, no manual gate.
+podMonitor:
+  enabled: true
+rollout:
+  enabled: true
+  steps:
+    - setWeight: 50
+    - pause: {duration: 30s}

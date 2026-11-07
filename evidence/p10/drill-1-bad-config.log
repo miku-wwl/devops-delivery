@@ -1,0 +1,63 @@
+# transcript: P10 part B: a bad prod config change is stopped by the canary analysis
+# recorded: 2026-11-06T13:36:08Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ q() { curl -s "http://127.0.0.1:9090/api/v1/query" --data-urlencode "query=$1" | jq -r ".data.result[] | \"\(.metric.namespace // \"all\"): \(.value[1])\""; }
+
+$ date -u +"baseline at %FT%TZ"
+baseline at 2026-11-06T13:36:08Z
+
+$ q "demo_api:slo_latency:burn_rate5m{namespace=\"prod\"}"
+prod: 0
+
+$ q "demo_api:slo_availability:burn_rate5m{namespace=\"prod\"}"
+prod: 0
+
+$ date -u +"change merged at about %FT%TZ"
+change merged at about 2026-11-06T13:36:08Z
+
+$ bash delivery/argocd/promote.sh prod faults.latencyMs:=800 --merge --title "prod: pricing call tuning (P10 bad config drill)"
+ envs/prod/values.yaml | 2 ++
+ 1 file changed, 2 insertions(+)
+@@ -19 +19,3 @@ rollout:
+     - pause: {duration: 30s}
++faults:
++  latencyMs: 800
+merge request !22: http://localhost:8929/root/delivery-gitops/-/merge_requests/22
+merged !22 -> main @ 10a6786 by root
+
+$ BAD=$(cat ~/work/last-merge-sha); echo "bad merge commit: ${BAD:0:7}"; echo "$BAD" > ~/work/p10-bad-sha
+bad merge commit: 10a6786
+
+$ bash delivery/argocd/wait-sync.sh demo-api-prod "" 150 || true
+t+0s  revision=f49539c sync=Synced health=Healthy operation=Succeeded
+t+59s  revision=10a6786 sync=Synced health=Progressing operation=Succeeded
+t+65s  revision=10a6786 sync=Synced health=Suspended operation=Succeeded
+t+130s  revision=10a6786 sync=Synced health=Degraded operation=Succeeded
+timeout after 152s
+
+$ date -u +"canary seen at %FT%TZ"
+canary seen at 2026-11-06T13:38:49Z
+
+$ bash delivery/rollouts/watch-rollout.sh prod demo-api-prod Degraded 480
+t+0s  phase=Degraded step=0 updated=0 available=5 analysis=- message="RolloutAborted: Rollout aborted update to revision 9: Background analysis phase error/failed: Metric "p95-latency-seconds" assessed Failed due to failed (2) > failureLimit (1)"
+
+$ date -u +"aborted at about %FT%TZ"
+aborted at about 2026-11-06T13:38:49Z
+
+$ AR=$(kubectl -n prod get analysisrun --sort-by=.metadata.creationTimestamp -o jsonpath="{.items[-1:].metadata.name}")
+
+$ kubectl -n prod get analysisrun "$AR" -o json | jq -r "\"\(.metadata.name): \(.status.phase) - \(.status.message // \"\")\", (.status.metricResults[] | \"  \(.name): phase=\(.phase) successful=\(.successful // 0) failed=\(.failed // 0) values=\([.measurements[] | \"\(.value)@\(.finishedAt[11:19])\"] | join(\", \"))\")"
+demo-api-prod-8bf588ddc-9: Failed - Metric "p95-latency-seconds" assessed Failed due to failed (2) > failureLimit (1)
+  success-rate: phase=Successful successful=2 failed=0 values=[1]@13:38:06, [1]@13:38:26
+  p95-latency-seconds: phase=Failed successful=0 failed=2 values=[0.9614392621993645]@13:38:06, [0.9617647058823529]@13:38:26
+
+$ kubectl argo rollouts get rollout demo-api-prod -n prod | sed -E "s/\x1b\[[0-9;]*m//g" | sed -n "1,4p"
+Name:            demo-api-prod
+Namespace:       prod
+Status:          ✖ Degraded
+Message:         RolloutAborted: Rollout aborted update to revision 9: Background analysis phase error/failed: Metric "p95-latency-seconds" assessed Failed due to failed (2) > failureLimit (1)
+
+$ argocd app get demo-api-prod --grpc-web | grep -E "Health Status|Sync Status"
+Sync Status:        Synced to main (10a6786)
+Health Status:      Degraded
+

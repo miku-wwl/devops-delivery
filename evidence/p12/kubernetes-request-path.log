@@ -1,0 +1,120 @@
+# transcript: P12: from kubectl apply to packets - admission, controllers, scheduler, kube-proxy, conntrack
+# recorded: 2026-11-06T19:12:09Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# Part 1. A write request passes through admission webhooks inside the API server. Registered webhooks:
+$ kubectl get mutatingwebhookconfigurations,validatingwebhookconfigurations --no-headers -o custom-columns=NAME:.metadata.name
+kube-prometheus-stack-admission
+kyverno-policy-mutating-webhook-cfg
+kyverno-resource-mutating-webhook-cfg
+kyverno-verify-mutating-webhook-cfg
+kube-prometheus-stack-admission
+kyverno-cel-exception-validating-webhook-cfg
+kyverno-cleanup-validating-webhook-cfg
+kyverno-exception-validating-webhook-cfg
+kyverno-global-context-validating-webhook-cfg
+kyverno-policy-validating-webhook-cfg
+kyverno-resource-validating-webhook-cfg
+kyverno-ttl-validating-webhook-cfg
+
+# Server-side dry run = authentication, authorization, mutating admission, validation, but nothing is stored. Kyverno rewrites the tag to the verified digest:
+$ yq 'select(.metadata.name == "sig-test-tag") | .spec.containers[0].image' delivery/policies/tests/admission-test-pods.yaml
+ghcr.io/miku-wwl/devops-delivery/demo-api:sha-04a724f
+
+$ yq 'select(.metadata.name == "sig-test-tag")' delivery/policies/tests/admission-test-pods.yaml | kubectl apply --dry-run=server -o jsonpath='{.spec.containers[0].image}{"\n"}' -f - 2>/dev/null
+ghcr.io/miku-wwl/devops-delivery/demo-api:sha-04a724f@sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74
+
+# Part 2. Controllers and the scheduler, watched on a throwaway Deployment
+$ kubectl create namespace p12-chain
+namespace/p12-chain created
+
+$ kubectl -n p12-chain create deployment chain-demo --image=registry.k8s.io/pause:3.10 --replicas=2
+deployment.apps/chain-demo created
+
+$ kubectl -n p12-chain rollout status deployment/chain-demo --timeout=120s
+Waiting for deployment "chain-demo" rollout to finish: 0 of 2 updated replicas are available...
+Waiting for deployment "chain-demo" rollout to finish: 1 of 2 updated replicas are available...
+deployment "chain-demo" successfully rolled out
+
+$ kubectl -n p12-chain get events --sort-by=.metadata.creationTimestamp -o custom-columns=COMPONENT:.source.component,OBJECT:.involvedObject.kind,REASON:.reason,MESSAGE:.message | cut -c1-150
+COMPONENT               OBJECT       REASON              MESSAGE
+default-scheduler       Pod          Scheduled           Successfully assigned p12-chain/chain-demo-85847b776c-f8q9q to lab-worker
+default-scheduler       Pod          Scheduled           Successfully assigned p12-chain/chain-demo-85847b776c-qmtxl to lab-worker2
+replicaset-controller   ReplicaSet   SuccessfulCreate    Created pod: chain-demo-85847b776c-qmtxl
+replicaset-controller   ReplicaSet   SuccessfulCreate    Created pod: chain-demo-85847b776c-f8q9q
+deployment-controller   Deployment   ScalingReplicaSet   Scaled up replica set chain-demo-85847b776c from 0 to 2
+kubelet                 Pod          Pulled              Container image "registry.k8s.io/pause:3.10" already present on machine and can be accessed b
+kubelet                 Pod          Created             Container created
+kubelet                 Pod          Started             Container started
+kubelet                 Pod          Pulled              Container image "registry.k8s.io/pause:3.10" already present on machine and can be accessed b
+kubelet                 Pod          Created             Container created
+kubelet                 Pod          Started             Container started
+
+$ P=$(kubectl -n p12-chain get pods -o jsonpath='{.items[0].metadata.name}'); RS=$(kubectl -n p12-chain get pod $P -o jsonpath='{.metadata.ownerReferences[0].name}'); echo "Pod $P <- ReplicaSet $RS <- $(kubectl -n p12-chain get rs $RS -o jsonpath='{.metadata.ownerReferences[0].kind}/{.metadata.ownerReferences[0].name}')"
+Pod chain-demo-85847b776c-f8q9q <- ReplicaSet chain-demo-85847b776c <- Deployment/chain-demo
+
+$ kubectl delete namespace p12-chain --wait=false
+namespace "p12-chain" deleted
+
+# In prod the chain is Pod <- ReplicaSet <- Rollout; Argo CD tracks the Rollout with an annotation instead of owning it
+$ P=$(kubectl -n prod get pods -l app.kubernetes.io/name=demo-api -o jsonpath='{.items[0].metadata.name}'); RS=$(kubectl -n prod get pod $P -o jsonpath='{.metadata.ownerReferences[0].name}'); echo "Pod $P <- ReplicaSet $RS <- $(kubectl -n prod get rs $RS -o jsonpath='{.metadata.ownerReferences[0].kind}/{.metadata.ownerReferences[0].name}')"
+Pod demo-api-prod-56ffb56667-gr7cz <- ReplicaSet demo-api-prod-56ffb56667 <- Rollout/demo-api-prod
+
+$ kubectl -n prod get rollout demo-api-prod -o jsonpath='argocd tracking id: {.metadata.annotations.argocd\.argoproj\.io/tracking-id}{"\n"}'
+argocd tracking id: demo-api-prod:argoproj.io/Rollout:prod/demo-api-prod
+
+# Part 3. A Service is a set of NAT rules on every node (kube-proxy in iptables mode)
+$ kubectl get cm -n kube-system kube-proxy -o jsonpath='{.data.config\.conf}' | grep -E '^mode'
+mode: iptables
+
+$ kubectl -n prod get endpointslices -l kubernetes.io/service-name=demo-api-prod -o jsonpath='{range .items[*].endpoints[*]}{.addresses[0]} ready={.conditions.ready} {.targetRef.name}{"\n"}{end}'
+10.244.1.43 ready=true demo-api-prod-56ffb56667-kdrzz
+10.244.1.44 ready=true demo-api-prod-56ffb56667-nqlv6
+10.244.2.58 ready=true demo-api-prod-56ffb56667-klpxl
+10.244.2.59 ready=true demo-api-prod-56ffb56667-gr7cz
+10.244.1.46 ready=true demo-api-prod-56ffb56667-nl8wl
+
+$ SVC=$(kubectl -n prod get svc demo-api-prod -o jsonpath='{.spec.clusterIP}'); echo "ClusterIP $SVC"
+ClusterIP 10.96.78.13
+
+$ docker exec lab-worker iptables-save -t nat | grep -E "KUBE-SERVICES .*$SVC/32" | cut -c1-170
+-A KUBE-SERVICES -d 10.96.78.13/32 -p tcp -m comment --comment "prod/demo-api-prod:http cluster IP" -m tcp --dport 80 -j KUBE-SVC-4MKJFZO4EMFIXLDZ
+
+$ CH=$(docker exec lab-worker iptables-save -t nat | grep -E "KUBE-SERVICES .*$SVC/32" | grep -o 'KUBE-SVC-[A-Z0-9]*' | head -1); docker exec lab-worker iptables-save -t nat | grep -E "^-A $CH .*KUBE-SEP" | sed -E 's/-m comment --comment "[^"]*-> ([0-9.:]+)"/(-> \1)/' | cut -c1-150
+-A KUBE-SVC-4MKJFZO4EMFIXLDZ (-> 10.244.1.43:8080) -m statistic --mode random --probability 0.20000000019 -j KUBE-SEP-2HEUMPRBKZSWPLCL
+-A KUBE-SVC-4MKJFZO4EMFIXLDZ (-> 10.244.1.44:8080) -m statistic --mode random --probability 0.25000000000 -j KUBE-SEP-U6HFCHFDZRI2ZMIR
+-A KUBE-SVC-4MKJFZO4EMFIXLDZ (-> 10.244.1.46:8080) -m statistic --mode random --probability 0.33333333349 -j KUBE-SEP-6Z757G2UCX2ORLHG
+-A KUBE-SVC-4MKJFZO4EMFIXLDZ (-> 10.244.2.58:8080) -m statistic --mode random --probability 0.50000000000 -j KUBE-SEP-3FSLLPAN64XLXBBU
+-A KUBE-SVC-4MKJFZO4EMFIXLDZ (-> 10.244.2.59:8080) -j KUBE-SEP-GDUDNWIQLOCHUIX7
+
+$ SEP=$(docker exec lab-worker iptables-save -t nat | grep -E "^-A $CH " | grep -o 'KUBE-SEP-[A-Z0-9]*' | head -1); docker exec lab-worker iptables-save -t nat | grep -E "^-A $SEP .*DNAT" | cut -c1-150
+-A KUBE-SEP-2HEUMPRBKZSWPLCL -p tcp -m comment --comment "prod/demo-api-prod:http" -m tcp -j DNAT --to-destination 10.244.1.43:8080
+
+# Part 4. The backend is chosen once per connection. 20 requests over one keep-alive connection, then 20 requests over 20 new connections, sent from a dev pod
+$ printf '%s\n' 'import http.client' 'H = "demo-api-prod.prod.svc"' 'c = http.client.HTTPConnection(H, 80)  # one TCP connection, reused by HTTP/1.1 keep-alive' 'for i in range(20):' '    c.request("GET", "/api/v1/info", headers={"X-Request-ID": "p12-keepalive-%d" % i}); c.getresponse().read()' 'c.close()' 'for i in range(20):  # a new TCP connection for every request' '    c = http.client.HTTPConnection(H, 80); c.request("GET", "/api/v1/info", headers={"X-Request-ID": "p12-newconn-%d" % i, "Connection": "close"}); c.getresponse().read(); c.close()' 'print("sent: 20 requests on 1 connection, 20 requests on 20 connections")' > /tmp/conn.py
+
+$ D=$(kubectl -n dev get pods -l app.kubernetes.io/name=demo-api -o jsonpath='{.items[0].metadata.name}'); kubectl -n dev exec -i $D -- python - < /tmp/conn.py
+sent: 20 requests on 1 connection, 20 requests on 20 connections
+
+$ sleep 3
+
+$ for p in $(kubectl -n prod get pods -l app.kubernetes.io/name=demo-api -o name); do echo "${p#pod/}: keep-alive=$(kubectl -n prod logs $p --since=3m --tail=-1 | grep -c '"request_id": "p12-keepalive-') new-connections=$(kubectl -n prod logs $p --since=3m --tail=-1 | grep -c '"request_id": "p12-newconn-')"; done
+demo-api-prod-56ffb56667-gr7cz: keep-alive=20 new-connections=2
+demo-api-prod-56ffb56667-kdrzz: keep-alive=0 new-connections=4
+demo-api-prod-56ffb56667-klpxl: keep-alive=0 new-connections=2
+demo-api-prod-56ffb56667-nl8wl: keep-alive=0 new-connections=7
+demo-api-prod-56ffb56667-nqlv6: keep-alive=0 new-connections=5
+
+# conntrack on the load generator's node: connections to the ClusterIP and the backend each one was translated to
+$ K=$(kubectl -n loadgen get pods -l app=k6 -o jsonpath='{.items[0].spec.nodeName}'); echo "k6 runs on $K"; docker exec $K conntrack -L -p tcp --orig-dst $SVC 2>/dev/null | head -2 | cut -c1-170
+k6 runs on lab-worker2
+tcp      6 20 TIME_WAIT src=10.244.1.41 dst=10.96.78.13 sport=42110 dport=80 src=10.244.1.46 dst=10.244.1.41 sport=8080 dport=42110 [ASSURED] mark=0 use=1
+tcp      6 77 TIME_WAIT src=10.244.1.41 dst=10.96.78.13 sport=60964 dport=80 src=10.244.1.44 dst=10.244.1.41 sport=8080 dport=60964 [ASSURED] mark=0 use=1
+[exit 141]
+
+$ docker exec $K conntrack -L -p tcp --orig-dst $SVC 2>/dev/null | grep -o 'src=10[0-9.]* dst=10[0-9.]* sport=8080' | awk '{print $1}' | sort | uniq -c
+    243 src=10.244.1.43
+    236 src=10.244.1.44
+    241 src=10.244.1.46
+    247 src=10.244.2.58
+    242 src=10.244.2.59
+
