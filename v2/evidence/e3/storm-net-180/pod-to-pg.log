@@ -1,0 +1,98 @@
+12:21:45 query_ms=3.3 connect_ms=20.3
+12:21:46 query_ms=1.6
+12:21:46 query_ms=1.9
+12:21:47 query_ms=1.4
+12:21:47 query_ms=1.9 connect_ms=14.4
+12:21:48 query_ms=1.5
+12:21:48 query_ms=1.5
+12:21:49 query_ms=2.6
+12:21:49 query_ms=1.4 connect_ms=24.0
+12:21:50 query_ms=2.3
+12:21:50 query_ms=1.3
+12:21:51 query_ms=1.4
+12:21:51 query_ms=1.3 connect_ms=21.0
+12:21:52 query_ms=1.8
+12:21:53 query_ms=1.6
+12:21:53 query_ms=2.7
+12:21:54 query_ms=2.0 connect_ms=21.1
+12:21:54 query_ms=1.9
+12:21:55 query_ms=1.1
+12:21:55 query_ms=1.2
+12:21:56 query_ms=1.3 connect_ms=17.4
+12:21:56 query_ms=198.7
+12:21:57 query_ms=4492.1
+12:22:02 query_ms=290.4
+12:22:03 query_ms=1214.7 connect_failed=TimeoutError
+12:22:08 query_failed=TimeoutError
+12:22:35 query_ms=2675.2
+12:22:36 query_ms=2.1
+12:22:37 query_ms=1.8 connect_ms=22.5
+12:22:37 query_ms=2.7
+12:22:38 query_ms=1.4
+12:22:38 query_ms=0.9
+12:22:39 query_ms=2.1 connect_ms=25.3
+12:22:39 query_ms=1.6
+12:22:40 query_ms=1.8
+12:22:40 query_ms=1.9
+12:22:41 query_ms=1.6 connect_ms=15.2
+12:22:41 query_ms=1.6
+12:22:42 query_ms=1.9
+12:22:42 query_ms=1.9
+12:22:43 query_ms=2.0 connect_ms=23.0
+12:22:43 query_ms=2.1
+12:22:44 query_ms=1.3
+12:22:44 query_ms=1.4
+12:22:45 query_ms=1.9 connect_ms=17.9
+12:22:45 query_ms=2.3
+12:22:46 query_ms=1.4
+12:22:46 query_ms=1.5
+12:22:47 query_ms=1.6 connect_ms=16.5
+12:22:47 query_ms=1.7
+12:22:48 query_ms=2.0
+12:22:48 query_ms=1.4
+12:22:49 query_ms=1.8 connect_ms=20.9
+12:22:50 query_ms=2.0
+12:22:50 query_ms=2.3
+12:22:51 query_ms=1.5
+12:22:51 query_ms=1.2 connect_ms=23.1
+12:22:52 query_ms=1.9
+12:22:52 query_ms=1.7
+12:22:53 query_ms=1.5
+12:22:53 query_ms=2.7 connect_ms=18.4
+12:22:54 query_ms=2.8
+12:22:54 query_ms=1.4
+12:22:55 query_ms=1.8
+12:22:55 query_ms=1.5 connect_ms=20.3
+12:22:56 query_ms=2.1
+12:22:56 query_ms=3.5
+12:22:57 query_ms=1.2
+12:22:57 query_ms=1.6 connect_ms=19.2
+12:22:58 query_ms=2.4
+12:22:58 query_ms=1.7
+12:22:59 query_ms=1.7
+12:22:59 query_ms=2.7 connect_ms=20.2
+12:23:00 query_ms=2.1
+12:23:00 query_ms=1.6
+12:23:01 query_ms=1.9
+12:23:01 query_ms=2.1 connect_ms=22.1
+12:23:02 query_ms=1.6
+12:23:02 query_ms=1.3
+12:23:03 query_ms=1.5
+12:23:03 query_ms=2.0 connect_ms=14.9
+12:23:04 query_ms=2.1
+12:23:04 query_ms=1.8
+12:23:05 query_ms=1.7
+12:23:05 query_ms=1.8 connect_ms=17.9
+12:23:06 query_ms=2.1
+12:23:06 query_ms=1.7
+12:23:07 query_ms=2.2
+12:23:06 query_ms=1.8 connect_ms=21.1
+12:23:06 query_ms=2.0
+12:23:07 query_ms=1.1
+12:23:07 query_ms=4.5
+12:23:08 query_ms=1.7 connect_ms=17.2
+12:23:08 query_ms=1.4
+12:23:09 query_ms=2.1
+12:23:09 query_ms=3.5
+12:23:10 query_ms=2.4 connect_ms=18.2
+12:23:10 query_ms=1.1

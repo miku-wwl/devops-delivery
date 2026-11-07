@@ -1,0 +1,10 @@
+time="2026-11-07T22:45:04+13:00" level=warning msg="Request Failed" error="Get \"http://172.20.0.8:8080/api/products?limit=20\": read tcp 172.20.0.1:44459->172.20.0.8:8080: read: connection reset by peer"
+time="2026-11-07T22:45:04+13:00" level=warning msg="Request Failed" error="Get \"http://172.20.0.8:8080/api/products?limit=20\": EOF"
+time="2026-11-07T22:45:04+13:00" level=warning msg="Request Failed" error="Get \"http://172.20.0.8:8080/api/products?limit=20\": EOF"
+[58839 more 'Request Failed' warnings collapsed; all 58842 by error: 44025 dial tcp ADDR: connect: connection refused, 9540 EOF, 5245 read tcp ADDR->ADDR: read: connection reset by peer, 32 dial tcp ADDR: connect: connection reset by peer]
+rate=300/s duration=120s iterations=35999 dropped=0
+requests=59341 (404.3/s) failed=99.99%
+browse: p50=0.0 p95=1267.0 p99=1609.9 max=5420.7 ms
+order:  p50=0.0 p95=1481.9 p99=1646.5 max=5348.0 ms
+checks: 0.01% passed
+time="2026-11-07T22:47:30+13:00" level=error msg="thresholds on metrics 'http_req_duration{kind:browse}, http_req_failed{kind:browse}' have been crossed"

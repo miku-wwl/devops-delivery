@@ -1,0 +1,35 @@
+# transcript: E3: the load balancer of the lab (cloud-provider-kind Envoy) crashed at ~500 connections - and the fix
+# recorded: 2026-11-07T12:26:00Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ docker ps --format "{{.Names}} {{.Image}} {{.Status}}" --filter name=kindccm
+kindccm-7c5080a249c3 envoyproxy/envoy:v1.33.2 Up 5 hours
+
+$ docker exec kindccm-7c5080a249c3 cat /proc/1/limits | grep "open files"
+Max open files            1024                 1048576              files     
+
+$ docker logs kindccm-7c5080a249c3 --since 2026-11-07T09:38:30Z --until 2026-11-07T09:38:41Z 2>&1 | grep -E "envoy_bug|critical|starting main" | grep -vE "assert.h:45|backtrace.h:1(1[4-9]|2[0-9])" | cut -c1-200
+[2026-11-07 09:38:38.275][45][error][envoy_bug] [source/common/network/socket_interface_impl.cc:89] envoy bug failure: false. Details: socket(2) failed, got error: Too many open files
+[2026-11-07 09:38:38.283][45][error][envoy_bug] [./source/common/common/assert.h:38] stacktrace for envoy bug
+[2026-11-07 09:38:38.287][45][error][envoy_bug] [source/common/network/connection_impl.cc:89] envoy bug failure: false. Details: Client socket failure
+[2026-11-07 09:38:38.288][45][error][envoy_bug] [./source/common/common/assert.h:38] stacktrace for envoy bug
+[2026-11-07 09:38:38.289][45][critical][backtrace] [./source/server/backtrace.h:113] Backtrace (use tools/stack_decode.py to get line numbers):
+[2026-11-07 09:38:40.290][136][info][main] [source/server/server.cc:1001] starting main dispatch loop
+
+$ docker logs kindccm-7c5080a249c3 --since 2026-11-07T09:28:00Z --until 2026-11-07T09:50:00Z 2>&1 | grep -c "Caught Segmentation fault"
+106
+
+$ docker logs kindccm-7c5080a249c3 --since 2026-11-07T09:28:00Z --until 2026-11-07T09:50:00Z 2>&1 | grep "Caught Segmentation fault" | cut -c2-17 | uniq -c
+      5 2026-11-07 09:38
+     12 2026-11-07 09:39
+      9 2026-11-07 09:40
+     13 2026-11-07 09:41
+     11 2026-11-07 09:42
+     14 2026-11-07 09:43
+     13 2026-11-07 09:44
+     14 2026-11-07 09:45
+     15 2026-11-07 09:46
+
+$ bash v2/platform/cluster/lb-limits.sh
+kindccm-7c5080a249c3 pid 1596 (bash): open files soft limit 1024 -> 65536 (hard 1048576)
+kindccm-7c5080a249c3 pid 337483 (envoy): open files soft limit 1024 -> 65536 (hard 1048576)
+

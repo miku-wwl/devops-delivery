@@ -1,0 +1,73 @@
+{
+ "start": "2026-11-07T09:32:33+00:00",
+ "end": "2026-11-07T09:34:01+00:00",
+ "services": {
+  "catalog": {
+   "req_per_s": 106.2,
+   "cpu_cores": 0.546,
+   "cpu_ms_per_req": 5.14,
+   "busiest_pod_cores": 0.285,
+   "inflight": 0.67,
+   "loop_lag_p99_ms": 20.7,
+   "pool_wait_p95_ms": 0.36
+  },
+  "gateway": {
+   "req_per_s": 105.2,
+   "cpu_cores": 1.192,
+   "cpu_ms_per_req": 11.33,
+   "busiest_pod_cores": 0.653,
+   "inflight": 5.83,
+   "loop_lag_p99_ms": 47.3,
+   "pool_wait_p95_ms": null
+  },
+  "inventory": {
+   "req_per_s": 15.5,
+   "cpu_cores": 0.202,
+   "cpu_ms_per_req": 13.06,
+   "busiest_pod_cores": 0.101,
+   "inflight": 0.17,
+   "loop_lag_p99_ms": 13.8,
+   "pool_wait_p95_ms": 0.25
+  },
+  "notifier": {
+   "req_per_s": 0.0,
+   "cpu_cores": 0.103,
+   "cpu_ms_per_req": null,
+   "busiest_pod_cores": 0.103,
+   "inflight": 0.0,
+   "loop_lag_p99_ms": 13.1,
+   "pool_wait_p95_ms": null
+  },
+  "orders": {
+   "req_per_s": 18.3,
+   "cpu_cores": 0.671,
+   "cpu_ms_per_req": 36.69,
+   "busiest_pod_cores": 0.353,
+   "inflight": 3.5,
+   "loop_lag_p99_ms": 22.9,
+   "pool_wait_p95_ms": 0.3
+  },
+  "payments": {
+   "req_per_s": 15.2,
+   "cpu_cores": 0.183,
+   "cpu_ms_per_req": 12.03,
+   "busiest_pod_cores": 0.094,
+   "inflight": 2.0,
+   "loop_lag_p99_ms": 14.0,
+   "pool_wait_p95_ms": null
+  }
+ },
+ "nodes_cpu_cores": {
+  "ent-worker": 2.04,
+  "ent-worker2": 2.21,
+  "ent-worker3": 0.77
+ },
+ "platform_cpu_cores": {
+  "otel-collector": 0.023,
+  "pg-main": 0.438,
+  "prometheus-kps": 0.144,
+  "tempo": 0.039,
+  "waypoint": 0.325,
+  "ztunnel": 0.515
+ }
+}

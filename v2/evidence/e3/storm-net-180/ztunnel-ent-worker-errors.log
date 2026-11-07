@@ -1,0 +1,2 @@
+2026-11-07T12:22:17.640955Z	warn	access	connection failed	src.addr=172.20.0.9:57833 dst.addr=10.240.1.46:15006 direction="inbound" error="attempted recursive call to ourselves"
+2026-11-07T12:22:21.585283Z	warn	access	connection failed	src.addr=172.20.0.10:60255 dst.addr=10.240.1.46:15006 direction="inbound" error="attempted recursive call to ourselves"

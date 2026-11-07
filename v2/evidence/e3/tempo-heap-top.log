@@ -1,0 +1,12 @@
+# transcript: E3: top in-use allocations of Tempo before the fix (pprof heap, debug=1)
+# recorded: 2026-11-07T09:30:44Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ python3 /tmp/heap_top.py v2/evidence/e3/tempo-heap-before.pprof.txt
+heap profile: 63: 1078081808 [6530: 2081847848] @ heap/1048576
+in-use bytes in profile: 1078.1 MB at 672 allocation sites
+  1073.7 MB  main.main
+     1.0 MB  github.com/prometheus/prometheus/tsdb/agent.newStripeSeries <- github.com/prometheus/prometheus/tsdb/agent.Open <- github.com/grafana/tempo/modules/generator/storage.New <- github.com/grafana/tempo/modules/generator.(*Generator).createInstance
+     1.0 MB  github.com/grafana/dskit/signals.(*Handler).Loop <- github.com/grafana/tempo/cmd/tempo/app.(*App).Run.func4
+     0.6 MB  github.com/grafana/tempo/tempodb/encoding/common.NewIDMap[...] <- github.com/grafana/tempo/tempodb/encoding/vparquet4.openWALBlock <- github.com/grafana/tempo/tempodb/encoding/vparquet4.Encoding.OpenWALBlock <- github.com/grafana/tempo/tempodb/wal.(*WAL).RescanBlocks
+     0.5 MB  bufio.NewReaderSize <- google.golang.org/grpc/internal/transport.newFramer <- google.golang.org/grpc/internal/transport.NewServerTransport <- google.golang.org/grpc.(*Server).newHTTP2Transport
+

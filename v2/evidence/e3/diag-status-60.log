@@ -1,0 +1,6 @@
+# transcript: E3: what fails at 60 iterations/s (browse calls only)
+# recorded: 2026-11-07T09:48:30Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ GW=http://$(kubectl -n storefront get svc gateway -o jsonpath="{.status.loadBalancer.ingress[0].ip}"):8080; BASE_URL=$GW RATE=60 DURATION=60s taskset -c 0-3 k6 run --quiet v2/experiments/e3/diag-status.js 2>&1 | grep -o "OUT [^\"]*" | sed -E "s/[0-9]+->/N->/; s/:[0-9]{4,5}->/:P->/" | sort | uniq -c | sort -rn | head -12
+[exit 1]
+

@@ -1,0 +1,21 @@
+[2026-11-07 12:22:00.398][5403][error][envoy_bug] [source/common/network/socket_interface_impl.cc:89] envoy bug failure: false. Details: socket(2) failed, got e
+[2026-11-07 12:22:00.399][5403][critical][backtrace] [./source/server/backtrace.h:129] Caught Segmentation fault, suspect faulting address 0x0
+[2026-11-07 12:22:01.851][5449][info][main] [source/server/server.cc:1001] starting main dispatch loop
+[2026-11-07 12:22:04.902][5465][error][envoy_bug] [source/common/network/socket_interface_impl.cc:89] envoy bug failure: false. Details: socket(2) failed, got e
+[2026-11-07 12:22:04.903][5465][critical][backtrace] [./source/server/backtrace.h:129] Caught Segmentation fault, suspect faulting address 0x0
+[2026-11-07 12:22:05.010][5490][info][main] [source/server/server.cc:1001] starting main dispatch loop
+[2026-11-07 12:22:08.638][5505][error][envoy_bug] [source/common/network/socket_interface_impl.cc:89] envoy bug failure: false. Details: socket(2) failed, got e
+[2026-11-07 12:22:08.639][5505][critical][backtrace] [./source/server/backtrace.h:129] Caught Segmentation fault, suspect faulting address 0x0
+[2026-11-07 12:22:10.168][5531][info][main] [source/server/server.cc:1001] starting main dispatch loop
+[2026-11-07 12:22:14.349][5540][error][envoy_bug] [source/common/network/socket_interface_impl.cc:89] envoy bug failure: false. Details: socket(2) failed, got e
+[2026-11-07 12:22:14.350][5540][critical][backtrace] [./source/server/backtrace.h:129] Caught Segmentation fault, suspect faulting address 0x0
+[2026-11-07 12:22:16.122][5572][info][main] [source/server/server.cc:1001] starting main dispatch loop
+[2026-11-07 12:22:19.915][5581][error][envoy_bug] [source/common/network/socket_interface_impl.cc:89] envoy bug failure: false. Details: socket(2) failed, got e
+[2026-11-07 12:22:19.916][5581][critical][backtrace] [./source/server/backtrace.h:129] Caught Segmentation fault, suspect faulting address 0x0
+[2026-11-07 12:22:21.494][5613][info][main] [source/server/server.cc:1001] starting main dispatch loop
+[2026-11-07 12:22:25.043][5638][error][envoy_bug] [source/common/network/socket_interface_impl.cc:89] envoy bug failure: false. Details: socket(2) failed, got e
+[2026-11-07 12:22:25.043][5638][critical][backtrace] [./source/server/backtrace.h:129] Caught Segmentation fault, suspect faulting address 0x0
+[2026-11-07 12:22:26.554][5654][info][main] [source/server/server.cc:1001] starting main dispatch loop
+[2026-11-07 12:22:30.087][5677][error][envoy_bug] [source/common/network/socket_interface_impl.cc:89] envoy bug failure: false. Details: socket(2) failed, got e
+[2026-11-07 12:22:30.088][5677][critical][backtrace] [./source/server/backtrace.h:129] Caught Segmentation fault, suspect faulting address 0x0
+[2026-11-07 12:22:31.651][5695][info][main] [source/server/server.cc:1001] starting main dispatch loop

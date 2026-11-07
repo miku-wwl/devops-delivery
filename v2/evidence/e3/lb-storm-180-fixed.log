@@ -1,0 +1,27 @@
+# transcript: E3: the same 180 iterations/s run after raising the load balancer open-file limit
+# recorded: 2026-11-07T12:26:11Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e3/lb-storm.sh lb-storm-180-fixed 180 60
+load balancer container: kindccm-7c5080a249c3 (http://172.20.0.8:8080)
+envoy pid 5695, open files now: 109
+Max open files            65536                1048576              files     
+window 2026-11-07T12:26:12Z .. 2026-11-07T12:27:32Z
+envoy crashes during the run: 0
+first events:
+k6 summary:
+rate=180/s duration=60s iterations=10607 dropped=194
+requests=17755 (295.2/s) failed=69.10%
+browse: p50=267.3 p95=3245.8 p99=5045.2 max=12091.0 ms
+order:  p50=1404.1 p95=4510.2 p99=6632.6 max=10914.0 ms
+checks: 30.90% passed
+time="2026-11-08T01:27:13+13:00" level=error msg="thresholds on metrics 'http_req_duration{kind:browse}, http_req_duration{kind:order}, http_req_failed{kind:browse}' have been crossed"
+k6 network errors: 1
+      1 error="Get \
+readiness (R = ready, - = not ready), every 2 s:
+ztunnel on ent-worker: 746 lines, 2 with error=, by error:
+      2 error="while closing connection: receive: io error: protocol error: unexpected internal error encountered"
+ztunnel on ent-worker2: 638 lines, 1 with error=, by error:
+      1 error="while closing connection: receive: io error: protocol error: unexpected internal error encountered"
+ztunnel on ent-worker3: 52 lines, 1 with error=, by error:
+      1 error="send: io error: stream error received: unexpected internal error encountered"
+
