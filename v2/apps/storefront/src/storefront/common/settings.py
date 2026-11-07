@@ -34,6 +34,7 @@ class Settings:
     db_pool_max: int = field(default_factory=lambda: _int("DB_POOL_MAX", 10))
     db_acquire_timeout_s: float = field(default_factory=lambda: _float("DB_ACQUIRE_TIMEOUT_S", 1.0))
     valkey_url: str | None = field(default_factory=lambda: os.environ.get("VALKEY_URL"))
+    valkey_timeout_s: float = field(default_factory=lambda: _float("VALKEY_TIMEOUT_S", 0.2))
     nats_url: str | None = field(default_factory=lambda: os.environ.get("NATS_URL"))
     nats_stream_replicas: int = field(default_factory=lambda: _int("NATS_STREAM_REPLICAS", 1))
     # access log: every 5xx and every slow request, plus a sample of the rest

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import math
 import os
 import random
@@ -28,6 +29,7 @@ from ..common import cache as cachelib
 from ..common.settings import Settings
 from ..common.web import create_app
 
+log = logging.getLogger(__name__)
 _KEY = re.compile(r"[A-Za-z0-9._-]{8,64}")
 Z99 = 2.3263  # standard normal quantile of 0.99
 
@@ -57,7 +59,11 @@ def build(settings: Settings, cache: Any = None, rng: random.Random | None = Non
     async def startup(app: FastAPI) -> None:
         nonlocal cache
         if cache is None:
-            cache = cachelib.connect(settings.valkey_url) if settings.valkey_url else cachelib.MemoryCache()
+            cache = (
+                cachelib.connect(settings.valkey_url, settings.valkey_timeout_s)
+                if settings.valkey_url
+                else cachelib.MemoryCache()
+            )
 
     async def shutdown(app: FastAPI) -> None:
         await cache.aclose()
@@ -119,7 +125,14 @@ def build(settings: Settings, cache: Any = None, rng: random.Random | None = Non
             charges.labels(body["status"]).inc()
             return JSONResponse(body, status_code=402 if declined else 201)
         finally:
-            await cache.delete(lock)
+            # E1 finding: a timeout on this DEL, after the result was stored, turned a completed
+            # charge into a 500 (the client's retry was then replayed - no double charge, but a
+            # needless error). The lock expires by itself, so failing to release it early is
+            # not a reason to fail the request.
+            try:
+                await cache.delete(lock)
+            except Exception:  # noqa: BLE001
+                log.warning("could not release idempotency lock; it will expire", extra={"lock": lock})
 
     @app.get("/charges/{idempotency_key}")
     async def charge_status(idempotency_key: str) -> dict[str, Any]:

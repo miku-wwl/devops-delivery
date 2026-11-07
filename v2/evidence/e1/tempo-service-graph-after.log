@@ -1,0 +1,24 @@
+# transcript: E1: service graph series after enabling the processors
+# recorded: 2026-11-07T04:27:48Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# Prometheus queried through the API server service proxy (the image has no wget/curl)
+$ q() { kubectl get --raw "/api/v1/namespaces/monitoring/services/kps-prometheus:9090/proxy/api/v1/query?query=$1"; }
+
+$ q "sum%20by%20(client%2C%20server)%20(traces_service_graph_request_total)" | jq -r ".data.result[] | \"\(.metric.client) -> \(.metric.server): \(.value[1])\"" | sort
+catalog -> catalog: 174
+catalog -> redis: 5236
+gateway -> catalog: 4468
+gateway -> orders: 965
+inventory -> inventory: 5163
+notifier -> redis: 2969
+orders -> catalog: 1040
+orders -> inventory: 801
+orders -> notifier: 784
+orders -> orders: 12922
+orders -> payments: 794
+payments -> redis: 3015
+user -> gateway: 5067
+
+$ q "count(traces_spanmetrics_calls_total)" | jq -r ".data.result[0].value[1] // \"0\""
+58
+

@@ -54,7 +54,11 @@ def build(settings: Settings, store: ProductStore | None = None, cache: Any = No
             await db.start()
             store = PgProductStore(db)
         if cache is None:
-            cache = cachelib.connect(settings.valkey_url) if settings.valkey_url else cachelib.MemoryCache()
+            cache = (
+                cachelib.connect(settings.valkey_url, settings.valkey_timeout_s)
+                if settings.valkey_url
+                else cachelib.MemoryCache()
+            )
 
     async def shutdown(app: FastAPI) -> None:
         if db:

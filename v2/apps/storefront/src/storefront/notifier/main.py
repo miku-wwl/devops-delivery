@@ -119,7 +119,11 @@ def build(settings: Settings, cache: Any = None) -> FastAPI:
     async def startup(app: FastAPI) -> None:
         nonlocal nc, worker, cache
         if cache is None:
-            cache = cachelib.connect(settings.valkey_url) if settings.valkey_url else cachelib.MemoryCache()
+            cache = (
+                cachelib.connect(settings.valkey_url, settings.valkey_timeout_s)
+                if settings.valkey_url
+                else cachelib.MemoryCache()
+            )
         worker = Worker(cache, app.state.metrics.registry, work_ms, concurrency)
         app.state.worker = worker
         if settings.nats_url:

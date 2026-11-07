@@ -94,7 +94,7 @@ data:
        "targets": [
         {
          "refId": "A",
-         "expr": "sum by (service) (rate(http_server_requests_total{namespace=~\"storefront.*\",code=~\"5..\"}[1m])) / sum by (service) (rate(http_server_requests_total{namespace=~\"storefront.*\"}[1m]))",
+         "expr": "(sum by (service) (rate(http_server_requests_total{namespace=~\"storefront.*\",code=~\"5..\"}[1m])) or sum by (service) (rate(http_server_requests_total{namespace=~\"storefront.*\"}[1m])) * 0) / sum by (service) (rate(http_server_requests_total{namespace=~\"storefront.*\"}[1m]))",
          "legendFormat": "{{service}}"
         }
        ]

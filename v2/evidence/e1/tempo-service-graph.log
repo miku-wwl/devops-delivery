@@ -1,0 +1,45 @@
+# transcript: E1: the empty service graph and its fix
+# recorded: 2026-11-07T04:25:15Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ q() { kubectl -n monitoring exec prometheus-kps-prometheus-0 -c prometheus -- wget -qO- "http://localhost:9090/api/v1/query?query=$1" | jq -r ".data.result[] | \"\(.metric.client // .metric.service // \"-\") -> \(.metric.server // \"-\"): \(.value[1])\""; }
+
+# Before: the generator runs, but its processors are not enabled (overrides.defaults is {})
+$ kubectl -n observability get cm tempo -o jsonpath="{.data.tempo\.yaml}" | grep -A2 "^overrides:"
+overrides:
+      defaults: {}
+      per_tenant_override_config: /conf/overrides.yaml
+
+$ q "count(traces_service_graph_request_total)"
+error: Internal error occurred: Internal error occurred: error executing command in container: failed to exec in container: failed to start exec "15d74657b4e56b76ffda2384901668fe4c5c2202840dce197ae053e901650955": OCI runtime exec failed: exec failed: unable to start container process: exec: "wget": executable file not found in $PATH
+[exit 1]
+
+$ TAG=$(git log -1 --format=%h -- v2/apps/storefront); bash v2/platform/bootstrap/publish-gitops.sh "$TAG" "tempo: enable service-graphs and span-metrics processors"
+platform-gitops: pushed 4256543 (tempo: enable service-graphs and span-metrics processors)
+
+$ kubectl -n argocd annotate application tempo argocd.argoproj.io/refresh=normal --overwrite >/dev/null
+
+$ for i in $(seq 60); do kubectl -n observability get cm tempo -o jsonpath="{.data.tempo\.yaml}" | grep -q service-graphs && break; sleep 5; done; kubectl -n observability get cm tempo -o jsonpath="{.data.tempo\.yaml}" | grep -A5 "^overrides:"
+overrides:
+      defaults:
+        metrics_generator:
+          processors:
+          - service-graphs
+          - span-metrics
+
+$ kubectl -n observability rollout status statefulset/tempo --timeout=300s
+waiting for statefulset rolling update to complete 0 pods at revision tempo-79bbc598fd...
+Waiting for 1 pods to be ready...
+Waiting for 1 pods to be ready...
+Waiting for 1 pods to be ready...
+statefulset rolling update complete 1 pods at revision tempo-79bbc598fd...
+
+$ GW=$(kubectl -n storefront get svc gateway -o jsonpath="{.status.loadBalancer.ingress[0].ip}"); BASE_URL=http://$GW:8080 RATE=10 DURATION=90s taskset -c 0-3 k6 run --quiet v2/experiments/load/storefront.js | head -3
+rate=10/s duration=90s iterations=901 dropped=0
+requests=1516 (17.0/s) failed=0.00%
+browse: p50=10.7 p95=19.7 p99=45.2 max=109.9 ms
+
+# After: edges between services, request totals since the restart
+$ q "sum%20by%20(client%2C%20server)%20(traces_service_graph_request_total)"
+error: Internal error occurred: Internal error occurred: error executing command in container: failed to exec in container: failed to start exec "ea14bb9133eb3bb408b12fcd1dca4700fa12975aa4266d8720e9b91f70b2ac60": OCI runtime exec failed: exec failed: unable to start container process: exec: "wget": executable file not found in $PATH
+[exit 1]
+

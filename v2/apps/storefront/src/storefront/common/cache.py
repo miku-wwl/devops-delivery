@@ -8,10 +8,17 @@ import time
 import redis.asyncio as redis
 
 
-def connect(url: str) -> redis.Redis:
-    # Short timeouts: a slow cache must not make a request slower than having no cache.
+def connect(url: str, timeout_s: float = 0.2) -> redis.Redis:
+    """timeout_s depends on the role Valkey plays for the caller (VALKEY_TIMEOUT_S):
+    a pure cache (catalog) wants it short - a slow cache must not make a request slower than
+    having no cache; a store of record (payment idempotency, notifier dedupe) wants it long
+    enough that a brief stall is waited out instead of failing a request (E1 finding)."""
     return redis.Redis.from_url(
-        url, socket_timeout=0.2, socket_connect_timeout=0.2, decode_responses=True, health_check_interval=10
+        url,
+        socket_timeout=timeout_s,
+        socket_connect_timeout=timeout_s,
+        decode_responses=True,
+        health_check_interval=10,
     )
 
 

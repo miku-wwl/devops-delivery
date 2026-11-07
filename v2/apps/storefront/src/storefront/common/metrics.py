@@ -16,7 +16,30 @@ from prometheus_client import (
     ProcessCollector,
 )
 
-LATENCY_BUCKETS = (0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0, 30.0)
+# Bucket boundaries decide how precise a percentile estimate can be: histogram_quantile
+# interpolates linearly inside a bucket. E1 showed both failure modes: a p95 of exactly
+# 4.75 ms for pool waits that take microseconds (everything in the first 0-5 ms bucket gives
+# 0.95 x 5 ms), and a payments p95 of 216 ms from the wide 100-250 ms bucket.
+LATENCY_BUCKETS = (
+    0.005,
+    0.01,
+    0.02,
+    0.03,
+    0.05,
+    0.075,
+    0.1,
+    0.15,
+    0.2,
+    0.3,
+    0.5,
+    0.75,
+    1.0,
+    2.0,
+    5.0,
+    10.0,
+    30.0,
+)
+WAIT_BUCKETS = (0.0001, 0.00025, 0.0005, 0.001, 0.0025, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5)
 
 
 class Metrics:
@@ -73,7 +96,7 @@ class Metrics:
         self.db_acquire = Histogram(
             "db_pool_acquire_seconds",
             "Time spent waiting for a database connection.",
-            buckets=LATENCY_BUCKETS,
+            buckets=WAIT_BUCKETS,
             registry=r,
         )
         self.db_acquire_timeouts = Counter(

@@ -39,7 +39,7 @@ data:
         "x": 0,
         "y": 0,
         "w": 24,
-        "h": 11
+        "h": 16
        },
        "datasource": {
         "type": "tempo",
@@ -61,7 +61,7 @@ data:
        "title": "Trace ${trace_id}",
        "gridPos": {
         "x": 0,
-        "y": 11,
+        "y": 16,
         "w": 24,
         "h": 22
        },

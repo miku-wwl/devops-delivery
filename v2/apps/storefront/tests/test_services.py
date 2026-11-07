@@ -180,6 +180,26 @@ async def test_payments_is_idempotent_and_refuses_a_concurrent_duplicate():
         assert (await c.post("/charges", json=body, headers={"Idempotency-Key": "short"})).status_code == 400
 
 
+async def test_a_failed_lock_release_does_not_fail_a_completed_charge():
+    """Regression (E1): a Valkey timeout on the lock DEL, after the result was stored, made a
+    completed charge answer 500."""
+
+    class SlowDelete(MemoryCache):
+        async def delete(self, *keys):
+            raise TimeoutError("valkey read timed out")
+
+    cache = SlowDelete()
+    app = build_payments(Settings(service="payments"), cache=cache, rng=random.Random(3))
+    app.state.psp = QUICK_PSP
+    body = {"order_id": str(uuid.uuid4()), "amount_cents": 1000}
+    async with running(app) as c:
+        r = await c.post("/charges", json=body, headers={"Idempotency-Key": "key-00000009"})
+        assert r.status_code == 201
+        again = await c.post("/charges", json=body, headers={"Idempotency-Key": "key-00000009"})
+        assert again.headers["Idempotent-Replayed"] == "true"
+        assert again.json()["charge_id"] == r.json()["charge_id"]
+
+
 def test_payment_latency_model_has_the_configured_median_and_p99():
     rng = random.Random(42)
     psp = PspBehaviour(latency_p50_ms=40, latency_p99_ms=250)

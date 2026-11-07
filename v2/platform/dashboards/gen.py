@@ -33,9 +33,12 @@ def storefront() -> dict:
     p.append(panel("Requests per second by service",
                    [(f"sum by (service) (rate(http_server_requests_total{{{NS}}}[1m]))", "{{service}}")],
                    "reqps", 0, y))
+    # "or ... * 0": a service without any 5xx has no 5xx series at all; without the fallback
+    # the panel shows "No data" instead of 0 (an absent series is not a zero)
+    total = f"sum by (service) (rate(http_server_requests_total{{{NS}}}[1m]))"
     p.append(panel("5xx ratio by service",
-                   [(f'sum by (service) (rate(http_server_requests_total{{{NS},code=~"5.."}}[1m])) / '
-                     f"sum by (service) (rate(http_server_requests_total{{{NS}}}[1m]))", "{{service}}")],
+                   [(f'(sum by (service) (rate(http_server_requests_total{{{NS},code=~"5.."}}[1m])) '
+                     f"or {total} * 0) / {total}", "{{service}}")],
                    "percentunit", 12, y))
     y += 8
     p.append(panel("p95 latency by service",
@@ -92,10 +95,10 @@ def traces() -> dict:
         "templating": {"list": [{"name": "trace_id", "type": "textbox", "label": "Trace ID", "query": ""}]},
         "panels": [
             {"type": "nodeGraph", "title": "Service graph (Tempo metrics generator)",
-             "gridPos": {"x": 0, "y": 0, "w": 24, "h": 11}, "datasource": tempo,
+             "gridPos": {"x": 0, "y": 0, "w": 24, "h": 16}, "datasource": tempo,
              "targets": [{"refId": "A", "datasource": tempo, "queryType": "serviceMap"}]},
             {"type": "traces", "title": "Trace ${trace_id}",
-             "gridPos": {"x": 0, "y": 11, "w": 24, "h": 22}, "datasource": tempo,
+             "gridPos": {"x": 0, "y": 16, "w": 24, "h": 22}, "datasource": tempo,
              "targets": [{"refId": "A", "datasource": tempo, "queryType": "traceql", "query": "${trace_id}"}]},
         ],
     }
