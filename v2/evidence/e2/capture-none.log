@@ -1,0 +1,23 @@
+# transcript: E2: on the wire without a mesh
+# recorded: 2026-11-07T07:34:04Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e2/capture.sh none
+== packets on ent-worker eth0 by destination port (10 s)
+  501 packets to port 8080
+== plaintext HTTP request lines visible on the wire
+      4 GET /api/products/sku-001 HTTP/1.1
+      2 GET /api/products/sku-002 HTTP/1.1
+      6 GET /api/products/sku-003 HTTP/1.1
+      4 GET /api/products/sku-005 HTTP/1.1
+      2 GET /api/products/sku-006 HTTP/1.1
+      2 GET /api/products/sku-007 HTTP/1.1
+      4 GET /api/products/sku-008 HTTP/1.1
+      6 GET /api/products/sku-009 HTTP/1.1
+== readable header fields (X-Request-ID, Idempotency-Key)
+X-Request-ID: 8f63510f3a444ea4a2602bdeaf02fe0e
+x-request-id: 8f63510f3a444ea4a2602bdeaf02fe0e
+Idempotency-Key: capture-none-6-21613
+X-Request-ID: b0b6ac2f01fb4d53b3d783f6d0208a9d
+== TLS on port 15008? (record type 0x16 handshake / 0x17 application data in the payload)
+  lines containing HTTP/1.1: 428
+

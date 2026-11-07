@@ -1,0 +1,11 @@
+# The storefront namespace, managed in Git for its labels. Delete=false: removing this file or
+# the Application must never delete the namespace (and every workload in it).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: storefront
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
+  labels:
+    # E2: every pod in the namespace joins the ambient mesh (ztunnel: mTLS, L4 policy)
+    istio.io/dataplane-mode: ambient
