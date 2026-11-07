@@ -1,0 +1,107 @@
+# Istio 1.31.4 in ambient mode (no sidecars): Gateway API CRDs v1.6.3 (the version Istio 1.31 is
+# built with), base CRDs, istiod, the CNI node agent and the ztunnel node proxy.
+# 1.31.4 rather than the older 1.31.3: it fixes GHSA-rr2c-p22p-6r9r (High), a port-level STRICT
+# PeerAuthentication that could be skipped in ambient mode - exactly what chapter 3 relies on.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gateway-api-crds
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-6"}
+spec:
+  project: platform
+  source:
+    repoURL: http://gitlab:8929/root/platform-gitops.git
+    targetRevision: main
+    path: platform/manifests/gateway-api
+  destination: {server: "https://kubernetes.default.svc"}
+  syncPolicy:
+    automated: {prune: false, selfHeal: true}
+    syncOptions: [ServerSideApply=true]
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: istio-base
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-6"}
+spec:
+  project: platform
+  source:
+    repoURL: https://blob.istio.io/istio-release/charts
+    chart: base
+    targetRevision: 1.31.4
+    helm: {releaseName: istio-base}
+  destination: {server: "https://kubernetes.default.svc", namespace: istio-system}
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    syncOptions: [CreateNamespace=true, ServerSideApply=true]
+  # istiod rewrites failurePolicy of its validating webhook once it is ready
+  ignoreDifferences:
+    - group: admissionregistration.k8s.io
+      kind: ValidatingWebhookConfiguration
+      jqPathExpressions: [".webhooks[]?.failurePolicy", ".webhooks[]?.clientConfig.caBundle"]
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: istiod
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-5"}
+spec:
+  project: platform
+  sources:
+    - repoURL: https://blob.istio.io/istio-release/charts
+      chart: istiod
+      targetRevision: 1.31.4
+      helm: {releaseName: istiod, valueFiles: [$values/platform/values/istiod.yaml]}
+    - {repoURL: "http://gitlab:8929/root/platform-gitops.git", targetRevision: main, ref: values}
+  destination: {server: "https://kubernetes.default.svc", namespace: istio-system}
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    syncOptions: [CreateNamespace=true, RespectIgnoreDifferences=true]
+  ignoreDifferences:
+    - group: admissionregistration.k8s.io
+      kind: ValidatingWebhookConfiguration
+      jqPathExpressions: [".webhooks[]?.failurePolicy", ".webhooks[]?.clientConfig.caBundle"]
+    - group: admissionregistration.k8s.io
+      kind: MutatingWebhookConfiguration
+      jqPathExpressions: [".webhooks[]?.clientConfig.caBundle"]
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: istio-cni
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-5"}
+spec:
+  project: platform
+  sources:
+    - repoURL: https://blob.istio.io/istio-release/charts
+      chart: cni
+      targetRevision: 1.31.4
+      helm: {releaseName: istio-cni, valueFiles: [$values/platform/values/istio-cni.yaml]}
+    - {repoURL: "http://gitlab:8929/root/platform-gitops.git", targetRevision: main, ref: values}
+  destination: {server: "https://kubernetes.default.svc", namespace: istio-system}
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    syncOptions: [CreateNamespace=true]
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ztunnel
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-4"}
+spec:
+  project: platform
+  sources:
+    - repoURL: https://blob.istio.io/istio-release/charts
+      chart: ztunnel
+      targetRevision: 1.31.4
+      helm: {releaseName: ztunnel, valueFiles: [$values/platform/values/ztunnel.yaml]}
+    - {repoURL: "http://gitlab:8929/root/platform-gitops.git", targetRevision: main, ref: values}
+  destination: {server: "https://kubernetes.default.svc", namespace: istio-system}
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    syncOptions: [CreateNamespace=true]

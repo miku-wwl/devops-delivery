@@ -1,0 +1,6 @@
+# istio/istiod 1.31.4, ambient profile. Chart defaults (500m CPU, 2 GiB, autoscaling 1-5) are
+# sized for large clusters; requests here are a first guess, corrected from measurements (chapter 3).
+profile: ambient
+autoscaleEnabled: false
+replicaCount: 1
+resources: {requests: {cpu: 50m, memory: 160Mi}, limits: {memory: 512Mi}}

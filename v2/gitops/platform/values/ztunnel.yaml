@@ -1,0 +1,4 @@
+# istio/ztunnel 1.31.4: the per-node L4 proxy (mTLS, HBONE). Default request 200m/512Mi on every
+# node - 19 % of a worker's allocatable memory here - and it runs as system-node-critical, so an
+# oversized request would preempt application pods rather than stay pending.
+resources: {requests: {cpu: 20m, memory: 48Mi}, limits: {memory: 256Mi}}

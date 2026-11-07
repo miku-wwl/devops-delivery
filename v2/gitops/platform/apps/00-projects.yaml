@@ -16,6 +16,7 @@ spec:
     - https://open-telemetry.github.io/opentelemetry-helm-charts
     - https://cloudnative-pg.github.io/charts
     - https://nats-io.github.io/k8s/helm/charts
+    - https://blob.istio.io/istio-release/charts
   destinations:
     - {server: https://kubernetes.default.svc, namespace: "*"}
   clusterResourceWhitelist:
