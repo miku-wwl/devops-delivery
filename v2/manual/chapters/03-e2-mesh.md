@@ -167,6 +167,8 @@ gateway-5476f9c8fb-rh4wf       10.240.1.1                               11
 - **waypoint 让所有服务回到接近 50/50。**L7 模式下的连接普查显示，每个后端 Pod 的对端都只剩下 waypoint（每个后端 2–4 条连接）：客户端的长连接终止在 waypoint 上，waypoint 为每个请求重新选择后端。
 - gateway 在三种模式下都比较均匀，因为它的调用方是 k6 的大量连接（经负载均衡器），连接数多，随机分配本身就接近均匀。这与 $k$ 越大越均匀的推论一致。
 
+![orders、inventory、payments 每个 Pod 的每秒请求数，07:15–08:20 UTC。08:03 之前（无网格与 ambient L4）每个服务都是一条线高、一条线贴近零；08:03 部署 waypoint 后新的 Pod 上两条线基本重合；08:07–08:18 是 L4 与 L7 的交替实验，L4 阶段两条线又会分开（Grafana 截图，看板 storefront-balance）](../../evidence/e2/grafana-balance.png)
+
 这满足了本章的验收标准：有网格（L7）时，长连接上的请求均匀分布。
 
 ## 实验 3：网格的代价，以及如何测准它 {#e2-cost}
@@ -300,6 +302,8 @@ waypoint 让浏览 p50 增加约 1.3 ms（一次 Envoy 转发），下单 p50 �
    1060.3 ms     44.5 ms    gateway   CLIENT   POST                      ← gateway 的重试（同一个幂等键）
    1098.9 ms      2.4 ms        orders    CLIENT   SELECT ... FROM orders ...       ← 重放：返回当时的 PENDING 订单
 ```
+
+![这笔订单的链路：Grafana 把 orders 对 payments 的调用（1.04 s，占整条链路的 78.5%）标为关键路径，gateway 的第一次尝试与 orders 的处理都带有错误标记；概览中段的大片空白就是 payments 的停顿（Grafana 截图）](../../evidence/e2/grafana-trace-charged-but-failed.png)
 
 **时间线。**payments 收到请求后约 917 ms 没有任何动作（原因见下一节），然后才处理并保存了“扣款成功”。orders 等不了那么久：它对 payments 的单次尝试超时是 1 秒，超时后带着同一个幂等键重试，payments 发现这个键的锁还被第一次请求持有，返回 409；orders 把 409 当作“结果不明”，释放了库存，把订单标为 FAILED。与此同时，gateway 对 orders 的单次尝试也超时了，它的重试被 orders 当作重复请求，“重放”了数据库中当时的状态：PENDING，状态码 200。k6 只接受 201 和 402，所以记了一次失败。
 
