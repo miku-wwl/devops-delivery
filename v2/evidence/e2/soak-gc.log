@@ -1,0 +1,33 @@
+# transcript: E2: garbage-collection pauses during the soak (python_gc_pause_seconds)
+# recorded: 2026-11-07T08:46:14Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ q() { kubectl get --raw "/api/v1/namespaces/monitoring/services/kps-prometheus:9090/proxy/api/v1/query?time=2026-11-07T08:45:45Z&query=$(jq -rn --arg s "$1" "\$s|@uri")"; }
+
+$ q "sum by (service, generation) (increase(python_gc_pause_seconds_count{namespace=\"storefront\"}[15m]))" | jq -r ".data.result[] | \"collections  \(.metric.service) gen\(.metric.generation): \(.value[1] | tonumber | round)\"" | sort
+collections  catalog gen0: 906
+collections  catalog gen1: 81
+collections  catalog gen2: 6
+collections  gateway gen0: 1380
+collections  gateway gen1: 126
+collections  gateway gen2: 10
+collections  inventory gen0: 275
+collections  inventory gen1: 22
+collections  inventory gen2: 0
+collections  notifier gen0: 36
+collections  notifier gen1: 2
+collections  orders gen0: 923
+collections  orders gen1: 84
+collections  orders gen2: 6
+collections  payments gen0: 235
+collections  payments gen1: 19
+collections  payments gen2: 0
+
+$ q "sum by (service) (increase(python_gc_pause_seconds_count{namespace=\"storefront\",generation=\"2\"}[15m]) - increase(python_gc_pause_seconds_bucket{namespace=\"storefront\",generation=\"2\",le=\"0.1\"}[15m]))" | jq -r ".data.result[] | \"gen2 longer than 100 ms: \(.metric.service) \(.value[1] | tonumber | round)\"" | sort
+
+$ q "sum by (service) (increase(python_gc_pause_seconds_sum{namespace=\"storefront\",generation=\"2\"}[15m])) / sum by (service) (increase(python_gc_pause_seconds_count{namespace=\"storefront\",generation=\"2\"}[15m]))" | jq -r ".data.result[] | \"gen2 mean pause: \(.metric.service) \(.value[1] | tonumber * 1000 | round) ms\"" | sort
+gen2 mean pause: catalog 91 ms
+gen2 mean pause: gateway 92 ms
+gen2 mean pause: inventory null ms
+gen2 mean pause: orders 92 ms
+gen2 mean pause: payments null ms
+

@@ -8,7 +8,7 @@ Exit code 0 only if every check below finds nothing; any problem in any check gi
 
 Checks:
   1. every image referenced by a chapter exists
-  2. every evidence path (evidence/pN/...) and every bare *.log / *.png name quoted in the
+  2. every evidence path (evidence/pN/... or, in volume 2, evidence/eN/...) and every bare *.log / *.png name quoted in the
      chapters, experiment records, RCAs and STATUS exists under evidence/
   3. every GitHub run ID quoted in the chapters appears in some evidence file
   4. every image digest quoted in the chapters appears in the evidence or the sources
@@ -16,6 +16,9 @@ Checks:
   6. no credential-like strings in chapters, docs or evidence
   7. each chapter's exercise count matches its answers in manual/appendix-src/answers.md
   8. spot checks: key numbers in the text are found verbatim in the named evidence file
+     (the list below; a root that has manual/spot-checks.json - volume 2 - uses that file instead)
+
+Volume 2 lives in v2/ with the same layout: verify_evidence.py --root v2
 """
 from __future__ import annotations
 
@@ -135,7 +138,7 @@ def main() -> int:
     missing = []
     n_paths = 0
     for name, text in {**chapters, **docs}.items():
-        for ref in sorted(set(re.findall(r"evidence/p\d+/[A-Za-z0-9._*\-]+", text))):
+        for ref in sorted(set(re.findall(r"evidence/[pe]\d+/[A-Za-z0-9._*\-]+", text))):
             n_paths += 1
             if "*" in ref:
                 if not list(ROOT.glob(ref)):
@@ -227,14 +230,16 @@ def main() -> int:
 
     # 8. spot checks
     failed = []
-    for claim, chap, chap_text, ev_file, ev_snippet in SPOT_CHECKS:
+    spot_file = ROOT / "manual" / "spot-checks.json"
+    spot_checks = [tuple(s) for s in json.loads(read(spot_file))] if spot_file.exists() else SPOT_CHECKS
+    for claim, chap, chap_text, ev_file, ev_snippet in spot_checks:
         in_text = chap_text in chapters.get(chap, "")
         ev_path = ROOT / ev_file
         in_ev = ev_path.exists() and ev_snippet in read(ev_path)
         if not (in_text and in_ev):
             failed.append(f"{claim}: text={'ok' if in_text else 'MISSING'} evidence={'ok' if in_ev else 'MISSING'} ({ev_file})")
     results["8 spot checks"] = failed
-    counts["spot checks"] = len(SPOT_CHECKS)
+    counts["spot checks"] = len(spot_checks)
 
     failed_checks = [k for k, problems in results.items() if problems]
     lines = ["# 证据核验报告", "", "| 检查 | 数量 | 问题 |", "|---|---|---|"]

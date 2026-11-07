@@ -104,6 +104,19 @@ def traces() -> dict:
     }
 
 
+def balance() -> dict:
+    """Requests per second per pod for the services with two replicas: shows L4 imbalance and the
+    effect of the waypoint (chapter 3)."""
+    p = []
+    for i, svc in enumerate(("orders", "inventory", "payments")):
+        p.append(panel(f"{svc}: requests per second per pod",
+                       [(f'sum by (pod) (rate(http_server_requests_total{{{NS},service="{svc}"}}[1m]))', "{{pod}}")],
+                       "reqps", 0, i * 8, w=24, h=8))
+    return {"uid": "storefront-balance", "title": "Storefront: load per replica",
+            "tags": ["storefront", "v2"], "timezone": "utc", "schemaVersion": 39,
+            "time": {"from": "now-1h", "to": "now"}, "panels": p}
+
+
 def configmap(name: str, dashboard: dict) -> str:
     body = json.dumps(dashboard, indent=1)
     indented = "\n".join("    " + line for line in body.splitlines())
@@ -114,6 +127,6 @@ def configmap(name: str, dashboard: dict) -> str:
 
 if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)
-    for name, build in (("storefront", storefront), ("storefront-traces", traces)):
+    for name, build in (("storefront", storefront), ("storefront-traces", traces), ("storefront-balance", balance)):
         (OUT / f"{name}.yaml").write_text(configmap(name, build()), encoding="utf-8", newline="\n")
         print(f"wrote {OUT / f'{name}.yaml'}")

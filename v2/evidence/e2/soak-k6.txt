@@ -1,0 +1,7 @@
+soak start 2026-11-07T08:30:41Z
+rate=20/s duration=15m iterations=18001 dropped=0
+requests=30588 (34.0/s) failed=0.00%
+browse: p50=14.3 p95=26.7 p99=44.9 max=264.9 ms
+order:  p50=131.8 p95=252.4 p99=359.0 max=701.8 ms
+checks: 100.00% passed
+soak end 2026-11-07T08:45:42Z
