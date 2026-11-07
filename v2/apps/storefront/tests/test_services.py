@@ -149,6 +149,26 @@ async def test_operational_endpoints_and_injected_faults():
         assert metric(app, "http_server_requests_total", {**labels, "route": "/healthz"}) == 0
 
 
+async def test_an_unhandled_error_is_counted_as_500_and_keeps_the_request_id():
+    # the middleware is plain ASGI since E3; an exception passes through it to Starlette's
+    # error handler (500), and must still be counted - it used to be silently skipped
+    app = build_catalog(Settings(service="catalog"), store=FakeProducts(), cache=MemoryCache())
+
+    @app.get("/boom")
+    async def boom() -> None:
+        raise RuntimeError("boom")
+
+    async with app.router.lifespan_context(app):
+        transport = httpx.ASGITransport(app=app, raise_app_exceptions=False)
+        async with httpx.AsyncClient(transport=transport, base_url="http://test") as c:
+            assert (await c.get("/boom")).status_code == 500
+            ok = await c.get("/healthz", headers={"X-Request-ID": "abc-123"})
+            assert ok.headers["X-Request-ID"] == "abc-123"  # operational responses carry it too
+    labels = {"method": "GET", "route": "/boom", "code": "500"}
+    assert metric(app, "http_server_requests_total", labels) == 1
+    assert metric(app, "http_server_inflight_requests") == 0
+
+
 async def test_catalog_cache_aside_and_degrades_when_the_cache_fails():
     app = build_catalog(Settings(service="catalog"), store=FakeProducts(), cache=MemoryCache())
     async with running(app) as c:

@@ -4,8 +4,8 @@
   /readyz    readiness: startup finished, not draining, own readiness checks pass
   /metrics   Prometheus text format
   /admin/faults  GET/PUT the injected fault ([注入]: latency, error rate, status code)
-Middleware: request ID and deadline, RED metrics by route template, sampled access log,
-fault injection. UpstreamError and pool timeouts become 502/503/504 with a JSON body.
+Middleware (plain ASGI): request ID and deadline, RED metrics by route template, sampled access
+log, fault injection. UpstreamError and pool timeouts become 502/503/504 with a JSON body.
 """
 
 from __future__ import annotations
@@ -22,7 +22,9 @@ from fastapi import FastAPI, Request, Response
 from fastapi.responses import JSONResponse
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from pydantic import BaseModel, Field
+from starlette.datastructures import Headers
 from starlette.routing import Match
+from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from . import context
 from .db import PoolTimeoutError
@@ -56,16 +58,89 @@ class Faults(BaseModel):
     status: int = Field(500, ge=500, le=599)
 
 
-def route_template(app: FastAPI, request: Request) -> str:
+def route_template(app: FastAPI, scope: Scope) -> str:
     """The route's path template ("/orders/{order_id}"), never the raw path: raw paths would
     create one time series per order id. Also correct when a fault answered before routing."""
-    route = request.scope.get("route")
+    route = scope.get("route")
     if route is not None:
         return route.path
     for r in app.router.routes:
-        if r.matches(request.scope)[0] is Match.FULL:
+        if r.matches(scope)[0] is Match.FULL:
             return getattr(r, "path", "unmatched")
     return "unmatched"
+
+
+class Observe:
+    """Request ID and deadline, in-flight gauge, injected faults, RED metrics, access log.
+
+    A plain ASGI middleware. It was an @app.middleware("http") function until E3: Starlette runs
+    such a middleware's downstream app in an extra task with in-memory streams, which cost about
+    6 % of the gateway's CPU in the profile (chapter 4). Behaviour is unchanged: operational
+    paths are neither counted nor faulted, and every response carries the request ID.
+    """
+
+    def __init__(self, app: ASGIApp, *, owner: FastAPI, settings: Settings, metrics: Metrics) -> None:
+        self.app, self.owner, self.settings, self.metrics = app, owner, settings, metrics
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+        headers = Headers(scope=scope)
+        rid = context.request_id_from(headers.get(context.REQUEST_ID_HEADER))
+        context.set_request(rid, context.deadline_from(headers.get(context.DEADLINE_HEADER)))
+        rid_header = (context.REQUEST_ID_HEADER.lower().encode("latin-1"), rid.encode("latin-1"))
+        status: int | None = None
+
+        async def send_with_id(message: Message) -> None:
+            nonlocal status
+            if message["type"] == "http.response.start":
+                status = message["status"]
+                message["headers"] = [*message.get("headers", ()), rid_header]
+            await send(message)
+
+        # operational requests are not counted: a scrape of /metrics would otherwise always see
+        # itself in flight (E3 found the gauge never below 1 - useless for Little's law)
+        if scope["path"].startswith(OPERATIONAL):
+            await self.app(scope, receive, send_with_id)
+            return
+        metrics, started = self.metrics, time.perf_counter()
+        metrics.inflight.inc()
+        try:
+            faults: Faults = self.owner.state.faults
+            if faults.latency_ms:
+                await asyncio.sleep(faults.latency_ms / 1000)
+            if faults.error_rate and random.random() < faults.error_rate:  # noqa: S311
+                fault = JSONResponse({"error": "injected fault"}, status_code=faults.status)
+                await fault(scope, receive, send_with_id)
+            else:
+                await self.app(scope, receive, send_with_id)
+        except Exception:
+            status = status or 500  # the server's error handler answers 500 if nothing was sent
+            raise
+        finally:
+            metrics.inflight.dec()
+            if status is not None:
+                self._record(scope, status, time.perf_counter() - started)
+
+    def _record(self, scope: Scope, status: int, elapsed: float) -> None:
+        method, template = scope["method"], route_template(self.owner, scope)
+        self.metrics.requests.labels(method, template, str(status)).inc()
+        self.metrics.duration.labels(method, template).observe(elapsed)
+        sampled = random.random() < self.settings.access_log_sample  # noqa: S311 - not security
+        if status >= 500 or elapsed * 1000 >= self.settings.slow_request_ms or sampled:
+            log.info(
+                "%s %s %s",
+                method,
+                template,
+                status,
+                extra={
+                    "method": method,
+                    "route": template,
+                    "status": status,
+                    "duration_ms": round(elapsed * 1000, 1),
+                },
+            )
 
 
 def create_app(
@@ -107,48 +182,7 @@ def create_app(
     )
     app.state.faults = Faults(latency_ms=settings.fault_latency_ms, error_rate=settings.fault_error_rate)
 
-    @app.middleware("http")
-    async def observe(request: Request, call_next: Callable) -> Response:
-        rid = context.request_id_from(request.headers.get(context.REQUEST_ID_HEADER))
-        context.set_request(rid, context.deadline_from(request.headers.get(context.DEADLINE_HEADER)))
-        operational = request.url.path.startswith(OPERATIONAL)
-        started = time.perf_counter()
-        # operational requests are not counted: a scrape of /metrics would otherwise always see
-        # itself in flight (E3 found the gauge never below 1 - useless for Little's law)
-        if not operational:
-            metrics.inflight.inc()
-        try:
-            faults: Faults = app.state.faults
-            if not operational and faults.latency_ms:
-                await asyncio.sleep(faults.latency_ms / 1000)
-            if not operational and faults.error_rate and random.random() < faults.error_rate:  # noqa: S311
-                response: Response = JSONResponse({"error": "injected fault"}, status_code=faults.status)
-            else:
-                response = await call_next(request)
-        finally:
-            if not operational:
-                metrics.inflight.dec()
-        elapsed = time.perf_counter() - started
-        template = route_template(app, request)
-        if not operational:
-            metrics.requests.labels(request.method, template, str(response.status_code)).inc()
-            metrics.duration.labels(request.method, template).observe(elapsed)
-            sampled = random.random() < settings.access_log_sample  # noqa: S311 - not security
-            if response.status_code >= 500 or elapsed * 1000 >= settings.slow_request_ms or sampled:
-                log.info(
-                    "%s %s %s",
-                    request.method,
-                    template,
-                    response.status_code,
-                    extra={
-                        "method": request.method,
-                        "route": template,
-                        "status": response.status_code,
-                        "duration_ms": round(elapsed * 1000, 1),
-                    },
-                )
-        response.headers[context.REQUEST_ID_HEADER] = rid
-        return response
+    app.add_middleware(Observe, owner=app, settings=settings, metrics=metrics)
 
     @app.exception_handler(UpstreamError)
     async def upstream_failed(request: Request, exc: UpstreamError) -> JSONResponse:
