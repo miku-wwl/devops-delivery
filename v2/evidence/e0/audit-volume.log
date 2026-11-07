@@ -1,0 +1,43 @@
+# transcript: E0: what the audit policy records
+# recorded: 2026-11-07T03:14:30Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ sudo ls -l /home/devops/ent-data/audit-log/
+total 1204
+-rw------- 1 root root 1231996 Nov  7 16:13 audit.log
+
+$ sudo head -1 /home/devops/ent-data/audit-log/audit.log | jq -r .stageTimestamp
+2026-11-07T03:06:29.391168Z
+
+$ sudo tail -1 /home/devops/ent-data/audit-log/audit.log | jq -r .stageTimestamp
+2026-11-07T03:13:56.493029Z
+
+$ sudo cat /home/devops/ent-data/audit-log/audit.log | jq -r .level | sort | uniq -c
+   1003 Metadata
+     44 Request
+     30 RequestResponse
+
+# top sources: level, user, verb, resource
+$ sudo cat /home/devops/ent-data/audit-log/audit.log | jq -r "[.level, .user.username, .verb, (.objectRef.resource // .requestURI)] | @tsv" | sort | uniq -c | sort -rn | head -12
+     73 Metadata	system:apiserver	create	clusterroles
+     58 Metadata	system:kube-controller-manager	create	serviceaccounts
+     54 Metadata	system:apiserver	create	clusterrolebindings
+     40 Metadata	system:node:ent-control-plane	patch	pods
+     39 Metadata	system:serviceaccount:kube-system:deployment-controller	update	deployments
+     35 Metadata	kubernetes-admin	list	nodes
+     26 Metadata	system:serviceaccount:kube-system:replicaset-controller	update	replicasets
+     25 Metadata	kubernetes-admin	get	services
+     23 Metadata	system:node:ent-worker	patch	pods
+     22 Metadata	system:serviceaccount:kube-system:endpointslice-controller	update	endpointslices
+     22 Metadata	system:apiserver	create	apiservices
+     19 Metadata	system:serviceaccount:kube-system:daemon-set-controller	update	daemonsets
+
+# writes by a person carry the request body; Secrets never do
+$ sudo cat /home/devops/ent-data/audit-log/audit.log | jq -c "select(.user.username==\"kubernetes-admin\" and .verb==\"delete\" and .objectRef.resource==\"namespaces\") | {level, verb, ns: .objectRef.name, ts: .stageTimestamp, hasBody: (.requestObject != null)}" | head -3
+{"level":"Request","verb":"delete","ns":"e0-smoke","ts":"2026-11-07T03:10:46.463898Z","hasBody":true}
+{"level":"Request","verb":"delete","ns":"e0-smoke","ts":"2026-11-07T03:12:53.697227Z","hasBody":true}
+
+$ sudo cat /home/devops/ent-data/audit-log/audit.log | jq -c "select(.objectRef.resource==\"secrets\" and .verb!=\"get\") | {level, user: .user.username, verb, name: .objectRef.name, hasBody: (.requestObject != null)}" | head -3
+{"level":"Metadata","user":"kubernetes-admin","verb":"create","name":"bootstrap-token-abcdef","hasBody":false}
+{"level":"Metadata","user":"system:serviceaccount:kube-system:namespace-controller","verb":"deletecollection","name":null,"hasBody":false}
+{"level":"Metadata","user":"system:serviceaccount:kube-system:namespace-controller","verb":"deletecollection","name":null,"hasBody":false}
+

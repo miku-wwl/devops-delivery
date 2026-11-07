@@ -1,0 +1,136 @@
+# transcript: E0: details behind the chapter (LB config, CPU view, priorities)
+# recorded: 2026-11-07T03:17:34Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl apply -f v2/platform/cluster/smoke.yaml
+namespace/e0-smoke created
+deployment.apps/echo created
+service/echo created
+
+$ kubectl -n e0-smoke rollout status deploy/echo --timeout=180s
+Waiting for deployment "echo" rollout to finish: 0 of 3 updated replicas are available...
+Waiting for deployment "echo" rollout to finish: 1 of 3 updated replicas are available...
+Waiting for deployment "echo" rollout to finish: 2 of 3 updated replicas are available...
+deployment "echo" successfully rolled out
+
+$ for i in $(seq 30); do c=$(docker ps -q --filter label=io.x-k8s.cloud-provider-kind.cluster=ent); [ -n "$c" ] && docker exec $c test -s /home/envoy/lds.yaml && break; sleep 2; done; echo "LB container: $(docker ps --filter label=io.x-k8s.cloud-provider-kind.cluster=ent --format "{{.Names}} {{.Image}}")"
+LB container: kindccm-0f9d7d0e847e envoyproxy/envoy:v1.33.2
+
+$ docker exec $(docker ps -q --filter label=io.x-k8s.cloud-provider-kind.cluster=ent) cat /home/envoy/lds.yaml
+
+resources:
+- "@type": type.googleapis.com/envoy.config.listener.v3.Listener
+  name: listener_IPv4_80_TCP
+  address:
+    socket_address:
+      address: 0.0.0.0
+      port_value: 80
+      protocol: TCP
+  filter_chains:
+  - filters:
+    - name: envoy.filters.network.tcp_proxy
+      typed_config:
+        "@type": type.googleapis.com/envoy.extensions.filters.network.tcp_proxy.v3.TcpProxy
+        access_log:
+        - name: envoy.file_access_log
+          typed_config:
+            "@type": type.googleapis.com/envoy.extensions.access_loggers.stream.v3.StdoutAccessLog
+        stat_prefix: tcp_proxy
+        cluster: cluster_IPv4_80_TCP
+
+$ docker exec $(docker ps -q --filter label=io.x-k8s.cloud-provider-kind.cluster=ent) cat /home/envoy/cds.yaml
+
+resources:
+- "@type": type.googleapis.com/envoy.config.cluster.v3.Cluster
+  name: cluster_IPv4_80_TCP
+  connect_timeout: 3s
+  type: STATIC
+  common_lb_config:
+    healthy_panic_threshold:
+      value: 0
+  lb_policy: RANDOM
+  health_checks:
+  - timeout: 3s
+    interval: 2s
+    unhealthy_threshold: 2
+    healthy_threshold: 1
+    initial_jitter: 0s
+    no_traffic_interval: 3s
+    always_log_health_check_failures: true
+    always_log_health_check_success: true
+    event_log_path: /dev/stdout
+    http_health_check:
+      path: /healthz
+  load_assignment:
+    cluster_name: cluster_IPv4_80_TCP
+    endpoints:
+      - lb_endpoints:
+        - endpoint:
+            health_check_config:
+              port_value: 10256
+            address:
+              socket_address:
+                address: 172.20.0.2
+                port_value: 31701
+                protocol: TCP
+      - lb_endpoints:
+        - endpoint:
+            health_check_config:
+              port_value: 10256
+            address:
+              socket_address:
+                address: 172.20.0.4
+                port_value: 31701
+                protocol: TCP
+      - lb_endpoints:
+        - endpoint:
+            health_check_config:
+              port_value: 10256
+            address:
+              socket_address:
+                address: 172.20.0.5
+                port_value: 31701
+                protocol: TCP
+
+$ kubectl get node ent-control-plane -o jsonpath="{.metadata.labels}" | jq -r "to_entries[] | select(.key | test(\"exclude|control-plane\")) | .key"
+node-role.kubernetes.io/control-plane
+node.kubernetes.io/exclude-from-external-load-balancers
+
+# what a Python program sees on a 4-CPU node (python:3.13-slim pinned to ent-worker)
+$ kubectl -n e0-smoke run py --image=python:3.13-slim --restart=Never --overrides="{\"spec\":{\"nodeName\":\"ent-worker\"}}" --command -- python -c "import os; print(\"os.cpu_count() =\", os.cpu_count()); print(\"len(os.sched_getaffinity(0)) =\", len(os.sched_getaffinity(0))); print(\"os.process_cpu_count() =\", os.process_cpu_count())"
+pod/py created
+
+$ for i in $(seq 60); do [ "$(kubectl -n e0-smoke get pod py -o jsonpath={.status.phase})" = Succeeded ] && break; sleep 2; done; kubectl -n e0-smoke logs py
+os.cpu_count() = 16
+len(os.sched_getaffinity(0)) = 4
+os.process_cpu_count() = 4
+
+# priority classes behind the oom_score_adj values
+$ kubectl -n kube-system get ds kindnet kube-proxy -o custom-columns=NAME:.metadata.name,PRIORITY:.spec.template.spec.priorityClassName
+NAME         PRIORITY
+kindnet      system-node-critical
+kube-proxy   system-node-critical
+
+$ kubectl -n kube-system get ds kube-proxy -o jsonpath="{.spec.template.spec.containers[0].command}"; echo
+["/usr/local/bin/kube-proxy","--config=/var/lib/kube-proxy/config.conf","--hostname-override=$(NODE_NAME)"]
+
+$ kubectl get cm -n kube-system kube-proxy -o jsonpath="{.data.config\.conf}" | grep -E "oomScoreAdj|^mode"
+mode: iptables
+oomScoreAdj: null
+
+# control plane kubelet: eviction-related fields as served by /configz
+$ kubectl get --raw /api/v1/nodes/ent-control-plane/proxy/configz | jq ".kubeletconfig | {evictionHard, evictionSoft, mergeDefaultEvictionSettings, evictionPressureTransitionPeriod, imageGCHighThresholdPercent}"
+{
+  "evictionHard": {
+    "imagefs.available": "0%",
+    "nodefs.available": "0%",
+    "nodefs.inodesFree": "0%"
+  },
+  "evictionSoft": null,
+  "mergeDefaultEvictionSettings": false,
+  "evictionPressureTransitionPeriod": "5m0s",
+  "imageGCHighThresholdPercent": 100
+}
+
+$ kubectl delete ns e0-smoke --wait=true
+namespace "e0-smoke" deleted
+

@@ -1,0 +1,43 @@
+# transcript: E0: the machine under the simulation
+# recorded: 2026-11-07T03:17:21Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# Windows side (PowerShell Get-CimInstance, RAM in decimal GB: 33.6 GB = 31.3 GiB)
+$ echo "$WINHOST"
+Windows host: AMD Ryzen 7 8845HS w/ Radeon 780M Graphics; cores=8; logical=16; RAM=33.6 GB
+
+$ uname -r
+6.6.114.1-microsoft-standard-WSL2
+
+$ lscpu | grep -E "Model name|Thread|Core|Socket|NUMA node0"
+Model name:                              AMD Ryzen 7 8845HS w/ Radeon 780M Graphics
+Thread(s) per core:                      2
+Core(s) per socket:                      8
+Socket(s):                               1
+NUMA node0 CPU(s):                       0-15
+
+$ lscpu -e=CPU,CORE
+CPU CORE
+  0    0
+  1    0
+  2    1
+  3    1
+  4    2
+  5    2
+  6    3
+  7    3
+  8    4
+  9    4
+ 10    5
+ 11    5
+ 12    6
+ 13    6
+ 14    7
+ 15    7
+
+$ grep -E "^(MemTotal|SwapTotal)" /proc/meminfo
+MemTotal:       16017492 kB
+SwapTotal:       4194304 kB
+
+$ docker info --format "docker {{.ServerVersion}}, cgroup {{.CgroupVersion}} ({{.CgroupDriver}}), {{.NCPU}} CPUs, {{.MemTotal}} bytes"
+docker 29.9.3, cgroup 2 (systemd), 16 CPUs, 16401911808 bytes
+
