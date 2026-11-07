@@ -1,0 +1,46 @@
+# transcript: E3: Tempo without GOMEMLIMIT is OOM-killed; smaller blocks plus a 900 MiB soft limit
+# recorded: 2026-11-07T09:21:45Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl -n observability get pod tempo-0 -o jsonpath="restarts={.status.containerStatuses[0].restartCount} last={.status.containerStatuses[0].lastState.terminated.reason} exit={.status.containerStatuses[0].lastState.terminated.exitCode}{\"\n\"}"
+restarts=5 last=OOMKilled exit=137
+
+$ kubectl -n observability logs tempo-0 --previous --tail=3 2>&1 | cut -c1-160
+level=info ts=2026-11-07T09:18:52.420256721Z caller=lifecycler.go:714 msg="instance not found in ring, adding with no tokens" ring=ingester
+level=info ts=2026-11-07T09:18:52.421011527Z caller=lifecycler.go:556 msg="auto-joining cluster after timeout" ring=ingester
+level=info ts=2026-11-07T09:18:56.355711364Z caller=flush.go:267 msg="completing block" tenant=single-tenant block=c25c22b4-5e85-4cbb-93a9-c1c2d486fc3a
+
+$ TAG=$(git log -1 --format=%h -- v2/apps/storefront); bash v2/platform/bootstrap/publish-gitops.sh "$TAG" "tempo: 100 MiB / 5 min blocks, GOMEMLIMIT 900MiB"
+platform-gitops: pushed 1c692f2 (tempo: 100 MiB / 5 min blocks, GOMEMLIMIT 900MiB)
+
+$ kubectl -n argocd annotate application tempo argocd.argoproj.io/refresh=normal --overwrite >/dev/null
+
+$ for i in $(seq 60); do kubectl -n observability get cm tempo -o jsonpath="{.data.tempo\.yaml}" | grep -q max_block_bytes && break; sleep 5; done; kubectl -n observability get cm tempo -o jsonpath="{.data.tempo\.yaml}" | grep -A3 "^ingester:"
+ingester:
+      max_block_bytes: 104857600
+      max_block_duration: 5m
+server:
+
+$ kubectl -n observability delete pod tempo-0 --wait=false
+pod "tempo-0" deleted from observability namespace
+
+$ kubectl -n observability wait --for=condition=Ready pod/tempo-0 --timeout=300s
+pod/tempo-0 condition met
+
+$ sleep 90
+
+$ m=$(kubectl get --raw /api/v1/namespaces/observability/services/tempo:3200/proxy/metrics); echo "$m" | grep -E "^go_gc_gomemlimit_bytes |^go_memstats_heap_alloc_bytes |^go_gc_duration_seconds_count |^process_cpu_seconds_total |^process_resident_memory_bytes "
+go_gc_duration_seconds_count 2517
+go_gc_gomemlimit_bytes 9.437184e+08
+go_memstats_heap_alloc_bytes 1.105486184e+09
+process_cpu_seconds_total 218.95
+process_resident_memory_bytes 1.29605632e+08
+
+$ sleep 30; kubectl get --raw /api/v1/namespaces/observability/services/tempo:3200/proxy/metrics | grep -E "^go_gc_duration_seconds_count |^process_cpu_seconds_total "
+go_gc_duration_seconds_count 3148
+process_cpu_seconds_total 244.04
+
+$ kubectl -n observability get pod tempo-0 -o jsonpath="restarts={.status.containerStatuses[0].restartCount}{\"\n\"}"; kubectl -n observability top pod tempo-0
+restarts=0
+NAME      CPU(cores)   MEMORY(bytes)   
+tempo-0   894m         64Mi            
+

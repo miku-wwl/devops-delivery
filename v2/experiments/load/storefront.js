@@ -10,6 +10,7 @@ const BASE = __ENV.BASE_URL || 'http://localhost:8080';
 const RATE = Number(__ENV.RATE || 20);
 const DURATION = __ENV.DURATION || '1m';
 const PRODUCTS = 18;                       // sku-001 .. sku-018 have unlimited stock
+const MAX_VUS = Number(__ENV.MAX_VUS || Math.max(50, RATE * 20));
 
 export const options = {
   discardResponseBodies: false,
@@ -17,7 +18,9 @@ export const options = {
     shop: {
       executor: 'constant-arrival-rate',
       rate: RATE, timeUnit: '1s', duration: DURATION,
-      preAllocatedVUs: Math.max(10, RATE * 2), maxVUs: Math.max(50, RATE * 20),
+      // MAX_VUS caps concurrency: when the system cannot keep up, k6 would otherwise start
+      // thousands of VUs; with the cap, overload shows up as dropped_iterations instead
+      preAllocatedVUs: Math.min(Math.max(10, RATE * 2), MAX_VUS), maxVUs: MAX_VUS,
     },
   },
   thresholds: {

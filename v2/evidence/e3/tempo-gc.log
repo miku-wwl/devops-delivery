@@ -1,0 +1,36 @@
+# transcript: E3: Tempo burnt 1.3 cores in garbage collection - GOMEMLIMIT below the heap
+# recorded: 2026-11-07T09:13:47Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# Before: soft memory limit 800 MiB, heap as counted by the Go runtime, GC cycles in 30 s
+$ m=$(kubectl get --raw /api/v1/namespaces/observability/services/tempo:3200/proxy/metrics); echo "$m" | grep -E "^go_gc_gomemlimit_bytes |^go_memstats_heap_alloc_bytes |^go_memstats_next_gc_bytes |^go_gc_duration_seconds_count |^process_cpu_seconds_total |^process_resident_memory_bytes "
+go_gc_duration_seconds_count 131650
+go_gc_gomemlimit_bytes 8.388608e+08
+go_memstats_heap_alloc_bytes 1.14314336e+09
+go_memstats_next_gc_bytes 1.143137904e+09
+process_cpu_seconds_total 9187.51
+process_resident_memory_bytes 1.31301376e+08
+
+$ sleep 30; kubectl get --raw /api/v1/namespaces/observability/services/tempo:3200/proxy/metrics | grep -E "^go_gc_duration_seconds_count |^process_cpu_seconds_total "
+go_gc_duration_seconds_count 132196
+process_cpu_seconds_total 9227.66
+
+# Fix through Git: no GOMEMLIMIT
+$ TAG=$(git log -1 --format=%h -- v2/apps/storefront); bash v2/platform/bootstrap/publish-gitops.sh "$TAG" "tempo: remove GOMEMLIMIT (GC spiral)"
+platform-gitops: pushed 2ff0d9c (tempo: remove GOMEMLIMIT (GC spiral))
+
+$ kubectl -n argocd annotate application tempo argocd.argoproj.io/refresh=normal --overwrite >/dev/null
+
+$ for i in $(seq 60); do kubectl -n observability get pod tempo-0 -o jsonpath="{.spec.containers[0].env}" | grep -q GOMEMLIMIT || break; sleep 5; done; kubectl -n observability wait --for=condition=Ready pod/tempo-0 --timeout=300s
+error: timed out waiting for the condition on pods/tempo-0
+[exit 1]
+
+$ sleep 60
+
+$ m=$(kubectl get --raw /api/v1/namespaces/observability/services/tempo:3200/proxy/metrics); echo "$m" | grep -E "^go_gc_gomemlimit_bytes |^go_memstats_heap_alloc_bytes |^go_memstats_next_gc_bytes |^go_gc_duration_seconds_count |^process_cpu_seconds_total |^process_resident_memory_bytes "
+Error from server (ServiceUnavailable): no endpoints available for service "tempo"
+[exit 1]
+
+$ sleep 30; kubectl get --raw /api/v1/namespaces/observability/services/tempo:3200/proxy/metrics | grep -E "^go_gc_duration_seconds_count |^process_cpu_seconds_total "
+Error from server (ServiceUnavailable): no endpoints available for service "tempo"
+[exit 1]
+

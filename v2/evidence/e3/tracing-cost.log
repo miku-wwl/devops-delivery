@@ -1,0 +1,60 @@
+# transcript: E3: the cost of tracing - sampling 1.0, 0.1, 1.0 (A-B-A)
+# recorded: 2026-11-07T08:59:08Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e3/tracing-cost.sh 1.0 ratio-1.0-a
+platform-gitops: pushed 307e174 (tracing sample ratio 1.0 (ratio-1.0-a))
+ratio 1.0 live on all deployments; settling 30 s
+rate=20/s duration=3m iterations=3600 dropped=0
+requests=6123 (34.5/s) failed=0.00%
+browse: p50=17.1 p95=54.4 p99=101.5 max=214.1 ms
+order:  p50=151.6 p95=363.0 p99=493.0 max=701.4 ms
+checks: 100.00% passed
+window 2026-11-07T09:00:56+00:00 .. 2026-11-07T09:03:34+00:00
+  service      req/s  cores ms CPU/req busiest pod in flight loop p99 pool p95
+  catalog       35.4  0.225       6.34       0.113      0.19     17.2     0.31
+  gateway       34.8  0.360      10.37       0.191      1.50     18.7     0.00
+  inventory      5.1  0.095      18.73       0.049      0.20     13.7     0.24
+  notifier       0.0  0.045       0.00       0.045      0.00     12.7     0.00
+  orders         5.9  0.268      44.99       0.143      0.64     14.4     0.24
+  payments       5.1  0.081      16.06       0.042      0.36     13.8     0.00
+  nodes (cores): ent-worker=2.03, ent-worker2=0.68, ent-worker3=0.92
+  platform (cores): otel-collector=0.023, pg-main=0.231, prometheus-kps=0.127, tempo=1.472, waypoint=0.114, ztunnel=0.218
+
+$ bash v2/experiments/e3/tracing-cost.sh 0.1 ratio-0.1
+platform-gitops: pushed f729c06 (tracing sample ratio 0.1 (ratio-0.1))
+ratio 0.1 live on all deployments; settling 30 s
+rate=20/s duration=3m iterations=3600 dropped=0
+requests=6098 (34.4/s) failed=0.00%
+browse: p50=13.9 p95=24.3 p99=34.8 max=147.7 ms
+order:  p50=123.7 p95=227.3 p99=350.4 max=622.7 ms
+checks: 100.00% passed
+window 2026-11-07T09:05:01+00:00 .. 2026-11-07T09:07:39+00:00
+  service      req/s  cores ms CPU/req busiest pod in flight loop p99 pool p95
+  catalog       34.9  0.149       4.27       0.075      0.18      4.8     0.24
+  gateway       34.6  0.263       7.60       0.149      0.82      4.9     0.00
+  inventory      5.3  0.065      12.23       0.034      0.09      4.7     0.21
+  notifier       0.0  0.034       0.00       0.034      0.00      4.8     0.00
+  orders         6.1  0.196      31.92       0.098      0.55      4.7     0.23
+  payments       5.1  0.061      12.00       0.032      0.38      4.6     0.00
+  nodes (cores): ent-worker=1.83, ent-worker2=0.5, ent-worker3=0.5
+  platform (cores): otel-collector=0.014, pg-main=0.187, prometheus-kps=0.093, tempo=1.201, waypoint=0.092, ztunnel=0.169
+
+$ bash v2/experiments/e3/tracing-cost.sh 1.0 ratio-1.0-b
+platform-gitops: pushed 0da355f (tracing sample ratio 1.0 (ratio-1.0-b))
+ratio 1.0 live on all deployments; settling 30 s
+rate=20/s duration=3m iterations=3601 dropped=0
+requests=6121 (34.6/s) failed=0.00%
+browse: p50=13.9 p95=22.9 p99=39.2 max=136.3 ms
+order:  p50=126.6 p95=237.5 p99=332.9 max=459.2 ms
+checks: 100.00% passed
+window 2026-11-07T09:09:02+00:00 .. 2026-11-07T09:11:40+00:00
+  service      req/s  cores ms CPU/req busiest pod in flight loop p99 pool p95
+  catalog       35.2  0.176       5.00       0.092      0.09      4.3     0.24
+  gateway       34.6  0.307       8.87       0.168      1.45      4.8     0.00
+  inventory      5.1  0.069      13.48       0.038      0.00      5.0     0.21
+  notifier       0.0  0.039       0.00       0.039      0.00      2.4     0.00
+  orders         6.0  0.217      35.88       0.114      0.64      6.7     0.23
+  payments       5.0  0.065      12.82       0.032      0.00      2.7     0.00
+  nodes (cores): ent-worker=1.78, ent-worker2=0.71, ent-worker3=0.78
+  platform (cores): otel-collector=0.02, pg-main=0.175, prometheus-kps=0.096, tempo=1.468, waypoint=0.096, ztunnel=0.173
+
