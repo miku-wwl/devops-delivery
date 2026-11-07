@@ -112,6 +112,7 @@ def build(settings: Settings, cache: Any = None) -> FastAPI:
     nc: Any = None
     worker: Worker | None = None
     tasks: list[asyncio.Task] = []
+    subscribed = asyncio.Event()
     work_ms = float(os.environ.get("NOTIFY_WORK_MS", 20))
     concurrency = int(os.environ.get("NOTIFIER_CONCURRENCY", 16))
 
@@ -124,33 +125,54 @@ def build(settings: Settings, cache: Any = None) -> FastAPI:
         if settings.nats_url:
             import nats
             from nats.js.api import AckPolicy, ConsumerConfig
+            from nats.js.errors import NotFoundError
 
             nc = await nats.connect(
                 settings.nats_url, name=f"notifier-{settings.version}", max_reconnect_attempts=-1
             )
             js = nc.jetstream()
-            sub = await js.pull_subscribe(
-                SUBJECT,
-                durable=DURABLE,
-                stream=STREAM,
-                config=ConsumerConfig(
-                    ack_policy=AckPolicy.EXPLICIT, ack_wait=30, max_deliver=5, max_ack_pending=1000
-                ),
-            )
-            tasks.append(asyncio.create_task(worker.run(sub, batch=concurrency), name="consumer"))
+
+            async def subscribe_then_run() -> None:
+                # The stream belongs to orders (the producer). Until it exists, wait and report
+                # not-ready instead of crashing: a crash loop here only adds restart back-off.
+                delay = 1.0
+                while True:
+                    try:
+                        sub = await js.pull_subscribe(
+                            SUBJECT,
+                            durable=DURABLE,
+                            stream=STREAM,
+                            config=ConsumerConfig(
+                                ack_policy=AckPolicy.EXPLICIT,
+                                ack_wait=30,
+                                max_deliver=5,
+                                max_ack_pending=1000,
+                            ),
+                        )
+                        break
+                    except NotFoundError:
+                        log.warning("stream %s not found yet; retrying in %.0f s", STREAM, delay)
+                        await asyncio.sleep(delay)
+                        delay = min(delay * 2, 15)
+                subscribed.set()
+                await worker.run(sub, batch=concurrency)
+
+            tasks.append(asyncio.create_task(subscribe_then_run(), name="consumer"))
 
     async def shutdown(app: FastAPI) -> None:
         if worker:
             worker.stop()
         for t in tasks:
-            await asyncio.wait([t], timeout=15)
+            done, _ = await asyncio.wait([t], timeout=15)
+            if not done:  # still waiting for the stream, or stuck: do not block shutdown
+                t.cancel()
         if nc:
             await nc.drain()
         if cache:
             await cache.aclose()
 
     async def ready(app: FastAPI) -> bool:
-        return nc.is_connected if nc else True
+        return (nc.is_connected and subscribed.is_set()) if nc else True
 
     app = create_app(settings, startup=startup, shutdown=shutdown, ready=ready)
 

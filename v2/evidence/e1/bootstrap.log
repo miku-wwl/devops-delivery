@@ -1,0 +1,29 @@
+# transcript: E1: bootstrap the platform from Git
+# recorded: 2026-11-07T03:45:57Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ time bash v2/platform/bootstrap/bootstrap.sh
+==> 1. generated credentials in /home/devops/.lab-secrets/v2 (never printed, never committed)
+secrets: data/pg-role-{catalog,inventory,orders}, storefront/db-{catalog,inventory,orders}, monitoring/grafana-admin
+==> 2. image
+sha256:b80458ec926b515e06bf918814475d5a40b07634ef1c05ab65d610eb307a21c1
+localhost:5001/storefront:b00dd1e
+localhost:5001/storefront:b00dd1e
+==> 3. configuration repository
+{"id":3,"path_with_namespace":"root/platform-gitops"}
+platform-gitops: pushed 482adb4 (bootstrap: platform and storefront b00dd1e)
+created project access token argocd-ent-read (read_repository, Reporter, 30 days)
+==> 4. Argo CD (helm chart argo-cd 10.14.0)
+NAME                                                READY   STATUS      RESTARTS   AGE
+argocd-application-controller-0                     1/1     Running     0          49s
+argocd-applicationset-controller-755565f9df-2n5lj   1/1     Running     0          49s
+argocd-redis-86fb5c84d-qhr2w                        1/1     Running     0          49s
+argocd-redis-secret-init-9svk7                      0/1     Completed   0          91s
+argocd-repo-server-69697bfffb-26hmg                 1/1     Running     0          49s
+argocd-server-7fbbf86475-w9v6b                      1/1     Running     0          49s
+==> 5. root application
+application.argoproj.io/platform-root created
+
+real	2m41.281s
+user	0m8.944s
+sys	0m7.342s
+

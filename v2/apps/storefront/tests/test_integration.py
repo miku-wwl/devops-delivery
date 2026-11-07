@@ -75,6 +75,32 @@ async def test_concurrent_reservations_never_oversell():
         }
 
 
+async def test_notifier_waits_for_the_stream_instead_of_crashing():
+    """Regression (E1 first deployment): the notifier started before orders had created the
+    stream, failed with 'stream not found' and crash-looped. It must start, stay not-ready,
+    and become ready once the stream exists."""
+    nc = await nats.connect(NATS)
+    js = nc.jetstream()
+    try:
+        await js.delete_stream("ORDERS")
+    except Exception:  # noqa: BLE001,S110 - not there
+        pass
+    notifier = build_notifier(settings("notifier", NATS_URL=NATS, VALKEY_URL=VALKEY))
+    async with running(notifier) as c:
+        await asyncio.sleep(1.5)
+        assert (await c.get("/readyz")).status_code == 503
+        from storefront.orders.outbox import ensure_stream
+
+        await ensure_stream(js, 1)
+        for _ in range(60):
+            if (await c.get("/readyz")).status_code == 200:
+                break
+            await asyncio.sleep(0.5)
+        else:
+            pytest.fail("notifier not ready 30 s after the stream appeared")
+    await nc.close()
+
+
 async def test_an_order_flows_through_the_outbox_and_nats_to_the_notifier():
     dsns = {svc: await fresh_database(f"it_{svc}") for svc in ("catalog", "inventory", "orders")}
     for svc, dsn in dsns.items():

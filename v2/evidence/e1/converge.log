@@ -1,0 +1,49 @@
+# transcript: E1: the platform converging from Git (first sync)
+# recorded: 2026-11-07T03:48:47Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/platform/bootstrap/wait-apps.sh 1500
+t+   0s  0/2 Synced+Healthy; not yet: monitoring=-/- platform-root=OutOfSync/Progressing 
+t+  10s  0/2 Synced+Healthy; not yet: monitoring=OutOfSync/Missing platform-root=OutOfSync/Healthy 
+t+  31s  0/2 Synced+Healthy; not yet: monitoring=OutOfSync/Healthy platform-root=OutOfSync/Healthy 
+t+  36s  0/2 Synced+Healthy; not yet: monitoring=OutOfSync/Progressing platform-root=OutOfSync/Progressing 
+t+  52s  0/2 Synced+Healthy; not yet: monitoring=Synced/Progressing platform-root=OutOfSync/Progressing 
+t+  57s  0/2 Synced+Healthy; not yet: monitoring=Synced/Degraded platform-root=OutOfSync/Degraded 
+t+  88s  0/2 Synced+Healthy; not yet: monitoring=Synced/Progressing platform-root=OutOfSync/Progressing 
+t+ 161s  1/3 Synced+Healthy; not yet: cnpg-operator=-/- platform-root=OutOfSync/Progressing 
+t+ 167s  1/3 Synced+Healthy; not yet: cnpg-operator=OutOfSync/Healthy platform-root=OutOfSync/Healthy 
+t+ 172s  1/3 Synced+Healthy; not yet: cnpg-operator=OutOfSync/Progressing platform-root=OutOfSync/Healthy 
+t+ 177s  1/3 Synced+Healthy; not yet: cnpg-operator=OutOfSync/Progressing platform-root=OutOfSync/Progressing 
+t+ 188s  2/8 Synced+Healthy; not yet: loki=-/- nats=-/- otel-collector=-/- platform-root=OutOfSync/Progressing tempo=-/- valkey=Synced/Progressing 
+t+ 193s  2/8 Synced+Healthy; not yet: loki=OutOfSync/Healthy nats=Synced/Progressing otel-collector=Synced/Progressing platform-root=OutOfSync/Progressing tempo=Synced/Progressing valkey=Synced/Progressing 
+t+ 198s  2/8 Synced+Healthy; not yet: loki=Synced/Progressing nats=Synced/Progressing otel-collector=Synced/Progressing platform-root=OutOfSync/Progressing tempo=Synced/Progressing valkey=Synced/Progressing 
+t+ 219s  3/8 Synced+Healthy; not yet: loki=Synced/Progressing nats=Synced/Progressing platform-root=OutOfSync/Progressing tempo=Synced/Progressing valkey=Synced/Progressing 
+t+ 245s  4/8 Synced+Healthy; not yet: loki=Synced/Progressing nats=Synced/Progressing platform-root=OutOfSync/Progressing tempo=Synced/Progressing 
+t+ 255s  5/8 Synced+Healthy; not yet: loki=Synced/Progressing platform-root=OutOfSync/Progressing tempo=Synced/Progressing 
+t+ 261s  6/9 Synced+Healthy; not yet: loki=Synced/Progressing pg-main=-/- platform-root=OutOfSync/Progressing 
+t+ 266s  6/9 Synced+Healthy; not yet: loki=Synced/Progressing pg-main=Synced/Progressing platform-root=OutOfSync/Progressing 
+t+ 287s  7/9 Synced+Healthy; not yet: pg-main=Synced/Progressing platform-root=OutOfSync/Progressing 
+t+ 698s  8/9 Synced+Healthy; not yet: platform-root=Synced/Progressing 
+t+ 703s  9/15 Synced+Healthy; not yet: storefront-catalog-prod=Synced/Progressing storefront-gateway-prod=Synced/Progressing storefront-inventory-prod=Synced/Progressing storefront-notifier-prod=Synced/Progressing storefront-orders-prod=Synced/Progressing storefront-payments-prod=Synced/Progressing 
+t+ 719s  11/15 Synced+Healthy; not yet: storefront-catalog-prod=Synced/Progressing storefront-inventory-prod=Synced/Progressing storefront-notifier-prod=Synced/Progressing storefront-orders-prod=Synced/Progressing 
+t+ 725s  14/15 Synced+Healthy; not yet: storefront-notifier-prod=Synced/Progressing 
+t+ 735s  15/15 Synced+Healthy; not yet: 
+all 15 applications Synced and Healthy after 735s
+
+$ kubectl -n argocd get applications -o custom-columns=NAME:.metadata.name,WAVE:.metadata.annotations.argocd\.argoproj\.io/sync-wave,SYNC:.status.sync.status,HEALTH:.status.health.status
+NAME                        WAVE     SYNC     HEALTH
+cnpg-operator               <none>   Synced   Healthy
+loki                        <none>   Synced   Healthy
+monitoring                  <none>   Synced   Healthy
+nats                        <none>   Synced   Healthy
+otel-collector              <none>   Synced   Healthy
+pg-main                     <none>   Synced   Healthy
+platform-root               <none>   Synced   Healthy
+storefront-catalog-prod     <none>   Synced   Healthy
+storefront-gateway-prod     <none>   Synced   Healthy
+storefront-inventory-prod   <none>   Synced   Healthy
+storefront-notifier-prod    <none>   Synced   Healthy
+storefront-orders-prod      <none>   Synced   Healthy
+storefront-payments-prod    <none>   Synced   Healthy
+tempo                       <none>   Synced   Healthy
+valkey                      <none>   Synced   Healthy
+
