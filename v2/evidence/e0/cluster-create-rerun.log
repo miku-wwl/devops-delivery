@@ -1,0 +1,49 @@
+# transcript: E0: re-run create.sh (idempotent) after the network-connect fix
+# recorded: 2026-11-07T03:08:12Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/platform/cluster/create.sh
+host: 16 CPUs, MemTotal 15642 MiB
+worker: 4 CPUs, 3072 MiB; system-reserved cpu=12; eviction memory.available<12720Mi
+cluster ent exists; not recreating
+configmap/local-registry-hosting unchanged
+serviceaccount/metrics-server unchanged
+clusterrole.rbac.authorization.k8s.io/system:aggregated-metrics-reader unchanged
+clusterrole.rbac.authorization.k8s.io/system:metrics-server unchanged
+rolebinding.rbac.authorization.k8s.io/metrics-server-auth-reader unchanged
+clusterrolebinding.rbac.authorization.k8s.io/metrics-server:system:auth-delegator unchanged
+clusterrolebinding.rbac.authorization.k8s.io/system:metrics-server unchanged
+service/metrics-server unchanged
+deployment.apps/metrics-server configured
+apiservice.apiregistration.k8s.io/v1beta1.metrics.k8s.io unchanged
+deployment "metrics-server" successfully rolled out
+NAME                STATUS   ROLES           AGE    VERSION   ZONE     INSTANCE-TYPE
+ent-control-plane   Ready    control-plane   111s   v1.37.0            
+ent-worker          Ready    <none>          97s    v1.37.0   zone-a   sim-4c3g
+ent-worker2         Ready    <none>          97s    v1.37.0   zone-b   sim-4c3g
+ent-worker3         Ready    <none>          97s    v1.37.0   zone-c   sim-4c3g
+
+$ docker network inspect kind-ent -f "{{range .Containers}}{{.Name}} {{.IPv4Address}}{{println}}{{end}}" | sort
+
+ent-control-plane 172.20.0.3/16
+ent-worker 172.20.0.4/16
+ent-worker2 172.20.0.5/16
+ent-worker3 172.20.0.2/16
+gitlab 172.20.0.11/16
+kind-registry 172.20.0.10/16
+mirror-docker 172.20.0.7/16
+mirror-ghcr 172.20.0.6/16
+mirror-k8s 172.20.0.9/16
+mirror-quay 172.20.0.8/16
+
+$ docker exec ent-worker cat /etc/containerd/certs.d/docker.io/hosts.toml
+server = "https://registry-1.docker.io"
+
+[host."http://mirror-docker:5000"]
+  capabilities = ["pull", "resolve"]
+
+$ docker exec ent-worker crictl pull docker.io/library/busybox:1.37.0
+Image is up to date for sha256:30ecbe1509090b38ef3260f3609d64d8261230464eaa4d235901db496e9647fb
+
+$ docker exec mirror-docker sh -c "ls /var/lib/registry/docker/registry/v2/repositories/library/"
+busybox
+

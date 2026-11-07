@@ -1,0 +1,129 @@
+# Rendered by v2/platform/cluster/create.sh on 2026-11-07T03:08:12Z
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: ent
+networking:
+  podSubnet: 10.240.0.0/16
+  serviceSubnet: 10.96.0.0/16
+kubeadmConfigPatches:
+  - |
+    kind: ClusterConfiguration
+    apiServer:
+      extraVolumes:
+        - name: audit-policy
+          hostPath: /etc/kubernetes/audit
+          mountPath: /etc/kubernetes/audit
+          readOnly: true
+          pathType: Directory
+        - name: audit-log
+          hostPath: /var/log/kubernetes/audit
+          mountPath: /var/log/kubernetes/audit
+          pathType: DirectoryOrCreate
+    scheduler:
+      extraArgs:
+        - name: bind-address
+          value: "0.0.0.0"
+    etcd:
+      local:
+        extraArgs:
+          - name: listen-metrics-urls
+            value: "http://0.0.0.0:2381"
+  - |
+    kind: KubeProxyConfiguration
+    metricsBindAddress: "0.0.0.0:10249"
+kubeadmConfigPatchesJSON6902:
+  - group: kubeadm.k8s.io
+    version: v1beta4
+    kind: ClusterConfiguration
+    patch: |
+      - op: add
+        path: /apiServer/extraArgs/-
+        value: {name: audit-policy-file, value: /etc/kubernetes/audit/policy.yaml}
+      - op: add
+        path: /apiServer/extraArgs/-
+        value: {name: audit-log-path, value: /var/log/kubernetes/audit/audit.log}
+      - op: add
+        path: /apiServer/extraArgs/-
+        value: {name: audit-log-maxsize, value: "100"}
+      - op: add
+        path: /apiServer/extraArgs/-
+        value: {name: audit-log-maxbackup, value: "5"}
+      - op: add
+        path: /controllerManager/extraArgs/-
+        value: {name: bind-address, value: "0.0.0.0"}
+nodes:
+  - role: control-plane
+    labels:
+      topology.kubernetes.io/region: local-1
+    extraMounts:
+      - hostPath: /home/devops/ent-data/audit-policy
+        containerPath: /etc/kubernetes/audit
+        readOnly: true
+      - hostPath: /home/devops/ent-data/audit-log
+        containerPath: /var/log/kubernetes/audit
+  - role: worker
+    labels:
+      topology.kubernetes.io/region: local-1
+      topology.kubernetes.io/zone: zone-a
+      node.kubernetes.io/instance-type: sim-4c3g
+    kubeadmConfigPatchesJSON6902:
+      - group: kubeadm.k8s.io
+        version: v1beta4
+        kind: JoinConfiguration
+        patch: |
+          - op: add
+            path: /nodeRegistration/kubeletExtraArgs/-
+            value: {name: kube-reserved, value: "cpu=250m,memory=256Mi"}
+          - op: add
+            path: /nodeRegistration/kubeletExtraArgs/-
+            value: {name: system-reserved, value: "cpu=12"}
+          - op: add
+            path: /nodeRegistration/kubeletExtraArgs/-
+            value: {name: eviction-hard, value: "memory.available<12720Mi,nodefs.available<0%,nodefs.inodesFree<0%,imagefs.available<0%"}
+          - op: add
+            path: /nodeRegistration/kubeletExtraArgs/-
+            value: {name: eviction-minimum-reclaim, value: "memory.available=100Mi"}
+  - role: worker
+    labels:
+      topology.kubernetes.io/region: local-1
+      topology.kubernetes.io/zone: zone-b
+      node.kubernetes.io/instance-type: sim-4c3g
+    kubeadmConfigPatchesJSON6902:
+      - group: kubeadm.k8s.io
+        version: v1beta4
+        kind: JoinConfiguration
+        patch: |
+          - op: add
+            path: /nodeRegistration/kubeletExtraArgs/-
+            value: {name: kube-reserved, value: "cpu=250m,memory=256Mi"}
+          - op: add
+            path: /nodeRegistration/kubeletExtraArgs/-
+            value: {name: system-reserved, value: "cpu=12"}
+          - op: add
+            path: /nodeRegistration/kubeletExtraArgs/-
+            value: {name: eviction-hard, value: "memory.available<12720Mi,nodefs.available<0%,nodefs.inodesFree<0%,imagefs.available<0%"}
+          - op: add
+            path: /nodeRegistration/kubeletExtraArgs/-
+            value: {name: eviction-minimum-reclaim, value: "memory.available=100Mi"}
+  - role: worker
+    labels:
+      topology.kubernetes.io/region: local-1
+      topology.kubernetes.io/zone: zone-c
+      node.kubernetes.io/instance-type: sim-4c3g
+    kubeadmConfigPatchesJSON6902:
+      - group: kubeadm.k8s.io
+        version: v1beta4
+        kind: JoinConfiguration
+        patch: |
+          - op: add
+            path: /nodeRegistration/kubeletExtraArgs/-
+            value: {name: kube-reserved, value: "cpu=250m,memory=256Mi"}
+          - op: add
+            path: /nodeRegistration/kubeletExtraArgs/-
+            value: {name: system-reserved, value: "cpu=12"}
+          - op: add
+            path: /nodeRegistration/kubeletExtraArgs/-
+            value: {name: eviction-hard, value: "memory.available<12720Mi,nodefs.available<0%,nodefs.inodesFree<0%,imagefs.available<0%"}
+          - op: add
+            path: /nodeRegistration/kubeletExtraArgs/-
+            value: {name: eviction-minimum-reclaim, value: "memory.available=100Mi"}

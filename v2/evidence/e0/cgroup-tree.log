@@ -1,0 +1,57 @@
+# transcript: E0: the cgroup tree inside a worker node
+# recorded: 2026-11-07T03:12:38Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# Docker created the node container cgroup; inside it (cgroup namespace) it looks like the root.
+$ docker inspect ent-worker -f "cgroupns={{.HostConfig.CgroupnsMode}} memory={{.HostConfig.Memory}} swap={{.HostConfig.MemorySwap}} cpuset={{.HostConfig.CpusetCpus}} privileged={{.HostConfig.Privileged}}"
+cgroupns=private memory=3221225472 swap=3221225472 cpuset=4-7 privileged=true
+
+$ cat /sys/fs/cgroup/system.slice/docker-$(docker inspect -f "{{.Id}}" ent-worker).scope/memory.max
+3221225472
+
+$ docker exec ent-worker sh -c "cd /sys/fs/cgroup && find . -maxdepth 3 -type d | sort | head -30"
+.
+./dev-hugepages.mount
+./init.scope
+./kubelet
+./kubelet.slice
+./kubelet.slice/kubelet-kubepods.slice
+./kubelet.slice/kubelet-kubepods.slice/kubelet-kubepods-besteffort.slice
+./kubelet.slice/kubelet-kubepods.slice/kubelet-kubepods-burstable.slice
+./kubelet.slice/kubelet.service
+./sys-fs-fuse-connections.mount
+./sys-kernel-config.mount
+./sys-kernel-debug.mount
+./sys-kernel-tracing.mount
+./system.slice
+./system.slice/containerd.service
+./system.slice/system-modprobe.slice
+./system.slice/systemd-journald.service
+
+# memory.max at each level: node (Docker limit) > kubelet/kubepods (capacity - reserved) > pod
+$ docker exec ent-worker sh -c "for d in . kubelet.slice kubelet.slice/kubelet-kubepods.slice kubelet.slice/kubelet-kubepods.slice/kubelet-kubepods-burstable.slice kubelet.slice/kubelet-kubepods.slice/kubelet-kubepods-besteffort.slice; do [ -d /sys/fs/cgroup/\$d ] && printf \"%-75s memory.max=%s cpu.weight=%s\n\" \$d \$(cat /sys/fs/cgroup/\$d/memory.max) \$(cat /sys/fs/cgroup/\$d/cpu.weight 2>/dev/null || echo -); done"
+.                                                                           memory.max=3221225472 cpu.weight=100
+kubelet.slice                                                               memory.max=max cpu.weight=100
+kubelet.slice/kubelet-kubepods.slice                                        memory.max=16133476352 cpu.weight=147
+kubelet.slice/kubelet-kubepods.slice/kubelet-kubepods-burstable.slice       memory.max=max cpu.weight=9
+kubelet.slice/kubelet-kubepods.slice/kubelet-kubepods-besteffort.slice      memory.max=max cpu.weight=1
+
+# OOM priority (oom_score_adj): node agents are protected, pods are ranked by QoS class
+$ docker exec ent-worker sh -c "for p in \$(pgrep -x systemd) \$(pgrep -x containerd) \$(pgrep -x kubelet) \$(pgrep -f kube-proxy | head -1) \$(pgrep -f kindnetd | head -1); do printf \"%-14s pid=%-6s oom_score_adj=%s\n\" \$(cat /proc/\$p/comm) \$p \$(cat /proc/\$p/oom_score_adj); done"
+systemd        pid=1      oom_score_adj=0
+containerd     pid=135    oom_score_adj=-999
+kubelet        pid=254    oom_score_adj=-999
+kube-proxy     pid=424    oom_score_adj=-999
+kindnetd       pid=494    oom_score_adj=-997
+
+$ kubectl get pods -A -o wide --field-selector spec.nodeName=ent-worker --no-headers | awk "{print \$1\"/\"\$2}"
+e0-smoke/echo-6fd6b69477-pkxnn
+kube-system/kindnet-pccsk
+kube-system/kube-proxy-r8jlk
+kube-system/metrics-server-76558b4bb9-4gnk2
+
+$ kubectl get pods -A --field-selector spec.nodeName=ent-worker -o jsonpath="{range .items[*]}{.metadata.name}{\"\t\"}{.status.qosClass}{\"\n\"}{end}"
+echo-6fd6b69477-pkxnn	Burstable
+kindnet-pccsk	Burstable
+kube-proxy-r8jlk	BestEffort
+metrics-server-76558b4bb9-4gnk2	Burstable
+

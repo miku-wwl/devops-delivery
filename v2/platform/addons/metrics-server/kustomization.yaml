@@ -1,0 +1,17 @@
+# metrics-server v0.9.1, vendored from the official release
+# (https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.9.1/components.yaml,
+#  sha256 3c7f57cdbee0f57fb0259a150e8f6d6cb4f29d72d1aa5dce8803151dd6d4c2a1).
+# Kind kubelets serve self-signed certificates, so metrics-server skips their verification.
+# A production cluster would enable kubelet serverTLSBootstrap and approve the serving CSRs instead.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - components-v0.9.1.yaml
+patches:
+  - target:
+      kind: Deployment
+      name: metrics-server
+    patch: |
+      - op: add
+        path: /spec/template/spec/containers/0/args/-
+        value: --kubelet-insecure-tls

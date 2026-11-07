@@ -1,0 +1,70 @@
+# transcript: E0: a new LoadBalancer in its first seconds
+# recorded: 2026-11-07T03:11:54Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# Re-create only the Service; the three pods stay Ready. Then send requests at once.
+$ kubectl -n e0-smoke delete svc echo --wait=true
+service "echo" deleted from e0-smoke namespace
+
+$ kubectl -n e0-smoke get pods -o wide --no-headers | awk "{print \$1, \$2, \$7}"
+echo-6fd6b69477-4gpbd 1/1 ent-worker3
+echo-6fd6b69477-pkxnn 1/1 ent-worker
+echo-6fd6b69477-qs4xl 1/1 ent-worker2
+
+$ t0=$(date +%s.%N); kubectl -n e0-smoke expose deploy echo --name echo --type LoadBalancer --port 80 --target-port 8080 >/dev/null; while [ -z "$(kubectl -n e0-smoke get svc echo -o jsonpath="{.status.loadBalancer.ingress[0].ip}")" ]; do sleep 0.2; done; ip=$(kubectl -n e0-smoke get svc echo -o jsonpath="{.status.loadBalancer.ingress[0].ip}"); printf "LB IP %s assigned after %.1f s\n" "$ip" "$(echo "$(date +%s.%N) - $t0" | bc)"
+LB IP 172.20.0.12 assigned after 4.5 s
+
+$ for i in $(seq 40); do printf "%5.2f s  %s\n" "$(echo "$(date +%s.%N) - $t0" | bc)" "$(curl -s --max-time 1 http://$ip/hostname || echo "(no response, curl exit $?)")"; sleep 0.1; done
+ 4.54 s  echo-6fd6b69477-qs4xl
+ 4.66 s  echo-6fd6b69477-qs4xl
+ 4.79 s  echo-6fd6b69477-4gpbd
+ 4.92 s  echo-6fd6b69477-qs4xl
+ 5.04 s  echo-6fd6b69477-qs4xl
+ 5.17 s  echo-6fd6b69477-4gpbd
+ 5.30 s  echo-6fd6b69477-4gpbd
+ 5.42 s  echo-6fd6b69477-4gpbd
+ 5.54 s  echo-6fd6b69477-4gpbd
+ 5.67 s  echo-6fd6b69477-4gpbd
+ 5.79 s  echo-6fd6b69477-qs4xl
+ 5.92 s  echo-6fd6b69477-4gpbd
+ 6.05 s  echo-6fd6b69477-4gpbd
+ 6.18 s  echo-6fd6b69477-qs4xl
+ 6.30 s  echo-6fd6b69477-qs4xl
+ 6.43 s  echo-6fd6b69477-pkxnn
+ 6.56 s  echo-6fd6b69477-qs4xl
+ 6.69 s  echo-6fd6b69477-qs4xl
+ 6.82 s  echo-6fd6b69477-qs4xl
+ 6.95 s  echo-6fd6b69477-pkxnn
+ 7.08 s  echo-6fd6b69477-4gpbd
+ 7.20 s  echo-6fd6b69477-4gpbd
+ 7.33 s  echo-6fd6b69477-4gpbd
+ 7.45 s  echo-6fd6b69477-4gpbd
+ 7.58 s  echo-6fd6b69477-qs4xl
+ 7.70 s  echo-6fd6b69477-pkxnn
+ 7.83 s  echo-6fd6b69477-4gpbd
+ 7.95 s  echo-6fd6b69477-4gpbd
+ 8.07 s  echo-6fd6b69477-4gpbd
+ 8.19 s  echo-6fd6b69477-4gpbd
+ 8.32 s  echo-6fd6b69477-4gpbd
+ 8.44 s  echo-6fd6b69477-qs4xl
+ 8.56 s  echo-6fd6b69477-pkxnn
+ 8.69 s  echo-6fd6b69477-pkxnn
+ 8.81 s  echo-6fd6b69477-4gpbd
+ 8.94 s  echo-6fd6b69477-qs4xl
+ 9.06 s  echo-6fd6b69477-4gpbd
+ 9.20 s  echo-6fd6b69477-4gpbd
+ 9.33 s  echo-6fd6b69477-4gpbd
+ 9.45 s  echo-6fd6b69477-qs4xl
+
+# envoy: health-check events and the tcp_proxy access log (response flag UH = no healthy upstream)
+$ docker logs "$(docker ps -q --filter label=io.x-k8s.cloud-provider-kind.cluster=ent)" 2>&1 | grep -E "health_check|\"health_checker_type\"|UH|UF" | cut -c1-220 | head -12
+[2026-11-07 03:11:59.388][11][info][main] [source/server/server.cc:434]   envoy.health_checkers: envoy.health_checkers.grpc, envoy.health_checkers.http, envoy.health_checkers.redis, envoy.health_checkers.tcp, envoy.healt
+[2026-11-07 03:11:59.388][11][info][main] [source/server/server.cc:434]   envoy.filters.http: envoy.bandwidth_limit, envoy.buffer, envoy.cors, envoy.csrf, envoy.ext_authz, envoy.ext_proc, envoy.fault, envoy.filters.http.
+[2026-11-07 03:11:59.389][11][info][main] [source/server/server.cc:434]   envoy.health_check.event_sinks: envoy.health_check.event_sink.file
+[2026-11-07 03:11:59.503][11][warning][misc] [source/common/protobuf/message_validator_impl.cc:23] Deprecated field: type envoy.config.core.v3.HealthCheck Using deprecated option 'envoy.config.core.v3.HealthCheck.event_l
+{"health_checker_type":"HTTP","host":{"socket_address":{"protocol":"TCP","address":"172.20.0.2","port_value":31846,"resolver_name":"","ipv4_compat":false}},"cluster_name":"cluster_IPv4_80_TCP","add_healthy_event":{"first
+
+$ for i in $(seq 90); do curl -s --max-time 1 http://$ip/hostname; echo; done | sort | uniq -c
+     34 echo-6fd6b69477-4gpbd
+     25 echo-6fd6b69477-pkxnn
+     31 echo-6fd6b69477-qs4xl
+

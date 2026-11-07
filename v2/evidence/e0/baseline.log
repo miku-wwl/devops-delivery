@@ -1,0 +1,115 @@
+# transcript: E0: baseline of an empty ent cluster
+# recorded: 2026-11-07T03:08:38Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# pull-through mirrors for the other upstream registries
+$ docker exec ent-worker2 crictl pull registry.k8s.io/pause:3.10.1
+Image is up to date for sha256:cd073f4c5f6a8e9dc6f3125ba00cf60819cae95c1ec84a1f146ee4a9cf9e803f
+
+$ docker exec ent-worker2 crictl pull quay.io/prometheus/busybox:glibc
+Image is up to date for sha256:7702398bc0305fb96a559df95e10bb648e9e460860d145cb1f4fd42c3223f6e1
+
+$ docker exec ent-worker2 crictl pull ghcr.io/containerd/busybox:1.36
+Image is up to date for sha256:66ba00ad3de8677a3fa4bc4ea0fc46ebca0f14db46ca365e7f60833068dd0148
+
+$ for m in mirror-k8s mirror-quay mirror-ghcr; do echo "$m: $(docker exec $m find /var/lib/registry/docker/registry/v2/repositories -maxdepth 2 -mindepth 2 | sed "s|.*/repositories/||" | tr "\n" " ")"; done
+mirror-k8s: pause/_manifests pause/_uploads pause/_layers metrics-server/metrics-server 
+mirror-quay: prometheus/busybox 
+mirror-ghcr: containerd/busybox 
+
+# what kubelet really runs with (configz is the effective configuration, after flags)
+$ for n in ent-control-plane ent-worker; do echo "== $n"; kubectl get --raw /api/v1/nodes/$n/proxy/configz | jq -c ".kubeletconfig | {cgroupRoot, kubeReserved, systemReserved, evictionHard, evictionMinimumReclaim, enforceNodeAllocatable, maxPods, failSwapOn, memorySwap}"; done
+== ent-control-plane
+{"cgroupRoot":"/kubelet","kubeReserved":null,"systemReserved":null,"evictionHard":{"imagefs.available":"0%","nodefs.available":"0%","nodefs.inodesFree":"0%"},"evictionMinimumReclaim":null,"enforceNodeAllocatable":["pods"],"maxPods":110,"failSwapOn":false,"memorySwap":{}}
+== ent-worker
+{"cgroupRoot":"/kubelet","kubeReserved":{"cpu":"250m","memory":"256Mi"},"systemReserved":{"cpu":"12"},"evictionHard":{"imagefs.available":"0%","memory.available":"12720Mi","nodefs.available":"0%","nodefs.inodesFree":"0%"},"evictionMinimumReclaim":{"memory.available":"100Mi"},"enforceNodeAllocatable":["pods"],"maxPods":110,"failSwapOn":false,"memorySwap":{}}
+
+$ docker logs ent-ccm 2>&1 | grep -iE "cluster|starting|error" | head -8
+I1107 03:07:30.632450       1 controller.go:169] "Connected successfully" cluster="ent" host="https://127.0.0.1:45885"
+I1107 03:07:30.632579       1 controller.go:96] "Creating new cloud provider" cluster="ent"
+I1107 03:07:30.647292       1 controller.go:235] Starting service controller
+I1107 03:07:30.654507       1 controller.go:305] "Gateway API CRDs installation skipped (disabled)" cluster="ent"
+I1107 03:07:30.654601       1 controller.go:387] "Gateway API controllers skipped (disabled)" cluster="ent"
+I1107 03:07:30.654664       1 controller.go:103] "Starting cloud controller" cluster="ent"
+E1107 03:07:30.880425       1 controller.go:127] Failed to get kubeconfig for cluster lab: failed to get cluster internal kubeconfig: command "docker exec --privileged lab-control-plane cat /etc/kubernetes/admin.conf" failed with error: exit status 1
+E1107 03:07:30.880638       1 controller.go:147] "Failed to get internal kubeconfig" err="failed to get cluster internal kubeconfig: command \"docker exec --privileged lab-control-plane cat /etc/kubernetes/admin.conf\" failed with error: exit status 1" cluster="lab"
+
+$ sleep 60
+
+$ bash v2/platform/cluster/measure.sh "empty ent cluster, 60 s after creation"
+## empty ent cluster, 60 s after creation  2026-11-07T03:09:53Z
+
+### 1. WSL VM
+               total        used        free      shared  buff/cache   available
+Mem:           15642        4656         117         114       11222       10985
+Swap:           4096           4        4091
+PSI memory: some avg10=0.00 avg60=0.00 avg300=0.00 total=355721
+PSI cpu:    some avg10=0.89 avg60=1.12 avg300=1.80 total=82890358
+load: 0.79 2.36 2.25
+
+### 2. containers (docker stats: usage excludes inactive page cache)
+NAME                CPU %     MEM USAGE / LIMIT
+ent-ccm             0.00%     12.41MiB / 15.28GiB
+ent-control-plane   21.44%    699MiB / 15.28GiB
+ent-worker          3.18%     199.1MiB / 3GiB
+ent-worker2         3.28%     141.9MiB / 3GiB
+ent-worker3         3.33%     139.3MiB / 3GiB
+gitlab              1.68%     3.01GiB / 15.28GiB
+gitlab-runner       0.00%     23MiB / 15.28GiB
+kind-registry       0.00%     14.66MiB / 15.28GiB
+mirror-docker       0.01%     16.57MiB / 15.28GiB
+mirror-ghcr         0.00%     18.64MiB / 15.28GiB
+mirror-k8s          0.05%     18.56MiB / 15.28GiB
+mirror-quay         0.00%     15.95MiB / 15.28GiB
+
+### 3. node cgroups (kernel limits and usage)
+node               cpuset   cpu.max    mem.max_MiB current_MiB workingset_MiB oom_kill
+ent-control-plane  0-3      max        max         1266        700          0
+ent-worker         4-7      max        3072        446         201          0
+ent-worker2        8-11     max        3072        311         143          0
+ent-worker3        12-15    max        3072        295         140          0
+
+### 4. kubelet view: capacity, allocatable, eviction signal
+NODE                ZONE     CAP_CPU   ALLOC_CPU   CAP_MEM      ALLOC_MEM    PODS
+ent-control-plane   <none>   16        16          16017492Ki   16017492Ki   110
+ent-worker          zone-a   16        3750m       16017492Ki   2730068Ki    110
+ent-worker2         zone-b   16        3750m       16017492Ki   2730068Ki    110
+ent-worker3         zone-c   16        3750m       16017492Ki   2730068Ki    110
+ent-control-plane: workingSet=700 MiB, available=14941 MiB (signal memory.available)
+ent-worker: workingSet=199 MiB, available=15442 MiB (signal memory.available)
+ent-worker2: workingSet=142 MiB, available=15499 MiB (signal memory.available)
+ent-worker3: workingSet=139 MiB, available=15502 MiB (signal memory.available)
+
+### 5. requests vs allocatable (what the scheduler sees)
+ent-control-plane:   cpu                950m (5%)   0 (0%)
+ent-control-plane:   memory             290Mi (1%)  340Mi (2%)
+ent-worker:   cpu                200m (5%)   0 (0%)
+ent-worker:   memory             250Mi (9%)  0 (0%)
+ent-worker2:   cpu                100m (2%)  0 (0%)
+ent-worker2:   memory             50Mi (1%)  0 (0%)
+ent-worker3:   cpu                100m (2%)  0 (0%)
+ent-worker3:   memory             50Mi (1%)  0 (0%)
+
+### 6. pods (metrics-server, working set)
+NAME                CPU(cores)   CPU(%)   MEMORY(bytes)   MEMORY(%)   
+ent-control-plane   265m         1%       700Mi           4%          
+ent-worker          57m          1%       199Mi           7%          
+ent-worker2         44m          1%       142Mi           5%          
+ent-worker3         43m          1%       139Mi           5%          
+NAMESPACE            NAME                                        CPU(cores)   MEMORY(bytes)   
+kube-system          kube-apiserver-ent-control-plane            86m          253Mi           
+kube-system          kube-controller-manager-ent-control-plane   33m          59Mi            
+kube-system          etcd-ent-control-plane                      49m          34Mi            
+kube-system          kube-scheduler-ent-control-plane            15m          23Mi            
+kube-system          metrics-server-76558b4bb9-4gnk2             6m           18Mi            
+kube-system          kube-proxy-9mspx                            2m           15Mi            
+kube-system          kube-proxy-b9m8z                            2m           14Mi            
+kube-system          kube-proxy-r8jlk                            1m           14Mi            
+kube-system          kube-proxy-bqj8l                            1m           13Mi            
+kube-system          coredns-559f6c778d-jjjb2                    3m           13Mi            
+kube-system          coredns-559f6c778d-xj4c9                    3m           12Mi            
+kube-system          kindnet-z8pf5                               4m           10Mi            
+kube-system          kindnet-2njqf                               1m           10Mi            
+kube-system          kindnet-dt8b5                               4m           9Mi             
+kube-system          kindnet-pccsk                               1m           9Mi             
+local-path-storage   local-path-provisioner-75f7fc7dc5-r26vn     1m           8Mi             
+
