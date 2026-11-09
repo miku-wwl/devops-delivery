@@ -1,0 +1,23 @@
+# A second, temporary OpenBao for the restore rehearsal S1 (E7): same chart and version as production
+# (platform/values/openbao.yaml), its own namespace and release name (the chart names cluster-wide
+# objects after the release), no Kubernetes auth (not needed to read one secret back).
+injector: {enabled: false}
+ui: {enabled: false}
+server:
+  authDelegator: {enabled: false}
+  resources: {requests: {cpu: 20m, memory: 64Mi}, limits: {memory: 256Mi}}
+  dataStorage: {enabled: true, size: 256Mi}
+  auditStorage: {enabled: false}
+  standalone:
+    enabled: true
+    config: |
+      ui = false
+      listener "tcp" {
+        address = "[::]:8200"
+        cluster_address = "[::]:8201"
+        tls_disable = 1
+      }
+      storage "raft" {
+        path = "/openbao/data"
+      }
+      cluster_addr = "http://POD_IP:8201"
