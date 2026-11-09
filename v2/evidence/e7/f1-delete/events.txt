@@ -1,0 +1,21 @@
+2026-11-09T14:25:33Z Pod/drill-writer-f1-delete Scheduled: Successfully assigned data/drill-writer-f1-delete to ent-worker
+2026-11-09T14:25:34Z Pod/drill-writer-f1-delete Started: Container started
+2026-11-09T14:25:34Z Pod/drill-writer-f1-delete Created: Container created
+2026-11-09T14:25:34Z Pod/drill-writer-f1-delete Pulled: Container image "ghcr.io/cloudnative-pg/postgresql:18.6-system-trixie" already present on machine and can be accessed by the pod
+2026-11-09T14:25:55Z Pod/pg-main-2 Killing: Stopping container plugin-barman-cloud
+2026-11-09T14:25:55Z PodDisruptionBudget/pg-main-primary NoPods: No matching pods found
+2026-11-09T14:25:55Z Cluster/pg-main FailingOver: Current primary isn't healthy, initiating a failover from pg-main-2
+2026-11-09T14:25:55Z Pod/pg-main-2 Killing: Stopping container postgres
+2026-11-09T14:25:58Z Cluster/pg-main FailoverTarget: Failing over from pg-main-2 to pg-main-1
+2026-11-09T14:26:19Z Pod/pg-main-2 Scheduled: Successfully assigned data/pg-main-2 to ent-worker2
+2026-11-09T14:26:21Z Pod/pg-main-2 Created: Container created
+2026-11-09T14:26:21Z Pod/pg-main-2 Pulled: Container image "ghcr.io/cloudnative-pg/cloudnative-pg:1.30.1" already present on machine and can be accessed by the pod
+2026-11-09T14:26:21Z Pod/pg-main-2 Started: Container started
+2026-11-09T14:26:22Z Pod/pg-main-2 Created: Container created
+2026-11-09T14:26:22Z Pod/pg-main-2 Pulled: Container image "ghcr.io/cloudnative-pg/plugin-barman-cloud-sidecar:v0.15.1" already present on machine and can be accessed by the pod
+2026-11-09T14:26:23Z Pod/pg-main-2 Pulled: Container image "ghcr.io/cloudnative-pg/postgresql:18.6-system-trixie" already present on machine and can be accessed by the pod
+2026-11-09T14:26:23Z Pod/pg-main-2 Started: Container started
+2026-11-09T14:26:24Z Pod/pg-main-2 Started: Container started
+2026-11-09T14:26:24Z Pod/pg-main-2 Created: Container created
+2026-11-09T14:26:30Z Pod/pg-main-2 Unhealthy: Readiness probe failed: HTTP probe failed with statuscode: 500
+2026-11-09T14:27:12Z Pod/drill-writer-f1-delete Killing: Stopping container writer

@@ -36,3 +36,19 @@ ent-worker3, nor the Barman Cloud plugin, ent-worker).
 | | Run | Hypothesis |
 |---|---|---|
 | F0b | Planned switchover (`kubectl cnpg promote`) | One write outage of **2-10 s**; **0 lost writes** |
+
+## Added after F1, before F2
+
+F0b: 10.7 s, 0 lost. F1: 26.9 s, 0 lost - 16 s of it the new primary waiting for the primary lease
+(Lease data/pg-main, 15 s) that the killed primary had not released (`f1-delete/analysis.md`).
+
+The primary goes back to pg-main-2 (ent-worker2) by a planned switchover first (F0c, a second
+switchover sample). F2 adds a second writer that connects straight to the old primary's pod address
+instead of pg-main-rw - a client with a stale address or a long-lived connection - to see whether
+the old primary accepts writes after the unpause.
+
+| | Run | Hypothesis |
+|---|---|---|
+| F0c | Planned switchover to pg-main-2 | as F0b: about 10 s, 0 lost |
+| F2 | (unchanged, above) plus the lease: the frozen primary cannot renew its lease, which has expired long before the node is marked NotReady | write outage 45-60 s through pg-main-rw, 0 lost |
+| F2-Z | The direct writer after the unpause | the old primary acknowledges writes for at most about 2 s after the unpause, until its instance manager finds the lease taken and stops PostgreSQL; **those writes are lost** (rewound away) |

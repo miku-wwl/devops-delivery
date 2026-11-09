@@ -9,7 +9,8 @@
 # promote: planned switchover (kubectl cnpg promote). delete: force-delete the primary pod. freeze: docker pause the primary's node ([注入]).
 # cut-freeze: drop replication (replica pods -> primary :5432) on the primary's node for
 # <cut-seconds> (chain E7CUT), then freeze that node. The chain is removed and the node unpaused
-# in every case (trap). Evidence in evidence/e7/<run>/: run.txt, writer.log, rows.txt,
+# in every case (trap). DIRECT=1: a second writer (<run>-z, evidence/e7/<run>-z/) connects straight
+# to the primary's pod address instead of pg-main-rw. Evidence in evidence/e7/<run>/: run.txt, writer.log, rows.txt,
 # report.txt, watch.txt (pg-watch.sh), events.txt, operator.log.
 set -uo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -47,6 +48,9 @@ kubectl -n data exec "$primary" -c postgres -- psql -U postgres -tAc \
   "select 'replication: ' || string_agg(application_name || '=' || state || '/' || sync_state, ' ') from pg_stat_replication"
 since=$(date -u +%FT%TZ)
 bash "$HERE/writer.sh" start "$RUN" "$WNODE" 50 2
+if [ "${DIRECT:-0}" = 1 ]; then
+  bash "$HERE/writer.sh" start "$RUN-z" "$WNODE" 50 2 "$(kubectl -n data get pod "$primary" -o jsonpath='{.status.podIP}')"
+fi
 bash "$HERE/pg-watch.sh" > "$OUT/watch.txt" 2>&1 &
 watcher=$!
 sleep 20
@@ -94,9 +98,14 @@ SH
 esac
 sleep 30
 bash "$HERE/writer.sh" stop "$RUN"
+[ "${DIRECT:-0}" = 1 ] && bash "$HERE/writer.sh" stop "$RUN-z"
 kill "$watcher" 2>/dev/null; watcher=
 echo "== report (t = seconds after the fault)"
 bash "$HERE/writer.sh" report "$RUN" "$T0" | tee "$OUT/report.txt"
+if [ "${DIRECT:-0}" = 1 ]; then
+  echo "== report of the direct writer (connected to the old primary's address)"
+  bash "$HERE/writer.sh" report "$RUN-z" "$T0" | tee "$OUT/report-direct.txt"
+fi
 echo "== timeline (lines where something changed)"
 awk '{sig = $0; sub(/^[^ ]+ /, "", sig)} sig != prev {print; prev = sig}' "$OUT/watch.txt" | sed 's/^/  /'
 kubectl -n data get events --sort-by=.lastTimestamp -o json |

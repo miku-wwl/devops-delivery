@@ -1,0 +1,34 @@
+== 14:24:06.745 run f0b-switchover: primary pg-main-3 on ent-worker3, writer on ent-worker, mode promote pg-main-2
+replication: pg-main-2=streaming/async pg-main-1=streaming/async
+conn 1794234249.453 10.240.3.131/32 False
+start f0b-switchover rate=50.0 deadline=2.0
+ok 1 1794234249.456 3.6
+== 14:24:30.027 fault: promote pg-main-2
+{"level":"info","ts":"2026-11-10T03:24:30.560399934+13:00","msg":"Cluster has become unhealthy"}
+Node pg-main-2 in cluster pg-main will be promoted
+14:24:47.053 healthy again
+3033 lines -> /mnt/d/workshop/nov/devops-delivery/v2/evidence/e7/f0b-switchover/writer.log
+== report (t = seconds after the fault)
+attempts 3030: ok 3016, fail 13, unknown 1
+lost writes (acknowledged, row missing): 0
+unknown outcomes: 1, of them committed: 0, not committed: 1
+'fail' rows that exist anyway (classification error): 0
+  fail OperationalError: 9
+  fail TimeoutError: 4
+  unk OperationalError: 1
+write outages (no acknowledgement in between; >= 0.5 s):
+  14:24:30.794 (t=+0.8s) -> 14:24:41.446 (t=+11.4s): 10.7 s (seq 1140..1153)
+slowest acknowledgements: seq 1154 1066 ms at 14:24:40.381 (t=+10.4s), seq 351 37 ms at 14:24:16.465 (t=-13.6s), seq 352 33 ms at 14:24:16.502 (t=-13.5s)
+commit latency ms: p50 3.1, p99 9.6, max 1065.8
+connections:
+  14:24:09.453 (t=-20.6s) -> 10.240.3.131/32 in_recovery=False
+  14:24:41.427 (t=+11.4s) -> 10.240.2.116/32 in_recovery=False
+== timeline (lines where something changed)
+  14:24:11 Cluster_in_healthy_state cur=pg-main-3 tgt=pg-main-3 [1:T:r:worker 2:T:r:worker2 3:T:p:worker3] rw=10.240.3.131 
+  14:24:31 Switchover_in_progress cur=pg-main-3 tgt=pg-main-2 [1:T:r:worker 2:T:r:worker2 3:T:u:worker3] rw=none 
+  14:24:33 Switchover_in_progress cur=pg-main-3 tgt=pg-main-2 [1:T:r:worker 2:T:r:worker2 3:F:u:worker3] rw=none 
+  14:24:38 Switchover_in_progress cur=pg-main-2 tgt=pg-main-2 [1:T:r:worker 2:T:r:worker2 3:F:u:worker3] rw=none 
+  14:24:39 Switchover_in_progress cur=pg-main-2 tgt=pg-main-2 [1:T:r:worker 2:T:p:worker2 3:F:r:worker3] rw=10.240.2.116 
+  14:24:46 Switchover_in_progress cur=pg-main-2 tgt=pg-main-2 [1:T:r:worker 2:T:p:worker2 3:T:r:worker3] rw=10.240.2.116 
+  14:24:46 Cluster_in_healthy_state cur=pg-main-2 tgt=pg-main-2 [1:T:r:worker 2:T:p:worker2 3:T:r:worker3] rw=10.240.2.116 
+== 9 events, 11 operator log lines; primary now pg-main-2

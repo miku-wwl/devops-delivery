@@ -1,0 +1,9 @@
+2026-11-09T14:24:08Z Pod/drill-writer-f0b-switchover Scheduled: Successfully assigned data/drill-writer-f0b-switchover to ent-worker
+2026-11-09T14:24:09Z Pod/drill-writer-f0b-switchover Pulled: Container image "ghcr.io/cloudnative-pg/postgresql:18.6-system-trixie" already present on machine and can be accessed by the pod
+2026-11-09T14:24:09Z Pod/drill-writer-f0b-switchover Started: Container started
+2026-11-09T14:24:09Z Pod/drill-writer-f0b-switchover Created: Container created
+2026-11-09T14:24:32Z Pod/pg-main-3 Started: Container started
+2026-11-09T14:24:32Z Pod/pg-main-3 Created: Container created
+2026-11-09T14:24:32Z Pod/pg-main-3 Pulled: Container image "ghcr.io/cloudnative-pg/postgresql:18.6-system-trixie" already present on machine and can be accessed by the pod
+2026-11-09T14:24:36Z Pod/pg-main-3 Unhealthy: Startup probe failed: HTTP probe failed with statuscode: 500
+2026-11-09T14:25:18Z Pod/drill-writer-f0b-switchover Killing: Stopping container writer

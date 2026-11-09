@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # The drill writer (writer.py) as a pod in the namespace data (E7).
-#   bash v2/experiments/e7/writer.sh start <run> <node> [rate] [deadline-s]
+#   bash v2/experiments/e7/writer.sh start <run> <node> [rate] [deadline-s] [host]
+#     host: connect to this address instead of the pg-main-rw service (a "stale" client, F2)
 #   bash v2/experiments/e7/writer.sh stop <run>     # log -> evidence/e7/<run>/writer.log, pod deleted
 #   bash v2/experiments/e7/writer.sh rows <run>     # seq numbers present on the current primary
 #   bash v2/experiments/e7/writer.sh report <run> [t0-epoch]
@@ -15,6 +16,7 @@ IMAGE=$(kubectl -n data get cluster pg-main -o jsonpath='{.status.image}')
 case $cmd in
   start)
     NODE=${3:?node}; RATE=${4:-50}; DEADLINE=${5:-2}
+    HOST=${6:-pg-main-rw.data.svc}
     kubectl -n data create configmap drill-writer --from-file=writer.py="$HERE/writer.py" \
       --dry-run=client -o yaml | kubectl apply -f - >/dev/null
     kubectl apply -f - >/dev/null <<EOF
@@ -34,6 +36,7 @@ spec:
         - {name: RUN, value: "$RUN"}
         - {name: RATE, value: "$RATE"}
         - {name: DEADLINE, value: "$DEADLINE"}
+        - {name: DSN, value: "host=$HOST port=5432 dbname=drill user=drill application_name=drill-writer"}
         - {name: PGPASSWORD, valueFrom: {secretKeyRef: {name: pg-role-drill, key: password}}}
       resources: {requests: {cpu: 20m, memory: 32Mi}, limits: {memory: 96Mi}}
       securityContext: {allowPrivilegeEscalation: false, capabilities: {drop: [ALL]}, readOnlyRootFilesystem: true}

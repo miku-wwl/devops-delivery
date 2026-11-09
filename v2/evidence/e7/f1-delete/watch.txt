@@ -1,0 +1,61 @@
+14:25:37 Cluster_in_healthy_state cur=pg-main-2 tgt=pg-main-2 [1:T:r:worker 2:T:p:worker2 3:T:r:worker3] rw=10.240.2.116 
+14:25:38 Cluster_in_healthy_state cur=pg-main-2 tgt=pg-main-2 [1:T:r:worker 2:T:p:worker2 3:T:r:worker3] rw=10.240.2.116 
+14:25:40 Cluster_in_healthy_state cur=pg-main-2 tgt=pg-main-2 [1:T:r:worker 2:T:p:worker2 3:T:r:worker3] rw=10.240.2.116 
+14:25:41 Cluster_in_healthy_state cur=pg-main-2 tgt=pg-main-2 [1:T:r:worker 2:T:p:worker2 3:T:r:worker3] rw=10.240.2.116 
+14:25:43 Cluster_in_healthy_state cur=pg-main-2 tgt=pg-main-2 [1:T:r:worker 2:T:p:worker2 3:T:r:worker3] rw=10.240.2.116 
+14:25:45 Cluster_in_healthy_state cur=pg-main-2 tgt=pg-main-2 [1:T:r:worker 2:T:p:worker2 3:T:r:worker3] rw=10.240.2.116 
+14:25:46 Cluster_in_healthy_state cur=pg-main-2 tgt=pg-main-2 [1:T:r:worker 2:T:p:worker2 3:T:r:worker3] rw=10.240.2.116 
+14:25:48 Cluster_in_healthy_state cur=pg-main-2 tgt=pg-main-2 [1:T:r:worker 2:T:p:worker2 3:T:r:worker3] rw=10.240.2.116 
+14:25:48 Cluster_in_healthy_state cur=pg-main-2 tgt=pg-main-2 [1:T:r:worker 2:T:p:worker2 3:T:r:worker3] rw=10.240.2.116 
+14:25:50 Cluster_in_healthy_state cur=pg-main-2 tgt=pg-main-2 [1:T:r:worker 2:T:p:worker2 3:T:r:worker3] rw=10.240.2.116 
+14:25:52 Cluster_in_healthy_state cur=pg-main-2 tgt=pg-main-2 [1:T:r:worker 2:T:p:worker2 3:T:r:worker3] rw=10.240.2.116 
+14:25:53 Cluster_in_healthy_state cur=pg-main-2 tgt=pg-main-2 [1:T:r:worker 2:T:p:worker2 3:T:r:worker3] rw=10.240.2.116 
+14:25:55 Cluster_in_healthy_state cur=pg-main-2 tgt=pg-main-2 [1:T:r:worker 2:T:p:worker2 3:T:r:worker3] rw=none 
+14:25:57 Failing_over cur=pg-main-2 tgt=pending [1:T:r:worker 3:T:r:worker3] rw=none 
+14:25:58 Failing_over cur=pg-main-2 tgt=pending [1:T:r:worker 3:T:r:worker3] rw=none 
+14:26:00 Failing_over cur=pg-main-2 tgt=pg-main-1 [1:T:r:worker 3:T:r:worker3] rw=none 
+14:26:01 Failing_over cur=pg-main-2 tgt=pg-main-1 [1:T:r:worker 3:T:r:worker3] rw=none 
+14:26:03 Failing_over cur=pg-main-2 tgt=pg-main-1 [1:T:r:worker 3:T:r:worker3] rw=none 
+14:26:05 Failing_over cur=pg-main-2 tgt=pg-main-1 [1:T:r:worker 3:T:r:worker3] rw=none 
+14:26:06 Failing_over cur=pg-main-2 tgt=pg-main-1 [1:T:r:worker 3:T:r:worker3] rw=none 
+14:26:08 Failing_over cur=pg-main-2 tgt=pg-main-1 [1:T:r:worker 3:T:r:worker3] rw=none 
+14:26:10 Failing_over cur=pg-main-2 tgt=pg-main-1 [1:T:r:worker 3:T:r:worker3] rw=none 
+14:26:11 Failing_over cur=pg-main-2 tgt=pg-main-1 [1:T:r:worker 3:T:r:worker3] rw=none 
+14:26:13 Failing_over cur=pg-main-2 tgt=pg-main-1 [1:T:r:worker 3:T:r:worker3] rw=none 
+14:26:15 Failing_over cur=pg-main-2 tgt=pg-main-1 [1:T:r:worker 3:T:r:worker3] rw=none 
+14:26:16 Failing_over cur=pg-main-2 tgt=pg-main-1 [1:T:r:worker 3:T:r:worker3] rw=none 
+14:26:18 Failing_over cur=pg-main-2 tgt=pg-main-1 [1:T:r:worker 3:T:r:worker3] rw=none 
+14:26:19 Failing_over cur=pg-main-2 tgt=pg-main-1 [1:T:r:worker 3:T:r:worker3] rw=none 
+14:26:19 Waiting_for_the_instances_to_become_active cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:F:-:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:26:21 Waiting_for_the_instances_to_become_active cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:F:-:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:26:23 Waiting_for_the_instances_to_become_active cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:F:-:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:26:24 Waiting_for_the_instances_to_become_active cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:F:-:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:26:26 Waiting_for_the_instances_to_become_active cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:F:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:26:28 Waiting_for_the_instances_to_become_active cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:F:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:26:30 Waiting_for_the_instances_to_become_active cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:F:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:26:31 Waiting_for_the_instances_to_become_active cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:F:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:26:33 Waiting_for_the_instances_to_become_active cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:F:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:26:35 Waiting_for_the_instances_to_become_active cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:F:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:26:36 Waiting_for_the_instances_to_become_active cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:F:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:26:38 Waiting_for_the_instances_to_become_active cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:F:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:26:40 Waiting_for_the_instances_to_become_active cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:F:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:26:41 Cluster_in_healthy_state cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:T:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:26:43 Cluster_in_healthy_state cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:T:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:26:44 Cluster_in_healthy_state cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:T:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:26:46 Cluster_in_healthy_state cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:T:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:26:48 Cluster_in_healthy_state cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:T:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:26:49 Cluster_in_healthy_state cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:T:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:26:51 Cluster_in_healthy_state cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:T:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:26:51 Cluster_in_healthy_state cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:T:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:26:53 Cluster_in_healthy_state cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:T:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:26:55 Cluster_in_healthy_state cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:T:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:26:56 Cluster_in_healthy_state cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:T:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:26:58 Cluster_in_healthy_state cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:T:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:27:00 Cluster_in_healthy_state cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:T:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:27:01 Cluster_in_healthy_state cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:T:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:27:03 Cluster_in_healthy_state cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:T:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:27:04 Cluster_in_healthy_state cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:T:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:27:06 Cluster_in_healthy_state cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:T:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:27:08 Cluster_in_healthy_state cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:T:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:27:09 Cluster_in_healthy_state cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:T:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+14:27:11 Cluster_in_healthy_state cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:T:r:worker2 3:T:r:worker3] rw=10.240.1.130 

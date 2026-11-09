@@ -1,0 +1,33 @@
+== 14:25:32.180 run f1-delete: primary pg-main-2 on ent-worker2, writer on ent-worker, mode delete 
+replication: pg-main-1=streaming/async pg-main-3=streaming/async
+conn 1794234334.917 10.240.2.116/32 False
+start f1-delete rate=50.0 deadline=2.0
+ok 1 1794234334.923 3.1
+== 14:25:55.503 fault: delete 
+pod "pg-main-2" force deleted from data namespace
+14:26:42.592 healthy again
+3666 lines -> /mnt/d/workshop/nov/devops-delivery/v2/evidence/e7/f1-delete/writer.log
+== report (t = seconds after the fault)
+attempts 3663: ok 3641, fail 21, unknown 1
+lost writes (acknowledged, row missing): 0
+unknown outcomes: 1, of them committed: 0, not committed: 1
+'fail' rows that exist anyway (classification error): 0
+  fail OperationalError: 8
+  fail TimeoutError: 13
+  unk OperationalError: 1
+write outages (no acknowledgement in between; >= 0.5 s):
+  14:25:57.719 (t=+2.2s) -> 14:26:24.584 (t=+29.1s): 26.9 s (seq 1218..1239)
+slowest acknowledgements: seq 1240 42 ms at 14:26:24.543 (t=+29.0s), seq 1399 40 ms at 14:26:27.745 (t=+32.2s), seq 2009 34 ms at 14:26:39.969 (t=+44.5s)
+commit latency ms: p50 3.0, p99 8.4, max 41.5
+connections:
+  14:25:34.917 (t=-20.6s) -> 10.240.2.116/32 in_recovery=False
+  14:26:24.575 (t=+29.1s) -> 10.240.1.130/32 in_recovery=False
+== timeline (lines where something changed)
+  14:25:37 Cluster_in_healthy_state cur=pg-main-2 tgt=pg-main-2 [1:T:r:worker 2:T:p:worker2 3:T:r:worker3] rw=10.240.2.116 
+  14:25:55 Cluster_in_healthy_state cur=pg-main-2 tgt=pg-main-2 [1:T:r:worker 2:T:p:worker2 3:T:r:worker3] rw=none 
+  14:25:57 Failing_over cur=pg-main-2 tgt=pending [1:T:r:worker 3:T:r:worker3] rw=none 
+  14:26:00 Failing_over cur=pg-main-2 tgt=pg-main-1 [1:T:r:worker 3:T:r:worker3] rw=none 
+  14:26:19 Waiting_for_the_instances_to_become_active cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:F:-:worker2 3:T:r:worker3] rw=10.240.1.130 
+  14:26:26 Waiting_for_the_instances_to_become_active cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:F:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+  14:26:41 Cluster_in_healthy_state cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:T:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+== 21 events, 59 operator log lines; primary now pg-main-1
