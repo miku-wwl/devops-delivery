@@ -26,4 +26,4 @@ Lessons:
   accident; restoring production itself to the target would have discarded 212 and 289 newer orders.
 - A copied-back row is the version of the target time. Changes made after it (here one
   confirmation) must be replayed from another record - the outbox, kept in the same transaction as
-  every order change (chapter 3), is one.
+  every order change (chapter 2), is one.

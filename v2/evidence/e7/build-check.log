@@ -1,0 +1,49 @@
+# transcript: E7 closing checks
+# recorded: 2026-11-09T23:45:17Z | host: jiejie | user: weila | cwd: /d/workshop/nov/devops-delivery
+
+# E7 closing checks on Windows (book build, layout check, evidence verification of v2 and v1)
+$ manual/.venv/Scripts/python.exe manual/tools/build.py --chapters "v2/manual/chapters/*.md" --metadata v2/manual/metadata.yaml --math mathml --out manual/build/v2-check.pdf
+Object count 12542 exceeds defined trailer size 12539
+pandoc: 8 chapter file(s) -> manual\build\manual.html (6 image path(s) rebased from v2\manual\chapters)
+pdf: manual\build\v2-check.pdf | pages=115 (pass1=115) | headings mapped=199/199 | 8.6 MB | 28s
+
+$ manual/.venv/Scripts/python.exe manual/tools/layout_check.py manual/build/v2-check.pdf --accept-gaps-file v2/manual/layout-accepted-gaps.txt
+pages: 116  chapter starts: [7, 18, 34, 50, 67, 83, 95, 105]
+gaps (< 60% of the text area used, next page is not a chapter start): 1
+  page 39: 55% used
+overflow past the right margin: 0 page(s) []
+blank pages: []
+RESULT: PASS
+
+$ manual/.venv/Scripts/python.exe manual/tools/verify_evidence.py --root v2 --out v2/evidence/e7/verify-evidence.md
+# 证据核验报告
+
+| 检查 | 数量 | 问题 |
+|---|---|---|
+| 1 images | 6 | 0 |
+| 2 evidence paths | 211 | 0 |
+| 3 run IDs | 0 | 0 |
+| 4 digests | 0 | 0 |
+| 5 internal links | 0 | 0 |
+| 6 secrets | 591 | 0 |
+| 7 exercises | 55 | 0 |
+| 8 spot checks | 343 | 0 |
+
+RESULT: PASS
+
+$ manual/.venv/Scripts/python.exe manual/tools/verify_evidence.py
+# 证据核验报告
+
+| 检查 | 数量 | 问题 |
+|---|---|---|
+| 1 images | 65 | 0 |
+| 2 evidence paths | 292 | 0 |
+| 3 run IDs | 7 | 0 |
+| 4 digests | 15 | 0 |
+| 5 internal links | 3 | 0 |
+| 6 secrets | 171 | 0 |
+| 7 exercises | 76 | 0 |
+| 8 spot checks | 31 | 0 |
+
+RESULT: PASS
+

@@ -1825,5 +1825,579 @@
   "Prometheus 请求 640 Mi，实际约 940 MiB",
   "evidence/e6/incident-1.log",
   "monitoring/prometheus-kps-prometheus-0                   Burstable           0     941     640    301"
+ ],
+ [
+  "E7 one key per consumer",
+  "08-e7-dr.md",
+  "访问另外两个桶时得到 AccessDenied",
+  "evidence/e7/s3-keys.log",
+  "key of CloudNativePG, bucket velero: AccessDenied"
+ ],
+ [
+  "E7 resize: allocatable before",
+  "08-e7-dr.md",
+  "可分配内存从 2666 MiB 增加到 3178 MiB",
+  "evidence/e7/resize.log",
+  "ent-worker    <none>   2730064Ki"
+ ],
+ [
+  "E7 resize: allocatable after",
+  "08-e7-dr.md",
+  "可分配内存从 2666 MiB 增加到 3178 MiB",
+  "evidence/e7/resize.log",
+  "allocatable 3254352Ki, sim-4c3.5g"
+ ],
+ [
+  "E7 resize: requests after",
+  "08-e7-dr.md",
+  "请求比例降到 76%–82%",
+  "evidence/e7/resize.log",
+  "ent-worker requests 2442Mi (76%)"
+ ],
+ [
+  "E7 in-tree Barman Cloud removed in 1.31",
+  "08-e7-dr.md",
+  "will be completely removed in CloudNativePG 1.31.0",
+  "evidence/e7/facts.log",
+  "will be completely removed in CloudNativePG 1.31.0"
+ ],
+ [
+  "E7 plugin version",
+  "08-e7-dr.md",
+  "Barman Cloud 插件 v0.15.1",
+  "evidence/e7/facts.log",
+  "ghcr.io/cloudnative-pg/plugin-barman-cloud:v0.15.1"
+ ],
+ [
+  "E7 cert-manager version",
+  "08-e7-dr.md",
+  "cert-manager v1.21.3",
+  "evidence/e7/facts.log",
+  "quay.io/jetstack/cert-manager-controller:v1.21.3"
+ ],
+ [
+  "E7 Garage version",
+  "08-e7-dr.md",
+  "Garage v2.5.0",
+  "evidence/e7/facts.log",
+  "dxflrs/garage:v2.5.0"
+ ],
+ [
+  "E7 first base backup 74 MB",
+  "08-e7-dr.md",
+  "第一份基础备份压缩后 74 MB",
+  "evidence/e7/incident-1/archive.txt",
+  "74439172 pg-main/base/20261109T141519/data.tar.gz"
+ ],
+ [
+  "E7 OpenBao OnDelete",
+  "08-e7-dr.md",
+  "OpenBao 的 StatefulSet 使用 `OnDelete` 更新策略",
+  "evidence/e7/openbao-restart.log",
+  "OnDelete template=platform-critical"
+ ],
+ [
+  "E7 primary lease 15 s",
+  "08-e7-dr.md",
+  "Lease（`data/pg-main`，15 秒",
+  "evidence/e7/facts.log",
+  "pg-main   pg-main-1   15"
+ ],
+ [
+  "E7 F0 no switchover",
+  "08-e7-dr.md",
+  "Primary is missing the WAL-archiver sidecar; recreating it in place instead of switching over",
+  "evidence/e7/f0-rollout/operator.log",
+  "Primary is missing the WAL-archiver sidecar; recreating it in place instead of switching over"
+ ],
+ [
+  "E7 smartShutdownTimeout 180 s",
+  "08-e7-dr.md",
+  "`smartShutdownTimeout`（默认 180 秒）",
+  "evidence/e7/facts.log",
+  "Default is 180 seconds."
+ ],
+ [
+  "E7 F0 outage 27.2 s",
+  "08-e7-dr.md",
+  "完全中断 27.2 秒",
+  "evidence/e7/f0-rollout/report.txt",
+  "27.2 s (seq 14485..14498)"
+ ],
+ [
+  "E7 F0 sidecar pull 11 s",
+  "08-e7-dr.md",
+  "首次拉取边车镜像（11.0 秒）",
+  "evidence/e7/f0-rollout/events.txt",
+  "in 10.991s"
+ ],
+ [
+  "E7 F0 rw without endpoint",
+  "08-e7-dr.md",
+  "`pg-main-rw` 在这 3 分钟里没有就绪的端点（14:09:21–14:12:41）",
+  "evidence/e7/f0-rollout/watch.txt",
+  "14:09:21 Waiting_for_the_instances_to_become_active cur=pg-main-3 tgt=pg-main-3 [1:T:r:worker 2:T:r:worker2 3:del:p:worker3] rw=none"
+ ],
+ [
+  "E7 F0b switchover",
+  "08-e7-dr.md",
+  "10.7 s、11.7 s、8.0 s、14.4 s",
+  "evidence/e7/f0b-switchover/report.txt",
+  "10.7 s (seq 1140..1153)"
+ ],
+ [
+  "E7 F0c switchover",
+  "08-e7-dr.md",
+  "10.7 s、11.7 s、8.0 s、14.4 s",
+  "evidence/e7/f0c-switchover/report.txt",
+  "11.7 s (seq 1127..1141)"
+ ],
+ [
+  "E7 F0d switchover",
+  "08-e7-dr.md",
+  "10.7 s、11.7 s、8.0 s、14.4 s",
+  "evidence/e7/f0d-switchover/report.txt",
+  "8.0 s (seq 1125..1138)"
+ ],
+ [
+  "E7 F0e switchover (sync)",
+  "08-e7-dr.md",
+  "10.7 s、11.7 s、8.0 s、14.4 s",
+  "evidence/e7/f0e-switchover-sync/report.txt",
+  "14.4 s (seq 1126..1167)"
+ ],
+ [
+  "E7 F1 outage",
+  "08-e7-dr.md",
+  "写入中断仍有 26.9 秒",
+  "evidence/e7/f1-delete/report.txt",
+  "26.9 s (seq 1218..1239)"
+ ],
+ [
+  "E7 F1 lease wait",
+  "08-e7-dr.md",
+  "“Acquiring primary lease”之后 16 秒才“Acquired primary lease”",
+  "evidence/e7/f1-delete/analysis.md",
+  "**16 s waiting for the lease to expire**"
+ ],
+ [
+  "E7 F2 outage",
+  "08-e7-dr.md",
+  "合计 78.0 秒",
+  "evidence/e7/f2-freeze/report.txt",
+  "78.0 s (seq 1326..1363)"
+ ],
+ [
+  "E7 F2 NotReady at 50.7 s",
+  "08-e7-dr.md",
+  "在节点被标记为 NotReady 之前（50.7 秒）",
+  "evidence/e7/f2-freeze/analysis.md",
+  "| 14:32:00.8 | 50.7 | node NotReady"
+ ],
+ [
+  "E7 F2 direct writer lost 7",
+  "08-e7-dr.md",
+  "直连写入器有 **7 次写入得到确认**",
+  "evidence/e7/f2-freeze/report-direct.txt",
+  "lost writes (acknowledged, row missing): 7"
+ ],
+ [
+  "E7 F2 fencing message",
+  "08-e7-dr.md",
+  "This is the former primary instance. Shutting it down to allow it to be demoted to a replica",
+  "evidence/e7/f2-freeze/analysis.md",
+  "14:33:06.466 \"This is the former primary instance. Shutting it down to allow it"
+ ],
+ [
+  "E7 F2 frozen statement 114 s",
+  "08-e7-dr.md",
+  "其中一条执行了 114 秒",
+  "evidence/e7/f2-freeze/analysis.md",
+  "duration: 113989.145 ms"
+ ],
+ [
+  "E7 F3 lost 3017",
+  "08-e7-dr.md",
+  "**3017 次已确认的写入丢失**",
+  "evidence/e7/f3-cut-freeze/report.txt",
+  "lost writes (acknowledged, row missing): 3017"
+ ],
+ [
+  "E7 F3 healthy during the cut",
+  "08-e7-dr.md",
+  "集群的阶段一直是“Cluster in healthy state”",
+  "evidence/e7/f3-cut-freeze/run.txt",
+  "14:39:45 Cluster_in_healthy_state cur=pg-main-2 tgt=pg-main-2 [1:T:r:worker 2:F:p:worker2 3:T:r:worker3] rw=none notready=ent-worker2:NotReady"
+ ],
+ [
+  "E7 lag metric blind",
+  "08-e7-dr.md",
+  "延迟 0，WAL 接收器 0，主库只剩一个流复制副本",
+  "evidence/e7/lag-metric.log",
+  "pg-main-2: lag=0 wal_receiver_up=0 | primary: streaming replicas=1 | cluster: Cluster in healthy state"
+ ],
+ [
+  "E7 F4 nothing lost",
+  "08-e7-dr.md",
+  "**没有丢失任何已确认的写入**",
+  "evidence/e7/f4-cut-freeze-sync/report.txt",
+  "lost writes (acknowledged, row missing): 0"
+ ],
+ [
+  "E7 F4 outage",
+  "08-e7-dr.md",
+  "写入中断 137.9 秒",
+  "evidence/e7/f4-cut-freeze-sync/report.txt",
+  "137.9 s (seq 1142..1207)"
+ ],
+ [
+  "E7 F4 unknown committed",
+  "08-e7-dr.md",
+  "30 次结果未知的写入中有 2 次其实已经提交",
+  "evidence/e7/f4-cut-freeze-sync/report.txt",
+  "unknown outcomes: 30, of them committed: 2"
+ ],
+ [
+  "E7 sync latency F4",
+  "08-e7-dr.md",
+  "增加到 5.1–5.9 ms",
+  "evidence/e7/f4-cut-freeze-sync/report.txt",
+  "commit latency ms: p50 5.1"
+ ],
+ [
+  "E7 sync latency F0e",
+  "08-e7-dr.md",
+  "增加到 5.1–5.9 ms",
+  "evidence/e7/f0e-switchover-sync/report.txt",
+  "commit latency ms: p50 5.9"
+ ],
+ [
+  "E7 incident: replica forked",
+  "08-e7-dr.md",
+  "requested starting point 0/A3000000 on timeline 5 is not in this server's history",
+  "evidence/e7/incident-1/state.log",
+  "requested starting point 0/A3000000 on timeline 5 is not in this server's history"
+ ],
+ [
+  "E7 incident: 17 minutes",
+  "08-e7-dr.md",
+  "数据库在 17 分钟（14:33–14:50）里只有一个可用的副本",
+  "evidence/e7/incident-1/postmortem.md",
+  "for **17 minutes** (14:33-14:50)"
+ ],
+ [
+  "E7 incident: alert pending",
+  "08-e7-dr.md",
+  "进入 pending（14:47:05）",
+  "evidence/e7/incident-1/repair.log",
+  "PostgresReplicaNotStreaming pg-main-3 firing since 2026-11-09T14:47:05"
+ ],
+ [
+  "E7 incident: re-clone",
+  "08-e7-dr.md",
+  "从主库克隆出新的 pg-main-3，用了 25 秒",
+  "evidence/e7/incident-1/repair.log",
+  "14:50:10 phase=Cluster in healthy state ready=3"
+ ],
+ [
+  "E7 alert false positive",
+  "08-e7-dr.md",
+  "从 15:34 一直触发到 22:27",
+  "evidence/e7/alert-false-positive.log",
+  "PostgresWALArchivingStale pg-main-1 firing since 2026-11-09T15:34:20"
+ ],
+ [
+  "E7 F4 alerts pending",
+  "08-e7-dr.md",
+  "告警在切断 35 秒后进入 pending",
+  "evidence/e7/f4-cut-freeze-sync/alerts.log",
+  "pending PostgresReplicaNotStreaming pg-main-1: 2026-11-09T14:59:00Z"
+ ],
+ [
+  "E7 pitr-1 deleted",
+  "08-e7-dr.md",
+  "| 删除的行 | 211 350 |",
+  "evidence/e7/pitr-1/run.txt",
+  "deleted 211350"
+ ],
+ [
+  "E7 pitr-1 archive caught up",
+  "08-e7-dr.md",
+  "40 秒内写满了三个段并全部归档（AD–AF，最后一个在 15:07:59）",
+  "evidence/e7/pitr-1/run.txt",
+  "last archived 0000000A00000000000000AF at 2026-11-09 15:07:59"
+ ],
+ [
+  "E7 pitr-1 103 s",
+  "08-e7-dr.md",
+  "| 从发现到数据回来 | **103 s** | **173 s** |",
+  "evidence/e7/pitr-1/run.txt",
+  "time from noticing to the rows being back: 103 s"
+ ],
+ [
+  "E7 pitr-1 later orders kept",
+  "08-e7-dr.md",
+  "| 事故后的新订单 | 212 个，未受影响 | 289 个，未受影响 |",
+  "evidence/e7/pitr-1/ids-summary.txt",
+  "in ids-after, not in ids-recovered (orders placed after the accident): 212"
+ ],
+ [
+  "E7 pitr-1 nothing missing",
+  "08-e7-dr.md",
+  "| 复制回生产库 | 211 350 行，事故前的订单无一缺失 |",
+  "evidence/e7/pitr-1/ids-summary.txt",
+  "in ids-before, missing in ids-after: 0"
+ ],
+ [
+  "E7 pitr-1 stale order reconciled",
+  "08-e7-dr.md",
+  "这一次修正了 1 笔",
+  "evidence/e7/pitr-1/reconcile.log",
+  "UPDATE 1"
+ ],
+ [
+  "E7 pitr-2 small job",
+  "08-e7-dr.md",
+  "| 删除的行 | 211 350 | 141（任务期间只写了 12 kB 的 WAL） |",
+  "evidence/e7/pitr-2/run.txt",
+  "wal written meanwhile 12 kB"
+ ],
+ [
+  "E7 pitr-2 first restore fails",
+  "08-e7-dr.md",
+  "| 第一次还原 | 90 秒后成功 | **64 秒后失败** |",
+  "evidence/e7/pitr-2/run.txt",
+  "restore failed after 64 s"
+ ],
+ [
+  "E7 pitr-2 after switch",
+  "08-e7-dr.md",
+  "| 第二次还原 | — | 强制切换 WAL 段后，95 秒 |",
+  "evidence/e7/pitr-2/run.txt",
+  "[attempt-2] pg-pitr healthy after 95 s"
+ ],
+ [
+  "E7 pitr-2 173 s",
+  "08-e7-dr.md",
+  "| 从发现到数据回来 | **103 s** | **173 s** |",
+  "evidence/e7/pitr-2/run.txt",
+  "time from noticing to the rows being back: 173 s"
+ ],
+ [
+  "E7 pitr-2 later orders kept",
+  "08-e7-dr.md",
+  "| 事故后的新订单 | 212 个，未受影响 | 289 个，未受影响 |",
+  "evidence/e7/pitr-2/run.txt",
+  "orders created after the accident (kept): 289"
+ ],
+ [
+  "E7 archive lag message",
+  "08-e7-dr.md",
+  "FATAL: recovery ended before configured recovery target was reached",
+  "evidence/e7/pitr-2/archive-lag.log",
+  "FATAL: recovery ended before configured recovery target was reached"
+ ],
+ [
+  "E7 V1 completed",
+  "08-e7-dr.md",
+  "备份的状态是 **Completed**，612 个对象，13 条警告，0 个错误",
+  "evidence/e7/v1-coverage/run.txt",
+  "phase Completed, items 612/612, warnings 13, errors 0"
+ ],
+ [
+  "E7 V1 hostPath skipped",
+  "08-e7-dr.md",
+  "Volume pgdata in pod data/pg-main-1 is a hostPath volume which is not supported for pod volume backup, skipping",
+  "evidence/e7/v1-coverage/run.txt",
+  "Volume pgdata in pod data/pg-main-1 is a hostPath volume which is not supported for pod volume backup, skipping"
+ ],
+ [
+  "E7 V1 misleading line",
+  "08-e7-dr.md",
+  "because it is backed up with PodVolumeBackup",
+  "evidence/e7/v1-coverage/run.txt",
+  "because it is backed up with PodVolumeBackup."
+ ],
+ [
+  "E7 V1 secrets in the backup",
+  "08-e7-dr.md",
+  "备份中有 22 个 Secret",
+  "evidence/e7/v1-coverage/details.log",
+  "grep -c '    - '\n22"
+ ],
+ [
+  "E7 V2 restore 12 s",
+  "08-e7-dr.md",
+  "还原开始 12 秒后应用就在运行",
+  "evidence/e7/v2-restore/run.txt",
+  "restored and running after 12 s"
+ ],
+ [
+  "E7 V2 local restored",
+  "08-e7-dr.md",
+  "local 卷上是原来的标记",
+  "evidence/e7/v2-restore/run.txt",
+  "(local): marker v2-restore 2026-11-09T15:31:38Z"
+ ],
+ [
+  "E7 S1 35 s",
+  "08-e7-dr.md",
+  "整个演练 35 秒",
+  "evidence/e7/s1-openbao/run.txt",
+  "rehearsal done in 35 s"
+ ],
+ [
+  "E7 S1 secret identical",
+  "08-e7-dr.md",
+  "恢复出来的 `secret/insight/api-key` 与生产实例的 SHA-256 相同",
+  "evidence/e7/s1-openbao/run.txt",
+  "production 1251145cb0ed8b54, restored 1251145cb0ed8b54"
+ ],
+ [
+  "E7 S1 sealed after restore",
+  "08-e7-dr.md",
+  "服务器随即重新密封，只能用**原来的**解封密钥打开",
+  "evidence/e7/s1-openbao/run.txt",
+  "after the restore: {\"initialized\":true,\"sealed\":true}"
+ ],
+ [
+  "E7 S1 throwaway token",
+  "08-e7-dr.md",
+  "一次性的根令牌被拒绝",
+  "evidence/e7/s1-openbao/run.txt",
+  "the throwaway root token after the restore: rejected"
+ ],
+ [
+  "E7 R1 last archived",
+  "08-e7-dr.md",
+  "最后一个归档的段在 22:34:01.9 进入归档",
+  "evidence/e7/r1/destroy.txt",
+  "0000000A00000000000000C7 at 2026-11-09 22:34:01.886817+00"
+ ],
+ [
+  "E7 R1 kind create 46 s",
+  "08-e7-dr.md",
+  "新集群（kind 创建用了 46 秒）",
+  "evidence/e7/r1/create.txt",
+  "kind create cluster took 46 s"
+ ],
+ [
+  "E7 R1 PriorityClass deadlock",
+  "08-e7-dr.md",
+  "no PriorityClass with name platform-critical was found",
+  "evidence/e7/r1/intervention-1.log",
+  "no PriorityClass with name platform-critical was found"
+ ],
+ [
+  "E7 R1 all apps healthy",
+  "08-e7-dr.md",
+  "| 1171 s | 34 个应用全部 Synced、Healthy |",
+  "evidence/e7/r1/wait-apps.txt",
+  "all 34 applications Synced and Healthy after 921s"
+ ],
+ [
+  "E7 R1 first order",
+  "08-e7-dr.md",
+  "| **1205 s** | **第一笔订单**（20.1 分钟）",
+  "evidence/e7/r1/restore.txt",
+  "first order after T0: 2026-11-09 22:57:27.644138+00"
+ ],
+ [
+  "E7 R1 lost writes",
+  "08-e7-dr.md",
+  "**10 550 次写入全部丢失**",
+  "evidence/e7/r1/verify.txt",
+  "lost writes (acknowledged, row missing): 10550"
+ ],
+ [
+  "E7 R1 RPO 202.5 s",
+  "08-e7-dr.md",
+  "之后到删除时刻的 202.5 秒里确认的",
+  "evidence/e7/r1/verify.txt",
+  "seq 15522 acknowledged at 22:34:00.501 (t=-202.5s)"
+ ],
+ [
+  "E7 R1 last restored write",
+  "08-e7-dr.md",
+  "最后一条被恢复的写入是 22:34:00.481 确认的",
+  "evidence/e7/r1/verify.txt",
+  "last restored write: seq 15521, acknowledged at 22:34:00.481"
+ ],
+ [
+  "E7 R1 lost orders",
+  "08-e7-dr.md",
+  "k6 在删除前得到确认的 147 笔订单",
+  "evidence/e7/r1/k6-orders.txt",
+  "acknowledged (2xx): 147"
+ ],
+ [
+  "E7 R1 JetStream before",
+  "08-e7-dr.md",
+  "JetStream 从 204 770 条消息归零",
+  "evidence/e7/r1/before.txt",
+  "\"messages\":204770"
+ ],
+ [
+  "E7 R1 Prometheus history gone",
+  "08-e7-dr.md",
+  "Prometheus 没有任何删除之前的样本",
+  "evidence/e7/r1/verify.txt",
+  "Prometheus samples older than T0: 0"
+ ],
+ [
+  "E7 R1 fix 1 verified",
+  "08-e7-dr.md",
+  "PriorityClass 移到一个新应用 `platform-baseline`（波次 −8）",
+  "evidence/e7/r1/fixes.log",
+  "tracked-by=platform-baseline:scheduling.k8s.io/PriorityClass:default/platform-critical"
+ ],
+ [
+  "E7 R1 fix 2 verified",
+  "08-e7-dr.md",
+  "OpenBao 的就绪探针改为“服务器在运行”",
+  "evidence/e7/r1/fixes.log",
+  "openbao app while sealed: Synced/Healthy"
+ ],
+ [
+  "E7 R2 OpenBao ready uninitialised",
+  "08-e7-dr.md",
+  "OpenBao 在未初始化时就 Ready",
+  "evidence/e7/r2/openbao-ready.txt",
+  "after 10 s: Ready=true"
+ ],
+ [
+  "E7 R2 all apps healthy",
+  "08-e7-dr.md",
+  "35 个应用在 15.0 分钟时全部健康",
+  "evidence/e7/r2/wait-apps.txt",
+  "all 35 applications Synced and Healthy after 692s"
+ ],
+ [
+  "E7 R2 first order",
+  "08-e7-dr.md",
+  "**第一笔订单在 15.3 分钟**",
+  "evidence/e7/r2/restore.txt",
+  "first order after T0: 2026-11-09 23:26:25.066939+00"
+ ],
+ [
+  "E7 R2 lost writes",
+  "08-e7-dr.md",
+  "55.9 秒、2956 次写入、约 62 笔订单",
+  "evidence/e7/r2/verify.txt",
+  "lost writes (acknowledged, row missing): 2956"
+ ],
+ [
+  "E7 R2 RPO window",
+  "08-e7-dr.md",
+  "55.9 秒、2956 次写入、约 62 笔订单",
+  "evidence/e7/r2/verify.txt",
+  "seq 12003 acknowledged at 23:10:10.054 (t=-55.9s)"
+ ],
+ [
+  "E7 R2 orders acknowledged",
+  "08-e7-dr.md",
+  "55.9 秒、2956 次写入、约 62 笔订单",
+  "evidence/e7/r2/k6-orders.txt",
+  "acknowledged (2xx): 349"
  ]
 ]

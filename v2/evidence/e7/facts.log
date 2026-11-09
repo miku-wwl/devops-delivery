@@ -1,0 +1,57 @@
+# transcript: E7: definitions and versions cited by chapter 8
+# recorded: 2026-11-09T23:29:39Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# E7 facts cited by chapter 8 (definitions and versions of what runs)
+$ kubectl explain cluster.spec.smartShutdownTimeout | sed -n '/DESCRIPTION/,$p' | head -8
+DESCRIPTION:
+    The time in seconds that controls the window of time reserved for the smart
+    shutdown of Postgres to complete.
+    Make sure you reserve enough time for the operator to request a fast
+    shutdown of Postgres
+    (that is: `stopDelay` - `smartShutdownTimeout`). Default is 180 seconds.
+    
+
+
+$ kubectl explain cluster.spec.switchoverDelay | sed -n '/DESCRIPTION/,$p' | head -4
+DESCRIPTION:
+    The time in seconds that is allowed for a primary PostgreSQL instance
+    to gracefully shutdown during a switchover.
+    Default value is 3600 seconds (1 hour).
+
+$ kubectl explain cluster.spec.primaryUpdateMethod | sed -n '/DESCRIPTION/,$p' | head -5
+DESCRIPTION:
+    Method to follow to upgrade the primary server during a rolling
+    update procedure, after all replicas have been successfully updated:
+    it can be with a switchover (`switchover`) or in-place (`restart` -
+    default).
+
+$ kubectl -n data get lease pg-main -o custom-columns=NAME:.metadata.name,HOLDER:.spec.holderIdentity,DURATION_S:.spec.leaseDurationSeconds
+NAME      HOLDER      DURATION_S
+pg-main   pg-main-1   15
+
+$ kubectl -n data exec -i pg-main-2 -c postgres -- psql -U postgres -tA < /mnt/c/Users/weila/AppData/Local/Temp/claude/6ff893509394a9ed/216f0e85-2cba-4879-98ea-42d820e7fcc2/scratchpad/conninfo.sql
+host=pg-main-rw user=streaming_replica port=5432 sslkey=… sslcert=… sslrootcert=… application_name=pg-main-2 sslmode=verify-ca dbname=postgres tcp_user_timeout='5000'
+tcp_keepalives_idle=0s
+tcp_user_timeout=0ms
+wal_receiver_timeout=5000ms
+wal_retrieve_retry_interval=5000ms
+wal_sender_timeout=5000ms
+
+# the operator's built-in Barman Cloud support: what the API server says about it (server-side dry run, nothing created)
+$ printf 'apiVersion: postgresql.cnpg.io/v1\nkind: Cluster\nmetadata: {name: e7-intree-probe, namespace: data}\nspec:\n  instances: 1\n  storage: {size: 1Gi}\n  backup:\n    barmanObjectStore:\n      destinationPath: s3://pg-backups/probe\n      endpointURL: http://backup-s3:3900\n      s3Credentials:\n        accessKeyId: {name: pg-backup-s3, key: ACCESS_KEY_ID}\n        secretAccessKey: {name: pg-backup-s3, key: ACCESS_SECRET_KEY}\n' | kubectl apply --dry-run=server -f - 2>&1
+Warning: Native support for Barman Cloud backups and recovery is deprecated and will be completely removed in CloudNativePG 1.31.0. Found usage in: spec.backup.barmanObjectStore. Please migrate existing clusters to the new Barman Cloud Plugin to ensure a smooth transition.
+cluster.postgresql.cnpg.io/e7-intree-probe created (server dry run)
+
+$ kubectl get pods -A -o jsonpath='{range .items[*]}{.spec.containers[*].image}{"\n"}{end}' | tr ' ' '\n' | grep -E 'cloudnative-pg|barman|cert-manager|velero|openbao|postgresql' | sort -u
+ghcr.io/cloudnative-pg/cloudnative-pg:1.30.1
+ghcr.io/cloudnative-pg/plugin-barman-cloud:v0.15.1
+ghcr.io/cloudnative-pg/postgresql:18.6-system-trixie
+quay.io/jetstack/cert-manager-cainjector:v1.21.3
+quay.io/jetstack/cert-manager-controller:v1.21.3
+quay.io/jetstack/cert-manager-webhook:v1.21.3
+quay.io/openbao/openbao:2.7.2
+velero/velero:v1.18.4
+
+$ docker inspect backup-s3 -f '{{.Config.Image}}'
+dxflrs/garage:v2.5.0
+

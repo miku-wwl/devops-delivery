@@ -25,5 +25,5 @@ Hypotheses: `rebuild-2-prediction.md` (3c52d36, before the run). T0 = 23:11:06 U
 Where the 15 minutes go now: the cluster and Argo CD 3.3 min; wave -3 alone (kube-prometheus-stack,
 Kyverno, KEDA, cert-manager, External Secrets, OpenBao) 4.6 min; PostgreSQL's wave about 2.5-3 min;
 the storefront 1.3 min. The waves serialise: each waits for the slowest application of the one
-before. OpenBao's data lag (RPO of the secret store): 44 minutes here - the hourly snapshot had not
+before. OpenBao's data lag (RPO of the secret store): about 45 minutes here (22:26:18 to T0) - the hourly snapshot had not
 run on the new cluster yet; no secret had changed, so nothing was lost.

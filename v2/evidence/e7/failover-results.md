@@ -17,7 +17,7 @@ deadline per attempt); details and timelines in each run's directory (`run.txt`,
 | F3 | replication cut 57 s, then the primary's node frozen; asynchronous | 73.7 s after the freeze | **3017** (everything acknowledged during the cut) | confirmed (about 3000) |
 | F4 | as F3, synchronous replication (ANY 1, required) | 137.9 s (59 s cut + 79 s freeze/failover) | **0** | loss confirmed; no acknowledgement during the cut confirmed; 2 of 30 unknown outcomes had committed (refuted: "unknown" is not "not written") |
 
-Commit latency (p50 / p99 of acknowledged INSERTs): asynchronous 2.7-3.1 ms / 8-12 ms (F0-F3),
+Commit latency (p50 / p99 of acknowledged INSERTs): asynchronous 2.7-3.1 ms / 8-13 ms (F0-F3),
 synchronous 5.1-5.9 ms / 15-16 ms (F0e, F4): about 2 times, within the predicted 1.5-3 times.
 
 What the numbers decompose into:
