@@ -1,8 +1,10 @@
-# openbao 0.30.7 = OpenBao v2.7.2 (released 2026-10-26), E5 / chapter 6. One server, file storage
-# on a volume, initialised and unsealed by platform/secrets/openbao-init.sh (one key share, kept
-# in ~/.lab-secrets/v2/openbao - production: several shares or auto-unseal with a KMS). After every
-# restart the server is sealed until someone unseals it. No TLS on the listener: the namespace is
-# in the ambient mesh (mTLS by ztunnel) and only the External Secrets namespace may connect.
+# openbao 0.30.7 = OpenBao v2.7.2 (released 2026-10-26), E5 / chapter 6. One server with integrated
+# storage (raft, one node) on a volume - the first try used "file", which OpenBao 2 no longer has
+# ("unknown storage type file"). Initialised and unsealed by platform/secrets/openbao-init.sh (one
+# key share, kept in ~/.lab-secrets/v2/openbao - production: several shares, or auto-unseal with a
+# KMS). After every restart the server is sealed until someone unseals it. No TLS on the listener:
+# the namespace is in the ambient mesh (mTLS by ztunnel) and only the External Secrets namespace
+# may connect.
 injector: {enabled: false}
 ui: {enabled: false}
 server:
@@ -19,6 +21,7 @@ server:
         cluster_address = "[::]:8201"
         tls_disable = 1
       }
-      storage "file" {
+      storage "raft" {
         path = "/openbao/data"
       }
+      cluster_addr = "http://POD_IP:8201"
