@@ -26,4 +26,12 @@ publish() {   # <replicas> <message>
 trap 'publish 2 "E3: gateway back to 2 replicas"; git -C "$ROOT" checkout -- "$VALUES"' EXIT
 publish 1 "E3: gateway 1 replica (capacity after losing a replica, chapter 4)"
 sleep 30
+OUT="$ROOT/v2/evidence/e3/steps-$LABEL"; mkdir -p "$OUT"
+n=$(tr ',' '
+' <<<"$RATES" | wc -l)
+# the one gateway pod's main thread: CPU and run-queue time every 10 s, for the whole step load
+bash "$HERE/sched-sample.sh" gateway $(( ${WARMUP:-30} + n * ${STEP:-120} + (n - 1) * ${RAMP:-10} + 30 )) 10   > "$OUT/sched.txt" 2>&1 &
+sampler=$!
 bash "$HERE/step-ramp.sh" "$LABEL" "$RATES"
+wait "$sampler" || true
+bash "$HERE/where-waits.sh" "$LABEL"

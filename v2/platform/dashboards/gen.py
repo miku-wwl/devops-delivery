@@ -117,6 +117,43 @@ def balance() -> dict:
             "time": {"from": "now-1h", "to": "now"}, "panels": p}
 
 
+def capacity() -> dict:
+    """Load against saturation (chapter 4): pod CPU next to the one-core ceiling of a Python
+    process, latency, event-loop lag, errors, and the time-averaged number of requests in flight
+    (rate of the duration sum = X * R, Little's law - a scraped in-flight gauge is not an average)."""
+    p = []
+    p.append(panel("Load: gateway requests per second", [
+        (f'sum(rate(http_server_requests_total{{{NS},service="gateway"}}[1m]))', "gateway req/s")],
+        "reqps", 0, 0, w=24, h=6))
+    cpu = panel("CPU per pod (cores) - one Python process saturates near 1 core", [
+        (f'sum by (pod) (rate(container_cpu_usage_seconds_total{{{NS},container="app",'
+         f'pod=~"(gateway|catalog|orders)-.*"}}[1m]))', "{{pod}}")], "none", 0, 6, w=12, h=9)
+    cpu["fieldConfig"]["defaults"]["custom"] = {"thresholdsStyle": {"mode": "line"}}
+    cpu["fieldConfig"]["defaults"]["thresholds"] = {
+        "mode": "absolute", "steps": [{"color": "transparent", "value": None}, {"color": "red", "value": 1}]}
+    cpu["fieldConfig"]["defaults"]["max"] = 1.1
+    p.append(cpu)
+    p.append(panel("p95 latency by service", [
+        (f"histogram_quantile(0.95, sum by (service, le) "
+         f"(rate(http_server_request_duration_seconds_bucket{{{NS}}}[1m])))", "{{service}}")],
+        "s", 12, 6, h=9))
+    p.append(panel("Event-loop lag p99 by service", [
+        (f"histogram_quantile(0.99, sum by (service, le) (rate(event_loop_lag_seconds_bucket{{{NS}}}[1m])))",
+         "{{service}}")], "s", 0, 15, h=8))
+    p.append(panel("Requests in flight, time-averaged (rate of the duration sum = X * R)", [
+        (f"sum by (service) (rate(http_server_request_duration_seconds_sum{{{NS}}}[1m]))", "{{service}}")],
+        "none", 12, 15, h=8))
+    p.append(panel("5xx per second by service", [
+        (f'sum by (service) (rate(http_server_requests_total{{{NS},code=~"5.."}}[1m]))', "{{service}}")],
+        "reqps", 0, 23, h=8))
+    p.append(panel("Worker nodes: CPU of all containers (cores, 4 per node)", [
+        ('sum by (node) (rate(container_cpu_usage_seconds_total{container!="",pod!="",'
+         'node=~"ent-worker.*"}[1m]))', "{{node}}")], "none", 12, 23, h=8))
+    return {"uid": "storefront-capacity", "title": "Storefront: load and saturation",
+            "tags": ["storefront", "v2"], "timezone": "utc", "schemaVersion": 39,
+            "time": {"from": "now-1h", "to": "now"}, "panels": p}
+
+
 def configmap(name: str, dashboard: dict) -> str:
     body = json.dumps(dashboard, indent=1)
     indented = "\n".join("    " + line for line in body.splitlines())
@@ -127,6 +164,7 @@ def configmap(name: str, dashboard: dict) -> str:
 
 if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)
-    for name, build in (("storefront", storefront), ("storefront-traces", traces), ("storefront-balance", balance)):
+    for name, build in (("storefront", storefront), ("storefront-traces", traces), ("storefront-balance", balance),
+                        ("storefront-capacity", capacity)):
         (OUT / f"{name}.yaml").write_text(configmap(name, build()), encoding="utf-8", newline="\n")
         print(f"wrote {OUT / f'{name}.yaml'}")

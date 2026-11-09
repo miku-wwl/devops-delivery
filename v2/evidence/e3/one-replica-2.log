@@ -1,0 +1,69 @@
+# transcript: E3: one gateway replica again, 80 to 120 it/s, with run-queue time and upstream waits
+# recorded: 2026-11-09T01:19:40Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e3/one-replica.sh one-replica-2 80,100,110,120
+platform-gitops: pushed 375df6e (E3: gateway 1 replica (capacity after losing a replica, chapter 4))
+deployment "gateway" successfully rolled out
+gateway pods running: 1
+time="2026-11-09T14:20:42+13:00" level=warning msg="Request Failed" error="Post \"http://172.20.0.8:8080/api/orders\": read tcp 172.20.0.1:45403->172.20.0.8:8080: read: connection reset by peer"
+time="2026-11-09T14:21:35+13:00" level=warning msg="Request Failed" error="Get \"http://172.20.0.8:8080/api/products?limit=20\": request timeout"
+time="2026-11-09T14:21:44+13:00" level=warning msg="Request Failed" error="Get \"http://172.20.0.8:8080/api/products?limit=20\": request timeout"
+stages=80,100,110,120 it/s, 120 s each (ramp 10 s, warm-up 30 s) iterations=53498 dropped=0
+requests=90890 (170.0/s) failed=20.41%
+browse: p50=25.6 p95=1182.1 p99=2223.9 max=58615.5 ms
+order:  p50=193.9 p95=1161.9 p99=2537.1 max=7411.0 ms
+checks: 79.59% passed
+stage 80: achieved 80.0 it/s, requests=16366 failed=4.86% | browse p50=12.6 p95=42.0 p99=421.3 max=2258.8 ms | order p50=116.3 p95=290.2 p99=1268.4 max=2467.3 ms
+stage 100: achieved 100.0 it/s, requests=20370 failed=3.34% | browse p50=14.9 p95=72.5 p99=1239.1 max=7546.7 ms | order p50=120.7 p95=369.5 p99=1902.7 max=7411.0 ms
+stage 110: achieved 110.0 it/s, requests=22416 failed=33.42% | browse p50=194.8 p95=1576.6 p99=2810.2 max=6631.7 ms | order p50=309.8 p95=1664.9 p99=3154.3 max=5836.5 ms
+stage 120: achieved 120.0 it/s, requests=24443 failed=31.21% | browse p50=199.2 p95=1372.0 p99=2214.0 max=5268.4 ms | order p50=278.1 p95=1081.2 p99=1776.3 max=3733.8 ms
+time="2026-11-09T14:29:16+13:00" level=error msg="thresholds on metrics 'http_req_duration{kind:browse}, http_req_failed{kind:browse}' have been crossed"
+=== step 80 it/s (01:20:50 .. 01:22:50)
+  service      req/s  cores ms CPU/req busiest pod    R ms  p95 ms in flight    X*R loop p99 pool p95
+  catalog      139.6  0.357       2.56       0.183     2.2     4.9      0.17   0.30      4.3     0.21
+  gateway      137.3  0.623       4.53       0.623    28.5   133.8      3.00   3.91      9.7     0.00
+  inventory     20.6  0.132       6.43       0.067    11.3    19.9      0.33   0.23      3.0     0.21
+  notifier       0.0  0.076       0.00       0.076     0.0     0.0      0.00   0.00      3.7     0.00
+  orders        24.4  0.460      18.84       0.239    96.3   208.3      2.17   2.35      3.5     0.22
+  payments      20.3  0.124       6.11       0.063    61.5   163.8      1.00   1.25      2.4     0.00
+  nodes (cores): ent-worker=0.73, ent-worker2=0.94, ent-worker3=1.86
+  platform (cores): otel-collector=0.016, pg-main=0.411, prometheus-kps=0.086, tempo=0.031, waypoint=0.27, ztunnel=0.408
+=== step 100 it/s (01:23:00 .. 01:25:00)
+  service      req/s  cores ms CPU/req busiest pod    R ms  p95 ms in flight    X*R loop p99 pool p95
+  catalog      166.6  0.385       2.31       0.199     2.3     5.0      0.17   0.38      4.6     0.19
+  gateway      169.7  0.759       4.47       0.759    31.2   138.9      6.33   5.29     17.5     0.00
+  inventory     26.0  0.159       6.14       0.081    11.9    22.1      0.33   0.31      3.1     0.20
+  notifier       0.0  0.087       0.00       0.087     0.0     0.0      0.00   0.00      3.9     0.00
+  orders        30.1  0.525      17.45       0.272    99.2   215.0      3.33   2.98      4.1     0.21
+  payments      25.3  0.142       5.61       0.071    63.3   156.3      1.33   1.60      2.6     0.00
+  nodes (cores): ent-worker=0.85, ent-worker2=1.01, ent-worker3=2.13
+  platform (cores): otel-collector=0.016, pg-main=0.45, prometheus-kps=0.093, tempo=0.032, waypoint=0.273, ztunnel=0.488
+=== step 110 it/s (01:25:10 .. 01:27:10)
+  service      req/s  cores ms CPU/req busiest pod    R ms  p95 ms in flight    X*R loop p99 pool p95
+  catalog      135.0  0.350       2.60       0.186     3.3     8.0      0.17   0.44      4.9     0.24
+  gateway      189.5  0.962       5.08       0.962   411.1  1731.5     75.67  77.91     98.3     0.00
+  inventory     28.0  0.174       6.22       0.098    13.8    28.1      0.33   0.39      4.1     0.22
+  notifier       0.0  0.101       0.00       0.101     0.0     0.0      0.00   0.00      4.5     0.00
+  orders        33.4  0.619      18.54       0.325   116.8   261.9      3.88   3.90      4.8     0.23
+  payments      27.7  0.162       5.86       0.082    61.5   156.6      1.83   1.70      2.5     0.00
+  nodes (cores): ent-worker=0.98, ent-worker2=1.01, ent-worker3=2.4
+  platform (cores): otel-collector=0.019, pg-main=0.468, prometheus-kps=0.087, tempo=0.037, waypoint=0.3, ztunnel=0.509
+=== step 120 it/s (01:27:20 .. 01:29:20)
+  service      req/s  cores ms CPU/req busiest pod    R ms  p95 ms in flight    X*R loop p99 pool p95
+  catalog      142.4  0.340       2.39       0.186     2.8     7.5      0.17   0.40      6.4     0.21
+  gateway      207.5  0.959       4.62       0.959   376.5  1614.0     89.83  78.10     86.5     0.00
+  inventory     31.3  0.198       6.33       0.102    13.6    27.6      0.00   0.42      4.3     0.21
+  notifier       0.0  0.106       0.00       0.106     0.0     0.0      0.00   0.00      5.4     0.00
+  orders        36.4  0.644      17.69       0.338   112.8   245.0      4.17   4.10      5.0     0.23
+  payments      29.7  0.173       5.83       0.089    60.7   155.3      1.55   1.80      2.4     0.00
+  nodes (cores): ent-worker=1.02, ent-worker2=1.03, ent-worker3=2.44
+  platform (cores): otel-collector=0.019, pg-main=0.493, prometheus-kps=0.097, tempo=0.033, waypoint=0.311, ztunnel=0.531
+=== step 80 it/s: where the gateway waits (2026-11-09T01:21:20+00:00 .. 2026-11-09T01:22:50+00:00)
+calls/s by upstream and outcome:
+Error from server (BadRequest): the server rejected our request for an unknown reason
+platform-gitops: pushed d43b5a1 (E3: gateway back to 2 replicas)
+Waiting for deployment "gateway" rollout to finish: 1 of 2 updated replicas are available...
+deployment "gateway" successfully rolled out
+gateway pods running: 2
+[exit 1]
+

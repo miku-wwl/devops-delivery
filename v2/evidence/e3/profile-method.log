@@ -1,0 +1,49 @@
+# transcript: E3: the facts behind the profiling method (thread ids, idle samples, listen backlogs, FastAPI pass-through)
+# recorded: 2026-11-09T01:17:56Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e3/profile-method.sh
+== gateway-fcbf876d9-9c2jd on ent-worker3, pid 143005 in the node
+-- threads: id in the node, NSpid (node, pod), name
+143005 143005 1 uvicorn
+143055 143055 13 uvicorn
+143056 143056 14 uvicorn
+143057 143057 15 uvicorn
+143058 143058 16 libuv-worker
+143059 143059 17 libuv-worker
+143060 143060 18 libuv-worker
+143061 143061 19 libuv-worker
+-- py-spy dump (thread ids as the interpreter reports them)
+Thread 1 (active): "MainThread"
+Thread 13 (idle): "OtelBatchSpanRecordProcessor"
+Thread 14 (idle): "OtelBatchLogRecordProcessor"
+Thread 15 (idle): "loopwatch"
+-- 5 s idle, default mode vs --gil
+Samples: 501 Errors: 0
+Samples: 5 Errors: 0
+-- listen sockets in the pod's network namespace (Send-Q = backlog)
+State  Recv-Q Send-Q Local Address:Port  Peer Address:Port
+LISTEN 0      128        127.0.0.1:15053      0.0.0.0:*   
+LISTEN 0      2048         0.0.0.0:8080       0.0.0.0:*   
+LISTEN 0      128            [::1]:15053         [::]:*   
+LISTEN 0      128                *:15008            *:*   
+LISTEN 0      128                *:15006            *:*   
+LISTEN 0      128                *:15001            *:*   
+-- fastapi/telemetry/_asgi.py: the pass-through when nothing is configured
+fastapi 0.162.0
+260         metering = config["metrics"] and not legacy_otel and not is_websocket
+261         if tracing:
+262             provider = config["tracer_provider"] or trace.get_tracer_provider()
+263             tracing = not (
+264                 (config["tracer_provider"] is None and _unconfigured(provider))
+265                 or isinstance(provider, trace.NoOpTracerProvider)
+266             )
+267         if metering:
+268             meter_provider = config["meter_provider"] or metrics.get_meter_provider()
+269             metering = not (
+270                 (config["meter_provider"] is None and _unconfigured(meter_provider))
+271                 or isinstance(meter_provider, metrics.NoOpMeterProvider)
+272             )
+273         if not tracing and not metering and not logging:
+274             await app(scope, receive, send)
+275             return
+

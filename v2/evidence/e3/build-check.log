@@ -1,0 +1,25 @@
+# E3 closing checks on Windows (book build, evidence verification of v2 and v1, v1 QA self-tests)
+# recorded: 2026-11-09T01:47:16Z
+
+$ manual/.venv/Scripts/python.exe manual/tools/build.py --chapters "v2/manual/chapters/*.md" --metadata v2/manual/metadata.yaml --math mathml --out manual/build/v2-check.pdf
+pandoc: 4 chapter file(s) -> manual\build\manual.html (5 image path(s) rebased from v2\manual\chapters)
+pdf: manual\build\v2-check.pdf | pages=63 (pass1=63) | headings mapped=105/105 | 5.2 MB | 16s
+
+$ manual/.venv/Scripts/python.exe manual/tools/verify_evidence.py --root v2 --out v2/evidence/e3/verify-evidence.md
+| 7 exercises | 27 | 0 |
+| 8 spot checks | 74 | 0 |
+
+RESULT: PASS
+
+$ manual/.venv/Scripts/python.exe manual/tools/verify_evidence.py --out manual/build/verify-v1.md
+| 7 exercises | 76 | 0 |
+| 8 spot checks | 31 | 0 |
+
+RESULT: PASS
+
+$ manual/.venv/Scripts/python.exe manual/tools/test_qa_tools.py   (run at 2026-11-09 14:38 local, output tail)
+Ran 11 tests in 266.201s
+
+OK
+
+[exited with code 0]

@@ -1,0 +1,9 @@
+title: "企业级生产环境高保真仿真：平台工程与 SRE 实战"
+# volume 2 of the handbook; built with manual/tools/build.py --metadata v2/manual/metadata.yaml
+cover-title: "企业级生产环境<br/>高保真仿真"
+subtitle: "多服务系统 · 服务网格 · 容量规划 · 弹性调度 · 安全治理 · 故障注入 · 数据可靠性 · 发布治理 · 可观测性 · 控制面规模 · IaC —— 每一个结论都有执行记录"
+cover-lines:
+  - "实验仓库：github.com/miku-wwl/devops-delivery（分支 v2/enterprise，目录 v2/）"
+  - "实验环境：Windows 11 + WSL2 Ubuntu 24.04 + Docker Engine + Kind（Kubernetes v1.37，1 + 3 节点，工作节点各 4 CPU / 3 GiB）"
+  - "编写方式：Claude Code 在本机逐阶段实际执行实验，按真实输出、指标与截图编写；实验环境的能力验证不等于真实企业的生产经验"
+  - "第二册 · 2026-11"
