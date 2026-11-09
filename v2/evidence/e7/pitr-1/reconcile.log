@@ -1,0 +1,16 @@
+# pitr-1 follow-up: reconcile restored rows with the events that happened after the target (2026-11-09T15:11:25Z)
+select o.id, o.status, e.subject, e.created_at as event_at from orders o join outbox e on e.payload->>'order_id' = o.id::text where o.status = 'PENDING' and e.subject = 'orders.confirmed' and e.created_at > timestamptz '2026-11-09 15:07:19.214692+00';
+                  id                  | status  |     subject      |           event_at            
+--------------------------------------+---------+------------------+-------------------------------
+ 517105e6-333b-4e40-bc50-c3581f5b3dc8 | PENDING | orders.confirmed | 2026-11-09 15:07:19.339275+00
+
+update orders o set status = 'CONFIRMED', updated_at = e.created_at from outbox e where e.payload->>'order_id' = o.id::text and o.status = 'PENDING' and e.subject = 'orders.confirmed' and e.created_at > timestamptz '2026-11-09 15:07:19.214692+00';
+UPDATE 1
+select status, count(*) from orders where created_at < '2026-11-09 15:07:19.214692+00' group by 1 order by 1;
+      status      | count  
+------------------+--------
+ CONFIRMED        | 204199
+ FAILED           |   2999
+ PAYMENT_DECLINED |   4103
+ PENDING          |     49
+

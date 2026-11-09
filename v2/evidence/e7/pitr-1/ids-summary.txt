@@ -1,0 +1,8 @@
+# order id lists of pitr-1 (kept outside Git: 211 350 uuids each); sorted bytewise (LC_ALL=C)
+ids-before: 211348 ids, sha256 d2cb03debf562e0afd0c1dfdf92784a0369d4f9ccac4cbcb55b40d8058d60ba1
+ids-recovered: 211350 ids, sha256 2725a5008f5a9a6bd5b5f4cc59c143a617f54de59f1bffc4a447d157c3fe6b90
+ids-after: 211562 ids, sha256 9f9a04f58366078ea3645cd645fcfffa94b92f1efc142a7b4fc3412c8cdc741f
+in ids-before, missing in ids-recovered: 0
+in ids-before, missing in ids-after: 0
+in ids-recovered, missing in ids-after: 0
+in ids-after, not in ids-recovered (orders placed after the accident): 212
