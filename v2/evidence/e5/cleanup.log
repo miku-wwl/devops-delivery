@@ -1,0 +1,49 @@
+# transcript: E5 closing state: no e5-* namespaces or test policies; what stays (tenants, RBAC, NetworkPolicies, Kyverno, OpenBao - unsealed, External Secrets); certificate expiry dates
+# recorded: 2026-11-09T09:59:29Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl get ns --no-headers | awk '$1 ~ /^e5-/' | wc -l
+0
+
+$ kubectl get validatingadmissionpolicy,validatingadmissionpolicybinding --no-headers 2>/dev/null | grep -c e5-
+0
+[exit 1]
+
+$ kubectl -n argocd get applications --no-headers -o custom-columns=A:.metadata.name,S:.status.sync.status,H:.status.health.status | grep -vcE 'Synced +Healthy'
+0
+[exit 1]
+
+$ kubectl get pods -A --no-headers | grep -vcE 'Running|Completed'
+0
+[exit 1]
+
+$ kubectl -n secrets exec openbao-0 -- bao status -format=json | jq -c '{initialized, sealed, storage_type}'
+{"initialized":true,"sealed":false,"storage_type":"raft"}
+
+$ kubectl -n kyverno get deploy kyverno-admission-controller -o jsonpath='{.status.readyReplicas} kyverno admission controllers ready{"\n"}'
+2 kyverno admission controllers ready
+
+$ kubectl get clusterpolicy -o custom-columns=NAME:.metadata.name,READY:.status.conditions[0].status --no-headers
+Warning: kyverno.io/v1 ClusterPolicy is deprecated and will be removed in a future release; migrate to ValidatingPolicy, MutatingPolicy, GeneratingPolicy or ImageValidatingPolicy (policies.kyverno.io), see https://kyverno.io/docs/guides/migration-to-cel/
+tenant-namespace-defaults   True
+tenant-pods                 True
+
+$ kubectl get networkpolicy -A --no-headers | awk '{print $1}' | sort | uniq -c
+      4 argocd
+      6 data
+      2 insight
+      2 secrets
+      2 shop-dev
+      4 storefront
+
+$ for n in ent-worker ent-worker2 ent-worker3; do echo "$n: $(kubectl describe node $n | grep -E '^  memory ' | awk '{print $2, $3}') memory requested, working set $(kubectl get --raw /api/v1/nodes/$n/proxy/stats/summary | jq -r '.node.memory.workingSetBytes/1048576|floor') MiB"; done
+ent-worker: 2658Mi (99%) memory requested, working set 2108 MiB
+ent-worker2: 2314Mi (86%) memory requested, working set 2683 MiB
+ent-worker3: 2106Mi (78%) memory requested, working set 2087 MiB
+
+$ for u in alice bob carol dave carol-breakglass; do echo "$u: $(openssl x509 -in ~/.lab-secrets/v2/users/$u.crt -noout -enddate)"; done
+alice: notAfter=Nov 16 08:27:06 2026 GMT
+bob: notAfter=Nov 16 08:27:06 2026 GMT
+carol: notAfter=Nov 16 08:27:07 2026 GMT
+dave: notAfter=Nov 16 08:27:08 2026 GMT
+carol-breakglass: notAfter=Nov  9 10:49:02 2026 GMT
+

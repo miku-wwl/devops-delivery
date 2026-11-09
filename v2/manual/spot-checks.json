@@ -1034,5 +1034,446 @@
   "第一次驱逐后节点的工作集只有 2159 MiB",
   "evidence/e4/eviction-2/watch.txt",
   "07:51:51 avail=13482MiB ws=2159MiB"
+ ],
+ [
+  "E5 break-glass expired",
+  "06-e5-security.md",
+  "证书到期 09:32:35，09:49:01 的请求得到",
+  "evidence/e5/rbac-matrix-5.log",
+  "notAfter=Nov  9 09:32:35 2026 GMT"
+ ],
+ [
+  "E5 break-glass refused",
+  "06-e5-security.md",
+  "`error: You must be logged in to the server (Unauthorized)`",
+  "evidence/e5/rbac-matrix-5.log",
+  "error: You must be logged in to the server (Unauthorized)"
+ ],
+ [
+  "E5 RBAC run 1: 3 mismatches",
+  "06-e5-security.md",
+  "第一次运行有 3 项不符",
+  "evidence/e5/rbac-matrix-1.log",
+  "== 52 checks, 49 as expected, 3 mismatches"
+ ],
+ [
+  "E5 RBAC run 1: carol pods/exec",
+  "06-e5-security.md",
+  "carol 不能 `create pods/exec`",
+  "evidence/e5/rbac-matrix-1.log",
+  "carol            create      pods/exec                    storefront  yes  no   MISMATCH"
+ ],
+ [
+  "E5 RBAC run 2: 52/52",
+  "06-e5-security.md",
+  "修正写法之后，52 项全部符合",
+  "evidence/e5/rbac-matrix-2.log",
+  "== 52 checks, 52 as expected, 0 mismatches"
+ ],
+ [
+  "E5 RBAC run 3: 55/55",
+  "06-e5-security.md",
+  "角色修正后矩阵增加到 55 项",
+  "evidence/e5/rbac-matrix-3.log",
+  "== 55 checks, 55 as expected, 0 mismatches"
+ ],
+ [
+  "E5 RBAC final: 58/58",
+  "06-e5-security.md",
+  "最终 58 项全部符合预期",
+  "evidence/e5/rbac-matrix-5.log",
+  "== 58 checks, 58 as expected, 0 mismatches"
+ ],
+ [
+  "E5 audit: reason annotation",
+  "06-e5-security.md",
+  "`RoleBinding \"team-shop-viewer/storefront\" of ClusterRole \"tenant-viewer\" to Group \"team-shop\"`",
+  "evidence/e5/who-did-what.log",
+  "RoleBinding \"team-shop-viewer/storefront\" of ClusterRole \"tenant-viewer\" to Group \"team-sh"
+ ],
+ [
+  "E5 pod reads the Secret: admin hash",
+  "06-e5-security.md",
+  "Pod 打印出的值的哈希 `91fecd34d314` 与平台写入的值相同",
+  "evidence/e5/who-did-what.log",
+  "sha256 of its value: 91fecd34d314..."
+ ],
+ [
+  "E5 pod reads the Secret: pod hash",
+  "06-e5-security.md",
+  "Pod 打印出的值的哈希 `91fecd34d314` 与平台写入的值相同",
+  "evidence/e5/who-did-what.log",
+  "sha256 of the mounted value: 91fecd34d314..."
+ ],
+ [
+  "E5 escalation refused",
+  "06-e5-security.md",
+  "“attempting to grant RBAC permissions not currently held”",
+  "evidence/e5/who-did-what.log",
+  "is attempting to grant RBAC permissions not currently held"
+ ],
+ [
+  "E5 escalation: 403 with allow",
+  "06-e5-security.md",
+  "审计记录是 `403`，授权决定却是 `allow`",
+  "evidence/e5/who-did-what.log",
+  "shop-dev/alice-admin                403  allow"
+ ],
+ [
+  "E5 PSA on the ReplicaSet",
+  "06-e5-security.md",
+  "`violates PodSecurity \"restricted:latest\"`",
+  "evidence/e5/who-did-what.log",
+  "is forbidden: violates PodSecurity \"restricted:latest\""
+ ],
+ [
+  "E5 PSA audit annotation",
+  "06-e5-security.md",
+  "`pod-security.kubernetes.io/audit-violations`",
+  "evidence/e5/who-did-what.log",
+  "pod-security.kubernetes.io/audit-violations=would violate PodSecurity"
+ ],
+ [
+  "E5 exec: WebSocket get refused",
+  "06-e5-security.md",
+  "先有一条 `get pods/exec` 被拒绝（403）",
+  "evidence/e5/who-did-what.log",
+  "get     pods/exec       storefront/catalog-cdb4f59b9-cb767  403  forbid"
+ ],
+ [
+  "E5 exec: SPDY create 101",
+  "06-e5-security.md",
+  "紧接着一条 `create pods/exec` 成功（101）",
+  "evidence/e5/who-did-what.log",
+  "create  pods/exec       storefront/catalog-cdb4f59b9-cb767  101  allow"
+ ],
+ [
+  "E5 exec after the fix",
+  "06-e5-security.md",
+  "之后同样的操作只有一条 `get pods/exec 101`",
+  "evidence/e5/rbac-matrix-3.log",
+  "08:37:53.827 get pods/exec 101"
+ ],
+ [
+  "E5 exec command line audited",
+  "06-e5-security.md",
+  "`command=python&command=-c&command=print%28%27carol+was+here%27%29`",
+  "evidence/e5/who-1/audit.jsonl",
+  "command=python&command=-c&command=print%28%27carol+was+here%27%29"
+ ],
+ [
+  "E5 impersonation",
+  "06-e5-security.md",
+  "记录中用户是 `kubernetes-admin`，`impersonatedUser` 是 alice",
+  "evidence/e5/who-did-what.log",
+  "kubernetes-admin                         kubeadm:cluster-admins    as alice"
+ ],
+ [
+  "E5 chain: GitHub author",
+  "06-e5-security.md",
+  "| 08:35:32 | GitHub 提交 cbe7288 | Weilai Wang |",
+  "evidence/e5/gitops-chain.log",
+  "github commit cbe7288 by Weilai Wang at 2026-11-09T21:35:32+13:00"
+ ],
+ [
+  "E5 chain: GitLab publisher",
+  "06-e5-security.md",
+  "| 08:35:35 | GitLab 配置仓库提交 b511e37（发布脚本） | Platform Publisher |",
+  "evidence/e5/gitops-chain.log",
+  "gitlab commit b511e37e by Platform Publisher at 2026-11-09T21:35:35.000+13:00"
+ ],
+ [
+  "E5 chain: Argo CD sync",
+  "06-e5-security.md",
+  "| 08:35:37 | Argo CD 自动同步到 b511e37 | automated |",
+  "evidence/e5/gitops-chain.log",
+  "argo cd history: revision b511e37e072056a0c7bccbb704771ee96ac50255 deployed 2026-11-09T08:35:37Z initiated by {\"automated\":true}"
+ ],
+ [
+  "E5 chain: audit patch",
+  "06-e5-security.md",
+  "| 08:35:37.985 | 审计：`patch deployments insight/insight-api`",
+  "evidence/e5/gitops-chain.log",
+  "2026-11-09T08:35:37.985374Z system:serviceaccount:argocd:argocd-application-controller patch deployments/insight-api 200"
+ ],
+ [
+  "E5 controller is cluster-admin",
+  "06-e5-security.md",
+  "拥有 `* on *` 的集群权限",
+  "evidence/e5/gitops-chain.log",
+  "[{\"apiGroups\":[\"*\"],\"resources\":[\"*\"],\"verbs\":[\"*\"]}"
+ ],
+ [
+  "E5 baseline: all reachable",
+  "06-e5-security.md",
+  "36 个组合全部可达",
+  "evidence/e5/reach-baseline-2.log",
+  "e5-outside  ok   ok       ok       ok        ok      ok    ok           ok          ok"
+ ],
+ [
+  "E5 kindnet: root sockets accepted",
+  "06-e5-security.md",
+  "节点上 root 拥有的套接字发出的报文直接放行",
+  "evidence/e5/kindnet-nft.log",
+  "meta skuid 0 counter"
+ ],
+ [
+  "E5 kindnet: connection label",
+  "06-e5-security.md",
+  "会被打上连接跟踪标签，之后的报文不再检查",
+  "evidence/e5/kindnet-nft.log",
+  "ct label 28 ct state established,related counter"
+ ],
+ [
+  "E5 mesh A2: tunnel survives",
+  "06-e5-security.md",
+  "| A2 | 加默认拒绝，同一个客户端 | **成功**",
+  "evidence/e5/mesh-np-diag2-2.log",
+  "A2 default-deny ingress, same client pod                   client->server: ok"
+ ],
+ [
+  "E5 mesh A3: new connection blocked",
+  "06-e5-security.md",
+  "| A3 | 重建客户端 Pod（新连接） | 超时 |",
+  "evidence/e5/mesh-np-diag2-2.log",
+  "A3 client pod recreated (new HBONE connection)             client->server: timeout"
+ ],
+ [
+  "E5 mesh C1: app port blocks",
+  "06-e5-security.md",
+  "| C1 | 默认拒绝 + 允许客户端访问 8080（新客户端） | 超时 |",
+  "evidence/e5/mesh-np-port.log",
+  "C1 deny + allow role=client on 8080 (new client pod)           client->server: timeout"
+ ],
+ [
+  "E5 mesh C2: 15008 works",
+  "06-e5-security.md",
+  "| C2 | 默认拒绝 + 允许客户端访问 15008（新客户端） | 成功 |",
+  "evidence/e5/mesh-np-port.log",
+  "C2 deny + allow role=client on 15008 only (new client pod)     client->server: ok"
+ ],
+ [
+  "E5 mesh B1: waypoint is the source",
+  "06-e5-security.md",
+  "| B1 | 有 waypoint；允许客户端 → waypoint、客户端 → 服务端 | 超时 |",
+  "evidence/e5/mesh-np-diag2-2.log",
+  "B1 deny + client->waypoint + client->server                client->server: timeout"
+ ],
+ [
+  "E5 probe mistake: Envoy 426",
+  "06-e5-security.md",
+  "自己回复 `426 Upgrade Required`",
+  "evidence/e5/mesh-np-diag5.log",
+  "HTTP/1.1 426 Upgrade Required"
+ ],
+ [
+  "E5 proxied answer header",
+  "06-e5-security.md",
+  "经过 Envoy 转发的回复带有 `x-envoy-upstream-service-time` 头",
+  "evidence/e5/probe-headers.log",
+  "x-envoy-upstream-service-time: 39"
+ ],
+ [
+  "E5 policies: 45/45",
+  "06-e5-security.md",
+  "45 个组合全部符合",
+  "evidence/e5/reach-after.log",
+  "== 45 cells compared with reach-expected.tsv: 45 as expected, 0 mismatches"
+ ],
+ [
+  "E5 net-validate: k6 0 failures",
+  "06-e5-security.md",
+  "20 迭代/秒、60 秒的订单流量 0 失败",
+  "evidence/e5/net-validate.log",
+  "requests=2055 (35.7/s) failed=0.00%"
+ ],
+ [
+  "E5 net-validate: orders",
+  "06-e5-security.md",
+  "确认的订单 305 笔、发出的通知 304 条",
+  "evidence/e5/net-validate-2.log",
+  "   305.372"
+ ],
+ [
+  "E5 net-validate: notifications",
+  "06-e5-security.md",
+  "确认的订单 305 笔、发出的通知 304 条",
+  "evidence/e5/net-validate-2.log",
+  "   303.697"
+ ],
+ [
+  "E5 net-validate: replication",
+  "06-e5-security.md",
+  "主库看到两个副本都在流复制",
+  "evidence/e5/net-validate-2.log",
+  "primary pg-main-3: pg-main-2 streaming, pg-main-1 streaming"
+ ],
+ [
+  "E5 Kyverno webhook 80 calls",
+  "06-e5-security.md",
+  "Kyverno 的 webhook 被调用了 80 次",
+  "evidence/e5/admission.log",
+  "80 calls, mean 4.04 ms"
+ ],
+ [
+  "E5 VAP denials 0.15 ms",
+  "06-e5-security.md",
+  "平均 0.15 ms",
+  "evidence/e5/admission-metrics.log",
+  "apiserver_validating_admission_policy_check_duration_seconds_sum{enforcement_action=\"deny\",error_type=\"invalid_error\",policy=\"e5-native-images\",policy_binding=\"e5-native-images\"} 0.000462721"
+ ],
+ [
+  "E5 Kyverno restart: everything blocked",
+  "06-e5-security.md",
+  "**所有命名空间**都不能创建 Pod，34 秒（09:15:54–09:16:28）",
+  "evidence/e5/admission.log",
+  "09:15:54 shop-dev=FAIL(failed calling webhook \"validate.kyverno.svc-fail\") storefront=FAIL(failed calling webhook \"validate.kyverno.svc-fail\") e5-native=FAIL"
+ ],
+ [
+  "E5 Kyverno restart: back at 09:16:28",
+  "06-e5-security.md",
+  "**所有命名空间**都不能创建 Pod，34 秒（09:15:54–09:16:28）",
+  "evidence/e5/admission.log",
+  "09:16:28 shop-dev=ok storefront=ok e5-native=ok"
+ ],
+ [
+  "E5 step A: tenants only",
+  "06-e5-security.md",
+  "两个租户命名空间 42 秒不能创建 Pod，storefront 不受影响",
+  "evidence/e5/admission-restart-a.log",
+  "insight=FAIL(failed calling webhook \"validate.kyverno.svc-fail\") storefront=ok"
+ ],
+ [
+  "E5 step B: one failed request",
+  "06-e5-security.md",
+  "只有删除瞬间的 1 个请求失败",
+  "evidence/e5/admission-restart-b.log",
+  "09:29:12 shop-dev=FAIL(failed calling webhook \"validate.kyverno.svc-fail\") insight=ok storefront=ok"
+ ],
+ [
+  "E5 generate 1.5 s",
+  "06-e5-security.md",
+  "在 1.1–1.5 秒内获得 4 个默认对象",
+  "evidence/e5/admission.log",
+  "4 of 4 objects after 1.5 s"
+ ],
+ [
+  "E5 generate 1.1 s",
+  "06-e5-security.md",
+  "在 1.1–1.5 秒内获得 4 个默认对象",
+  "evidence/e5/admission-generate-b.log",
+  "4 of 4 generated objects after 1.1 s"
+ ],
+ [
+  "E5 Argo CD RBAC 24/24",
+  "06-e5-security.md",
+  "24 项检查全部符合预期",
+  "evidence/e5/argocd-rbac-2.log",
+  "== 24 checks, 24 as expected, 0 mismatches"
+ ],
+ [
+  "E5 Argo CD: destination refused",
+  "06-e5-security.md",
+  "“do not match any of the allowed destinations”",
+  "evidence/e5/argocd-projects.log",
+  "do not match any of the allowed destinations in project 'insight'"
+ ],
+ [
+  "E5 Argo CD: repository refused",
+  "06-e5-security.md",
+  "使用外部仓库（“is not permitted in project”）",
+  "evidence/e5/argocd-projects.log",
+  "application repo https://github.com/argoproj/argocd-example-apps.git is not permitted in project 'insight'"
+ ],
+ [
+  "E5 Argo CD: kinds refused",
+  "06-e5-security.md",
+  "“not permitted in project insight”",
+  "evidence/e5/argocd-projects.log",
+  "resource :Namespace is not permitted in project insight"
+ ],
+ [
+  "E5 OpenBao: no file storage",
+  "06-e5-security.md",
+  "OpenBao 2 没有 file 存储（“unknown storage type file”）",
+  "evidence/e5/openbao-facts.log",
+  "unknown storage type file"
+ ],
+ [
+  "E5 OpenBao: unseal dash",
+  "06-e5-security.md",
+  "`bao operator unseal -` 把短横线当作密钥本身",
+  "evidence/e5/openbao-init-1.log",
+  "'key' must be a valid hex or base64 string"
+ ],
+ [
+  "E5 OpenBao: audit through API refused",
+  "06-e5-security.md",
+  "OpenBao 2.7 不允许通过 API 启用审计设备",
+  "evidence/e5/openbao-init-2.log",
+  "cannot enable audit device via API; use declarative, config-based audit device management instead"
+ ],
+ [
+  "E5 OpenBao: unsealed after restart",
+  "06-e5-security.md",
+  "同一个脚本把它重新解封（`openbao-init-3.log`）",
+  "evidence/e5/openbao-init-3.log",
+  "status: {\"initialized\":true,\"sealed\":false,\"version\":\"2.7.2\",\"storage_type\":\"raft\"}"
+ ],
+ [
+  "E5 mTLS identities",
+  "06-e5-security.md",
+  "来源身份是 `spiffe://cluster.local/ns/external-secrets/sa/external-secrets`",
+  "evidence/e5/secrets.log",
+  "src.identity=\"spiffe://cluster.local/ns/external-secrets/sa/external-secrets\""
+ ],
+ [
+  "E5 secrets: delivery 66 s",
+  "06-e5-security.md",
+  "平台写入 insight 的 API 密钥后 66 秒",
+  "evidence/e5/secrets.log",
+  "after 66 s (refreshInterval 30 s)"
+ ],
+ [
+  "E5 secrets: cross-tenant refused",
+  "06-e5-security.md",
+  "`kubernetes-insight-secrets-reader (insight/secrets-reader) read secret/data/shop/db-password ERROR`",
+  "evidence/e5/secrets.log",
+  "kubernetes-insight-secrets-reader (insight/secrets-reader) read secret/data/shop/db-password ERROR"
+ ],
+ [
+  "E5 secrets: 7 refusals",
+  "06-e5-security.md",
+  "OpenBao 一共拒绝了 7 次读取",
+  "evidence/e5/openbao-facts.log",
+  "grep -c 'permission denied'\n7"
+ ],
+ [
+  "E5 secrets: Secret after 8 s",
+  "06-e5-security.md",
+  "Secret 在 8 秒内更新",
+  "evidence/e5/secrets.log",
+  "Secret updated after 8 s"
+ ],
+ [
+  "E5 secrets: file after 61 s, env old",
+  "06-e5-security.md",
+  "挂载在 Pod 中的文件在 61 秒后更新",
+  "evidence/e5/secrets.log",
+  "09:48:12 file 1251145cb0ed env 7ed4b9e201a2   <- first line with the new value in the file"
+ ],
+ [
+  "E5 Kyverno ClusterPolicy deprecated",
+  "06-e5-security.md",
+  "“is deprecated and will be removed in a future release”",
+  "evidence/e5/cleanup.log",
+  "kyverno.io/v1 ClusterPolicy is deprecated and will be removed in a future release"
+ ],
+ [
+  "E5 secrets: HMAC in the audit",
+  "06-e5-security.md",
+  "秘密的值以 HMAC 形式出现，不是明文",
+  "evidence/e5/openbao-facts.log",
+  "\"value_is_hmac\":{\"value\":true}"
  ]
 ]

@@ -1,0 +1,45 @@
+# transcript: E5: how kindnet enforces NetworkPolicy on a node - the set of selected pods, NFQUEUE, root-owned sockets, the connection label
+# recorded: 2026-11-09T09:54:55Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ docker exec ent-worker2 nft list table inet kindnet-network-policies | sed -n "1,40p"
+table inet kindnet-network-policies {
+	set podips-v4 {
+		type ipv4_addr
+		elements = { 10.240.2.2, 10.240.2.3,
+			     10.240.2.5, 10.240.2.6,
+			     10.240.2.52, 10.240.2.83,
+			     10.240.2.84 }
+	}
+
+	set podips-v6 {
+		type ipv6_addr
+	}
+
+	chain postrouting {
+		type filter hook postrouting priority srcnat - 5; policy accept;
+		udp dport 53 accept
+		icmpv6 type nd-router-solicit accept
+		icmpv6 type nd-router-advert accept
+		icmpv6 type nd-neighbor-solicit accept
+		icmpv6 type nd-neighbor-advert accept
+		icmpv6 type nd-redirect accept
+		meta skuid 0 counter packets 73667 bytes 35584316 accept
+		ct label 28 ct state established,related counter packets 1047245 bytes 1841427995 accept
+		ip saddr @podips-v4 queue flags bypass to 101
+		ip daddr @podips-v4 queue flags bypass to 101
+		ip6 saddr @podips-v6 queue flags bypass to 101
+		ip6 daddr @podips-v6 queue flags bypass to 101
+		ct label set 28
+	}
+
+	chain input {
+		type filter hook input priority srcnat + 1; policy accept;
+		iifname "lo" accept
+		ip saddr @podips-v4 ct state new queue flags bypass to 101
+		ip6 saddr @podips-v6 ct state new queue flags bypass to 101
+	}
+
+	chain prerouting {
+		type filter hook prerouting priority dstnat + 5; policy accept;
+		meta l4proto != udp accept
+
