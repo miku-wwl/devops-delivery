@@ -1,0 +1,18 @@
+# transcript: E5: who changed insight-api? Kubernetes audit -> Argo CD sync history -> GitLab commit -> GitHub commit
+# recorded: 2026-11-09T08:36:48Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ jq -r 'select(.user.username | test("argocd")) | "\(.requestReceivedTimestamp) \(.user.username) \(.verb) \(.objectRef.resource)/\(.objectRef.name) \(.responseStatus.code)"' v2/evidence/e5/who-1/audit.jsonl
+2026-11-09T08:35:37.985374Z system:serviceaccount:argocd:argocd-application-controller patch deployments/insight-api 200
+
+$ kubectl -n argocd get application insight -o json | jq -r '.status.history[-1] | "argo cd history: revision \(.revision) deployed \(.deployedAt) initiated by \(.initiatedBy // {} | tostring)"'
+argo cd history: revision b511e37e072056a0c7bccbb704771ee96ac50255 deployed 2026-11-09T08:35:37Z initiated by {"automated":true}
+
+$ curl -fsS -H "PRIVATE-TOKEN: $(cat ~/.lab-secrets/gitlab-root-token)" "http://localhost:8929/api/v4/projects/root%2Fplatform-gitops/repository/commits/b511e37" | jq -r '"gitlab commit \(.short_id) by \(.author_name) at \(.created_at): \(.title)"'
+gitlab commit b511e37e by Platform Publisher at 2026-11-09T21:35:35.000+13:00: E5: label the insight deployment team=insight (GitHub commit cbe7288, author Weilai Wang)
+
+$ git log -1 --format='github commit %h by %an at %aI: %s' cbe7288
+github commit cbe7288 by Weilai Wang at 2026-11-09T21:35:32+13:00: chore(v2/e5): label the insight deployment team=insight (a traced GitOps change for the audit chain); RBAC matrix corrected
+
+$ kubectl get clusterrole argocd-application-controller -o json | jq -c '.rules'
+[{"apiGroups":["*"],"resources":["*"],"verbs":["*"]},{"nonResourceURLs":["*"],"verbs":["*"]}]
+

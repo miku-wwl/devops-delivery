@@ -8,6 +8,8 @@ alice	patch	deployments	storefront	no	prod changes go through Git
 alice	get	secrets	storefront	no	nobody but break-glass reads Secrets
 alice	create	deployments	shop-dev	yes	developer in the dev namespace
 alice	create	pods:exec	shop-dev	yes	debugging in dev
+alice	get	pods:exec	shop-dev	yes	WebSocket exec is authorized as get (added after who-1)
+alice	get	pods:exec	storefront	no	no shell in prod, by either protocol
 alice	get	secrets	shop-dev	no	no Secrets, even in dev
 alice	create	secrets	shop-dev	no	Secrets come from the platform
 alice	update	resourcequotas	shop-dev	no	guard rails belong to the platform
@@ -30,6 +32,7 @@ bob	get	secrets	insight	no	no Secrets
 bob	create	networkpolicies	insight	no	guard rails belong to the platform
 carol	list	pods	*	yes	platform-wide read
 carol	create	pods:exec	storefront	yes	operator: shell for diagnosis
+carol	get	pods:exec	storefront	yes	WebSocket exec is authorized as get (added after who-1)
 carol	delete	pods	storefront	yes	operator: restart a pod
 carol	create	pods:eviction	storefront	yes	operator: drain a node
 carol	patch	nodes	-	yes	operator: cordon a node
