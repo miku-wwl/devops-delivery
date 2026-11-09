@@ -31,3 +31,10 @@ reportsController:
   serviceMonitor: {enabled: true}
 cleanupController:
   enabled: false
+# Chapter 6, step A: Kyverno's webhooks only see objects in namespaces labelled "tenant" (and new
+# Namespace objects with that label, for the generate rules). Before, they saw every namespace but
+# kube-system, and a restart of the only admission controller stopped pod creation everywhere.
+config:
+  webhooks:
+    namespaceSelector:
+      matchExpressions: [{key: tenant, operator: Exists}]

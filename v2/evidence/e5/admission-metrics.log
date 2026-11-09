@@ -1,0 +1,18 @@
+# transcript: E5: API server admission metrics after admission.sh - the ValidatingAdmissionPolicy records only evaluations that took an action (the 3 denials); the Kyverno webhook all calls
+# recorded: 2026-11-09T09:19:14Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl get --raw /metrics | grep -E "^apiserver_validating_admission_policy_check_(total|duration_seconds_(sum|count))"
+apiserver_validating_admission_policy_check_duration_seconds_sum{enforcement_action="deny",error_type="invalid_error",policy="e5-native-images",policy_binding="e5-native-images"} 0.000462721
+apiserver_validating_admission_policy_check_duration_seconds_count{enforcement_action="deny",error_type="invalid_error",policy="e5-native-images",policy_binding="e5-native-images"} 3
+apiserver_validating_admission_policy_check_total{enforcement_action="deny",error_type="invalid_error",policy="e5-native-images",policy_binding="e5-native-images"} 3
+
+$ kubectl get --raw /metrics | grep -E "^apiserver_admission_webhook_admission_duration_seconds_(sum|count)\{name=\"validate.kyverno.svc-fail\""
+apiserver_admission_webhook_admission_duration_seconds_sum{name="validate.kyverno.svc-fail",operation="CREATE",rejected="false",type="validating"} 1.2428138389999999
+apiserver_admission_webhook_admission_duration_seconds_count{name="validate.kyverno.svc-fail",operation="CREATE",rejected="false",type="validating"} 270
+apiserver_admission_webhook_admission_duration_seconds_sum{name="validate.kyverno.svc-fail",operation="CREATE",rejected="true",type="validating"} 10.073566994000004
+apiserver_admission_webhook_admission_duration_seconds_count{name="validate.kyverno.svc-fail",operation="CREATE",rejected="true",type="validating"} 48
+apiserver_admission_webhook_admission_duration_seconds_sum{name="validate.kyverno.svc-fail",operation="DELETE",rejected="false",type="validating"} 0.022556328
+apiserver_admission_webhook_admission_duration_seconds_count{name="validate.kyverno.svc-fail",operation="DELETE",rejected="false",type="validating"} 6
+apiserver_admission_webhook_admission_duration_seconds_sum{name="validate.kyverno.svc-fail",operation="UPDATE",rejected="false",type="validating"} 0.021548744
+apiserver_admission_webhook_admission_duration_seconds_count{name="validate.kyverno.svc-fail",operation="UPDATE",rejected="false",type="validating"} 6
+
