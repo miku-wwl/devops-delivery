@@ -14,7 +14,7 @@ env:
 # headless service: in a NATS cluster the scaler asks the consumer's leader node by name.
 keda:
   enabled: true
-  minReplicas: 1
+  minReplicas: 2   # E6: one replica was a single point of failure (node-1)
   maxReplicas: 5
   pollingInterval: 10
   triggers:
