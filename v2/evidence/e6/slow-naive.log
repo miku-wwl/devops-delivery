@@ -1,0 +1,78 @@
+# transcript: E6 [注入]: inventory 1.5 s slower, resilience mode naive (timeout 30 s, 3 immediate retries, no budget, no breaker, no bulkhead), 30 it/s
+# recorded: 2026-11-09T10:14:39Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e6/fault-phase.sh slow-naive inventory "{\"latency_ms\": 1500}" 30 120
+== mode: naive; fault on inventory: {"latency_ms": 1500}; 30 it/s; 120 s steady, 120 s fault, 120 s recovery
+10:16:39 fault on
+  inventory-59bb759d95-9xx6z {"latency_ms":1500.0,"error_rate":0.0,"status":500}
+  inventory-59bb759d95-m2r8v {"latency_ms":1500.0,"error_rate":0.0,"status":500}
+10:18:36 fault off
+  stages=30,30,30 it/s, 120,120,120 s (ramp 1 s, warm-up 5 s) iterations=10934 dropped=0
+  requests=18507 (52.9/s) failed=0.00%
+  stage 1-30: achieved 30.0 it/s, requests=6117 failed=0.00% | browse p50=12.1 p95=17.5 p99=23.9 max=129.2 ms | order p50=115.2 p95=227.7 p99=329.8 max=571.0 ms
+  stage 2-30: achieved 30.0 it/s, requests=6057 failed=0.00% | browse p50=12.1 p95=17.7 p99=23.3 max=48.5 ms | order p50=1615.8 p95=1768.8 p99=3140.6 max=3250.5 ms
+  stage 3-30: achieved 30.0 it/s, requests=6113 failed=0.00% | browse p50=12.0 p95=17.3 p99=21.7 max=56.5 ms | order p50=112.6 p95=251.0 p99=1610.8 max=1763.2 ms
+=== steady (window ending 10:16:44, last 100s)
+-- requests/s and 5xx/s per service
+  req service=catalog 54.132
+  req service=gateway 53.417
+  req service=inventory 7.878
+  req service=orders 9.162
+  req service=payments 7.751
+-- latency p95 per service (s)
+  p95 service=catalog 0.005
+  p95 service=gateway 0.135
+  p95 service=inventory 0.02
+  p95 service=orders 0.22
+  p95 service=payments 0.176
+-- calls between services per second, by outcome; retries; fast rejections
+  call outcome=ok,service=gateway,upstream=catalog 44.151
+  call outcome=ok,service=gateway,upstream=orders 9.266
+  call outcome=ok,service=orders,upstream=catalog 10.15
+  call outcome=ok,service=orders,upstream=inventory 7.909
+  call outcome=ok,service=orders,upstream=payments 7.702
+-- amplification: calls arriving at inventory per order placed at the gateway
+  ratio  1.014
+=== fault (window ending 10:18:45, last 100s)
+-- requests/s and 5xx/s per service
+  req service=catalog 53.663
+  req service=gateway 52.752
+  req service=inventory 8.602
+  req service=orders 10.182
+  req service=payments 8.331
+-- latency p95 per service (s)
+  p95 service=catalog 0.005
+  p95 service=gateway 1.694
+  p95 service=inventory 1.95
+  p95 service=orders 1.968
+  p95 service=payments 0.163
+-- calls between services per second, by outcome; retries; fast rejections
+  call outcome=ok,service=gateway,upstream=catalog 42.707
+  call outcome=ok,service=gateway,upstream=orders 10.045
+  call outcome=ok,service=orders,upstream=catalog 10.908
+  call outcome=ok,service=orders,upstream=inventory 8.567
+  call outcome=ok,service=orders,upstream=payments 8.356
+-- amplification: calls arriving at inventory per order placed at the gateway
+  ratio  1.037
+=== recovery (window ending 10:20:46, last 100s)
+-- requests/s and 5xx/s per service
+  req service=catalog 47.511
+  req service=gateway 47.71
+  req service=inventory 7.546
+  req service=orders 8.326
+  req service=payments 6.98
+-- latency p95 per service (s)
+  p95 service=catalog 0.005
+  p95 service=gateway 0.135
+  p95 service=inventory 0.02
+  p95 service=orders 0.23
+  p95 service=payments 0.173
+-- calls between services per second, by outcome; retries; fast rejections
+  call outcome=ok,service=gateway,upstream=catalog 39.231
+  call outcome=ok,service=gateway,upstream=orders 8.479
+  call outcome=ok,service=orders,upstream=catalog 9.099
+  call outcome=ok,service=orders,upstream=inventory 7.19
+  call outcome=ok,service=orders,upstream=payments 7.038
+-- amplification: calls arriving at inventory per order placed at the gateway
+  ratio  1.055
+
