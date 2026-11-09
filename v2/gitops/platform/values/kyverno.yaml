@@ -1,0 +1,33 @@
+# kyverno 3.9.2 = Kyverno v1.19.2 (released 2026-10-20), E5 / chapter 6.
+# Images from ghcr.io: the chart's default registry (reg.kyverno.io) has no pull-through mirror in
+# this lab; Kyverno publishes the same tags to ghcr.io (pulled and checked before the install).
+# One replica per controller (lab): every restart of the admission controller is an outage of
+# admission for the namespaces its webhooks cover - measured in chapter 6. Requests sized for the
+# lab, the chart's memory limits, no CPU limits (chapter 5). No cleanup controller.
+global:
+  image: {registry: ghcr.io}
+admissionController:
+  replicas: 1
+  container:
+    resources: {requests: {cpu: 50m, memory: 128Mi}, limits: {memory: 384Mi}}
+  serviceMonitor: {enabled: true}
+backgroundController:
+  replicas: 1
+  resources: {requests: {cpu: 20m, memory: 64Mi}, limits: {memory: 128Mi}}
+  serviceMonitor: {enabled: true}
+  # The generate rules (tenant-namespace-defaults) create these kinds in new tenant namespaces.
+  rbac:
+    clusterRole:
+      extraResources:
+        - apiGroups: [networking.k8s.io]
+          resources: [networkpolicies]
+          verbs: [get, list, watch, create, update, patch, delete]
+        - apiGroups: [""]
+          resources: [resourcequotas, limitranges]
+          verbs: [get, list, watch, create, update, patch, delete]
+reportsController:
+  replicas: 1
+  resources: {requests: {cpu: 20m, memory: 64Mi}, limits: {memory: 128Mi}}
+  serviceMonitor: {enabled: true}
+cleanupController:
+  enabled: false
