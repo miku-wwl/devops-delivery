@@ -65,3 +65,21 @@ spec:
     automated: {prune: true, selfHeal: true}
     syncOptions: [CreateNamespace=true, ServerSideApply=true]
     retry: {limit: 10, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}
+---
+# backup jobs of components that need their own consistent snapshot (OpenBao raft)
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: backup-jobs
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "1"}
+spec:
+  project: platform
+  source:
+    repoURL: http://gitlab:8929/root/platform-gitops.git
+    targetRevision: main
+    path: platform/manifests/backup
+  destination: {server: "https://kubernetes.default.svc", namespace: secrets}
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    retry: {limit: 10, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}

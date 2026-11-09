@@ -6,7 +6,8 @@
 # and never printed. They reach the server through stdin, never on a command line: the API server's
 # audit log records the command line of every kubectl exec (chapter 6).
 # Configuration: a KV v2 store at secret/, the Kubernetes auth method (OpenBao checks a pod's
-# service account token with a TokenReview), one read policy and one role per tenant. The audit device
+# service account token with a TokenReview), one read policy and one role per tenant, and (E7) the
+# role of the snapshot job. The audit device
 # (stdout) is declared in the server configuration: OpenBao 2.7 refuses to enable one through the API.
 set -euo pipefail
 S=$HOME/.lab-secrets/v2/openbao
@@ -36,6 +37,11 @@ bao write auth/kubernetes/role/insight bound_service_account_names=secrets-reade
   bound_service_account_namespaces=insight policies=insight-read ttl=15m >/dev/null
 bao write auth/kubernetes/role/shop bound_service_account_names=secrets-reader \
   bound_service_account_namespaces=shop-dev policies=shop-read ttl=15m >/dev/null
+# E7: the hourly raft snapshot (gitops/platform/manifests/backup/openbao-snapshot.yaml) may read the
+# snapshot endpoint and nothing else
+printf 'path "sys/storage/raft/snapshot" { capabilities = ["read"] }\n' | bao policy write raft-snapshot - >/dev/null
+bao write auth/kubernetes/role/raft-snapshot bound_service_account_names=openbao-snapshot \
+  bound_service_account_namespaces=secrets policies=raft-snapshot ttl=5m >/dev/null
 echo "configured: $(bao secrets list -format=json | grep -c '"secret/"') kv store, auth $(bao auth list -format=json | grep -o '"kubernetes/"'), policies $(bao policy list | tr '\n' ' '), audit $(bao audit list -format=json | grep -o '"stdout/"')"
 CFG
 } | ex sh -c 'read -r BAO_TOKEN; export BAO_TOKEN; sh -s'
