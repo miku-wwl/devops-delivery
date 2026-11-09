@@ -21,6 +21,8 @@ RUN=${1:?run}; RATE=${2:-5}; DETECT=${3:-60}
 OUT="$ROOT/v2/evidence/e7/$RUN"; mkdir -p "$OUT"
 exec > >(tee "$OUT/run.txt") 2>&1
 now() { date -u +%T.%3N; }
+# ids in $1 but not in $2 (both sorted bytewise: PostgreSQL orders uuids like LC_ALL=C)
+missing() { LC_ALL=C comm -23 <(LC_ALL=C sort "$OUT/$1.txt") <(LC_ALL=C sort "$OUT/$2.txt") | wc -l; }
 prim() { kubectl -n data get cluster pg-main -o jsonpath='{.status.currentPrimary}'; }
 sqlp() { kubectl -n data exec "$(prim)" -c postgres -- psql -U postgres -d orders -tAc "$1"; }
 sqlr() { kubectl -n data exec pg-pitr-1 -c postgres -- psql -U postgres -d orders -tAc "$1"; }
@@ -76,7 +78,7 @@ echo "   closed segment $(sqlp "select pg_walfile_name(pg_switch_wal())") right 
 echo "== $(now) the cleanup job (as role orders)"
 JOB=$(kubectl -n data exec -i "$(prim)" -c postgres -- psql -U postgres -d orders -tAq <<'SQL'
 SET ROLE orders;
-SELECT 'job start ' || to_char(clock_timestamp() AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"');
+SELECT 'job start ' || to_char(clock_timestamp() AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS.US') || '+00';
 -- meant: WHERE status = 'FAILED' AND created_at < now() - interval '30 days'
 WITH d AS (DELETE FROM orders WHERE created_at < now() RETURNING 1) SELECT 'deleted ' || count(*) FROM d;
 SQL
@@ -101,7 +103,7 @@ fi
 
 echo "== $(now) in pg-pitr: $(sqlr "select count(*) || ' orders, newest ' || max(created_at) from orders")"
 sqlr "copy (select id from orders order by id) to stdout" > "$OUT/ids-recovered.txt"
-echo "   ids before the accident missing in pg-pitr: $(comm -23 "$OUT/ids-before.txt" "$OUT/ids-recovered.txt" | wc -l)"
+echo "   ids before the accident missing in pg-pitr: $(missing ids-before ids-recovered)"
 
 echo "== $(now) copy back (staging table, existing ids untouched)"
 sqlp "drop table if exists orders_restored; create table orders_restored (like orders including all)" >/dev/null
@@ -112,7 +114,7 @@ sqlp "drop table orders_restored" >/dev/null
 T_DONE=$(date +%s)
 sqlp "copy (select id from orders order by id) to stdout" > "$OUT/ids-after.txt"
 echo "== $(now) after: $(sqlp "select count(*) from orders") orders"
-echo "   ids before the accident missing now: $(comm -23 "$OUT/ids-before.txt" "$OUT/ids-after.txt" | wc -l)"
+echo "   ids before the accident missing now: $(missing ids-before ids-after)"
 echo "   orders created after the accident (kept): $(sqlp "select count(*) from orders where created_at >= '$TARGET'")"
 # a restored row is the version of the target time: changes that the services tried to make to it
 # while it was missing (e.g. PENDING -> CONFIRMED after the payment) found no row and are not in it
