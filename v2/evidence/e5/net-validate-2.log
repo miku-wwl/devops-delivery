@@ -1,0 +1,18 @@
+# transcript: E5 net-validate, two checks repeated: notifications during the k6 run (the script read an empty field and printed 0) and replication seen from the primary (it asked a replica)
+# recorded: 2026-11-09T09:06:51Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ jq -r '.state.testRunDurationMs as $d | "k6 run length \($d / 1000) s; iterations \(.metrics.iterations.values.count)"' v2/evidence/e5/net-validate/k6.json
+k6 run length 57.638568188 s; iterations 1201
+
+$ bash v2/experiments/e4/promq.sh 2026-11-09T09:06:00Z 'sum(increase(orders_total{namespace="storefront",status="CONFIRMED"}[2m]))'
+   305.372
+
+$ bash v2/experiments/e4/promq.sh 2026-11-09T09:06:00Z 'sum(increase(notifier_messages_total{namespace="storefront",result="sent"}[2m]))'
+   303.697
+
+$ bash v2/experiments/e4/promq.sh 2026-11-09T09:06:00Z 'max(nats_consumer_num_pending{consumer_name="notifier"})'
+   0
+
+$ PRIM=$(kubectl -n data get cluster pg-main -o jsonpath='{.status.currentPrimary}'); echo "primary $PRIM: $(kubectl -n data exec "$PRIM" -c postgres -- psql -qtAc "select string_agg(application_name || ' ' || state, ', ') from pg_stat_replication")"
+primary pg-main-3: pg-main-2 streaming, pg-main-1 streaming
+

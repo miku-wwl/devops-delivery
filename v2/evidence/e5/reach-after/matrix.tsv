@@ -1,0 +1,6 @@
+source	dns	catalog	gateway	postgres	valkey	nats	insight-api	prometheus	otel
+insight	ok	timeout	timeout	timeout	timeout	timeout	ok	timeout	timeout
+shop-dev	ok	timeout	timeout	timeout	timeout	timeout	timeout	timeout	timeout
+storefront	ok	ok	ok	ok	ok	ok	timeout	ok	ok
+e5-outside	ok	timeout	ok	timeout	timeout	timeout	timeout	ok	ok
+monitoring	ok	ok	ok	timeout	timeout	timeout	timeout	ok	ok
