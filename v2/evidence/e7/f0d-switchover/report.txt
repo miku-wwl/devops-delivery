@@ -1,0 +1,14 @@
+attempts 3469: ok 3455, fail 13, unknown 1
+lost writes (acknowledged, row missing): 0
+unknown outcomes: 1, of them committed: 0, not committed: 1
+'fail' rows that exist anyway (classification error): 0
+  fail OperationalError: 9
+  fail TimeoutError: 4
+  unk OperationalError: 1
+write outages (no acknowledgement in between; >= 0.5 s):
+  14:36:31.552 (t=+0.4s) -> 14:36:39.584 (t=+8.5s): 8.0 s (seq 1125..1138)
+slowest acknowledgements: seq 379 31 ms at 14:36:16.607 (t=-14.5s), seq 3236 28 ms at 14:37:19.896 (t=+48.8s), seq 1482 27 ms at 14:36:46.424 (t=+15.3s)
+commit latency ms: p50 3.2, p99 10.7, max 31.0
+connections:
+  14:36:09.040 (t=-22.1s) -> 10.240.1.130/32 in_recovery=False
+  14:36:39.579 (t=+8.5s) -> 10.240.2.118/32 in_recovery=False

@@ -26,6 +26,14 @@ spec:
       # the default, written down: a finished WAL segment is archived at least every 5 minutes,
       # which bounds what a loss of the whole cluster costs (chapter 8)
       archive_timeout: 5min
+    # E7 (chapter 8, F3/F4): synchronous replication. A commit returns only after one of the two
+    # standbys (ANY 1) has flushed it: an acknowledged order survives the loss of the primary even
+    # when the other standby lags. "required": with no standby reachable, commits wait instead of
+    # quietly becoming asynchronous ("preferred") - durability over availability.
+    synchronous:
+      method: any
+      number: 1
+      dataDurability: required
   # E7: WAL archiving (and the WAL that replicas and restores fetch) through the Barman Cloud
   # plugin to the ObjectStore pg-backups (pg-backup.yaml), outside the cluster
   plugins:

@@ -62,3 +62,16 @@ current WAL segment right before the cut, so that nothing written during the cut
 replicas through the archive (archive_timeout 5 min); the F3 hypothesis is unchanged: about 3000
 acknowledged writes lost. Expected outage of F3 by the same arithmetic as F2: about 78 s after the
 freeze (the cut itself does not stop writes).
+
+## Added after F3, before F0e and F4
+
+F3: **3017 acknowledged writes lost** (everything acknowledged during the 57 s cut), outage 73.7 s
+after the freeze - as predicted. F3 also uncovered incident E7-1 (`incident-1/postmortem.md`): since
+F2 one replica had not been replicating. It was re-cloned; alert rules exist now. F4 runs with
+synchronous replication (`gitops/platform/manifests/data/pg-main.yaml`: `synchronous: {method: any,
+number: 1, dataDurability: required}`), switched on before F0e.
+
+| | Run | Hypothesis |
+|---|---|---|
+| F0e | Planned switchover to pg-main-2, synchronous replication | about 10 s, 0 lost (as F0b-d) |
+| F4 | (unchanged, above) | p50 commit latency 1.5-3 times the asynchronous runs' 2.7-3.1 ms; no acknowledgement during the cut; 0 lost after the failover; the `unk` writes that committed on the old primary are gone |

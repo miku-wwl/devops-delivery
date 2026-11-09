@@ -1,0 +1,45 @@
+# E7 (chapter 8, incident E7-1): alerts for pg-main. Before them the platform had no rule on any
+# PostgreSQL metric: after the split brain of F2 a replica stopped replicating while its pod stayed
+# Ready and the cluster "healthy" (evidence/e7/incident-1). The replicas' lag metric cannot see a
+# broken stream (it compares what a replica received with what it replayed - 0 during the cut of
+# F3); the WAL receiver and the primary's count of streaming replicas can.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata: {name: pg-main, namespace: data}
+spec:
+  groups:
+    - name: postgresql
+      rules:
+        - alert: PostgresReplicaNotStreaming
+          expr: cnpg_pg_replication_in_recovery == 1 and on (namespace, pod) cnpg_pg_replication_is_wal_receiver_up == 0
+          for: 2m
+          labels: {severity: critical}
+          annotations:
+            summary: "{{ $labels.pod }} is a replica without a WAL stream"
+            description: >-
+              It falls behind from now on; a failover to it loses everything written since.
+              Its PostgreSQL log tells why (timeline errors: re-clone it, chapter 8).
+        - alert: PostgresPrimaryMissingReplicas
+          # three instances: the primary should see two streaming replicas
+          expr: cnpg_pg_replication_streaming_replicas < 2 and on (namespace, pod) cnpg_pg_replication_in_recovery == 0
+          for: 2m
+          labels: {severity: warning}
+          annotations:
+            summary: "{{ $labels.pod }} (primary) has {{ $value }} streaming replicas"
+            description: With asynchronous replication every commit from now on exists only on the primary until the replicas catch up.
+        - alert: PostgresWALArchivingStale
+          # archive_timeout is 5 min: more than 10 min without an archived segment means archiving is stuck
+          expr: cnpg_pg_stat_archiver_seconds_since_last_archival > 600 and on (namespace, pod) cnpg_pg_replication_in_recovery == 0
+          for: 5m
+          labels: {severity: critical}
+          annotations:
+            summary: "{{ $labels.pod }} has not archived WAL for {{ $value | humanizeDuration }}"
+            description: What a loss of the whole cluster would cost grows with every minute (chapter 8).
+        - alert: PostgresBaseBackupTooOld
+          # nightly at 02:00 UTC; 26 h leaves room for one slow run
+          expr: time() - max by (namespace) (barman_cloud_cloudnative_pg_io_last_available_backup_timestamp) > 26 * 3600
+          for: 10m
+          labels: {severity: warning}
+          annotations:
+            summary: The newest base backup of pg-main is {{ $value | humanizeDuration }} old
+            description: A restore has to replay all WAL since that backup; the retention window depends on regular base backups.

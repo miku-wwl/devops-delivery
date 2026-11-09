@@ -1,0 +1,36 @@
+# transcript: Incident E7-1: repair by re-cloning the replica
+# recorded: 2026-11-09T14:49:39Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# Incident E7-1, repair: a replica whose history forked off the primary's timeline cannot catch up by
+# itself (CloudNativePG rewinds only a former primary). Destroy it with its volume; the operator clones a new one.
+$ kubectl get --raw /api/v1/namespaces/monitoring/services/kps-prometheus:9090/proxy/api/v1/alerts | jq -r '.data.alerts[] | select(.labels.alertname | test("^Postgres")) | "\(.labels.alertname) \(.labels.pod) \(.state) since \(.activeAt)"'
+PostgresReplicaNotStreaming pg-main-3 firing since 2026-11-09T14:47:05.29552272Z
+PostgresPrimaryMissingReplicas pg-main-1 firing since 2026-11-09T14:47:05.29552272Z
+
+$ kubectl cnpg destroy pg-main 3 -n data
+Instance pg-main-3 of cluster pg-main is destroyed
+
+$ for i in $(seq 1 60); do n=$(kubectl -n data get cluster pg-main -o jsonpath='{.status.readyInstances}'); p=$(kubectl -n data get cluster pg-main -o jsonpath='{.status.phase}'); [ "$n" = 3 ] && [ "$p" = "Cluster in healthy state" ] && break; sleep 5; done; echo "$(date -u +%T) phase=$p ready=$n"
+14:50:10 phase=Cluster in healthy state ready=3
+
+$ kubectl -n data get pods -l cnpg.io/cluster=pg-main -o custom-columns=NAME:.metadata.name,ROLE:.metadata.labels.cnpg\.io/instanceRole,NODE:.spec.nodeName,START:.status.startTime
+NAME        ROLE     NODE          START
+pg-main-1   <none>   ent-worker    2026-11-09T14:08:08Z
+pg-main-2   <none>   ent-worker2   2026-11-09T14:26:19Z
+pg-main-3   <none>   ent-worker3   2026-11-09T14:49:58Z
+
+$ kubectl -n data get events --field-selector involvedObject.kind=Pod --sort-by=.lastTimestamp -o custom-columns=T:.lastTimestamp,OBJ:.involvedObject.name,REASON:.reason | grep -E "join|pg-main-[4-9]" | tail -6
+2026-11-09T14:49:48Z   pg-main-3-join-c7gz8          Pulled
+2026-11-09T14:49:48Z   pg-main-3-join-c7gz8          Created
+2026-11-09T14:49:48Z   pg-main-3-join-c7gz8          Started
+2026-11-09T14:49:49Z   pg-main-3-join-c7gz8          Pulled
+2026-11-09T14:49:49Z   pg-main-3-join-c7gz8          Created
+2026-11-09T14:49:49Z   pg-main-3-join-c7gz8          Started
+
+$ kubectl -n data exec pg-main-1 -c postgres -- psql -U postgres -tAc "select application_name, state, sync_state from pg_stat_replication order by 1"
+pg-main-2|streaming|async
+pg-main-3|streaming|async
+
+$ sleep 150; kubectl get --raw /api/v1/namespaces/monitoring/services/kps-prometheus:9090/proxy/api/v1/alerts | jq -r '[.data.alerts[] | select(.labels.alertname | test("^Postgres"))] | "Postgres alerts active: \(length)"'
+Postgres alerts active: 0
+
