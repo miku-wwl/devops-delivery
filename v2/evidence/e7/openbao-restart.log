@@ -1,0 +1,43 @@
+# transcript: E7: OpenBao restart for the priority class (OnDelete) and unseal
+# recorded: 2026-11-09T14:22:18Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# E7: OpenBao gets PriorityClass platform-critical. Its StatefulSet uses updateStrategy OnDelete (chart default):
+# a changed template waits until someone deletes the pod - deliberately, because every restart seals the server.
+$ kubectl -n secrets get sts openbao -o jsonpath='{.spec.updateStrategy.type} template={.spec.template.spec.priorityClassName}{"\n"}'
+OnDelete template=platform-critical
+
+$ kubectl -n secrets get pod openbao-0 -o jsonpath='pod={.spec.priorityClassName}{"\n"}'
+pod=
+
+$ kubectl -n secrets delete pod openbao-0
+pod "openbao-0" deleted from secrets namespace
+
+$ kubectl -n secrets wait --for=jsonpath='{.status.phase}'=Running pod/openbao-0 --timeout=120s
+pod/openbao-0 condition met
+
+$ sleep 5; kubectl -n secrets exec openbao-0 -- bao status -format=json | jq -c '{initialized, sealed}'
+command terminated with exit code 2
+{"initialized":true,"sealed":true}
+[exit 2]
+
+$ bash v2/platform/secrets/openbao-init.sh 2>&1 | tail -4
+unsealed
+status: {"initialized":true,"sealed":false,"version":"2.7.2","storage_type":"raft"}
+configured: 1 kv store, auth "kubernetes/", policies default insight-read shop-read root , audit "stdout/"
+"stdout/"
+
+$ kubectl -n secrets exec openbao-0 -- bao status -format=json | jq -c '{initialized, sealed}'
+{"initialized":true,"sealed":false}
+
+$ kubectl -n secrets get pod openbao-0 -o jsonpath='pod={.spec.priorityClassName} ready={.status.containerStatuses[0].ready}{"\n"}'
+pod=platform-critical ready=true
+
+$ sleep 20; kubectl get secretstore -A -o custom-columns=NS:.metadata.namespace,NAME:.metadata.name,READY:.status.conditions[0].status
+NS         NAME      READY
+insight    openbao   True
+shop-dev   openbao   True
+
+$ kubectl get externalsecret -A -o custom-columns=NS:.metadata.namespace,NAME:.metadata.name,READY:.status.conditions[0].status,REFRESHED:.status.refreshTime
+NS        NAME              READY   REFRESHED
+insight   insight-api-key   True    2026-11-09T14:22:49Z
+

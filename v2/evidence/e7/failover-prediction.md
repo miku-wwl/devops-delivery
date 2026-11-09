@@ -24,3 +24,15 @@ a node that the run does not touch.
 
 Not measured here: the outage that the storefront's users see (asyncpg pool with
 `command_timeout` 10 s) - observed separately with k6 if the writer results leave time.
+
+## Added after F0, before F0b
+
+F0 did not test a switchover: the rollout that introduced the WAL-archiver sidecar restarted the
+primary in place (`f0-rollout/analysis.md`). F0b tests the switchover part of the F0 hypothesis
+directly: `kubectl cnpg promote pg-main pg-main-2` (planned switchover to the replica on
+ent-worker2, which then holds the primary for F1-F4: it hosts neither the CloudNativePG operator,
+ent-worker3, nor the Barman Cloud plugin, ent-worker).
+
+| | Run | Hypothesis |
+|---|---|---|
+| F0b | Planned switchover (`kubectl cnpg promote`) | One write outage of **2-10 s**; **0 lost writes** |

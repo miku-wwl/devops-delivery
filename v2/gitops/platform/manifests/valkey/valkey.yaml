@@ -32,6 +32,7 @@ spec:
     metadata:
       labels: {app.kubernetes.io/name: valkey}
     spec:
+      priorityClassName: platform-critical   # E7: pinned to its volume (chapter 7, incident 2)
       securityContext: {runAsNonRoot: true, runAsUser: 999, fsGroup: 999, seccompProfile: {type: RuntimeDefault}}
       containers:
         - name: valkey

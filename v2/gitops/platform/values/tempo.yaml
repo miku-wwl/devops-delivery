@@ -27,6 +27,8 @@ tempo:
     defaults:
       metrics_generator:
         processors: [service-graphs, span-metrics]
+# E7: pinned to its volume, may preempt a pod that took its place (chapter 7, incident 2)
+priorityClassName: platform-critical
 persistence:
   enabled: true
   size: 2Gi

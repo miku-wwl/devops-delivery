@@ -1,0 +1,38 @@
+== 14:07:35.729 run f0-rollout: primary pg-main-3 on ent-worker3, writer on ent-worker, mode rollout e7: pg-main platform-critical, switchover updates, Barman Cloud plugin (WAL archiving)
+replication: pg-main-2=streaming/async pg-main-1=streaming/async
+conn 1794233258.227 10.240.3.10/32 False
+start f0-rollout rate=50.0 deadline=2.0
+ok 1 1794233258.228 3.5
+== 14:07:58.919 fault: rollout e7: pg-main platform-critical, switchover updates, Barman Cloud plugin (WAL archiving)
+platform-gitops: pushed 0e47239 (e7: pg-main platform-critical, switchover updates, Barman Cloud plugin (WAL archiving))
+14:12:42.524 healthy again
+16041 lines -> /mnt/d/workshop/nov/devops-delivery/v2/evidence/e7/f0-rollout/writer.log
+== report (t = seconds after the fault)
+attempts 16038: ok 16024, fail 13, unknown 1
+lost writes (acknowledged, row missing): 0
+unknown outcomes: 1, of them committed: 0, not committed: 1
+'fail' rows that exist anyway (classification error): 0
+  fail TimeoutError: 13
+  unk OperationalError: 1
+write outages (no acknowledgement in between; >= 0.5 s):
+  14:12:15.426 (t=+256.5s) -> 14:12:42.582 (t=+283.7s): 27.2 s (seq 14485..14498)
+slowest acknowledgements: seq 14499 1077 ms at 14:12:41.505 (t=+282.6s), seq 14192 57 ms at 14:12:09.515 (t=+250.6s), seq 7368 55 ms at 14:09:58.672 (t=+119.8s)
+commit latency ms: p50 2.7, p99 10.3, max 1077.3
+connections:
+  14:07:38.227 (t=-20.7s) -> 10.240.3.10/32 in_recovery=False
+  14:12:42.573 (t=+283.7s) -> 10.240.3.131/32 in_recovery=False
+== timeline (lines where something changed)
+  14:07:40 Cluster_in_healthy_state cur=pg-main-3 tgt=pg-main-3 [1:T:r:worker 2:T:r:worker2 3:T:p:worker3] rw=10.240.3.10 
+  14:08:06 Waiting_for_the_instances_to_become_active cur=pg-main-3 tgt=pg-main-3 [1:del:r:worker 2:T:r:worker2 3:T:p:worker3] rw=10.240.3.10 
+  14:08:09 Waiting_for_the_instances_to_become_active cur=pg-main-3 tgt=pg-main-3 [1:F:-:worker 2:T:r:worker2 3:T:p:worker3] rw=10.240.3.10 
+  14:08:41 Waiting_for_the_instances_to_become_active cur=pg-main-3 tgt=pg-main-3 [1:F:r:worker 2:T:r:worker2 3:T:p:worker3] rw=10.240.3.10 
+  14:08:46 Waiting_for_the_instances_to_become_active cur=pg-main-3 tgt=pg-main-3 [1:T:r:worker 2:T:r:worker2 3:T:p:worker3] rw=10.240.3.10 
+  14:08:48 Waiting_for_the_instances_to_become_active cur=pg-main-3 tgt=pg-main-3 [1:T:r:worker 2:del:r:worker2 3:T:p:worker3] rw=10.240.3.10 
+  14:08:51 Waiting_for_the_instances_to_become_active cur=pg-main-3 tgt=pg-main-3 [1:T:r:worker 2:F:-:worker2 3:T:p:worker3] rw=10.240.3.10 
+  14:09:10 Waiting_for_the_instances_to_become_active cur=pg-main-3 tgt=pg-main-3 [1:T:r:worker 2:F:r:worker2 3:T:p:worker3] rw=10.240.3.10 
+  14:09:21 Waiting_for_the_instances_to_become_active cur=pg-main-3 tgt=pg-main-3 [1:T:r:worker 2:T:r:worker2 3:del:p:worker3] rw=none 
+  14:09:23 Primary_instance_is_being_restarted_without_a_switchover cur=pg-main-3 tgt=pg-main-3 [1:T:r:worker 2:T:r:worker2 3:del:p:worker3] rw=none 
+  14:12:21 Primary_instance_is_being_restarted_without_a_switchover cur=pg-main-3 tgt=pg-main-3 [1:T:r:worker 2:T:r:worker2 3:F:-:worker3] rw=none 
+  14:12:38 Primary_instance_is_being_restarted_without_a_switchover cur=pg-main-3 tgt=pg-main-3 [1:T:r:worker 2:T:r:worker2 3:F:p:worker3] rw=none 
+  14:12:41 Cluster_in_healthy_state cur=pg-main-3 tgt=pg-main-3 [1:T:r:worker 2:T:r:worker2 3:T:p:worker3] rw=10.240.3.131 
+== 49 events, 181 operator log lines; primary now pg-main-3

@@ -23,6 +23,7 @@ loki:
   pattern_ingester: {enabled: false}
 singleBinary:
   replicas: 1
+  priorityClassName: platform-critical   # E7: pinned to its volume (chapter 7, incident 2)
   resources: {requests: {cpu: 50m, memory: 192Mi}, limits: {memory: 768Mi}}
   persistence: {size: 2Gi}
 sidecar:

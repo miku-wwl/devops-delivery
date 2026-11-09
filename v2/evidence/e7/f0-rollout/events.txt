@@ -1,0 +1,49 @@
+2026-11-09T14:07:36Z Pod/drill-writer-f0-rollout Scheduled: Successfully assigned data/drill-writer-f0-rollout to ent-worker
+2026-11-09T14:07:37Z Pod/drill-writer-f0-rollout Created: Container created
+2026-11-09T14:07:37Z Pod/drill-writer-f0-rollout Pulled: Container image "ghcr.io/cloudnative-pg/postgresql:18.6-system-trixie" already present on machine and can be accessed by the pod
+2026-11-09T14:07:38Z Pod/drill-writer-f0-rollout Started: Container started
+2026-11-09T14:08:05Z Pod/pg-main-1 Killing: Stopping container postgres
+2026-11-09T14:08:05Z Cluster/pg-main UpgradingInstance: Upgrading instance pg-main-1
+2026-11-09T14:08:08Z Pod/pg-main-1 Scheduled: Successfully assigned data/pg-main-1 to ent-worker
+2026-11-09T14:08:09Z Pod/pg-main-1 Pulled: Container image "ghcr.io/cloudnative-pg/cloudnative-pg:1.30.1" already present on machine and can be accessed by the pod
+2026-11-09T14:08:10Z Pod/pg-main-1 Created: Container created
+2026-11-09T14:08:10Z Pod/pg-main-1 Started: Container started
+2026-11-09T14:08:11Z Pod/pg-main-1 Pulling: Pulling image "ghcr.io/cloudnative-pg/plugin-barman-cloud-sidecar:v0.15.1"
+2026-11-09T14:08:38Z Pod/pg-main-1 Created: Container created
+2026-11-09T14:08:38Z Pod/pg-main-1 Started: Container started
+2026-11-09T14:08:38Z Pod/pg-main-1 Pulled: Successfully pulled image "ghcr.io/cloudnative-pg/plugin-barman-cloud-sidecar:v0.15.1" in 28.338s (28.338s including waiting). Image size: 109428281 bytes.
+2026-11-09T14:08:39Z Pod/pg-main-1 Started: Container started
+2026-11-09T14:08:39Z Pod/pg-main-1 Created: Container created
+2026-11-09T14:08:39Z Pod/pg-main-1 Pulled: Container image "ghcr.io/cloudnative-pg/postgresql:18.6-system-trixie" already present on machine and can be accessed by the pod
+2026-11-09T14:08:44Z Pod/pg-main-2 Unhealthy: Readiness probe failed: Get "https://10.240.2.3:8000/readyz": net/http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)
+2026-11-09T14:08:47Z Pod/pg-main-2 Unhealthy: Readiness probe failed: Get "https://10.240.2.3:8000/readyz": dial tcp 10.240.2.3:8000: connect: connection refused
+2026-11-09T14:08:47Z Pod/pg-main-2 Killing: Stopping container postgres
+2026-11-09T14:08:47Z Cluster/pg-main UpgradingInstance: Upgrading instance pg-main-2
+2026-11-09T14:08:51Z Pod/pg-main-2 Scheduled: Successfully assigned data/pg-main-2 to ent-worker2
+2026-11-09T14:08:52Z Pod/pg-main-2 Pulled: Container image "ghcr.io/cloudnative-pg/cloudnative-pg:1.30.1" already present on machine and can be accessed by the pod
+2026-11-09T14:08:52Z Pod/pg-main-2 Created: Container created
+2026-11-09T14:08:52Z Pod/pg-main-2 Started: Container started
+2026-11-09T14:08:54Z Pod/pg-main-2 Pulling: Pulling image "ghcr.io/cloudnative-pg/plugin-barman-cloud-sidecar:v0.15.1"
+2026-11-09T14:09:06Z Pod/pg-main-2 Started: Container started
+2026-11-09T14:09:06Z Pod/pg-main-2 Created: Container created
+2026-11-09T14:09:06Z Pod/pg-main-2 Pulled: Successfully pulled image "ghcr.io/cloudnative-pg/plugin-barman-cloud-sidecar:v0.15.1" in 11.908s (11.908s including waiting). Image size: 109428281 bytes.
+2026-11-09T14:09:07Z Pod/pg-main-2 Created: Container created
+2026-11-09T14:09:07Z Pod/pg-main-2 Pulled: Container image "ghcr.io/cloudnative-pg/postgresql:18.6-system-trixie" already present on machine and can be accessed by the pod
+2026-11-09T14:09:08Z Pod/pg-main-2 Started: Container started
+2026-11-09T14:09:12Z Pod/pg-main-2 Unhealthy: Readiness probe failed: HTTP probe failed with statuscode: 500
+2026-11-09T14:09:21Z Cluster/pg-main UpgradingInstance: Upgrading instance pg-main-3
+2026-11-09T14:09:21Z Pod/pg-main-3 Killing: Stopping container postgres
+2026-11-09T14:12:14Z Pod/pg-main-3 Unhealthy: Readiness probe failed: HTTP probe failed with statuscode: 500
+2026-11-09T14:12:21Z PodDisruptionBudget/pg-main-primary NoPods: No matching pods found
+2026-11-09T14:12:21Z Pod/pg-main-3 Scheduled: Successfully assigned data/pg-main-3 to ent-worker3
+2026-11-09T14:12:22Z Pod/pg-main-3 Pulling: Pulling image "ghcr.io/cloudnative-pg/plugin-barman-cloud-sidecar:v0.15.1"
+2026-11-09T14:12:22Z Pod/pg-main-3 Created: Container created
+2026-11-09T14:12:22Z Pod/pg-main-3 Pulled: Container image "ghcr.io/cloudnative-pg/cloudnative-pg:1.30.1" already present on machine and can be accessed by the pod
+2026-11-09T14:12:23Z Pod/pg-main-3 Started: Container started
+2026-11-09T14:12:33Z Pod/pg-main-3 Created: Container created
+2026-11-09T14:12:33Z Pod/pg-main-3 Pulled: Successfully pulled image "ghcr.io/cloudnative-pg/plugin-barman-cloud-sidecar:v0.15.1" in 10.991s (10.991s including waiting). Image size: 109428281 bytes.
+2026-11-09T14:12:34Z Pod/pg-main-3 Pulled: Container image "ghcr.io/cloudnative-pg/postgresql:18.6-system-trixie" already present on machine and can be accessed by the pod
+2026-11-09T14:12:34Z Pod/pg-main-3 Created: Container created
+2026-11-09T14:12:34Z Pod/pg-main-3 Started: Container started
+2026-11-09T14:12:35Z Pod/pg-main-3 Started: Container started
+2026-11-09T14:13:17Z Pod/drill-writer-f0-rollout Killing: Stopping container writer
