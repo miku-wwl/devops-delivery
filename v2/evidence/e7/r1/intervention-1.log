@@ -1,0 +1,22 @@
+# transcript: R1 manual intervention 1: PriorityClass deadlock
+# recorded: 2026-11-09T22:46:28Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# R1 manual intervention 1: the sync waves deadlock on a fresh cluster.
+# monitoring and openbao (wave -3) use PriorityClass platform-critical (E6/E7); the PriorityClass lives in the app
+# "policies" (wave -1), which the root application creates only after wave -3 is healthy.
+$ T0=$(cat v2/evidence/e7/r1/t0); echo "T0 + $(( $(date +%s) - T0 )) s"
+T0 + 545 s
+
+$ kubectl -n monitoring get events --field-selector involvedObject.kind=StatefulSet,reason=FailedCreate -o custom-columns=MSG:.message --no-headers | sort -u | cut -c1-200
+Create Pod prometheus-kps-prometheus-0 in StatefulSet prometheus-kps-prometheus failed error: pods "prometheus-kps-prometheus-0" is forbidden: no PriorityClass with name platform-critical was found
+
+$ kubectl -n secrets get events --field-selector involvedObject.kind=StatefulSet,reason=FailedCreate -o custom-columns=MSG:.message --no-headers | sort -u | cut -c1-200
+Create Pod openbao-0 in StatefulSet openbao failed error: pods "openbao-0" is forbidden: no PriorityClass with name platform-critical was found
+
+$ kubectl -n argocd get app platform-root -o jsonpath='{.status.operationState.message}{"\n"}' | cut -c1-200
+waiting for healthy state of argoproj.io/Application/external-secrets and 1 more resources
+
+# unblock: the PriorityClass from Git, applied by hand (the app "policies" adopts it later)
+$ kubectl apply -f v2/gitops/platform/manifests/policies/priorityclasses.yaml
+priorityclass.scheduling.k8s.io/platform-critical created
+

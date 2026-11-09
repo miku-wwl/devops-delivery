@@ -1,0 +1,55 @@
+== 22:41:32 (T0 + 249 s) wait-apps.sh
+t+   0s  0/3 Synced+Healthy; not yet: gateway-api-crds=OutOfSync/Progressing istio-base=OutOfSync/Healthy platform-root=OutOfSync/Progressing 
+t+  30s  2/5 Synced+Healthy; not yet: istio-cni=OutOfSync/Healthy istiod=OutOfSync/Healthy platform-root=OutOfSync/Healthy 
+t+  35s  2/5 Synced+Healthy; not yet: istio-cni=Synced/Progressing istiod=Synced/Progressing platform-root=OutOfSync/Progressing 
+t+  46s  3/5 Synced+Healthy; not yet: istio-cni=Synced/Progressing platform-root=OutOfSync/Progressing 
+t+  51s  4/6 Synced+Healthy; not yet: platform-root=OutOfSync/Progressing ztunnel=-/- 
+t+  55s  4/6 Synced+Healthy; not yet: platform-root=OutOfSync/Progressing ztunnel=Synced/Progressing 
+t+  60s  5/6 Synced+Healthy; not yet: platform-root=OutOfSync/Healthy 
+t+  66s  6/13 Synced+Healthy; not yet: cert-manager=OutOfSync/Missing external-secrets=OutOfSync/Missing keda=OutOfSync/Missing kyverno=-/- monitoring=-/- openbao=OutOfSync/Missing platform-root=OutOfSync/Progressing 
+t+  71s  6/13 Synced+Healthy; not yet: cert-manager=OutOfSync/Progressing external-secrets=OutOfSync/Missing keda=OutOfSync/Missing kyverno=-/- monitoring=-/- openbao=OutOfSync/Missing platform-root=OutOfSync/Progressing 
+t+  76s  6/13 Synced+Healthy; not yet: cert-manager=OutOfSync/Progressing external-secrets=OutOfSync/Missing keda=OutOfSync/Missing kyverno=OutOfSync/Missing monitoring=-/- openbao=OutOfSync/Missing platform-root=OutOfSync/Progressing 
+t+  81s  6/13 Synced+Healthy; not yet: cert-manager=OutOfSync/Progressing external-secrets=OutOfSync/Progressing keda=OutOfSync/Missing kyverno=OutOfSync/Missing monitoring=OutOfSync/Missing openbao=Synced/Progressing platform-root=OutOfSync/Progressing 
+t+  87s  6/13 Synced+Healthy; not yet: cert-manager=Synced/Progressing external-secrets=OutOfSync/Progressing keda=OutOfSync/Missing kyverno=OutOfSync/Missing monitoring=OutOfSync/Missing openbao=Synced/Progressing platform-root=OutOfSync/Progressing 
+t+  96s  6/13 Synced+Healthy; not yet: cert-manager=Synced/Progressing external-secrets=OutOfSync/Progressing keda=OutOfSync/Missing kyverno=OutOfSync/Missing monitoring=OutOfSync/Healthy openbao=Synced/Progressing platform-root=OutOfSync/Progressing 
+t+ 112s  6/13 Synced+Healthy; not yet: cert-manager=Synced/Progressing external-secrets=OutOfSync/Progressing keda=OutOfSync/Missing kyverno=OutOfSync/Missing monitoring=OutOfSync/Progressing openbao=Synced/Progressing platform-root=OutOfSync/Progressing 
+t+ 121s  6/13 Synced+Healthy; not yet: cert-manager=Synced/Progressing external-secrets=OutOfSync/Progressing keda=OutOfSync/Missing kyverno=OutOfSync/Missing monitoring=OutOfSync/Degraded openbao=Synced/Progressing platform-root=OutOfSync/Progressing 
+t+ 132s  6/13 Synced+Healthy; not yet: cert-manager=Synced/Progressing external-secrets=OutOfSync/Progressing keda=OutOfSync/Missing kyverno=OutOfSync/Healthy monitoring=OutOfSync/Degraded openbao=Synced/Progressing platform-root=OutOfSync/Progressing 
+t+ 152s  7/13 Synced+Healthy; not yet: external-secrets=OutOfSync/Progressing keda=OutOfSync/Progressing kyverno=OutOfSync/Progressing monitoring=OutOfSync/Degraded openbao=Synced/Progressing platform-root=OutOfSync/Degraded 
+t+ 157s  7/13 Synced+Healthy; not yet: external-secrets=OutOfSync/Progressing keda=OutOfSync/Progressing kyverno=OutOfSync/Healthy monitoring=OutOfSync/Degraded openbao=Synced/Progressing platform-root=OutOfSync/Degraded 
+t+ 173s  7/13 Synced+Healthy; not yet: external-secrets=OutOfSync/Progressing keda=OutOfSync/Healthy kyverno=OutOfSync/Healthy monitoring=OutOfSync/Degraded openbao=Synced/Progressing platform-root=OutOfSync/Degraded 
+t+ 203s  7/13 Synced+Healthy; not yet: external-secrets=Synced/Progressing keda=OutOfSync/Healthy kyverno=OutOfSync/Healthy monitoring=OutOfSync/Degraded openbao=Synced/Progressing platform-root=OutOfSync/Degraded 
+t+ 258s  7/13 Synced+Healthy; not yet: external-secrets=Synced/Progressing keda=OutOfSync/Healthy kyverno=OutOfSync/Progressing monitoring=OutOfSync/Degraded openbao=Synced/Progressing platform-root=OutOfSync/Degraded 
+t+ 284s  7/13 Synced+Healthy; not yet: external-secrets=Synced/Progressing keda=OutOfSync/Healthy kyverno=OutOfSync/Progressing monitoring=Synced/Degraded openbao=Synced/Progressing platform-root=OutOfSync/Degraded 
+t+ 305s  8/13 Synced+Healthy; not yet: keda=OutOfSync/Healthy kyverno=OutOfSync/Progressing monitoring=Synced/Degraded openbao=Synced/Progressing platform-root=OutOfSync/Degraded 
+t+ 314s  9/13 Synced+Healthy; not yet: keda=OutOfSync/Healthy monitoring=Synced/Degraded openbao=Synced/Progressing platform-root=OutOfSync/Degraded 
+t+ 319s  10/13 Synced+Healthy; not yet: monitoring=Synced/Degraded openbao=Synced/Progressing platform-root=OutOfSync/Degraded 
+t+ 446s  11/13 Synced+Healthy; not yet: openbao=Synced/Progressing platform-root=OutOfSync/Progressing 
+t+ 523s  12/16 Synced+Healthy; not yet: cnpg-operator=OutOfSync/Missing mesh=Synced/Progressing platform-root=OutOfSync/Progressing tenants=OutOfSync/Healthy 
+t+ 527s  12/16 Synced+Healthy; not yet: cnpg-operator=OutOfSync/Healthy mesh=Synced/Progressing platform-root=OutOfSync/Progressing tenants=OutOfSync/Progressing 
+t+ 532s  12/16 Synced+Healthy; not yet: cnpg-operator=OutOfSync/Progressing mesh=Synced/Progressing platform-root=OutOfSync/Progressing tenants=OutOfSync/Progressing 
+t+ 537s  13/24 Synced+Healthy; not yet: barman-cloud=-/- cnpg-operator=OutOfSync/Progressing loki=-/- nats=-/- otel-collector=-/- platform-root=OutOfSync/Degraded policies=-/- tempo=-/- tenants=Synced/Degraded valkey=-/- velero=-/- 
+t+ 543s  13/24 Synced+Healthy; not yet: barman-cloud=OutOfSync/Missing cnpg-operator=OutOfSync/Progressing loki=-/- nats=OutOfSync/Missing otel-collector=OutOfSync/Missing platform-root=OutOfSync/Degraded policies=OutOfSync/Healthy tempo=-/- tenants=Synced/Degraded valkey=OutOfSync/Healthy velero=OutOfSync/Missing 
+t+ 548s  14/24 Synced+Healthy; not yet: barman-cloud=OutOfSync/Missing cnpg-operator=OutOfSync/Progressing loki=OutOfSync/Missing nats=OutOfSync/Missing otel-collector=OutOfSync/Missing platform-root=OutOfSync/Degraded tempo=OutOfSync/Missing tenants=Synced/Degraded valkey=Synced/Progressing velero=OutOfSync/Missing 
+t+ 558s  14/24 Synced+Healthy; not yet: barman-cloud=OutOfSync/Missing cnpg-operator=OutOfSync/Progressing loki=OutOfSync/Missing nats=Synced/Progressing otel-collector=OutOfSync/Missing platform-root=OutOfSync/Degraded tempo=OutOfSync/Missing tenants=Synced/Degraded valkey=Synced/Progressing velero=OutOfSync/Missing 
+t+ 563s  14/24 Synced+Healthy; not yet: barman-cloud=OutOfSync/Degraded cnpg-operator=OutOfSync/Progressing loki=OutOfSync/Progressing nats=Synced/Progressing otel-collector=Synced/Progressing platform-root=OutOfSync/Degraded tempo=Synced/Progressing tenants=Synced/Degraded valkey=Synced/Progressing velero=OutOfSync/Missing 
+t+ 568s  15/24 Synced+Healthy; not yet: barman-cloud=OutOfSync/Progressing cnpg-operator=OutOfSync/Progressing loki=Synced/Progressing nats=Synced/Progressing otel-collector=Synced/Progressing platform-root=OutOfSync/Degraded tempo=Synced/Progressing tenants=Synced/Degraded velero=OutOfSync/Missing 
+t+ 573s  16/24 Synced+Healthy; not yet: cnpg-operator=OutOfSync/Progressing loki=Synced/Progressing nats=Synced/Progressing openbao=Synced/Progressing platform-root=OutOfSync/Degraded tempo=Synced/Progressing tenants=Synced/Degraded velero=OutOfSync/Missing 
+t+ 579s  18/24 Synced+Healthy; not yet: loki=Synced/Progressing nats=Synced/Progressing platform-root=OutOfSync/Degraded tempo=Synced/Progressing tenants=Synced/Degraded velero=OutOfSync/Missing 
+t+ 588s  20/24 Synced+Healthy; not yet: loki=Synced/Progressing platform-root=OutOfSync/Degraded tempo=Synced/Progressing velero=OutOfSync/Healthy 
+t+ 599s  20/24 Synced+Healthy; not yet: loki=Synced/Progressing platform-root=OutOfSync/Progressing tempo=Synced/Progressing velero=OutOfSync/Progressing 
+t+ 609s  21/24 Synced+Healthy; not yet: loki=Synced/Progressing platform-root=OutOfSync/Progressing velero=OutOfSync/Progressing 
+t+ 619s  22/24 Synced+Healthy; not yet: platform-root=OutOfSync/Progressing velero=OutOfSync/Progressing 
+t+ 624s  22/26 Synced+Healthy; not yet: dashboards=OutOfSync/Missing pg-main=OutOfSync/Missing platform-root=OutOfSync/Progressing velero=OutOfSync/Progressing 
+t+ 629s  23/26 Synced+Healthy; not yet: pg-main=Synced/Progressing platform-root=OutOfSync/Progressing velero=OutOfSync/Healthy 
+t+ 635s  24/26 Synced+Healthy; not yet: pg-main=Synced/Progressing platform-root=OutOfSync/Progressing 
+t+ 844s  26/33 Synced+Healthy; not yet: platform-root=OutOfSync/Healthy storefront-catalog-prod=/- storefront-gateway-prod=/- storefront-inventory-prod=/- storefront-notifier-prod=/- storefront-orders-prod=/- storefront-payments-prod=/- 
+t+ 849s  26/34 Synced+Healthy; not yet: insight=Synced/Progressing platform-root=Synced/Progressing storefront-catalog-prod=Synced/Progressing storefront-gateway-prod=Synced/Progressing storefront-inventory-prod=Synced/Progressing storefront-notifier-prod=Synced/Progressing storefront-orders-prod=Synced/Progressing storefront-payments-prod=Synced/Progressing 
+t+ 860s  28/34 Synced+Healthy; not yet: storefront-catalog-prod=Synced/Progressing storefront-gateway-prod=Synced/Progressing storefront-inventory-prod=Synced/Progressing storefront-notifier-prod=Synced/Degraded storefront-orders-prod=Synced/Progressing storefront-payments-prod=Synced/Progressing 
+t+ 865s  28/34 Synced+Healthy; not yet: storefront-catalog-prod=Synced/Progressing storefront-gateway-prod=Synced/Degraded storefront-inventory-prod=Synced/Progressing storefront-notifier-prod=Synced/Degraded storefront-orders-prod=Synced/Progressing storefront-payments-prod=Synced/Progressing 
+t+ 880s  29/34 Synced+Healthy; not yet: storefront-catalog-prod=Synced/Progressing storefront-gateway-prod=Synced/Degraded storefront-inventory-prod=Synced/Progressing storefront-notifier-prod=Synced/Degraded storefront-orders-prod=Synced/Progressing 
+t+ 885s  30/34 Synced+Healthy; not yet: storefront-gateway-prod=Synced/Degraded storefront-inventory-prod=Synced/Progressing storefront-notifier-prod=Synced/Degraded storefront-orders-prod=Synced/Progressing 
+t+ 891s  33/34 Synced+Healthy; not yet: storefront-gateway-prod=Synced/Degraded 
+t+ 921s  34/34 Synced+Healthy; not yet: 
+all 34 applications Synced and Healthy after 921s
+== 22:56:54 (T0 + 1171 s) wait-apps.sh exit 0
