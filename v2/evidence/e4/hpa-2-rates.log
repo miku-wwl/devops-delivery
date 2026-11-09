@@ -1,0 +1,7 @@
+# transcript: E4: hpa-2 - order and notification rates in the last 3 minutes of the 170 it/s stage
+# recorded: 2026-11-09T02:37:36Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ P=/api/v1/namespaces/monitoring/services/kps-prometheus:9090/proxy/api/v1; for q in "sum(rate(notifier_messages_total[3m]))" "sum by (status)(rate(orders_total[3m]))"; do echo "$q at 02:23:30: $(kubectl get --raw "$P/query?time=$(date -d 2026-11-09T02:23:30Z +%s)&query=$(jq -rn --arg q "$q" '$q|@uri')" | jq -c '[.data.result[] | {(.metric.status // "all"): (.value[1] | tonumber | . * 10 | round / 10)}]')"; done
+sum(rate(notifier_messages_total[3m])) at 02:23:30: [{"all":35.2}]
+sum by (status)(rate(orders_total[3m])) at 02:23:30: [{"CONFIRMED":35.3},{"PAYMENT_DECLINED":0.7},{"replayed":0.5},{"FAILED":0.3}]
+

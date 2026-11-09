@@ -1,0 +1,126 @@
+# transcript: E4: a steady 90 it/s for 12 minutes - does the backlog-based notifier scaling hold or oscillate?
+# recorded: 2026-11-09T02:51:21Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e4/hpa-timeline.sh keda-steady 30 90 60 720 120
+== settings that bound the reaction time
+  metrics-server "--kubelet-preferred-address-types=InternalIP
+  metrics-server "--kubelet-use-node-status-port"
+  metrics-server "--metric-resolution=15s"
+  metrics-server "--kubelet-insecure-tls"]
+  (absent = defaults: HPA sync every 15 s, 10 % tolerance, scale-down stabilization 300 s)
+  spec:
+    maxReplicas: 6
+    metrics:
+    - resource:
+        name: cpu
+        target:
+          averageUtilization: 100
+          type: Utilization
+      type: Resource
+== k6 start 02:51:22; load step to 90 it/s at 02:52:52, back to 30 at 03:05:02
+time="2026-11-09T15:52:10+13:00" level=warning msg="Request Failed" error="Get \"http://172.20.0.8:8080/api/products?limit=20\": read tcp 172.20.0.1:43585->172.20.0.8:8080: read: connection reset by peer"
+time="2026-11-09T16:05:11+13:00" level=warning msg="Request Failed" error="Get \"http://172.20.0.8:8080/api/products?limit=20\": read tcp 172.20.0.1:45817->172.20.0.8:8080: read: connection reset by peer"
+stages=30,90,30 it/s, 60,720,120 s (ramp 10 s, warm-up 30 s) iterations=71849 dropped=0
+requests=122201 (131.0/s) failed=2.42%
+browse: p50=39.9 p95=654.6 p99=1784.4 max=7527.4 ms
+order:  p50=261.0 p95=741.1 p99=1323.7 max=3565.5 ms
+checks: 97.58% passed
+stage 1-30: achieved 30.0 it/s, requests=3067 failed=0.03% | browse p50=16.6 p95=28.7 p99=49.0 max=2069.0 ms | order p50=133.6 p95=255.1 p99=375.8 max=426.4 ms
+stage 90: achieved 90.0 it/s, requests=110130 failed=2.68% | browse p50=45.1 p95=715.8 p99=1870.4 max=7527.4 ms | order p50=277.9 p95=776.2 p99=1362.2 max=3565.5 ms
+stage 3-30: achieved 30.0 it/s, requests=6182 failed=0.02% | browse p50=16.7 p95=28.8 p99=42.9 max=1083.2 ms | order p50=142.3 p95=249.9 p99=378.1 max=510.5 ms
+time="2026-11-09T16:06:56+13:00" level=error msg="thresholds on metrics 'http_req_duration{kind:browse}, http_req_failed{kind:browse}' have been crossed"
+== HPA and pod events (newest last)
+2026-11-09T02:58:38Z   Pod                       notifier-59fddb4fd9-p8wl4    Created                        Container created
+2026-11-09T02:58:38Z   Pod                       notifier-59fddb4fd9-p8wl4    Pulled                         Container image "localhost:5001/storefront:fd38028" already present on machine and can be accessed by the pod
+2026-11-09T02:58:41Z   Pod                       notifier-59fddb4fd9-p8wl4    Unhealthy                      Startup probe failed: Get "http://10.240.1.68:8080/healthz": dial tcp 10.240.1.68:8080: connect: connection refused
+2026-11-09T02:58:44Z   Pod                       notifier-59fddb4fd9-jwrlx    Unhealthy                      Startup probe failed: Get "http://10.240.3.68:8080/healthz": dial tcp 10.240.3.68:8080: connect: connection refused
+2026-11-09T02:58:50Z   Pod                       notifier-59fddb4fd9-9g8cg    Scheduled                      Successfully assigned storefront/notifier-59fddb4fd9-9g8cg to ent-worker
+2026-11-09T02:58:50Z   HorizontalPodAutoscaler   keda-hpa-notifier            SuccessfulRescale              New size: 5; reason: external metric s0-nats-jetstream-ORDERS(&LabelSelector{MatchLabels:map[string]string{scaledobject.keda.sh/name: notifier,},MatchExpressions:[]LabelSelectorRequirement{},}) above target
+2026-11-09T02:58:50Z   Pod                       notifier-59fddb4fd9-bg7fn    Scheduled                      Successfully assigned storefront/notifier-59fddb4fd9-bg7fn to ent-worker2
+2026-11-09T02:58:50Z   Deployment                notifier                     ScalingReplicaSet              Scaled up replica set notifier-59fddb4fd9 from 3 to 5
+2026-11-09T02:58:50Z   ReplicaSet                notifier-59fddb4fd9          SuccessfulCreate               Created pod: notifier-59fddb4fd9-bg7fn
+2026-11-09T02:58:50Z   ReplicaSet                notifier-59fddb4fd9          SuccessfulCreate               Created pod: notifier-59fddb4fd9-9g8cg
+2026-11-09T02:58:52Z   Pod                       notifier-59fddb4fd9-9g8cg    Pulled                         Container image "localhost:5001/storefront:fd38028" already present on machine and can be accessed by the pod
+2026-11-09T02:58:52Z   Pod                       notifier-59fddb4fd9-bg7fn    Pulled                         Container image "localhost:5001/storefront:fd38028" already present on machine and can be accessed by the pod
+2026-11-09T02:58:52Z   Pod                       notifier-59fddb4fd9-bg7fn    Created                        Container created
+2026-11-09T02:58:52Z   Pod                       notifier-59fddb4fd9-9g8cg    Created                        Container created
+2026-11-09T02:58:52Z   Pod                       notifier-59fddb4fd9-9g8cg    Started                        Container started
+2026-11-09T02:58:53Z   Pod                       notifier-59fddb4fd9-bg7fn    Started                        Container started
+2026-11-09T02:58:56Z   Pod                       notifier-59fddb4fd9-bg7fn    Unhealthy                      Startup probe failed: Get "http://10.240.2.42:8080/healthz": dial tcp 10.240.2.42:8080: connect: connection refused
+2026-11-09T02:58:58Z   Pod                       notifier-59fddb4fd9-9g8cg    Unhealthy                      Startup probe failed: Get "http://10.240.1.69:8080/healthz": dial tcp 10.240.1.69:8080: connect: connection refused
+2026-11-09T03:03:45Z   HorizontalPodAutoscaler   keda-hpa-notifier            SuccessfulRescale              New size: 1; reason: All metrics below target
+2026-11-09T03:03:46Z   ReplicaSet                notifier-59fddb4fd9          SuccessfulDelete               Deleted pod: notifier-59fddb4fd9-bg7fn
+2026-11-09T03:03:46Z   ReplicaSet                notifier-59fddb4fd9          SuccessfulDelete               Deleted pod: notifier-59fddb4fd9-9g8cg
+2026-11-09T03:03:46Z   Pod                       notifier-59fddb4fd9-bg7fn    Killing                        Stopping container app
+2026-11-09T03:03:46Z   Pod                       notifier-59fddb4fd9-rtrxl    Killing                        Stopping container app
+2026-11-09T03:03:46Z   Pod                       notifier-59fddb4fd9-9g8cg    Killing                        Stopping container app
+2026-11-09T03:03:46Z   Deployment                notifier                     ScalingReplicaSet              Scaled down replica set notifier-59fddb4fd9 from 5 to 1
+2026-11-09T03:03:46Z   Pod                       notifier-59fddb4fd9-p8wl4    Killing                        Stopping container app
+2026-11-09T03:03:46Z   ReplicaSet                notifier-59fddb4fd9          SuccessfulDelete               Deleted pod: notifier-59fddb4fd9-rtrxl
+2026-11-09T03:03:46Z   ReplicaSet                notifier-59fddb4fd9          SuccessfulDelete               Deleted pod: notifier-59fddb4fd9-p8wl4
+2026-11-09T03:04:01Z   ReplicaSet                notifier-59fddb4fd9          SuccessfulCreate               Created pod: notifier-59fddb4fd9-2xmbk
+2026-11-09T03:04:01Z   Deployment                notifier                     ScalingReplicaSet              Scaled up replica set notifier-59fddb4fd9 from 1 to 2
+2026-11-09T03:04:01Z   Pod                       notifier-59fddb4fd9-2xmbk    Scheduled                      Successfully assigned storefront/notifier-59fddb4fd9-2xmbk to ent-worker
+2026-11-09T03:04:01Z   HorizontalPodAutoscaler   keda-hpa-notifier            SuccessfulRescale              New size: 2; reason: external metric s0-nats-jetstream-ORDERS(&LabelSelector{MatchLabels:map[string]string{scaledobject.keda.sh/name: notifier,},MatchExpressions:[]LabelSelectorRequirement{},}) above target
+2026-11-09T03:04:03Z   Pod                       notifier-59fddb4fd9-2xmbk    Started                        Container started
+2026-11-09T03:04:03Z   Pod                       notifier-59fddb4fd9-2xmbk    Created                        Container created
+2026-11-09T03:04:03Z   Pod                       notifier-59fddb4fd9-2xmbk    Pulled                         Container image "localhost:5001/storefront:fd38028" already present on machine and can be accessed by the pod
+2026-11-09T03:04:06Z   Pod                       notifier-59fddb4fd9-2xmbk    Unhealthy                      Startup probe failed: Get "http://10.240.1.70:8080/healthz": dial tcp 10.240.1.70:8080: connect: connection refused
+2026-11-09T03:04:15Z   Deployment                notifier                     ScalingReplicaSet              Scaled up replica set notifier-59fddb4fd9 from 2 to 4
+2026-11-09T03:04:15Z   HorizontalPodAutoscaler   keda-hpa-notifier            SuccessfulRescale              New size: 4; reason: external metric s0-nats-jetstream-ORDERS(&LabelSelector{MatchLabels:map[string]string{scaledobject.keda.sh/name: notifier,},MatchExpressions:[]LabelSelectorRequirement{},}) above target
+2026-11-09T03:04:15Z   ReplicaSet                notifier-59fddb4fd9          SuccessfulCreate               Created pod: notifier-59fddb4fd9-wb7zr
+2026-11-09T03:04:15Z   ReplicaSet                notifier-59fddb4fd9          SuccessfulCreate               Created pod: notifier-59fddb4fd9-99d27
+2026-11-09T03:04:15Z   Pod                       notifier-59fddb4fd9-wb7zr    Scheduled                      Successfully assigned storefront/notifier-59fddb4fd9-wb7zr to ent-worker2
+2026-11-09T03:04:15Z   Pod                       notifier-59fddb4fd9-99d27    Scheduled                      Successfully assigned storefront/notifier-59fddb4fd9-99d27 to ent-worker
+2026-11-09T03:04:20Z   Pod                       notifier-59fddb4fd9-99d27    Started                        Container started
+2026-11-09T03:04:20Z   Pod                       notifier-59fddb4fd9-99d27    Created                        Container created
+2026-11-09T03:04:20Z   Pod                       notifier-59fddb4fd9-99d27    Pulled                         Container image "localhost:5001/storefront:fd38028" already present on machine and can be accessed by the pod
+2026-11-09T03:04:21Z   Pod                       notifier-59fddb4fd9-wb7zr    Created                        Container created
+2026-11-09T03:04:21Z   Pod                       notifier-59fddb4fd9-wb7zr    Started                        Container started
+2026-11-09T03:04:21Z   Pod                       notifier-59fddb4fd9-wb7zr    Pulled                         Container image "localhost:5001/storefront:fd38028" already present on machine and can be accessed by the pod
+2026-11-09T03:04:23Z   Pod                       notifier-59fddb4fd9-wb7zr    Unhealthy                      Startup probe failed: Get "http://10.240.2.43:8080/healthz": dial tcp 10.240.2.43:8080: connect: connection refused
+2026-11-09T03:04:24Z   Pod                       notifier-59fddb4fd9-99d27    Unhealthy                      Startup probe failed: Get "http://10.240.1.71:8080/healthz": dial tcp 10.240.1.71:8080: connect: connection refused
+== gateway pods: created, scheduled, containers ready, ready
+gateway-7b844f9fc9-qhww7	ent-worker	2026-11-09T01:52:56Z	2026-11-09T01:52:56Z	2026-11-09T01:53:05Z	2026-11-09T01:53:05Z
+gateway-7b844f9fc9-gm44w	ent-worker3	2026-11-09T01:52:56Z	2026-11-09T01:52:56Z	2026-11-09T01:53:07Z	2026-11-09T01:53:07Z
+gateway-7b844f9fc9-9w9qj	ent-worker2	2026-11-09T02:53:24Z	2026-11-09T02:53:24Z	2026-11-09T02:53:34Z	2026-11-09T02:53:34Z
+gateway-7b844f9fc9-q697p	ent-worker3	2026-11-09T02:56:21Z	2026-11-09T02:56:21Z	2026-11-09T02:56:29Z	2026-11-09T02:56:29Z
+== watcher: lines where the HPA decision or the pod set changed
+02:51:22 | hpa 2 2 29 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:53:24 | hpa 3 2 117 | deploy 3 2 | 9w9qj:Pending:false gm44w:Running:true qhww7:Running:true 
+02:53:26 | hpa 3 2 117 | deploy 3 2 | 9w9qj:Running:false gm44w:Running:true qhww7:Running:true 
+02:53:35 | hpa 3 2 117 | deploy 3 3 | 9w9qj:Running:true gm44w:Running:true qhww7:Running:true 
+02:53:40 | hpa 3 3 118 | deploy 3 3 | 9w9qj:Running:true gm44w:Running:true qhww7:Running:true 
+02:56:22 | hpa 4 3 112 | deploy 4 3 | 9w9qj:Running:true gm44w:Running:true q697p:Pending:false qhww7:Running:true 
+02:56:25 | hpa 4 3 112 | deploy 4 3 | 9w9qj:Running:true gm44w:Running:true q697p:Running:false qhww7:Running:true 
+02:56:31 | hpa 4 3 112 | deploy 4 4 | 9w9qj:Running:true gm44w:Running:true q697p:Running:true qhww7:Running:true 
+02:56:38 | hpa 4 4 94 | deploy 4 4 | 9w9qj:Running:true gm44w:Running:true q697p:Running:true qhww7:Running:true 
+== notifier watcher (KEDA): lines where the decision or the pod set changed; last field = lag per replica
+02:51:22 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:53:11 | hpa 3 1 134 | deploy 3 1 | 85ngv:Pending:false rtrxl:Running:true x8tnf:Pending:false 
+02:53:14 | hpa 3 1 134 | deploy 3 1 | 85ngv:Running:false rtrxl:Running:true x8tnf:Running:false 
+02:53:22 | hpa 3 1 134 | deploy 3 3 | 85ngv:Running:true rtrxl:Running:true x8tnf:Running:true 
+02:53:24 | hpa 3 3 37334m | deploy 3 3 | 85ngv:Running:true rtrxl:Running:true x8tnf:Running:true 
+02:58:21 | hpa 1 3 1667m | deploy 1 1 | 85ngv:Running:true rtrxl:Running:true x8tnf:Running:true 
+02:58:29 | hpa 1 3 1667m | deploy 1 1 | rtrxl:Running:true 
+02:58:36 | hpa 3 1 121 | deploy 3 1 | jwrlx:Pending:false p8wl4:Pending:false rtrxl:Running:true 
+02:58:39 | hpa 3 1 121 | deploy 3 1 | jwrlx:Running:false p8wl4:Running:false rtrxl:Running:true 
+02:58:45 | hpa 3 1 121 | deploy 3 2 | jwrlx:Running:false p8wl4:Running:true rtrxl:Running:true 
+02:58:47 | hpa 3 1 121 | deploy 3 3 | jwrlx:Running:true p8wl4:Running:true rtrxl:Running:true 
+02:58:49 | hpa 3 1 121 | deploy 5 3 | 9g8cg:Pending:false bg7fn:Pending:false jwrlx:Running:true p8wl4:Running:true rtrxl:Running:true 
+02:58:52 | hpa 5 3 67 | deploy 5 3 | 9g8cg:Running:false bg7fn:Pending:false jwrlx:Running:true p8wl4:Running:true rtrxl:Running:true 
+02:58:55 | hpa 5 3 67 | deploy 5 3 | 9g8cg:Running:false bg7fn:Running:false jwrlx:Running:true p8wl4:Running:true rtrxl:Running:true 
+02:58:57 | hpa 5 3 67 | deploy 5 3 | 9g8cg:Running:false bg7fn:Running:true jwrlx:Running:true p8wl4:Running:true rtrxl:Running:true 
+02:59:01 | hpa 5 3 67 | deploy 5 5 | 9g8cg:Running:true bg7fn:Running:true jwrlx:Running:true p8wl4:Running:true rtrxl:Running:true 
+02:59:06 | hpa 5 5 9600m | deploy 5 5 | 9g8cg:Running:true bg7fn:Running:true jwrlx:Running:true p8wl4:Running:true rtrxl:Running:true 
+03:03:48 | hpa 1 5 1600m | deploy 1 1 | 9g8cg:Running:true bg7fn:Running:true jwrlx:Running:true p8wl4:Running:true rtrxl:Running:true 
+03:03:55 | hpa 1 5 1600m | deploy 1 1 | jwrlx:Running:true rtrxl:Running:true 
+03:04:01 | hpa 2 1 92 | deploy 2 1 | 2xmbk:Pending:false jwrlx:Running:true rtrxl:Running:false 
+03:04:03 | hpa 2 1 92 | deploy 2 1 | 2xmbk:Running:false jwrlx:Running:true rtrxl:Running:false 
+03:04:10 | hpa 2 1 92 | deploy 2 2 | 2xmbk:Running:true jwrlx:Running:true rtrxl:Running:false 
+03:04:15 | hpa 4 2 99500m | deploy 4 2 | 2xmbk:Running:true 99d27:Pending:false jwrlx:Running:true rtrxl:Running:false wb7zr:Pending:false 
+03:04:18 | hpa 4 2 99500m | deploy 4 2 | 2xmbk:Running:true 99d27:Pending:false jwrlx:Running:true wb7zr:Pending:false 
+03:04:21 | hpa 4 2 99500m | deploy 4 2 | 2xmbk:Running:true 99d27:Running:false jwrlx:Running:true wb7zr:Running:false 
+03:04:26 | hpa 4 2 99500m | deploy 4 4 | 2xmbk:Running:true 99d27:Running:true jwrlx:Running:true wb7zr:Running:true 
+03:04:31 | hpa 4 4 31750m | deploy 4 4 | 2xmbk:Running:true 99d27:Running:true jwrlx:Running:true wb7zr:Running:true 
+

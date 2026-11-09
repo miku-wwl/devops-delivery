@@ -3,7 +3,8 @@
 # next to the unlimited pods, under the same traffic at the same time.
 #   bash v2/experiments/e4/ab-limit.sh <label> <service> <cpu-limit> <rate> <seconds>
 # The copy (<service>-limited, one replica, same image and labels plus track=limited) gets a CFS
-# quota: <cpu-limit> of CPU time per 100 ms period. Compares the pods over the window (first 30 s
+# quota: <cpu-limit> of CPU time per 100 ms period (its request is set to the same value: a
+# request above the limit is invalid). Compares the pods over the window (first 30 s
 # skipped): requests/s, CPU, latency (p50, p99), event-loop lag and the share of CFS periods in
 # which the pod was throttled, and reads the kernel's own counters (cpu.stat) of the limited
 # pod's cgroup before and after. The copy is not in Git (Argo CD ignores it); deleted at the end.
@@ -22,6 +23,7 @@ kubectl -n $NS get deploy "$SVC" -o json | jq --arg limit "$LIMIT" --arg name "$
      | .selector.matchLabels += {track: "limited"}
      | .template.metadata.labels += {track: "limited"}
      | .template.spec.containers[0].resources.limits.cpu = $limit
+     | .template.spec.containers[0].resources.requests.cpu = $limit
      | del(.template.metadata.annotations)
      | if $node != "" then .template.spec.nodeSelector = {"kubernetes.io/hostname": $node} else . end)}'   > "$OUT/limited-deployment.json"
 trap 'kubectl -n $NS delete deploy "$SVC-limited" --ignore-not-found --wait=false >/dev/null' EXIT
@@ -49,24 +51,5 @@ python3 "$ROOT/v2/experiments/load/k6_warnings.py" "$OUT/k6.txt" > /dev/null
 cat "$OUT/k6.txt"
 echo "cpu.stat after:  $(cpustat)"
 sleep 20   # let the last scrape cover the end of the window
-W=$((end - start - 30))
-P=/api/v1/namespaces/monitoring/services/kps-prometheus:9090/proxy/api/v1
-q() { kubectl get --raw "$P/query?time=$end&query=$(jq -rn --arg q "$1" '$q|@uri')" |
-  jq -r '.data.result[] | "\(.metric.pod) \(.value[1])"'; }
-sel="namespace=\"$NS\",pod=~\"$SVC-.*\""
-{
-  q "sum by (pod)(rate(http_server_requests_total{$sel}[${W}s]))" | sed 's/^/rps /'
-  q "sum by (pod)(rate(container_cpu_usage_seconds_total{$sel,container=\"app\"}[${W}s]))" | sed 's/^/cpu /'
-  q "histogram_quantile(0.5, sum by (pod, le)(rate(http_server_request_duration_seconds_bucket{$sel}[${W}s])))" | sed 's/^/p50 /'
-  q "histogram_quantile(0.99, sum by (pod, le)(rate(http_server_request_duration_seconds_bucket{$sel}[${W}s])))" | sed 's/^/p95 /'
-  q "histogram_quantile(0.99, sum by (pod, le)(rate(event_loop_lag_seconds_bucket{$sel}[${W}s])))" | sed 's/^/lag /'
-  q "sum by (pod)(rate(container_cpu_cfs_throttled_periods_total{$sel,container=\"app\"}[${W}s])) / sum by (pod)(rate(container_cpu_cfs_periods_total{$sel,container=\"app\"}[${W}s]))" | sed 's/^/thr /'
-} > "$OUT/per-pod.txt"
-echo "window: $(date -u -d @$((start + 30)) +%T) .. $(date -u -d @$end +%T) (${W} s)"
-printf "%-34s %-9s %7s %6s %10s %8s %8s %9s\n" pod image req/s cores "ms CPU/req" "p50 ms" "p95 ms" "lag p99"
-awk 'NR == FNR {img[$1] = ($1 ~ /-limited-/ ? "'"$LIMIT"'" : "none"); next}
-     {v[$2, $1] = $3; pods[$2] = 1}
-     END {
-       for (p in pods) printf "%-34s %-9s %7.1f %6.3f %10.2f %8.1f %8.1f %9.1f\n", p, img[p], v[p, "rps"], v[p, "cpu"],
-         (v[p, "rps"] > 0 ? 1000 * v[p, "cpu"] / v[p, "rps"] : 0), 1000 * v[p, "p50"], 1000 * v[p, "p95"], 1000 * v[p, "lag"]
-     }' "$OUT/pods.txt" "$OUT/per-pod.txt" | sort -k2,2 -k1,1
+# per pod, over the window without the first 30 s (the same table works for past windows)
+bash "$HERE/pod-table.sh" "$SVC" "$(date -u -d @$((start + 30)) +%FT%TZ)" "$(date -u -d @$end +%FT%TZ)"

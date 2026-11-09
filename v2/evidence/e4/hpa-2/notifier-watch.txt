@@ -1,0 +1,383 @@
+02:16:01 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:16:04 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:16:06 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:16:08 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:16:11 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:16:13 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:16:15 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:16:18 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:16:20 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:16:23 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:16:25 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:16:28 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:16:30 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:16:33 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:16:35 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:16:38 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:16:40 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:16:43 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:16:45 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:16:48 | hpa 1 1 8 | deploy 1 1 | rtrxl:Running:true 
+02:16:50 | hpa 1 1 8 | deploy 1 1 | rtrxl:Running:true 
+02:16:52 | hpa 1 1 8 | deploy 1 1 | rtrxl:Running:true 
+02:16:55 | hpa 1 1 8 | deploy 1 1 | rtrxl:Running:true 
+02:16:57 | hpa 1 1 8 | deploy 1 1 | rtrxl:Running:true 
+02:16:59 | hpa 1 1 8 | deploy 1 1 | rtrxl:Running:true 
+02:17:02 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:17:04 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:17:07 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:17:09 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:17:11 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:17:14 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:17:16 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:17:19 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:17:21 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:17:24 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:17:26 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:17:28 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:17:31 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:17:33 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:17:35 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:17:38 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:17:40 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:17:43 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:17:45 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:17:47 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:17:50 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:17:52 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:17:54 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:17:57 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:17:59 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:18:02 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:18:04 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:18:06 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:18:09 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:18:11 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:18:13 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:18:16 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:18:18 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:18:20 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:18:23 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:18:25 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:18:27 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:18:30 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:18:32 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:18:34 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:18:37 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:18:39 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:18:41 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:18:44 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:18:46 | hpa 2 1 100 | deploy 2 1 | dc6xd:Pending:false rtrxl:Running:true 
+02:18:49 | hpa 2 1 100 | deploy 2 1 | dc6xd:Running:false rtrxl:Running:true 
+02:18:51 | hpa 2 1 100 | deploy 2 1 | dc6xd:Running:false rtrxl:Running:true 
+02:18:54 | hpa 2 1 100 | deploy 2 2 | dc6xd:Running:true rtrxl:Running:true 
+02:18:56 | hpa 2 1 100 | deploy 2 2 | dc6xd:Running:true rtrxl:Running:true 
+02:18:58 | hpa 2 1 100 | deploy 2 2 | dc6xd:Running:true rtrxl:Running:true 
+02:19:01 | hpa 2 1 100 | deploy 2 2 | dc6xd:Running:true rtrxl:Running:true 
+02:19:03 | hpa 2 2 21 | deploy 2 2 | dc6xd:Running:true rtrxl:Running:true 
+02:19:05 | hpa 2 2 21 | deploy 2 2 | dc6xd:Running:true rtrxl:Running:true 
+02:19:08 | hpa 2 2 21 | deploy 2 2 | dc6xd:Running:true rtrxl:Running:true 
+02:19:10 | hpa 2 2 21 | deploy 2 2 | dc6xd:Running:true rtrxl:Running:true 
+02:19:13 | hpa 2 2 21 | deploy 2 2 | dc6xd:Running:true rtrxl:Running:true 
+02:19:15 | hpa 2 2 21 | deploy 2 2 | dc6xd:Running:true rtrxl:Running:true 
+02:19:18 | hpa 4 2 193500m | deploy 4 2 | 966lh:Pending:false dc6xd:Running:true j445z:Pending:false rtrxl:Running:true 
+02:19:20 | hpa 4 2 193500m | deploy 4 2 | 966lh:Pending:false dc6xd:Running:true j445z:Pending:false rtrxl:Running:true 
+02:19:23 | hpa 4 2 193500m | deploy 4 2 | 966lh:Running:false dc6xd:Running:true j445z:Running:false rtrxl:Running:true 
+02:19:25 | hpa 4 2 193500m | deploy 4 2 | 966lh:Running:false dc6xd:Running:true j445z:Running:false rtrxl:Running:true 
+02:19:27 | hpa 4 2 193500m | deploy 4 4 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true 
+02:19:30 | hpa 4 2 193500m | deploy 4 4 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true 
+02:19:32 | hpa 5 4 32750m | deploy 5 4 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:false 
+02:19:35 | hpa 5 4 32750m | deploy 5 4 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:false 
+02:19:37 | hpa 5 4 32750m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:19:40 | hpa 5 4 32750m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:19:42 | hpa 5 4 32750m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:19:45 | hpa 5 4 32750m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:19:47 | hpa 5 5 0 | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:19:50 | hpa 5 5 0 | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:19:52 | hpa 5 5 0 | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:19:55 | hpa 5 5 0 | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:19:57 | hpa 5 5 0 | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:20:00 | hpa 5 5 0 | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:20:02 | hpa 5 5 3800m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:20:05 | hpa 5 5 3800m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:20:07 | hpa 5 5 3800m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:20:10 | hpa 5 5 3800m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:20:12 | hpa 5 5 3800m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:20:15 | hpa 5 5 3800m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:20:17 | hpa 5 5 1400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:20:20 | hpa 5 5 1400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:20:22 | hpa 5 5 1400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:20:24 | hpa 5 5 1400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:20:27 | hpa 5 5 1400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:20:29 | hpa 5 5 1400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:20:32 | hpa 5 5 1400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:20:34 | hpa 5 5 1400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:20:37 | hpa 5 5 1400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:20:39 | hpa 5 5 1400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:20:41 | hpa 5 5 1400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:20:44 | hpa 5 5 1400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:20:46 | hpa 5 5 2200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:20:49 | hpa 5 5 2200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:20:51 | hpa 5 5 2200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:20:54 | hpa 5 5 2200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:20:56 | hpa 5 5 2200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:20:58 | hpa 5 5 2200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:21:01 | hpa 5 5 2200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:21:03 | hpa 5 5 2600m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:21:06 | hpa 5 5 2600m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:21:08 | hpa 5 5 2600m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:21:11 | hpa 5 5 2600m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:21:13 | hpa 5 5 2600m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:21:16 | hpa 5 5 2600m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:21:18 | hpa 5 5 1800m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:21:20 | hpa 5 5 1800m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:21:23 | hpa 5 5 1800m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:21:25 | hpa 5 5 1800m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:21:27 | hpa 5 5 1800m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:21:30 | hpa 5 5 1800m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:21:33 | hpa 5 5 2400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:21:35 | hpa 5 5 2400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:21:37 | hpa 5 5 2400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:21:40 | hpa 5 5 2400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:21:42 | hpa 5 5 2400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:21:45 | hpa 5 5 2400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:21:47 | hpa 5 5 2800m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:21:49 | hpa 5 5 2800m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:21:52 | hpa 5 5 2800m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:21:54 | hpa 5 5 2800m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:21:57 | hpa 5 5 2800m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:21:59 | hpa 5 5 2800m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:22:02 | hpa 5 5 4200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:22:04 | hpa 5 5 4200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:22:07 | hpa 5 5 4200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:22:09 | hpa 5 5 4200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:22:12 | hpa 5 5 4200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:22:14 | hpa 5 5 4200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:22:17 | hpa 5 5 2200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:22:19 | hpa 5 5 2200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:22:22 | hpa 5 5 2200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:22:24 | hpa 5 5 2200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:22:27 | hpa 5 5 2200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:22:29 | hpa 5 5 2200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:22:31 | hpa 5 5 2200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:22:34 | hpa 5 5 1400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:22:36 | hpa 5 5 1400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:22:39 | hpa 5 5 1400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:22:41 | hpa 5 5 1400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:22:44 | hpa 5 5 1400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:22:46 | hpa 5 5 1400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:22:49 | hpa 5 5 2200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:22:51 | hpa 5 5 2200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:22:53 | hpa 5 5 2200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:22:56 | hpa 5 5 2200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:22:58 | hpa 5 5 2200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:23:01 | hpa 5 5 2200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:23:03 | hpa 5 5 3400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:23:06 | hpa 5 5 3400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:23:08 | hpa 5 5 3400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:23:11 | hpa 5 5 3400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:23:13 | hpa 5 5 3400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:23:15 | hpa 5 5 3400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:23:18 | hpa 5 5 4200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:23:20 | hpa 5 5 4200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:23:23 | hpa 5 5 4200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:23:25 | hpa 5 5 4200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:23:28 | hpa 5 5 4200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:23:30 | hpa 5 5 4200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:23:32 | hpa 5 5 4400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:23:35 | hpa 5 5 4400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:23:37 | hpa 5 5 4400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:23:40 | hpa 5 5 4400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:23:42 | hpa 5 5 4400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:23:45 | hpa 5 5 4400m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:23:47 | hpa 5 5 1200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:23:49 | hpa 5 5 1200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:23:52 | hpa 5 5 1200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:23:54 | hpa 5 5 1200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:23:56 | hpa 5 5 1200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:23:59 | hpa 5 5 1200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:24:01 | hpa 5 5 1200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:24:04 | hpa 5 5 200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:24:06 | hpa 5 5 200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:24:08 | hpa 5 5 200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:24:11 | hpa 5 5 200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:24:13 | hpa 5 5 200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:24:15 | hpa 5 5 200m | deploy 5 5 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:24:18 | hpa 3 5 200m | deploy 3 3 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:24:20 | hpa 3 5 200m | deploy 3 3 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:24:22 | hpa 3 5 200m | deploy 3 3 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:24:25 | hpa 3 5 200m | deploy 3 3 | 966lh:Running:true dc6xd:Running:true j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:24:27 | hpa 3 5 200m | deploy 3 3 | 966lh:Running:false dc6xd:Running:false j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:24:30 | hpa 3 5 200m | deploy 3 3 | 966lh:Running:false dc6xd:Running:false j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:24:32 | hpa 1 3 334m | deploy 1 1 | 966lh:Running:false dc6xd:Running:false j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:24:34 | hpa 1 3 334m | deploy 1 1 | 966lh:Running:false dc6xd:Running:false j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:24:37 | hpa 1 3 334m | deploy 1 1 | 966lh:Running:false dc6xd:Running:false j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:24:39 | hpa 1 3 334m | deploy 1 1 | 966lh:Running:false dc6xd:Running:false j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:24:41 | hpa 1 3 334m | deploy 1 1 | 966lh:Running:false dc6xd:Running:false j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:24:44 | hpa 1 3 334m | deploy 1 1 | 966lh:Running:false dc6xd:Running:false j445z:Running:true rtrxl:Running:true vgmgf:Running:true 
+02:24:46 | hpa 1 3 334m | deploy 1 1 | 966lh:Running:false dc6xd:Running:false j445z:Running:true rtrxl:Running:true vgmgf:Running:false 
+02:24:48 | hpa 1 1 4 | deploy 1 1 | j445z:Running:false rtrxl:Running:true vgmgf:Running:false 
+02:24:51 | hpa 1 1 4 | deploy 1 1 | j445z:Running:false rtrxl:Running:true vgmgf:Running:false 
+02:24:53 | hpa 1 1 4 | deploy 1 1 | j445z:Running:false rtrxl:Running:true vgmgf:Running:false 
+02:24:55 | hpa 1 1 4 | deploy 1 1 | j445z:Running:false rtrxl:Running:true vgmgf:Running:false 
+02:24:58 | hpa 1 1 4 | deploy 1 1 | j445z:Running:false rtrxl:Running:true vgmgf:Running:false 
+02:25:00 | hpa 1 1 4 | deploy 1 1 | j445z:Running:false rtrxl:Running:true vgmgf:Running:false 
+02:25:03 | hpa 1 1 3 | deploy 1 1 | j445z:Failed:false rtrxl:Running:true vgmgf:Failed:false 
+02:25:05 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:25:07 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:25:10 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:25:12 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:25:14 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:25:17 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:25:19 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:25:21 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:25:24 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:25:26 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:25:29 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:25:31 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:25:33 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:25:36 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:25:38 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:25:40 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:25:43 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:25:45 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:25:47 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:25:50 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:25:52 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:25:54 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:25:57 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:25:59 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:26:02 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:26:04 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:26:06 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:26:09 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:26:11 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:26:13 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:26:16 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:26:18 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:26:20 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:26:23 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:26:25 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:26:27 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:26:30 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:26:32 | hpa 1 1 4 | deploy 1 1 | rtrxl:Running:true 
+02:26:34 | hpa 1 1 4 | deploy 1 1 | rtrxl:Running:true 
+02:26:37 | hpa 1 1 4 | deploy 1 1 | rtrxl:Running:true 
+02:26:39 | hpa 1 1 4 | deploy 1 1 | rtrxl:Running:true 
+02:26:42 | hpa 1 1 4 | deploy 1 1 | rtrxl:Running:true 
+02:26:44 | hpa 1 1 4 | deploy 1 1 | rtrxl:Running:true 
+02:26:46 | hpa 1 1 4 | deploy 1 1 | rtrxl:Running:true 
+02:26:49 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:26:51 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:26:53 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:26:56 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:26:58 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:27:00 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:27:03 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:27:05 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:27:07 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:27:10 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:27:12 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:27:14 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:27:17 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:27:19 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:27:21 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:27:24 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:27:26 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:27:28 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:27:31 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:27:33 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:27:36 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:27:38 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:27:40 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:27:43 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:27:45 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:27:47 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:27:50 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:27:52 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:27:54 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:27:57 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:27:59 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:28:01 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:28:04 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:28:06 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:28:09 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:28:11 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:28:13 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:28:16 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:28:18 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:28:20 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:28:23 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:28:25 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:28:28 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:28:30 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:28:32 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:28:35 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:28:37 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:28:40 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:28:42 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:28:44 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:28:47 | hpa 1 1 2 | deploy 1 1 | rtrxl:Running:true 
+02:28:49 | hpa 1 1 4 | deploy 1 1 | rtrxl:Running:true 
+02:28:51 | hpa 1 1 4 | deploy 1 1 | rtrxl:Running:true 
+02:28:54 | hpa 1 1 4 | deploy 1 1 | rtrxl:Running:true 
+02:28:56 | hpa 1 1 4 | deploy 1 1 | rtrxl:Running:true 
+02:28:58 | hpa 1 1 4 | deploy 1 1 | rtrxl:Running:true 
+02:29:01 | hpa 1 1 4 | deploy 1 1 | rtrxl:Running:true 
+02:29:03 | hpa 1 1 6 | deploy 1 1 | rtrxl:Running:true 
+02:29:05 | hpa 1 1 6 | deploy 1 1 | rtrxl:Running:true 
+02:29:08 | hpa 1 1 6 | deploy 1 1 | rtrxl:Running:true 
+02:29:10 | hpa 1 1 6 | deploy 1 1 | rtrxl:Running:true 
+02:29:13 | hpa 1 1 6 | deploy 1 1 | rtrxl:Running:true 
+02:29:15 | hpa 1 1 6 | deploy 1 1 | rtrxl:Running:true 
+02:29:17 | hpa 1 1 7 | deploy 1 1 | rtrxl:Running:true 
+02:29:20 | hpa 1 1 7 | deploy 1 1 | rtrxl:Running:true 
+02:29:22 | hpa 1 1 7 | deploy 1 1 | rtrxl:Running:true 
+02:29:25 | hpa 1 1 7 | deploy 1 1 | rtrxl:Running:true 
+02:29:27 | hpa 1 1 7 | deploy 1 1 | rtrxl:Running:true 
+02:29:29 | hpa 1 1 7 | deploy 1 1 | rtrxl:Running:true 
+02:29:32 | hpa 1 1 7 | deploy 1 1 | rtrxl:Running:true 
+02:29:34 | hpa 1 1 4 | deploy 1 1 | rtrxl:Running:true 
+02:29:37 | hpa 1 1 4 | deploy 1 1 | rtrxl:Running:true 
+02:29:39 | hpa 1 1 4 | deploy 1 1 | rtrxl:Running:true 
+02:29:41 | hpa 1 1 4 | deploy 1 1 | rtrxl:Running:true 
+02:29:44 | hpa 1 1 4 | deploy 1 1 | rtrxl:Running:true 
+02:29:46 | hpa 1 1 4 | deploy 1 1 | rtrxl:Running:true 
+02:29:48 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:29:50 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:29:53 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:29:55 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:29:58 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:30:00 | hpa 1 1 1 | deploy 1 1 | rtrxl:Running:true 
+02:30:02 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:30:06 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:30:09 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:30:11 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:30:14 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:30:17 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:30:19 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:30:21 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:30:24 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:30:26 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:30:29 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:30:31 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:30:34 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:30:36 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:30:39 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:30:41 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:30:44 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:30:46 | hpa 1 1 3 | deploy 1 1 | rtrxl:Running:true 
+02:30:48 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:30:51 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:30:53 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:30:56 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:30:58 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:31:01 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:31:04 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:31:06 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:31:08 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:31:11 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:31:14 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:31:16 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:31:18 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+02:31:21 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 

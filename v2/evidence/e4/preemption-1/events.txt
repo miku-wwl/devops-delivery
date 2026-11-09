@@ -1,0 +1,20 @@
+2026-11-09T02:35:19Z   filler-6968b46784-kvfx8     Killing             Stopping container pause
+2026-11-09T02:35:19Z   critical-754db7f959         SuccessfulCreate    Created pod: critical-754db7f959-kjxdv
+2026-11-09T02:35:19Z   critical-754db7f959-xmq4x   FailedScheduling    0/4 nodes are available: 1 node(s) had untolerated taint(s), 3 Insufficient cpu. preemption: found a potential placement for pod on node ent-worker3, preempting 1 victims
+2026-11-09T02:35:19Z   filler-6968b46784-4t8dn     Preempted           Preempted by pod d23519e7-3d40-4cd3-abb4-e29b2c81f194 on node ent-worker2
+2026-11-09T02:35:19Z   filler-6968b46784-kvfx8     Preempted           Preempted by pod 5d6b799e-6bb1-4bbf-93d2-8ac845767292 on node ent-worker3
+2026-11-09T02:35:19Z   filler-6968b46784-4t8dn     Killing             Stopping container pause
+2026-11-09T02:35:19Z   critical-754db7f959         SuccessfulCreate    Created pod: critical-754db7f959-xmq4x
+2026-11-09T02:35:19Z   critical-754db7f959-kjxdv   FailedScheduling    0/4 nodes are available: 1 node(s) had untolerated taint(s), 3 Insufficient cpu. preemption: found a potential placement for pod on node ent-worker2, preempting 1 victims
+2026-11-09T02:35:20Z   filler-6968b46784-2jmpb     FailedScheduling    0/4 nodes are available: 1 node(s) had untolerated taint(s), 3 Insufficient cpu. preemption: not eligible due to preemptionPolicy=Never.
+2026-11-09T02:35:20Z   critical-754db7f959-kjxdv   Scheduled           Successfully assigned e4-sched/critical-754db7f959-kjxdv to ent-worker2
+2026-11-09T02:35:20Z   filler-6968b46784-f52ch     FailedScheduling    0/4 nodes are available: 1 node(s) had untolerated taint(s), 3 Insufficient cpu. preemption: not eligible due to preemptionPolicy=Never.
+2026-11-09T02:35:20Z   filler-6968b46784-h8zfx     FailedScheduling    0/4 nodes are available: 1 node(s) had untolerated taint(s), 3 Insufficient cpu. preemption: not eligible due to preemptionPolicy=Never.
+2026-11-09T02:35:20Z   filler-6968b46784-jws9q     FailedScheduling    0/4 nodes are available: 1 node(s) had untolerated taint(s), 3 Insufficient cpu. preemption: not eligible due to preemptionPolicy=Never.
+2026-11-09T02:35:20Z   filler-6968b46784-tbzsv     FailedScheduling    0/4 nodes are available: 1 node(s) had untolerated taint(s), 3 Insufficient cpu. preemption: not eligible due to preemptionPolicy=Never.
+2026-11-09T02:35:20Z   filler-6968b46784-tlvzg     FailedScheduling    0/4 nodes are available: 1 node(s) had untolerated taint(s), 3 Insufficient cpu. preemption: not eligible due to preemptionPolicy=Never.
+2026-11-09T02:35:20Z   critical-754db7f959-kjxdv   FailedScheduling    0/4 nodes are available: 1 node(s) had untolerated taint(s), 3 Insufficient cpu. preemption: not eligible due to a terminating pod on the nominated node.
+2026-11-09T02:35:20Z   filler-6968b46784           SuccessfulCreate    (combined from similar events): Created pod: filler-6968b46784-kpnww
+2026-11-09T02:35:20Z   filler-6968b46784-dnkrx     FailedScheduling    0/4 nodes are available: 1 node(s) had untolerated taint(s), 3 Insufficient cpu. preemption: not eligible due to preemptionPolicy=Never.
+2026-11-09T02:35:20Z   critical-754db7f959-xmq4x   Scheduled           Successfully assigned e4-sched/critical-754db7f959-xmq4x to ent-worker3
+2026-11-09T02:35:20Z   filler-6968b46784-kpnww     FailedScheduling    0/4 nodes are available: 1 node(s) had untolerated taint(s), 3 Insufficient cpu. preemption: not eligible due to preemptionPolicy=Never.

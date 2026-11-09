@@ -1,0 +1,25 @@
+# transcript: E4: ResourceQuota and LimitRange for a tenant namespace
+# recorded: 2026-11-09T02:33:45Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e4/quota.sh
+resourcequota/tenant created
+limitrange/tenant-defaults created
+== 1. a pod without resources
+pod/no-resources created
+  resources filled in: {"limits":{"cpu":"500m","memory":"128Mi"},"requests":{"cpu":"100m","memory":"64Mi"}}
+== 2. a pod asking for 2 CPU
+The Pod "too-big" is invalid: spec.containers[0].resources.requests: Invalid value: "2": must be less than or equal to cpu limit of 500m
+== 3. a Deployment of 6 replicas (100m and 64Mi each by default)
+deployment.apps/many created
+  deployment many: ready 3/6
+      1 many-7cc58785c5         FailedCreate        Error creating: pods "many-7cc58785c5-zfq98" is forbidden: exceeded quota: tenant, requested: pods=1, used: pods=4, limited: pods=4
+      1 many-7cc58785c5         FailedCreate        Error creating: pods "many-7cc58785c5-sxzz2" is forbidden: exceeded quota: tenant, requested: pods=1, used: pods=4, limited: pods=4
+      1 many-7cc58785c5         FailedCreate        Error creating: pods "many-7cc58785c5-s5prg" is forbidden: exceeded quota: tenant, requested: pods=1, used: pods=4, limited: pods=4
+== 4. quota
+Resource         Used   Hard
+--------         ----   ----
+limits.memory    512Mi  1Gi
+pods             4      4
+requests.cpu     400m   1
+requests.memory  256Mi  512Mi
+

@@ -1,0 +1,93 @@
+# transcript: E4: the same 30 -> 170 -> 30 it/s step, with a new connection per k6 iteration (do new gateway pods get traffic?)
+# recorded: 2026-11-09T02:36:06Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ NO_REUSE=1 bash v2/experiments/e4/hpa-timeline.sh hpa-3 30 170 120 300 420
+== settings that bound the reaction time
+  metrics-server "--kubelet-preferred-address-types=InternalIP
+  metrics-server "--kubelet-use-node-status-port"
+  metrics-server "--metric-resolution=15s"
+  metrics-server "--kubelet-insecure-tls"]
+  (absent = defaults: HPA sync every 15 s, 10 % tolerance, scale-down stabilization 300 s)
+  spec:
+    maxReplicas: 6
+    metrics:
+    - resource:
+        name: cpu
+        target:
+          averageUtilization: 100
+          type: Utilization
+      type: Resource
+== k6 start 02:36:08; load step to 170 it/s at 02:38:38, back to 30 at 02:43:48
+time="2026-11-09T15:38:51+13:00" level=warning msg="Insufficient VUs, reached 600 active VUs and cannot initialize more" executor=ramping-arrival-rate scenario=shop
+time="2026-11-09T15:39:29+13:00" level=warning msg="Request Failed" error="Get \"http://172.20.0.8:8080/api/products?limit=20\": dial tcp 172.20.0.8:8080: connect: cannot assign requested address"
+time="2026-11-09T15:39:29+13:00" level=warning msg="Request Failed" error="Post \"http://172.20.0.8:8080/api/orders\": dial tcp 172.20.0.8:8080: connect: cannot assign requested address"
+time="2026-11-09T15:39:29+13:00" level=warning msg="Request Failed" error="Get \"http://172.20.0.8:8080/api/products?limit=20\": dial tcp 172.20.0.8:8080: connect: cannot assign requested address"
+[32543 more 'Request Failed' warnings collapsed; all 32546 by error: 32518 dial tcp ADDR: connect: cannot assign requested address, 24 request timeout, 4 read tcp ADDR->ADDR: read: connection reset by peer]
+stages=30,170,30 it/s, 120,300,420 s (ramp 10 s, warm-up 30 s) iterations=55097 dropped=14552
+requests=92822 (105.3/s) failed=66.94%
+browse: p50=16.6 p95=6448.9 p99=9712.3 max=60004.0 ms
+order:  p50=140.0 p95=7771.4 p99=10919.2 max=59595.9 ms
+checks: 33.06% passed
+stage 1-30: achieved 30.0 it/s, requests=6076 failed=0.05% | browse p50=17.3 p95=54.1 p99=446.8 max=2669.5 ms | order p50=151.2 p95=382.6 p99=1806.1 max=2708.7 ms
+stage 170: achieved 166.8 it/s, requests=84283 failed=72.31% | browse p50=16.3 p95=6518.0 p99=9800.1 max=60004.0 ms | order p50=133.8 p95=7843.6 p99=10867.8 max=59595.9 ms
+stage 3-30: achieved 0.0 it/s, requests=0 failed=0.00% | browse p50=0.0 p95=0.0 p99=0.0 max=0.0 ms | order p50=0.0 p95=0.0 p99=0.0 max=0.0 ms
+time="2026-11-09T15:50:50+13:00" level=error msg="thresholds on metrics 'http_req_duration{kind:browse}, http_req_duration{kind:order}, http_req_failed{kind:browse}' have been crossed"
+== HPA and pod events (newest last)
+2026-11-09T02:19:16Z   Pod                       gateway-7b844f9fc9-j72rh     Pulled                         Container image "localhost:5001/storefront:fd38028" already present on machine and can be accessed by the pod
+2026-11-09T02:19:16Z   ReplicaSet                notifier-59fddb4fd9          SuccessfulCreate               Created pod: notifier-59fddb4fd9-j445z
+2026-11-09T02:19:16Z   ReplicaSet                notifier-59fddb4fd9          SuccessfulCreate               Created pod: notifier-59fddb4fd9-966lh
+2026-11-09T02:19:16Z   Pod                       notifier-59fddb4fd9-966lh    Scheduled                      Successfully assigned storefront/notifier-59fddb4fd9-966lh to ent-worker3
+2026-11-09T02:19:16Z   Deployment                notifier                     ScalingReplicaSet              Scaled up replica set notifier-59fddb4fd9 from 2 to 4
+2026-11-09T02:19:19Z   Pod                       gateway-7b844f9fc9-j72rh     Unhealthy                      Startup probe failed: Get "http://10.240.2.35:8080/healthz": dial tcp 10.240.2.35:8080: connect: connection refused
+2026-11-09T02:19:21Z   Pod                       notifier-59fddb4fd9-966lh    Pulled                         Container image "localhost:5001/storefront:fd38028" already present on machine and can be accessed by the pod
+2026-11-09T02:19:22Z   Pod                       notifier-59fddb4fd9-966lh    Started                        Container started
+2026-11-09T02:19:22Z   Pod                       notifier-59fddb4fd9-966lh    Created                        Container created
+2026-11-09T02:19:22Z   Pod                       notifier-59fddb4fd9-j445z    Pulled                         Container image "localhost:5001/storefront:fd38028" already present on machine and can be accessed by the pod
+2026-11-09T02:19:22Z   Pod                       notifier-59fddb4fd9-j445z    Created                        Container created
+2026-11-09T02:19:22Z   Pod                       notifier-59fddb4fd9-j445z    Started                        Container started
+2026-11-09T02:19:24Z   Pod                       notifier-59fddb4fd9-966lh    Unhealthy                      Startup probe failed: Get "http://10.240.3.54:8080/healthz": dial tcp 10.240.3.54:8080: connect: connection refused
+2026-11-09T02:19:24Z   Pod                       notifier-59fddb4fd9-j445z    Unhealthy                      Startup probe failed: Get "http://10.240.1.59:8080/healthz": dial tcp 10.240.1.59:8080: connect: connection refused
+2026-11-09T02:19:31Z   ReplicaSet                notifier-59fddb4fd9          SuccessfulCreate               Created pod: notifier-59fddb4fd9-vgmgf
+2026-11-09T02:19:31Z   Pod                       notifier-59fddb4fd9-vgmgf    Scheduled                      Successfully assigned storefront/notifier-59fddb4fd9-vgmgf to ent-worker
+2026-11-09T02:19:31Z   Deployment                notifier                     ScalingReplicaSet              Scaled up replica set notifier-59fddb4fd9 from 4 to 5
+2026-11-09T02:19:31Z   HorizontalPodAutoscaler   keda-hpa-notifier            SuccessfulRescale              New size: 5; reason: All metrics below target
+2026-11-09T02:19:32Z   Pod                       notifier-59fddb4fd9-vgmgf    Pulled                         Container image "localhost:5001/storefront:fd38028" already present on machine and can be accessed by the pod
+2026-11-09T02:19:32Z   Pod                       notifier-59fddb4fd9-vgmgf    Created                        Container created
+2026-11-09T02:19:33Z   Pod                       notifier-59fddb4fd9-vgmgf    Started                        Container started
+2026-11-09T02:19:33Z   Pod                       notifier-59fddb4fd9-vgmgf    Unhealthy                      Startup probe failed: Get "http://10.240.1.60:8080/healthz": dial tcp 10.240.1.60:8080: connect: connection refused
+2026-11-09T02:21:15Z   ReplicaSet                gateway-7b844f9fc9           SuccessfulCreate               Created pod: gateway-7b844f9fc9-d5j6r
+2026-11-09T02:21:15Z   HorizontalPodAutoscaler   gateway                      SuccessfulRescale              New size: 4; reason: cpu resource utilization (percentage of request) above target
+2026-11-09T02:21:15Z   Deployment                gateway                      ScalingReplicaSet              Scaled up replica set gateway-7b844f9fc9 from 3 to 4
+2026-11-09T02:21:15Z   Pod                       gateway-7b844f9fc9-d5j6r     Scheduled                      Successfully assigned storefront/gateway-7b844f9fc9-d5j6r to ent-worker3
+2026-11-09T02:21:16Z   Pod                       gateway-7b844f9fc9-d5j6r     Pulled                         Container image "localhost:5001/storefront:fd38028" already present on machine and can be accessed by the pod
+2026-11-09T02:21:17Z   Pod                       gateway-7b844f9fc9-d5j6r     Started                        Container started
+2026-11-09T02:21:17Z   Pod                       gateway-7b844f9fc9-d5j6r     Created                        Container created
+2026-11-09T02:21:19Z   Pod                       gateway-7b844f9fc9-d5j6r     Unhealthy                      Startup probe failed: Get "http://10.240.3.55:8080/healthz": dial tcp 10.240.3.55:8080: connect: connection refused
+2026-11-09T02:24:17Z   ReplicaSet                notifier-59fddb4fd9          SuccessfulDelete               Deleted pod: notifier-59fddb4fd9-966lh
+2026-11-09T02:24:17Z   HorizontalPodAutoscaler   keda-hpa-notifier            SuccessfulRescale              New size: 3; reason: All metrics below target
+2026-11-09T02:24:17Z   Pod                       notifier-59fddb4fd9-dc6xd    Killing                        Stopping container app
+2026-11-09T02:24:17Z   Deployment                notifier                     ScalingReplicaSet              Scaled down replica set notifier-59fddb4fd9 from 5 to 3
+2026-11-09T02:24:17Z   Pod                       notifier-59fddb4fd9-966lh    Killing                        Stopping container app
+2026-11-09T02:24:17Z   ReplicaSet                notifier-59fddb4fd9          SuccessfulDelete               Deleted pod: notifier-59fddb4fd9-dc6xd
+2026-11-09T02:24:32Z   Deployment                notifier                     ScalingReplicaSet              Scaled down replica set notifier-59fddb4fd9 from 3 to 1
+2026-11-09T02:24:32Z   ReplicaSet                notifier-59fddb4fd9          SuccessfulDelete               Deleted pod: notifier-59fddb4fd9-vgmgf
+2026-11-09T02:24:32Z   Pod                       notifier-59fddb4fd9-vgmgf    Killing                        Stopping container app
+2026-11-09T02:24:32Z   HorizontalPodAutoscaler   keda-hpa-notifier            SuccessfulRescale              New size: 1; reason: All metrics below target
+2026-11-09T02:24:32Z   Pod                       notifier-59fddb4fd9-j445z    Killing                        Stopping container app
+2026-11-09T02:24:32Z   ReplicaSet                notifier-59fddb4fd9          SuccessfulDelete               Deleted pod: notifier-59fddb4fd9-j445z
+2026-11-09T02:28:46Z   HorizontalPodAutoscaler   gateway                      SuccessfulRescale              New size: 3; reason: All metrics below target
+2026-11-09T02:28:46Z   Pod                       gateway-7b844f9fc9-d5j6r     Killing                        Stopping container app
+2026-11-09T02:28:46Z   ReplicaSet                gateway-7b844f9fc9           SuccessfulDelete               Deleted pod: gateway-7b844f9fc9-d5j6r
+2026-11-09T02:28:46Z   Deployment                gateway                      ScalingReplicaSet              Scaled down replica set gateway-7b844f9fc9 from 4 to 3
+2026-11-09T02:29:01Z   Deployment                gateway                      ScalingReplicaSet              Scaled down replica set gateway-7b844f9fc9 from 3 to 2
+2026-11-09T02:29:01Z   ReplicaSet                gateway-7b844f9fc9           SuccessfulDelete               Deleted pod: gateway-7b844f9fc9-j72rh
+2026-11-09T02:29:01Z   HorizontalPodAutoscaler   gateway                      SuccessfulRescale              New size: 2; reason: All metrics below target
+2026-11-09T02:29:01Z   Pod                       gateway-7b844f9fc9-j72rh     Killing                        Stopping container app
+== gateway pods: created, scheduled, containers ready, ready
+gateway-7b844f9fc9-qhww7	ent-worker	2026-11-09T01:52:56Z	2026-11-09T01:52:56Z	2026-11-09T01:53:05Z	2026-11-09T01:53:05Z
+gateway-7b844f9fc9-gm44w	ent-worker3	2026-11-09T01:52:56Z	2026-11-09T01:52:56Z	2026-11-09T01:53:07Z	2026-11-09T01:53:07Z
+== watcher: lines where the HPA decision or the pod set changed
+02:36:07 | hpa 2 2 3 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+== notifier watcher (KEDA): lines where the decision or the pod set changed; last field = lag per replica
+02:36:08 | hpa 1 1 0 | deploy 1 1 | rtrxl:Running:true 
+

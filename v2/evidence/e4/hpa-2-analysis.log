@@ -1,0 +1,20 @@
+# transcript: E4: hpa-2 - gateway load, errors, CPU and replicas every 30 s (why CPU-based scaling hesitated)
+# recorded: 2026-11-09T02:32:41Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e4/series.sh 2026-11-09T02:18:00Z 2026-11-09T02:24:30Z 30 'gw_req/s=sum(rate(http_server_requests_total{namespace="storefront",service="gateway"}[30s]))' 'gw_5xx/s=sum(rate(http_server_requests_total{namespace="storefront",service="gateway",code=~"5.."}[30s]))' 'gw_cores=sum(rate(container_cpu_usage_seconds_total{namespace="storefront",pod=~"gateway-.*",container="app"}[30s]))' 'gw_busiest=max(rate(container_cpu_usage_seconds_total{namespace="storefront",pod=~"gateway-.*",container="app"}[30s]))' 'gw_ready=max(kube_deployment_status_replicas_ready{namespace="storefront",deployment="gateway"})' 'rejected/s=sum(rate(upstream_rejected_total{namespace="storefront",service="gateway"}[30s]))' 'nt_pending=max(kube_horizontalpodautoscaler_status_desired_replicas{namespace="storefront",horizontalpodautoscaler="keda-hpa-notifier"})'
+time gw_req/s gw_5xx/s gw_cores gw_busiest gw_ready rejected/s nt_pending
+02:18:00  51.27   0.26    0.13  2     1          
+02:18:30  50.93   0.26    0.13  2     1          
+02:19:00  110.4   1.05    0.61  2     2          
+02:19:30  305     61.73   1.44  0.76  2  61.73   4
+02:20:00  297.93  138.4   1.39  0.77  3  139.07  5
+02:20:30  290.07  0       0.58  0.58  3  0       5
+02:21:00  287.13  0       1.47  0.73  3  0       5
+02:21:30  306.3   127.3   1.34  0.73  3  123.16  5
+02:22:00  301.33  87.13   1.5   0.92  4  87.13   5
+02:22:30  283.73  66.73   1.42  0.97  4  66.73   5
+02:23:00  291.47  7.4     0.89  0.87  4  7.4     5
+02:23:30  290.13  100.13  1.48  0.77  4  100.13  5
+02:24:00  240     0       0.77  0.46  4  0       5
+02:24:30  50.8    0       0.15  0.07  4  0       3
+

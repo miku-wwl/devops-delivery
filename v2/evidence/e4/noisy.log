@@ -1,0 +1,58 @@
+# transcript: E4: a CPU hog on ent-worker next to the gateway (request 500m) and orders/inventory/payments (50m) - none, BestEffort, Burstable (2 CPU requested)
+# recorded: 2026-11-09T03:15:57Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e4/noisy.sh noisy ent-worker 50 180
+  gateway-7b844f9fc9-gm44w ent-worker3 
+  gateway-7b844f9fc9-qhww7 ent-worker <- next to the hog
+  inventory-7f7684694c-8qfxf ent-worker3 
+  inventory-7f7684694c-z4lz4 ent-worker <- next to the hog
+  orders-5cd5d8df65-bhcp2 ent-worker3 
+  orders-5cd5d8df65-tvqsm ent-worker <- next to the hog
+  payments-856b5fddf8-7dgmd ent-worker2 
+  payments-856b5fddf8-pr5dq ent-worker <- next to the hog
+03:18:55 BestEffort hog started
+03:21:54 BestEffort hog stopped, Burstable hog (requests 2 CPU) started
+03:24:53 hog stopped
+rate=50/s duration=560s iterations=28001 dropped=0
+requests=47560 (86.9/s) failed=6.65%
+browse: p50=17.2 p95=348.6 p99=993.5 max=3334.4 ms
+order:  p50=140.2 p95=431.8 p99=1415.6 max=3849.4 ms
+checks: 93.35% passed
+time="2026-11-09T16:25:06+13:00" level=error msg="thresholds on metrics 'http_req_failed{kind:browse}' have been crossed"
+=== phase base (pods on ent-worker are next to the hog)
+window 2026-11-09T03:16:28Z .. 2026-11-09T03:18:58Z
+pod                                node         limit    req/s  cores ms CPU/req   p50 ms   p99 ms   lag p99  throttled
+gateway-7b844f9fc9-gm44w           ent-worker3  none      41.8  0.303       7.25     16.2    256.1       7.7          -
+gateway-7b844f9fc9-qhww7           ent-worker   none      45.1  0.332       7.37     16.3    266.1       8.1          -
+inventory-7f7684694c-8qfxf         ent-worker3  none       6.5  0.071      10.91     15.6     46.7       4.9          -
+inventory-7f7684694c-z4lz4         ent-worker   none       6.6  0.074      11.22     15.7     47.4       4.4          -
+orders-5cd5d8df65-bhcp2            ent-worker3  none       7.9  0.219      27.89    117.3    308.2       5.2          -
+orders-5cd5d8df65-tvqsm            ent-worker   none       7.5  0.221      29.40    117.9    418.7       4.9          -
+payments-856b5fddf8-7dgmd          ent-worker2  none       6.4  0.064      10.01     52.2    273.6       4.2          -
+payments-856b5fddf8-pr5dq          ent-worker   none       6.3  0.062       9.88     49.7    262.1       4.2          -
+=== phase be (pods on ent-worker are next to the hog)
+window 2026-11-09T03:19:28Z .. 2026-11-09T03:21:58Z
+pod                                node         limit    req/s  cores ms CPU/req   p50 ms   p99 ms   lag p99  throttled
+gateway-7b844f9fc9-gm44w           ent-worker3  none      41.7  0.309       7.42     16.6    331.2       8.6          -
+gateway-7b844f9fc9-qhww7           ent-worker   none      45.2  0.336       7.43     17.6    295.6       9.5          -
+inventory-7f7684694c-8qfxf         ent-worker3  none       6.7  0.072      10.74     16.0     66.2       4.8          -
+inventory-7f7684694c-z4lz4         ent-worker   none       6.3  0.075      11.78     25.1     95.0      13.3          -
+orders-5cd5d8df65-bhcp2            ent-worker3  none       8.0  0.228      28.53    127.4    431.9       7.7          -
+orders-5cd5d8df65-tvqsm            ent-worker   none       7.4  0.220      29.98    155.4    471.4      20.5          -
+payments-856b5fddf8-7dgmd          ent-worker2  none       6.7  0.067       9.93     48.2    284.7       5.9          -
+payments-856b5fddf8-pr5dq          ent-worker   none       6.1  0.062      10.16     62.1    291.9      12.9          -
+=== phase burst (pods on ent-worker are next to the hog)
+window 2026-11-09T03:22:28Z .. 2026-11-09T03:24:58Z
+pod                                node         limit    req/s  cores ms CPU/req   p50 ms   p99 ms   lag p99  throttled
+gateway-7b844f9fc9-gm44w           ent-worker3  none      48.2  0.307       6.36     13.9    915.0       7.2          -
+gateway-7b844f9fc9-qhww7           ent-worker   none      39.2  0.280       7.13    130.8   1887.0      88.8          -
+inventory-7f7684694c-8qfxf         ent-worker3  none       1.1  0.026      24.14     16.6   1526.7       2.6          -
+inventory-7f7684694c-z4lz4         ent-worker   none       0.7  0.024      33.75    812.5   4683.3      72.2          -
+orders-5cd5d8df65-bhcp2            ent-worker3  none       1.3  0.062      48.50    134.4   4705.3       3.7          -
+orders-5cd5d8df65-tvqsm            ent-worker   none       1.1  0.045      41.39   1636.4   6000.0     162.5          -
+payments-856b5fddf8-7dgmd          ent-worker2  none       0.8  0.024      29.93     46.8    396.0       2.5          -
+payments-856b5fddf8-pr5dq          ent-worker   none       0.6  0.020      31.46    404.0   2180.0      50.0          -
+=== CPU weights of the cgroups on ent-worker (cpu.weight; kubelet maps requests to weights)
+  kubelet-kubepods-besteffort.slice: 1
+  kubelet-kubepods-burstable.slice: 125
+

@@ -62,6 +62,9 @@ const stageOf = (n) => {   // n: number of iterations started before this one
 
 export const options = {
   discardResponseBodies: false,
+  // NO_REUSE=1: every iteration opens new connections (many short-lived clients) instead of each
+  // virtual user keeping its keep-alive connection for the whole run (E4: new pods get traffic)
+  noVUConnectionReuse: __ENV.NO_REUSE === '1',
   scenarios: {
     shop: STAGES.length
       ? { executor: 'ramping-arrival-rate', startRate: 0, timeUnit: '1s', stages: stagesFor(), ...VUS }

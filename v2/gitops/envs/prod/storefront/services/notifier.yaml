@@ -25,3 +25,12 @@ keda:
         stream: ORDERS
         consumer: notifier
         lagThreshold: "50"
+    # E4 fix for the oscillation: the backlog says how much is waiting, not how fast it arrives -
+    # once drained it reads ~0 and the replicas go away under a steady load. A second trigger on
+    # the arrival rate (one event per confirmed order) holds the steady-state count; KEDA uses
+    # whichever trigger asks for more replicas, the backlog trigger still handles bursts.
+    - type: prometheus
+      metadata:
+        serverAddress: http://kps-prometheus.monitoring.svc:9090
+        query: sum(rate(orders_total{namespace="storefront",status="CONFIRMED"}[1m]))
+        threshold: "8"            # events per second per replica: 80 % of one replica (10/s)

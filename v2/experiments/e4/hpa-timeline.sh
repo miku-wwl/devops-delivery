@@ -2,6 +2,7 @@
 # Scale-up and scale-down timeline of the gateway's HorizontalPodAutoscaler under a load step.
 #   bash v2/experiments/e4/hpa-timeline.sh <label> [low] [high] [low-s] [high-s] [after-s]
 # Default: 30 it/s for 120 s, 120 it/s for 420 s, 30 it/s for 480 s (one k6 run, 10 s ramps).
+# NO_REUSE=1: k6 opens new connections every iteration (see experiments/load/storefront.js).
 # Records: the controllers' timing settings, a watcher line every ~2 s (watch.sh), k6 per
 # stage, the HPA and pod events, and for every gateway pod its creation, scheduling, start and
 # readiness times. Output: evidence/e4/<label>/.
@@ -29,7 +30,7 @@ fi
 GW=http://$(kubectl -n $NS get svc gateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}'):8080
 t0=$(date -u +%s)
 echo "== k6 start $(date -u -d @$t0 +%T); load step to $HIGH it/s at $(date -u -d @$((t0 + 30 + T1)) +%T), back to $LOW at $(date -u -d @$((t0 + 30 + T1 + 10 + T2)) +%T)"
-BASE_URL=$GW STAGES=$LOW,$HIGH,$LOW STEPS=$T1,$T2,$T3 RAMP=10 WARMUP=30 MAX_VUS=600 SUMMARY="$OUT/k6.json" \
+BASE_URL=$GW STAGES=$LOW,$HIGH,$LOW STEPS=$T1,$T2,$T3 RAMP=10 WARMUP=30 MAX_VUS=600 NO_REUSE=${NO_REUSE:-} SUMMARY="$OUT/k6.json" \
   taskset -c 0-3 k6 run --quiet "$ROOT/v2/experiments/load/storefront.js" > "$OUT/k6.txt" 2>&1
 python3 "$ROOT/v2/experiments/load/k6_warnings.py" "$OUT/k6.txt" > /dev/null
 sleep 30

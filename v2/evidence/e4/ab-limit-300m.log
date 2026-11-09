@@ -1,0 +1,24 @@
+# transcript: E4: CPU limit 300m on one gateway pod next to the unlimited ones, 60 it/s
+# recorded: 2026-11-09T03:10:20Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e4/ab-limit.sh limit-300m gateway 300m 60 180
+deployment.apps/gateway-limited created
+Waiting for deployment "gateway-limited" rollout to finish: 0 of 1 updated replicas are available...
+deployment "gateway-limited" successfully rolled out
+limited pod gateway-limited-788f6c7b94-qkbg7 on ent-worker2, cpu.max: 30000 100000
+cpu.stat before: usage_usec 3346478 nr_periods 321 nr_throttled 71 throttled_usec 3413548 
+gateway-7b844f9fc9-gm44w           ent-worker3   localhost:5001/storefront:fd38028
+gateway-7b844f9fc9-qhww7           ent-worker    localhost:5001/storefront:fd38028
+gateway-limited-788f6c7b94-qkbg7   ent-worker2   localhost:5001/storefront:fd38028
+rate=60/s duration=180s iterations=10800 dropped=0
+requests=18370 (104.5/s) failed=0.23%
+browse: p50=17.2 p95=137.8 p99=481.1 max=2538.9 ms
+order:  p50=149.7 p95=323.3 p99=1174.0 max=2527.1 ms
+checks: 99.77% passed
+cpu.stat after:  usage_usec 53053395 nr_periods 2137 nr_throttled 1289 throttled_usec 48211517 
+window: 03:11:24 .. 03:13:50 (146 s)
+pod                                image       req/s  cores ms CPU/req   p50 ms   p95 ms   lag p99
+gateway-7b844f9fc9-gm44w           none         39.9  0.288       7.22     16.4    263.0       7.1
+gateway-7b844f9fc9-qhww7           none         27.3  0.207       7.58     16.4    261.6       5.4
+gateway-limited-788f6c7b94-qkbg7   300m         37.3  0.282       7.55     21.9    474.9      95.5
+

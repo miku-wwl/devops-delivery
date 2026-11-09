@@ -1,0 +1,3 @@
+gateway-7b844f9fc9-gm44w           ent-worker3   localhost:5001/storefront:fd38028
+gateway-7b844f9fc9-qhww7           ent-worker    localhost:5001/storefront:fd38028
+gateway-limited-788f6c7b94-qkbg7   ent-worker2   localhost:5001/storefront:fd38028

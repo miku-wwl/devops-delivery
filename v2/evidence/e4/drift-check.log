@@ -1,0 +1,40 @@
+# transcript: E4: is the system slower than in E3? the 90 it/s stage of keda-steady next to a 100 it/s window of the E3 one-replica re-run
+# recorded: 2026-11-09T03:08:19Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ python3 v2/experiments/e3/window_stats.py 2026-11-09T02:54:00+00:00 2026-11-09T02:56:00+00:00 | head -9
+window 2026-11-09T02:54:00+00:00 .. 2026-11-09T02:56:00+00:00
+  service      req/s  cores ms CPU/req busiest pod    R ms  p95 ms in flight    X*R loop p99 pool p95
+  catalog      158.0  0.654       4.14       0.345     7.4    21.3      1.88   1.16     29.7     0.49
+  gateway      155.5  1.389       8.94       0.740    89.5   370.6     17.50  13.91     38.1     0.00
+  inventory     23.5  0.271      11.54       0.145    35.0    84.7      0.75   0.82     17.1     0.42
+  notifier       0.0  0.198       0.00       0.070     0.0     0.0      0.00   0.00      9.4     0.00
+  orders        27.5  0.841      30.58       0.435   208.1   480.9      4.88   5.72     23.5     0.41
+  payments      22.9  0.228       9.97       0.116    75.7   179.8      2.50   1.73      9.7     0.00
+  nodes (cores): ent-worker=2.07, ent-worker2=1.7, ent-worker3=2.57
+
+$ python3 v2/experiments/e3/window_stats.py 2026-11-09T01:23:30+00:00 2026-11-09T01:25:00+00:00 | head -9
+window 2026-11-09T01:23:30+00:00 .. 2026-11-09T01:25:00+00:00
+  service      req/s  cores ms CPU/req busiest pod    R ms  p95 ms in flight    X*R loop p99 pool p95
+  catalog      166.6  0.385       2.31       0.199     2.3     5.0      0.17   0.38      4.6     0.19
+  gateway      169.7  0.759       4.47       0.759    31.2   138.9      6.33   5.29     17.5     0.00
+  inventory     26.0  0.159       6.14       0.081    11.9    22.1      0.33   0.31      3.1     0.20
+  notifier       0.0  0.087       0.00       0.087     0.0     0.0      0.00   0.00      3.9     0.00
+  orders        30.1  0.525      17.45       0.272    99.2   215.0      3.33   2.98      4.1     0.21
+  payments      25.3  0.142       5.61       0.071    63.3   156.3      1.33   1.60      2.6     0.00
+  nodes (cores): ent-worker=0.85, ent-worker2=1.01, ent-worker3=2.13
+
+$ bash v2/experiments/e4/series.sh 2026-11-09T02:52:30Z 2026-11-09T02:58:00Z 30 'gw_req/s=sum(rate(http_server_requests_total{namespace="storefront",service="gateway"}[30s]))' 'gw_cores=sum(rate(container_cpu_usage_seconds_total{namespace="storefront",pod=~"gateway-.*",container="app"}[30s]))' 'busiest=max(rate(container_cpu_usage_seconds_total{namespace="storefront",pod=~"gateway-.*",container="app"}[30s]))' 'lag_p99_ms=1000*histogram_quantile(0.99,sum by (le)(rate(event_loop_lag_seconds_bucket{namespace="storefront",service="gateway"}[30s])))' 'rejected/s=sum(rate(upstream_rejected_total{namespace="storefront",service="gateway"}[30s]))' 'orders_ms=1000*sum(rate(http_server_request_duration_seconds_sum{namespace="storefront",service="orders"}[30s]))/sum(rate(http_server_request_duration_seconds_count{namespace="storefront",service="orders"}[30s]))'
+time gw_req/s gw_cores busiest lag_p99_ms rejected/s orders_ms
+02:52:30  52.86   0.41  0.21  4.86   0      118.34
+02:53:00  53.45   0.48  0.25  4.9    0      115.61
+02:53:30  152.61  1.18  0.64  55.08  58.27  525.79
+02:54:00  153     0.59  0.57  23.88  0      161.57
+02:54:30  152.66  1.44  0.76  44.61  0      208.81
+02:55:00  151.93  1.26  0.67  20.77  0      165.6
+02:55:30  153.58  1.45  0.77  43.17  0      216.32
+02:56:00  156.91  1.21  0.75  41.85  0      218.98
+02:56:30  157     1.42  0.75  26.65  0      207.77
+02:57:00  158.17  1.44  0.73  42.33  0      188.99
+02:57:30  157.84  1.49  0.81  41.1   0      206.91
+02:58:00  164.2   1.67  0.85  96.85  8.73   199.01
+

@@ -1,0 +1,5 @@
+rate=60/s duration=180s iterations=10800 dropped=0
+requests=18370 (104.5/s) failed=0.23%
+browse: p50=17.2 p95=137.8 p99=481.1 max=2538.9 ms
+order:  p50=149.7 p95=323.3 p99=1174.0 max=2527.1 ms
+checks: 99.77% passed
