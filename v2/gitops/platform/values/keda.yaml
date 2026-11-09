@@ -1,0 +1,10 @@
+# kedacore/keda 2.21.0 (E4, chapter 5): the notifier scales on its NATS JetStream backlog.
+# Requests sized for the lab (the chart asks for 100m/100Mi per pod and 1 CPU limits); memory
+# limits keep a runaway from taking a node; no CPU limits (chapter 5: CFS throttling).
+resources:
+  operator: {requests: {cpu: 20m, memory: 64Mi}, limits: {cpu: null, memory: 256Mi}}
+  metricServer: {requests: {cpu: 20m, memory: 48Mi}, limits: {cpu: null, memory: 256Mi}}
+  webhooks: {requests: {cpu: 10m, memory: 32Mi}, limits: {cpu: null, memory: 128Mi}}
+prometheus:
+  operator: {enabled: true, serviceMonitor: {enabled: true}}
+  metricServer: {enabled: true, serviceMonitor: {enabled: true}}

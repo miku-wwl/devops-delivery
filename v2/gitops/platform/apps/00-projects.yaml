@@ -17,6 +17,7 @@ spec:
     - https://cloudnative-pg.github.io/charts
     - https://nats-io.github.io/k8s/helm/charts
     - https://blob.istio.io/istio-release/charts
+    - https://kedacore.github.io/charts
   destinations:
     - {server: https://kubernetes.default.svc, namespace: "*"}
   clusterResourceWhitelist:
@@ -41,4 +42,5 @@ spec:
     - {group: apps, kind: "*"}
     - {group: policy, kind: PodDisruptionBudget}
     - {group: autoscaling, kind: HorizontalPodAutoscaler}
+    - {group: keda.sh, kind: ScaledObject}
     - {group: monitoring.coreos.com, kind: ServiceMonitor}

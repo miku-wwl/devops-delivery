@@ -21,6 +21,11 @@ kubectl -n $NS get hpa gateway -o yaml | grep -A8 "^spec:" | sed 's/^/  /'
 bash "$ROOT/v2/platform/cluster/lb-limits.sh" > /dev/null
 bash "$HERE/watch.sh" gateway > "$OUT/watch.txt" 2>&1 &
 watcher=$!
+# the notifier scales on its queue backlog through KEDA (an HPA named keda-hpa-notifier), if set up
+if kubectl -n $NS get scaledobject notifier >/dev/null 2>&1; then
+  bash "$HERE/watch.sh" notifier keda-hpa-notifier > "$OUT/notifier-watch.txt" 2>&1 &
+  watcher="$watcher $!"
+fi
 GW=http://$(kubectl -n $NS get svc gateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}'):8080
 t0=$(date -u +%s)
 echo "== k6 start $(date -u -d @$t0 +%T); load step to $HIGH it/s at $(date -u -d @$((t0 + 30 + T1)) +%T), back to $LOW at $(date -u -d @$((t0 + 30 + T1 + 10 + T2)) +%T)"
@@ -28,12 +33,12 @@ BASE_URL=$GW STAGES=$LOW,$HIGH,$LOW STEPS=$T1,$T2,$T3 RAMP=10 WARMUP=30 MAX_VUS=
   taskset -c 0-3 k6 run --quiet "$ROOT/v2/experiments/load/storefront.js" > "$OUT/k6.txt" 2>&1
 python3 "$ROOT/v2/experiments/load/k6_warnings.py" "$OUT/k6.txt" > /dev/null
 sleep 30
-kill $watcher 2>/dev/null; wait $watcher 2>/dev/null
+kill $watcher 2>/dev/null; wait $watcher 2>/dev/null || true
 cat "$OUT/k6.txt"
 echo "== HPA and pod events (newest last)"
 kubectl -n $NS get events --sort-by=.lastTimestamp \
   -o custom-columns=TIME:.lastTimestamp,KIND:.involvedObject.kind,NAME:.involvedObject.name,REASON:.reason,MSG:.message |
-  grep -E "HorizontalPodAutoscaler|gateway-" | grep -vE "Unhealthy.*readyz" | tee "$OUT/events.txt" | tail -40
+  grep -E "HorizontalPodAutoscaler|ScaledObject|gateway-|notifier-" | grep -vE "Unhealthy.*readyz" | tee "$OUT/events.txt" | tail -50
 echo "== gateway pods: created, scheduled, containers ready, ready"
 kubectl -n $NS get pods -l app.kubernetes.io/name=gateway -o json | jq -r '.items[] |
   [.metadata.name, .spec.nodeName, .metadata.creationTimestamp,
@@ -42,3 +47,7 @@ kubectl -n $NS get pods -l app.kubernetes.io/name=gateway -o json | jq -r '.item
    (.status.conditions[] | select(.type == "Ready") | .lastTransitionTime)] | @tsv' | sort -k3 | tee "$OUT/pods.txt"
 echo "== watcher: lines where the HPA decision or the pod set changed"
 awk -F'|' '{split($2, h, " "); sig = h[2] " " h[3] $3 $4} sig != prev {print; prev = sig}' "$OUT/watch.txt" | head -80
+if [ -s "$OUT/notifier-watch.txt" ]; then
+  echo "== notifier watcher (KEDA): lines where the decision or the pod set changed; last field = lag per replica"
+  awk -F'|' '{split($2, h, " "); sig = h[2] " " h[3] $3 $4} sig != prev {print; prev = sig}' "$OUT/notifier-watch.txt" | head -60
+fi

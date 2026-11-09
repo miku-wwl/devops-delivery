@@ -13,6 +13,15 @@ autoscaling:
   maxReplicas: 6
   cpuAverageUtilization: 100   # percent of the CPU request, averaged over the pods
   behavior: {}                 # autoscaling/v2 behavior; empty = Kubernetes defaults
+# KEDA ScaledObject (E4): scale on an event source (a queue backlog) instead of CPU. KEDA creates
+# and drives an HPA named keda-hpa-<service>; the Deployment then has no "replicas" field either.
+keda:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  pollingInterval: 10          # seconds between two reads of the event source (KEDA default 30)
+  cooldownPeriod: 300          # only used for scaling to zero
+  triggers: []
 resilienceMode: resilient      # resilient | naive (E6 baseline)
 migrations: false              # run "storefront.common.db migrate <service>" as an init container
 env: {}                        # plain variables, NAME: value

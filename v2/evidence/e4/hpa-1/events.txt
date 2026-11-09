@@ -1,0 +1,12 @@
+2026-11-09T02:02:43Z   Pod                       gateway-7b844f9fc9-j9lkf   Scheduled                      Successfully assigned storefront/gateway-7b844f9fc9-j9lkf to ent-worker2
+2026-11-09T02:02:43Z   ReplicaSet                gateway-7b844f9fc9         SuccessfulCreate               Created pod: gateway-7b844f9fc9-j9lkf
+2026-11-09T02:02:43Z   HorizontalPodAutoscaler   gateway                    SuccessfulRescale              New size: 3; reason: cpu resource utilization (percentage of request) above target
+2026-11-09T02:02:43Z   Deployment                gateway                    ScalingReplicaSet              Scaled up replica set gateway-7b844f9fc9 from 2 to 3
+2026-11-09T02:02:45Z   Pod                       gateway-7b844f9fc9-j9lkf   Pulled                         Container image "localhost:5001/storefront:fd38028" already present on machine and can be accessed by the pod
+2026-11-09T02:02:45Z   Pod                       gateway-7b844f9fc9-j9lkf   Created                        Container created
+2026-11-09T02:02:45Z   Pod                       gateway-7b844f9fc9-j9lkf   Started                        Container started
+2026-11-09T02:02:49Z   Pod                       gateway-7b844f9fc9-j9lkf   Unhealthy                      Startup probe failed: Get "http://10.240.2.31:8080/healthz": dial tcp 10.240.2.31:8080: connect: connection refused
+2026-11-09T02:08:28Z   Pod                       gateway-7b844f9fc9-j9lkf   Killing                        Stopping container app
+2026-11-09T02:08:28Z   ReplicaSet                gateway-7b844f9fc9         SuccessfulDelete               Deleted pod: gateway-7b844f9fc9-j9lkf
+2026-11-09T02:08:28Z   HorizontalPodAutoscaler   gateway                    SuccessfulRescale              New size: 2; reason: All metrics below target
+2026-11-09T02:08:28Z   Deployment                gateway                    ScalingReplicaSet              Scaled down replica set gateway-7b844f9fc9 from 3 to 2

@@ -1,0 +1,464 @@
+01:54:47 | hpa 2 2 3 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:54:50 | hpa 2 2 3 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:54:52 | hpa 2 2 3 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:54:54 | hpa 2 2 3 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:54:57 | hpa 2 2 2 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:54:59 | hpa 2 2 2 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:55:01 | hpa 2 2 2 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:55:04 | hpa 2 2 2 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:55:06 | hpa 2 2 2 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:55:08 | hpa 2 2 2 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:55:11 | hpa 2 2 2 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:55:13 | hpa 2 2 8 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:55:15 | hpa 2 2 8 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:55:18 | hpa 2 2 8 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:55:20 | hpa 2 2 8 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:55:23 | hpa 2 2 8 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:55:25 | hpa 2 2 8 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:55:27 | hpa 2 2 19 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:55:30 | hpa 2 2 19 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:55:32 | hpa 2 2 19 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:55:34 | hpa 2 2 19 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:55:37 | hpa 2 2 19 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:55:39 | hpa 2 2 19 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:55:41 | hpa 2 2 19 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:55:44 | hpa 2 2 26 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:55:46 | hpa 2 2 26 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:55:48 | hpa 2 2 26 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:55:51 | hpa 2 2 26 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:55:53 | hpa 2 2 26 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:55:56 | hpa 2 2 26 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:55:59 | hpa 2 2 27 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:56:01 | hpa 2 2 27 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:56:03 | hpa 2 2 27 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:56:06 | hpa 2 2 27 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:56:08 | hpa 2 2 27 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:56:11 | hpa 2 2 27 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:56:13 | hpa 2 2 28 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:56:15 | hpa 2 2 28 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:56:18 | hpa 2 2 28 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:56:20 | hpa 2 2 28 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:56:23 | hpa 2 2 28 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:56:25 | hpa 2 2 28 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:56:28 | hpa 2 2 29 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:56:30 | hpa 2 2 29 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:56:33 | hpa 2 2 29 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:56:35 | hpa 2 2 29 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:56:37 | hpa 2 2 29 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:56:40 | hpa 2 2 29 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:56:42 | hpa 2 2 27 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:56:45 | hpa 2 2 27 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:56:47 | hpa 2 2 27 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:56:49 | hpa 2 2 27 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:56:52 | hpa 2 2 27 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:56:54 | hpa 2 2 27 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:56:57 | hpa 2 2 28 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:56:59 | hpa 2 2 28 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:57:02 | hpa 2 2 28 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:57:04 | hpa 2 2 28 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:57:06 | hpa 2 2 28 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:57:09 | hpa 2 2 28 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:57:11 | hpa 2 2 28 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:57:13 | hpa 2 2 29 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:57:16 | hpa 2 2 29 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:57:18 | hpa 2 2 29 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:57:21 | hpa 2 2 29 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:57:23 | hpa 2 2 29 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:57:25 | hpa 2 2 29 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:57:28 | hpa 2 2 31 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:57:30 | hpa 2 2 31 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:57:32 | hpa 2 2 31 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:57:35 | hpa 2 2 31 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:57:37 | hpa 2 2 31 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:57:40 | hpa 2 2 31 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:57:42 | hpa 2 2 84 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:57:44 | hpa 2 2 84 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:57:47 | hpa 2 2 84 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:57:49 | hpa 2 2 84 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:57:51 | hpa 2 2 84 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:57:54 | hpa 2 2 84 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:57:56 | hpa 2 2 84 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:57:59 | hpa 2 2 99 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:58:01 | hpa 2 2 99 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:58:03 | hpa 2 2 99 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:58:06 | hpa 2 2 99 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:58:08 | hpa 2 2 99 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:58:11 | hpa 2 2 99 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:58:13 | hpa 2 2 99 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:58:15 | hpa 2 2 99 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:58:18 | hpa 2 2 99 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:58:20 | hpa 2 2 99 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:58:22 | hpa 2 2 99 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:58:25 | hpa 2 2 99 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:58:27 | hpa 2 2 99 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:58:30 | hpa 2 2 99 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:58:32 | hpa 2 2 99 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:58:34 | hpa 2 2 99 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:58:37 | hpa 2 2 99 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:58:39 | hpa 2 2 99 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:58:41 | hpa 2 2 99 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:58:44 | hpa 2 2 98 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:58:46 | hpa 2 2 98 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:58:49 | hpa 2 2 98 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:58:51 | hpa 2 2 98 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:58:53 | hpa 2 2 98 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:58:56 | hpa 2 2 98 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:58:58 | hpa 2 2 96 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:59:00 | hpa 2 2 96 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:59:03 | hpa 2 2 96 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:59:05 | hpa 2 2 96 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:59:08 | hpa 2 2 96 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:59:10 | hpa 2 2 96 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:59:12 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:59:15 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:59:17 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:59:20 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:59:22 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:59:24 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:59:27 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:59:29 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:59:32 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:59:34 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:59:37 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:59:40 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:59:42 | hpa 2 2 98 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:59:45 | hpa 2 2 98 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:59:47 | hpa 2 2 98 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:59:50 | hpa 2 2 98 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:59:52 | hpa 2 2 98 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:59:54 | hpa 2 2 98 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:59:57 | hpa 2 2 98 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+01:59:59 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:00:02 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:00:04 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:00:06 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:00:09 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:00:11 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:00:14 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:00:16 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:00:19 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:00:21 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:00:23 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:00:26 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:00:28 | hpa 2 2 107 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:00:31 | hpa 2 2 107 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:00:33 | hpa 2 2 107 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:00:36 | hpa 2 2 107 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:00:38 | hpa 2 2 107 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:00:40 | hpa 2 2 107 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:00:43 | hpa 2 2 108 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:00:45 | hpa 2 2 108 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:00:48 | hpa 2 2 108 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:00:50 | hpa 2 2 108 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:00:52 | hpa 2 2 108 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:00:55 | hpa 2 2 108 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:00:57 | hpa 2 2 103 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:01:00 | hpa 2 2 103 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:01:03 | hpa 2 2 103 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:01:05 | hpa 2 2 103 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:01:07 | hpa 2 2 103 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:01:10 | hpa 2 2 103 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:01:12 | hpa 2 2 104 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:01:15 | hpa 2 2 104 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:01:17 | hpa 2 2 104 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:01:20 | hpa 2 2 104 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:01:22 | hpa 2 2 104 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:01:24 | hpa 2 2 104 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:01:27 | hpa 2 2 104 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:01:29 | hpa 2 2 106 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:01:31 | hpa 2 2 106 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:01:34 | hpa 2 2 106 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:01:36 | hpa 2 2 106 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:01:39 | hpa 2 2 106 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:01:41 | hpa 2 2 106 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:01:43 | hpa 2 2 106 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:01:46 | hpa 2 2 106 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:01:48 | hpa 2 2 106 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:01:50 | hpa 2 2 106 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:01:53 | hpa 2 2 106 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:01:55 | hpa 2 2 106 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:01:58 | hpa 2 2 97 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:02:00 | hpa 2 2 97 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:02:02 | hpa 2 2 97 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:02:05 | hpa 2 2 97 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:02:07 | hpa 2 2 97 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:02:10 | hpa 2 2 97 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:02:12 | hpa 2 2 97 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:02:14 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:02:17 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:02:19 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:02:22 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:02:24 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:02:26 | hpa 2 2 102 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:02:29 | hpa 2 2 101 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:02:31 | hpa 2 2 101 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:02:34 | hpa 2 2 101 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:02:36 | hpa 2 2 101 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:02:39 | hpa 2 2 101 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:02:41 | hpa 2 2 101 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:02:44 | hpa 3 2 114 | deploy 3 2 | gm44w:Running:true j9lkf:Pending:false qhww7:Running:true 
+02:02:46 | hpa 3 2 114 | deploy 3 2 | gm44w:Running:true j9lkf:Running:false qhww7:Running:true 
+02:02:49 | hpa 3 2 114 | deploy 3 2 | gm44w:Running:true j9lkf:Running:false qhww7:Running:true 
+02:02:51 | hpa 3 2 114 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:02:54 | hpa 3 2 114 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:02:56 | hpa 3 2 114 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:02:58 | hpa 3 3 102 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:03:01 | hpa 3 3 102 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:03:03 | hpa 3 3 102 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:03:05 | hpa 3 3 102 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:03:08 | hpa 3 3 102 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:03:10 | hpa 3 3 102 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:03:13 | hpa 3 3 69 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:03:15 | hpa 3 3 69 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:03:17 | hpa 3 3 69 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:03:20 | hpa 3 3 69 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:03:22 | hpa 3 3 69 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:03:25 | hpa 3 3 69 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:03:27 | hpa 3 3 69 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:03:29 | hpa 3 3 67 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:03:32 | hpa 3 3 67 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:03:34 | hpa 3 3 67 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:03:37 | hpa 3 3 67 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:03:39 | hpa 3 3 67 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:03:41 | hpa 3 3 67 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:03:44 | hpa 3 3 66 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:03:46 | hpa 3 3 66 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:03:48 | hpa 3 3 66 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:03:51 | hpa 3 3 66 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:03:53 | hpa 3 3 66 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:03:55 | hpa 3 3 66 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:03:58 | hpa 3 3 66 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:04:00 | hpa 3 3 66 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:04:03 | hpa 3 3 66 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:04:05 | hpa 3 3 66 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:04:07 | hpa 3 3 66 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:04:10 | hpa 3 3 66 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:04:12 | hpa 3 3 66 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:04:14 | hpa 3 3 64 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:04:17 | hpa 3 3 64 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:04:19 | hpa 3 3 64 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:04:21 | hpa 3 3 64 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:04:24 | hpa 3 3 64 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:04:26 | hpa 3 3 64 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:04:29 | hpa 3 3 63 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:04:31 | hpa 3 3 63 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:04:33 | hpa 3 3 63 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:04:36 | hpa 3 3 63 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:04:38 | hpa 3 3 63 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:04:40 | hpa 3 3 63 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:04:43 | hpa 3 3 63 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:04:45 | hpa 3 3 52 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:04:47 | hpa 3 3 52 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:04:50 | hpa 3 3 52 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:04:52 | hpa 3 3 52 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:04:54 | hpa 3 3 52 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:04:57 | hpa 3 3 52 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:04:59 | hpa 3 3 42 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:05:01 | hpa 3 3 42 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:05:04 | hpa 3 3 42 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:05:06 | hpa 3 3 42 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:05:08 | hpa 3 3 42 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:05:11 | hpa 3 3 42 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:05:13 | hpa 3 3 18 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:05:15 | hpa 3 3 18 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:05:18 | hpa 3 3 18 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:05:20 | hpa 3 3 18 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:05:22 | hpa 3 3 18 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:05:25 | hpa 3 3 18 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:05:27 | hpa 3 3 18 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:05:29 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:05:32 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:05:34 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:05:36 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:05:39 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:05:41 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:05:43 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:05:46 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:05:48 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:05:51 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:05:53 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:05:55 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:05:58 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:06:00 | hpa 3 3 16 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:06:02 | hpa 3 3 16 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:06:05 | hpa 3 3 16 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:06:07 | hpa 3 3 16 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:06:10 | hpa 3 3 16 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:06:12 | hpa 3 3 16 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:06:15 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:06:17 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:06:20 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:06:22 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:06:24 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:06:27 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:06:29 | hpa 3 3 18 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:06:31 | hpa 3 3 18 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:06:34 | hpa 3 3 18 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:06:36 | hpa 3 3 18 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:06:39 | hpa 3 3 18 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:06:41 | hpa 3 3 18 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:06:43 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:06:46 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:06:48 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:06:50 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:06:53 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:06:55 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:06:57 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:07:00 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:07:02 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:07:04 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:07:07 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:07:09 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:07:11 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:07:14 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:07:16 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:07:18 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:07:21 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:07:23 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:07:26 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:07:28 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:07:30 | hpa 3 3 18 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:07:33 | hpa 3 3 18 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:07:35 | hpa 3 3 18 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:07:37 | hpa 3 3 18 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:07:40 | hpa 3 3 18 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:07:42 | hpa 3 3 18 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:07:44 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:07:47 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:07:49 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:07:51 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:07:54 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:07:56 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:07:58 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:08:01 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:08:03 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:08:05 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:08:08 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:08:10 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:08:12 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:08:15 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:08:17 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:08:19 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:08:22 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:08:24 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:08:26 | hpa 3 3 17 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:08:29 | hpa 2 3 17 | deploy 2 2 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:08:31 | hpa 2 3 17 | deploy 2 2 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:08:33 | hpa 2 3 17 | deploy 2 2 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:08:36 | hpa 2 3 17 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:08:38 | hpa 2 3 17 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:08:40 | hpa 2 3 17 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:08:43 | hpa 2 3 17 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:08:45 | hpa 2 2 19 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:08:47 | hpa 2 2 19 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:08:50 | hpa 2 2 19 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:08:52 | hpa 2 2 19 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:08:54 | hpa 2 2 19 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:08:57 | hpa 2 2 19 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:08:59 | hpa 2 2 23 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:09:01 | hpa 2 2 23 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:09:04 | hpa 2 2 23 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:09:06 | hpa 2 2 23 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:09:08 | hpa 2 2 23 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:09:11 | hpa 2 2 23 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:09:13 | hpa 2 2 23 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:09:15 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:09:18 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:09:20 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:09:22 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:09:25 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:09:27 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:09:29 | hpa 2 2 24 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:09:32 | hpa 2 2 24 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:09:34 | hpa 2 2 24 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:09:37 | hpa 2 2 24 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:09:39 | hpa 2 2 24 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:09:41 | hpa 2 2 24 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:09:43 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:09:46 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:09:48 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:09:50 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:09:53 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:09:55 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:09:57 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:10:00 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:10:02 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:10:04 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:10:07 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:10:09 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:10:11 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:10:14 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:10:16 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:10:18 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:10:21 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:10:23 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:10:25 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:10:28 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:10:30 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:10:32 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:10:35 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:10:37 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:10:40 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:10:42 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:10:44 | hpa 2 2 24 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:10:47 | hpa 2 2 24 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:10:49 | hpa 2 2 24 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:10:51 | hpa 2 2 24 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:10:54 | hpa 2 2 24 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:10:56 | hpa 2 2 24 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:10:58 | hpa 2 2 24 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:11:01 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:11:03 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:11:05 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:11:08 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:11:10 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:11:12 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:11:15 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:11:17 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:11:19 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:11:22 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:11:24 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:11:26 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:11:29 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:11:31 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:11:33 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:11:36 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:11:38 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:11:40 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:11:43 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:11:45 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:11:47 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:11:50 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:11:52 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:11:54 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:11:57 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:11:59 | hpa 2 2 24 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:12:01 | hpa 2 2 24 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:12:04 | hpa 2 2 24 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:12:06 | hpa 2 2 24 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:12:08 | hpa 2 2 24 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:12:11 | hpa 2 2 24 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:12:13 | hpa 2 2 24 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:12:15 | hpa 2 2 26 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:12:18 | hpa 2 2 26 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:12:20 | hpa 2 2 26 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:12:22 | hpa 2 2 26 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:12:25 | hpa 2 2 26 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:12:27 | hpa 2 2 26 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:12:29 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:12:32 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:12:34 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:12:36 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:12:39 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:12:41 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:12:43 | hpa 2 2 25 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:12:46 | hpa 2 2 22 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:12:48 | hpa 2 2 22 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:12:50 | hpa 2 2 22 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:12:53 | hpa 2 2 22 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:12:55 | hpa 2 2 22 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:12:57 | hpa 2 2 22 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:13:00 | hpa 2 2 9 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:13:02 | hpa 2 2 9 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:13:04 | hpa 2 2 9 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:13:07 | hpa 2 2 9 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
