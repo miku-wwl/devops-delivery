@@ -27,3 +27,16 @@ metadata: {name: insight-api}
 spec:
   selector: {app: insight-api}
   ports: [{port: 8080, targetPort: http, name: http}]
+---
+# E5: the team's API key, copied from OpenBao (secret/insight/api-key) into the Secret
+# insight-api-key every 30 s. The team decides what to copy; the store is the platform's.
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata: {name: insight-api-key}
+spec:
+  refreshInterval: 30s
+  secretStoreRef: {name: openbao, kind: SecretStore}
+  target: {name: insight-api-key, creationPolicy: Owner}
+  data:
+    - secretKey: api-key
+      remoteRef: {key: insight/api-key, property: value}

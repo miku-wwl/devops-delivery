@@ -19,6 +19,8 @@ spec:
     - https://blob.istio.io/istio-release/charts
     - https://kedacore.github.io/charts
     - https://kyverno.github.io/kyverno/
+    - https://openbao.github.io/openbao-helm
+    - https://charts.external-secrets.io
   destinations:
     - {server: https://kubernetes.default.svc, namespace: "*"}
   clusterResourceWhitelist:
@@ -69,3 +71,4 @@ spec:
     - {group: apps, kind: Deployment}
     - {group: policy, kind: PodDisruptionBudget}
     - {group: autoscaling, kind: HorizontalPodAutoscaler}
+    - {group: external-secrets.io, kind: ExternalSecret}   # which secret to copy; the store is the platform's

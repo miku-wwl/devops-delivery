@@ -15,6 +15,9 @@ spec:
   destination: {server: "https://kubernetes.default.svc"}
   syncPolicy:
     automated: {prune: true, selfHeal: true}
+    # the SecretStores need the External Secrets CRDs, installed in the same rollout (wave -3)
+    syncOptions: [SkipDryRunOnMissingResource=true]
+    retry: {limit: 10, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}
 ---
 # Team insight's workloads, through the restricted project "insight" (00-projects.yaml).
 apiVersion: argoproj.io/v1alpha1
