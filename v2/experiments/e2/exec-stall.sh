@@ -10,6 +10,7 @@ IMG=$(kubectl -n storefront get deploy payments -o jsonpath='{.spec.template.spe
 POD=$(kubectl -n storefront get pods -l app.kubernetes.io/name=payments -o jsonpath='{.items[0].metadata.name}')
 IP=$(kubectl -n storefront get pod "$POD" -o jsonpath='{.status.podIP}')
 kubectl create namespace e2-bench --dry-run=client -o yaml | kubectl apply -f - >/dev/null
+trap 'kubectl delete ns e2-bench --wait=false >/dev/null 2>&1' EXIT   # added in E5: the namespace was left over
 kubectl -n e2-bench create configmap exec-probe --from-file=exec_probe.py="$HERE/exec_probe.py" \
   --dry-run=client -o yaml | kubectl apply -f - >/dev/null
 kubectl -n e2-bench delete pod exec-probe --ignore-not-found --wait=true >/dev/null

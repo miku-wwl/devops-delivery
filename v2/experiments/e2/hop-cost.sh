@@ -13,6 +13,8 @@ CAT=$(kubectl -n storefront get pods -l app.kubernetes.io/name=catalog -o json |
 VK=$(kubectl -n data get pod valkey-0 -o jsonpath='{.status.podIP}')
 echo "image $IMG; http target catalog pod $CAT:8080; valkey pod $VK:6379 ($(kubectl -n data get pod valkey-0 -o jsonpath='{.spec.nodeName}'))"
 kubectl create namespace e2-bench --dry-run=client -o yaml | kubectl apply -f - >/dev/null
+# added in E5: leave nothing behind (the namespace and the ConfigMap in storefront were left over)
+trap 'kubectl delete ns e2-bench --wait=false >/dev/null 2>&1; kubectl -n storefront delete configmap hop-cost --ignore-not-found >/dev/null 2>&1' EXIT
 for ns in storefront e2-bench; do
   kubectl -n "$ns" create configmap hop-cost --from-file=hop_cost.py="$HERE/hop_cost.py" \
     --dry-run=client -o yaml | kubectl apply -f - >/dev/null

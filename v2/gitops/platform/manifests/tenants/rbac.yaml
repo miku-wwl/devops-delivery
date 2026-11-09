@@ -1,0 +1,188 @@
+# E5: who may do what. Groups come from the client certificates (O=) issued by
+# platform/tenants/users.sh; with OIDC they would come from the identity provider's group claim.
+#   team-shop      viewer in storefront (prod changes go through Git), developer in shop-dev
+#   team-insight   developer in insight
+#   platform-sre   cluster-wide read (no Secrets) + operational writes; no RBAC changes
+#   auditors       cluster-wide read (no Secrets), including RBAC objects
+#   break-glass    cluster-admin, only on a 1-hour certificate (every use is in the audit log)
+# Nobody but break-glass reads Secrets directly. RBAC cannot express "deny": a permission is
+# absent because no role grants it.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata: {name: tenant-developer}
+rules:
+  - apiGroups: [""]
+    resources: [pods, services, configmaps, persistentvolumeclaims, serviceaccounts]
+    verbs: [get, list, watch, create, update, patch, delete]
+  - apiGroups: [""]
+    resources: [pods/log]
+    verbs: [get]
+  - apiGroups: [""]
+    resources: [pods/exec, pods/portforward]
+    verbs: [create]
+  - apiGroups: [apps]
+    resources: [deployments, statefulsets]
+    verbs: [get, list, watch, create, update, patch, delete]
+  - apiGroups: [apps]
+    resources: [deployments/scale, statefulsets/scale]
+    verbs: [get, update, patch]
+  - apiGroups: [apps]
+    resources: [replicasets]
+    verbs: [get, list, watch]
+  - apiGroups: [batch]
+    resources: [jobs, cronjobs]
+    verbs: [get, list, watch, create, update, patch, delete]
+  - apiGroups: [autoscaling]
+    resources: [horizontalpodautoscalers]
+    verbs: [get, list, watch, create, update, patch, delete]
+  - apiGroups: [policy]
+    resources: [poddisruptionbudgets]
+    verbs: [get, list, watch, create, update, patch, delete]
+  # read-only: the guard rails the platform sets for the namespace, and who has access to it
+  - apiGroups: [""]
+    resources: [events, endpoints, resourcequotas, limitranges]
+    verbs: [get, list, watch]
+  - apiGroups: [networking.k8s.io]
+    resources: [networkpolicies]
+    verbs: [get, list, watch]
+  - apiGroups: [rbac.authorization.k8s.io]
+    resources: [roles, rolebindings]
+    verbs: [get, list, watch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata: {name: tenant-viewer}
+rules:
+  - apiGroups: ["", apps, batch, autoscaling, policy, networking.k8s.io]
+    resources: [pods, services, configmaps, persistentvolumeclaims, events, endpoints, resourcequotas,
+                limitranges, deployments, statefulsets, replicasets, jobs, cronjobs,
+                horizontalpodautoscalers, poddisruptionbudgets, networkpolicies]
+    verbs: [get, list, watch]
+  - apiGroups: [""]
+    resources: [pods/log]
+    verbs: [get]
+---
+# Delegated access management: a team may grant its own namespace's developer or viewer role to
+# others, and nothing more. Creating a RoleBinding requires either holding every permission of
+# the bound role or the "bind" verb on it; "bind" is granted for these two roles only.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata: {name: tenant-access-manager}
+rules:
+  - apiGroups: [rbac.authorization.k8s.io]
+    resources: [rolebindings]
+    verbs: [create, update, patch, delete]
+  - apiGroups: [rbac.authorization.k8s.io]
+    resources: [clusterroles]
+    resourceNames: [tenant-developer, tenant-viewer]
+    verbs: [bind]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata: {name: platform-reader}
+rules:
+  # cluster-scoped objects and RBAC, which the built-in "view" role does not cover
+  - apiGroups: [""]
+    resources: [nodes, namespaces, persistentvolumes]
+    verbs: [get, list, watch]
+  - apiGroups: [rbac.authorization.k8s.io]
+    resources: [roles, rolebindings, clusterroles, clusterrolebindings]
+    verbs: [get, list, watch]
+  - apiGroups: [storage.k8s.io, scheduling.k8s.io, apiextensions.k8s.io, admissionregistration.k8s.io]
+    resources: ["*"]
+    verbs: [get, list, watch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata: {name: platform-operator}
+rules:
+  - apiGroups: [""]
+    resources: [pods]
+    verbs: [delete]
+  - apiGroups: [""]
+    resources: [pods/exec]
+    verbs: [create]
+  - apiGroups: [""]
+    resources: [pods/eviction]
+    verbs: [create]
+  - apiGroups: [""]
+    resources: [nodes]
+    verbs: [patch]
+  - apiGroups: [apps]
+    resources: [deployments, statefulsets]
+    verbs: [patch]
+  - apiGroups: [apps]
+    resources: [deployments/scale, statefulsets/scale]
+    verbs: [update, patch]
+  - apiGroups: [""]
+    resources: [resourcequotas, limitranges]
+    verbs: [create, update, patch, delete]
+  - apiGroups: [networking.k8s.io]
+    resources: [networkpolicies]
+    verbs: [create, update, patch, delete]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: {name: team-shop-viewer, namespace: storefront}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: tenant-viewer}
+subjects: [{apiGroup: rbac.authorization.k8s.io, kind: Group, name: team-shop}]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: {name: team-shop-developer, namespace: shop-dev}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: tenant-developer}
+subjects: [{apiGroup: rbac.authorization.k8s.io, kind: Group, name: team-shop}]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: {name: team-shop-access-manager, namespace: shop-dev}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: tenant-access-manager}
+subjects: [{apiGroup: rbac.authorization.k8s.io, kind: Group, name: team-shop}]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: {name: team-insight-developer, namespace: insight}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: tenant-developer}
+subjects: [{apiGroup: rbac.authorization.k8s.io, kind: Group, name: team-insight}]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: {name: team-insight-access-manager, namespace: insight}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: tenant-access-manager}
+subjects: [{apiGroup: rbac.authorization.k8s.io, kind: Group, name: team-insight}]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata: {name: auditors-view}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: view}
+subjects: [{apiGroup: rbac.authorization.k8s.io, kind: Group, name: auditors}]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata: {name: auditors-platform-reader}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: platform-reader}
+subjects: [{apiGroup: rbac.authorization.k8s.io, kind: Group, name: auditors}]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata: {name: platform-sre-view}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: view}
+subjects: [{apiGroup: rbac.authorization.k8s.io, kind: Group, name: platform-sre}]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata: {name: platform-sre-reader}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: platform-reader}
+subjects: [{apiGroup: rbac.authorization.k8s.io, kind: Group, name: platform-sre}]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata: {name: platform-sre-operator}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: platform-operator}
+subjects: [{apiGroup: rbac.authorization.k8s.io, kind: Group, name: platform-sre}]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata: {name: break-glass}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: cluster-admin}
+subjects: [{apiGroup: rbac.authorization.k8s.io, kind: Group, name: break-glass}]

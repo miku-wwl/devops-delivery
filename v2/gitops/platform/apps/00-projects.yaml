@@ -1,6 +1,6 @@
 # Two Argo CD projects. "platform" may install cluster-wide components; "storefront" may only
 # deploy namespaced resources into the storefront namespaces, from this repository.
-# E5 tightens both (per-tenant projects, roles, sync windows).
+# E5 adds the project "insight" for a second team (below).
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
@@ -44,3 +44,27 @@ spec:
     - {group: autoscaling, kind: HorizontalPodAutoscaler}
     - {group: keda.sh, kind: ScaledObject}
     - {group: monitoring.coreos.com, kind: ServiceMonitor}
+---
+# E5: team insight may deploy only into its own namespace, only these namespaced kinds, and no
+# cluster-scoped objects. Secrets, RBAC, NetworkPolicies and quotas belong to the platform.
+# Argo CD cannot restrict a path inside a repository: one repository per team is the real
+# boundary; here the Applications themselves are created by the platform.
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: insight
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-10"}
+spec:
+  description: Team insight - its own namespace only
+  sourceRepos:
+    - http://gitlab:8929/root/platform-gitops.git
+  destinations:
+    - {server: https://kubernetes.default.svc, namespace: insight}
+  clusterResourceWhitelist: []
+  namespaceResourceWhitelist:
+    - {group: "", kind: Service}
+    - {group: "", kind: ConfigMap}
+    - {group: apps, kind: Deployment}
+    - {group: policy, kind: PodDisruptionBudget}
+    - {group: autoscaling, kind: HorizontalPodAutoscaler}

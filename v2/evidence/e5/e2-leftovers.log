@@ -1,0 +1,16 @@
+# transcript: E5 start: removing what two E2 scripts (hop-cost.sh, exec-stall.sh) left behind - namespace e2-bench and ConfigMap storefront/hop-cost; both scripts now clean up on exit
+# recorded: 2026-11-09T08:21:30Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl -n storefront get configmap hop-cost -o name
+configmap/hop-cost
+
+$ kubectl delete ns e2-bench --wait=true
+namespace "e2-bench" deleted
+
+$ kubectl -n storefront delete configmap hop-cost
+configmap "hop-cost" deleted from storefront namespace
+
+$ kubectl get ns e2-bench
+Error from server (NotFound): namespaces "e2-bench" not found
+[exit 1]
+
