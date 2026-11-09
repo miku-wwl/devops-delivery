@@ -1,0 +1,32 @@
+# transcript: E5: Argo CD RBAC matrix, second run (stdout only; the first run parsed warnings and exit messages)
+# recorded: 2026-11-09T09:35:20Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e5/argocd-rbac.sh
+== policy check: Policy is valid. 
+subject       action  resource      object                               want got  result
+team-insight  get     applications  insight/insight                      yes  yes  ok
+team-insight  sync    applications  insight/insight                      yes  yes  ok
+team-insight  create  applications  insight/new-app                      yes  yes  ok
+team-insight  delete  applications  insight/insight                      yes  yes  ok
+team-insight  get     applications  storefront/storefront-catalog-prod   no   no   ok
+team-insight  sync    applications  storefront/storefront-catalog-prod   no   no   ok
+team-insight  create  applications  storefront/new-app                   no   no   ok
+team-insight  get     applications  platform/kyverno                     no   no   ok
+team-insight  create  exec          insight/insight                      no   no   ok
+team-shop     get     applications  storefront/storefront-catalog-prod   yes  yes  ok
+team-shop     sync    applications  storefront/storefront-catalog-prod   yes  yes  ok
+team-shop     update  applications  storefront/storefront-catalog-prod   no   no   ok
+team-shop     delete  applications  storefront/storefront-catalog-prod   no   no   ok
+team-shop     create  applications  storefront/new-app                   no   no   ok
+team-shop     get     applications  insight/insight                      no   no   ok
+team-shop     sync    applications  platform/kyverno                     no   no   ok
+auditors      get     applications  platform/kyverno                     yes  yes  ok
+auditors      get     applications  insight/insight                      yes  yes  ok
+auditors      sync    applications  platform/kyverno                     no   no   ok
+auditors      get     projects      insight                              yes  yes  ok
+auditors      update  projects      insight                              no   no   ok
+platform-sre  sync    applications  platform/kyverno                     yes  yes  ok
+platform-sre  delete  applications  platform/kyverno                     yes  yes  ok
+someone-else  get     applications  insight/insight                      no   no   ok
+== 24 checks, 24 as expected, 0 mismatches
+

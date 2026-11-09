@@ -26,6 +26,28 @@ configs:
         end
       end
       return hs
+  # E5 (chapter 6): who may do what in Argo CD - the same groups as in Kubernetes. In production
+  # they come from the identity provider (SSO); this lab has none, so the rules are verified
+  # offline with "argocd admin settings rbac can" (experiments/e5/argocd-rbac.sh). No default role.
+  rbac:
+    policy.default: ""
+    scopes: "[groups]"
+    policy.csv: |
+      p, role:team-shop, applications, get, storefront/*, allow
+      p, role:team-shop, applications, sync, storefront/*, allow
+      p, role:team-shop, logs, get, storefront/*, allow
+      p, role:team-shop, projects, get, storefront, allow
+      p, role:team-insight, applications, *, insight/*, allow
+      p, role:team-insight, logs, get, insight/*, allow
+      p, role:team-insight, projects, get, insight, allow
+      p, role:auditor, applications, get, */*, allow
+      p, role:auditor, projects, get, *, allow
+      p, role:auditor, clusters, get, *, allow
+      p, role:auditor, repositories, get, *, allow
+      g, team-shop, role:team-shop
+      g, team-insight, role:team-insight
+      g, auditors, role:auditor
+      g, platform-sre, role:admin
 controller:
   # E1: 425 MiB at rest, but OOM-killed three times at 768 Mi (anon-rss 783 MB) while
   # refreshing every application at once. The controller caches every watched resource of the
