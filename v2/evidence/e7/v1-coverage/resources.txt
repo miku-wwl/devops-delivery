@@ -1,0 +1,60 @@
+Resource List:
+  apiextensions.k8s.io/v1/CustomResourceDefinition:
+    - alertmanagers.monitoring.coreos.com
+    - backups.postgresql.cnpg.io
+    - clusters.postgresql.cnpg.io
+    - databases.postgresql.cnpg.io
+    - objectstores.barmancloud.cnpg.io
+    - podmonitors.monitoring.coreos.com
+    - prometheuses.monitoring.coreos.com
+    - prometheusrules.monitoring.coreos.com
+    - scheduledbackups.postgresql.cnpg.io
+    - servicemonitors.monitoring.coreos.com
+  apps/v1/ControllerRevision:
+    - data/nats-657d564b88
+    - data/nats-68c89fcb9d
+    - data/valkey-89bc7d78d
+    - data/valkey-b548f4674
+    - monitoring/alertmanager-kps-alertmanager-5f54d49d54
+    - monitoring/kps-prometheus-node-exporter-5b998889cb
+    - monitoring/prometheus-kps-prometheus-5b6799b5df
+    - monitoring/prometheus-kps-prometheus-5df7f4957d
+    - monitoring/prometheus-kps-prometheus-6bdcb5cb56
+    - monitoring/prometheus-kps-prometheus-9b9fc78c
+    - observability/loki-666c6886cf
+    - observability/loki-6bbb56cb96
+    - observability/loki-7f54878ffc
+    - observability/tempo-67ff9df9c
+    - observability/tempo-6bdc688959
+    - observability/tempo-6fd789c4cc
+    - observability/tempo-77595fd64f
+    - observability/tempo-79bbc598fd
+    - observability/tempo-84664d6cc4
+    - observability/tempo-f78547547
+    - secrets/openbao-7699c8ccf8
+    - secrets/openbao-85bcb86c9b
+  apps/v1/DaemonSet:
+    - monitoring/kps-prometheus-node-exporter
+  apps/v1/Deployment:
+    - monitoring/kps-grafana
+    - monitoring/kps-kube-state-metrics
+    - monitoring/kps-operator
+    - observability/otel-collector
+  apps/v1/ReplicaSet:
+    - monitoring/kps-grafana-676885f46d
+    - monitoring/kps-grafana-6fb654445c
+    - monitoring/kps-grafana-7558c584f7
+    - monitoring/kps-kube-state-metrics-59b4669c68
+    - monitoring/kps-operator-bcddcd6dc
+    - observability/otel-collector-f79fc69d8
+  apps/v1/StatefulSet:
+    - data/nats
+    - data/valkey
+    - monitoring/alertmanager-kps-alertmanager
+    - monitoring/prometheus-kps-prometheus
+    - observability/loki
+    - observability/tempo
+    - secrets/openbao
+  barmancloud.cnpg.io/v1/ObjectStore:
+    - data/pg-backups
+  batch/v1/CronJob:

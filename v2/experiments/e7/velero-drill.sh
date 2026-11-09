@@ -6,6 +6,7 @@
 #   bash v2/experiments/e7/velero-drill.sh restore <run>    # V2: namespace e7-velero with two volumes
 #                                                           # (a hostPath PV and a local PV), backed up,
 #                                                           # deleted, restored; are the files back?
+# Resources by full name: "backup" alone is also CloudNativePG's Backup kind.
 # Evidence: evidence/e7/<run>/.
 set -uo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -14,9 +15,10 @@ MODE=${1:?coverage|restore}; RUN=${2:?run}
 OUT="$ROOT/v2/evidence/e7/$RUN"; mkdir -p "$OUT"
 exec > >(tee "$OUT/run.txt") 2>&1
 now() { date -u +%T; }
-vel() { kubectl -n velero exec deploy/velero -c velero -- /velero "$@"; }
+# the server pod by name: the chart's Deployment selector also matches the node-agent pods
+vel() { kubectl -n velero exec "$(kubectl -n velero get pods -o name | grep -m1 '^pod/velero-')" -c velero -- /velero "$@"; }
 pvbs() { # pod volume backups of a backup: pod, volume, phase, bytes
-  kubectl -n velero get podvolumebackups -l "velero.io/backup-name=$1" -o json |
+  kubectl -n velero get podvolumebackups.velero.io -l "velero.io/backup-name=$1" -o json |
     jq -r '.items[] | "  \(.spec.pod.namespace)/\(.spec.pod.name) volume=\(.spec.volume) \(.status.phase) \(.status.progress.totalBytes // 0) bytes"'
 }
 NS=e7-velero
@@ -27,7 +29,7 @@ coverage)
   kubectl get pv -o json | jq -r '.items[] | select(.spec.claimRef.namespace | test("^(data|secrets|observability|monitoring)$")) | "  \(.spec.claimRef.namespace)/\(.spec.claimRef.name): \(if .spec.hostPath then "hostPath" elif .spec.local then "local" else "other" end)"'
   echo "== $(now) backup $RUN (all volumes by file-system backup)"
   vel backup create "$RUN" --include-namespaces "$NSS" --default-volumes-to-fs-backup --wait 2>&1 | tail -2
-  kubectl -n velero get backup "$RUN" -o json | jq -r '"  phase \(.status.phase), items \(.status.progress.itemsBackedUp)/\(.status.progress.totalItems), warnings \(.status.warnings // 0), errors \(.status.errors // 0), \(.status.startTimestamp) - \(.status.completionTimestamp)"'
+  kubectl -n velero get backups.velero.io "$RUN" -o json | jq -r '"  phase \(.status.phase), items \(.status.progress.itemsBackedUp)/\(.status.progress.totalItems), warnings \(.status.warnings // 0), errors \(.status.errors // 0), \(.status.startTimestamp) - \(.status.completionTimestamp)"'
   echo "== pod volume backups (volumes whose contents were copied)"
   pvbs "$RUN"
   echo "== what the backup log says about volumes it did not copy"
@@ -85,7 +87,7 @@ EOF
   done
   echo "== $(now) backup $RUN"
   vel backup create "$RUN" --include-namespaces "$NS" --default-volumes-to-fs-backup --wait 2>&1 | tail -1
-  kubectl -n velero get backup "$RUN" -o json | jq -r '"  phase \(.status.phase), items \(.status.progress.itemsBackedUp), warnings \(.status.warnings // 0), errors \(.status.errors // 0)"'
+  kubectl -n velero get backups.velero.io "$RUN" -o json | jq -r '"  phase \(.status.phase), items \(.status.progress.itemsBackedUp), warnings \(.status.warnings // 0), errors \(.status.errors // 0)"'
   pvbs "$RUN"
   vel backup logs "$RUN" 2>/dev/null | grep -iE "hostpath|skip|not supported" | sed -E 's/.*msg="([^"]*)".*/  log: \1/' | sort -u | head -5
   echo "== $(now) the accident: kubectl delete namespace $NS"
@@ -93,7 +95,7 @@ EOF
   echo "== $(now) namespace gone; restore"
   t0=$(date +%s)
   vel restore create "$RUN-restore" --from-backup "$RUN" --wait 2>&1 | tail -1
-  kubectl -n velero get restore "$RUN-restore" -o json | jq -r '"  phase \(.status.phase), items \(.status.progress.itemsRestored), warnings \(.status.warnings // 0), errors \(.status.errors // 0)"'
+  kubectl -n velero get restores.velero.io "$RUN-restore" -o json | jq -r '"  phase \(.status.phase), items \(.status.progress.itemsRestored), warnings \(.status.warnings // 0), errors \(.status.errors // 0)"'
   kubectl -n "$NS" rollout status deploy/app --timeout=180s >/dev/null
   echo "== $(now) restored and running after $(( $(date +%s) - t0 )) s"
   pod=$(kubectl -n "$NS" get pod -l app=e7-velero -o jsonpath='{.items[0].metadata.name}')

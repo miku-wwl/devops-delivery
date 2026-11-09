@@ -37,3 +37,13 @@ nodeAgent:
 metrics:
   enabled: true
   serviceMonitor: {enabled: true}
+# every night: all Kubernetes objects of all namespaces (no volume contents - see chapter 8: the
+# node agent cannot read the platform's hostPath volumes; data has its own backups). Kept 7 days.
+schedules:
+  objects-daily:
+    schedule: "30 2 * * *"
+    template:
+      ttl: 168h
+      includedNamespaces: ["*"]
+      snapshotVolumes: false
+      defaultVolumesToFsBackup: false
