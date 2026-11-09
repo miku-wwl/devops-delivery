@@ -14,7 +14,7 @@ prometheus:
     evaluationInterval: 15s
     enableRemoteWriteReceiver: true          # Tempo's metrics generator pushes span metrics
     enableFeatures: [exemplar-storage]       # exemplars link a latency bucket to a trace (E9)
-    resources: {requests: {cpu: 200m, memory: 640Mi}, limits: {memory: 1536Mi}}   # E1: 526 MiB
+    resources: {requests: {cpu: 200m, memory: 1Gi}, limits: {memory: 1536Mi}}   # E1: 526 MiB; E6: 941 MiB and evicted first (evidence/e6/incident-1.log) - request raised to the real use
     serviceMonitorSelectorNilUsesHelmValues: false   # scrape every ServiceMonitor/PodMonitor
     podMonitorSelectorNilUsesHelmValues: false
     ruleSelectorNilUsesHelmValues: false

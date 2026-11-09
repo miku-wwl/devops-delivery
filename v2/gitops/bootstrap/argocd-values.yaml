@@ -52,7 +52,8 @@ controller:
   # E1: 425 MiB at rest, but OOM-killed three times at 768 Mi (anon-rss 783 MB) while
   # refreshing every application at once. The controller caches every watched resource of the
   # cluster, so its memory follows the cluster (CRDs, objects), not the number of apps.
-  resources: {requests: {cpu: 100m, memory: 512Mi}, limits: {memory: 1Gi}}
+  # E6: evicted at 538 MiB (request 512Mi) during a rollout - evidence/e6/incident-1.log
+  resources: {requests: {cpu: 100m, memory: 640Mi}, limits: {memory: 1Gi}}
   env:
     - {name: GOMEMLIMIT, value: "850MiB"}   # GC hard before the kernel limit, not after
 repoServer:

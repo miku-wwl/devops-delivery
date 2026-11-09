@@ -1,0 +1,56 @@
+# transcript: E6 [注入]: 90 % of inventory requests answer 503, resilience mode resilient, 30 it/s
+# recorded: 2026-11-09T10:29:56Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e6/fault-phase.sh errors-resilient inventory "{\"error_rate\": 0.9, \"status\": 503}" 30 120
+== mode: resilient; fault on inventory: {"error_rate": 0.9, "status": 503}; 30 it/s; 120 s steady, 120 s fault, 120 s recovery
+10:31:55 fault on
+  inventory-7f7684694c-ptvn7 {"latency_ms":0.0,"error_rate":0.9,"status":503}
+  inventory-7f7684694c-qxfmw {"latency_ms":0.0,"error_rate":0.9,"status":503}
+10:33:51 fault off
+  stages=30,30,30 it/s, 120,120,120 s (ramp 1 s, warm-up 5 s) iterations=10934 dropped=0
+  requests=18579 (53.2/s) failed=5.99%
+  stage 1-30: achieved 30.0 it/s, requests=6105 failed=0.00% | browse p50=11.9 p95=17.2 p99=22.9 max=94.7 ms | order p50=110.4 p95=216.1 p99=334.4 max=640.4 ms
+  stage 2-30: achieved 30.0 it/s, requests=6130 failed=17.11% | browse p50=12.3 p95=17.4 p99=22.6 max=90.4 ms | order p50=4.0 p95=92.2 p99=140.9 max=321.0 ms
+  stage 3-30: achieved 30.0 it/s, requests=6130 failed=0.83% | browse p50=11.9 p95=17.4 p99=24.2 max=82.1 ms | order p50=113.2 p95=221.5 p99=320.5 max=564.4 ms
+=== steady (window ending 10:32:02, last 100s)
+-- requests/s and 5xx/s per service
+-- latency p95 per service (s)
+-- calls between services per second, by outcome; retries; fast rejections
+-- amplification: calls arriving at inventory per order placed at the gateway
+=== fault (window ending 10:34:03, last 100s)
+-- requests/s and 5xx/s per service
+-- latency p95 per service (s)
+-- calls between services per second, by outcome; retries; fast rejections
+-- amplification: calls arriving at inventory per order placed at the gateway
+=== recovery (window ending 10:36:04, last 100s)
+-- requests/s and 5xx/s per service
+  req service=catalog 43.58
+  req service=gateway 45.902
+  req service=inventory 7.195
+  req service=orders 7.712
+  req service=payments 6.666
+  5xx service=gateway 0
+  5xx service=inventory 0
+  5xx service=orders 0
+-- latency p95 per service (s)
+  p95 service=catalog 0.005
+  p95 service=gateway 0.136
+  p95 service=inventory 0.02
+  p95 service=orders 0.204
+  p95 service=payments 0.15
+-- calls between services per second, by outcome; retries; fast rejections
+  call outcome=http_502,service=gateway,upstream=orders 0
+  call outcome=http_503,service=gateway,upstream=orders 0
+  call outcome=http_503,service=orders,upstream=inventory 0
+  call outcome=ok,service=gateway,upstream=catalog 37.486
+  call outcome=ok,service=gateway,upstream=orders 8.416
+  call outcome=ok,service=orders,upstream=catalog 8.37
+  call outcome=ok,service=orders,upstream=inventory 6.677
+  call outcome=ok,service=orders,upstream=payments 6.489
+  retry service=gateway,upstream=orders 0
+  retry service=orders,upstream=inventory 0
+  reject reason=circuit_open,service=gateway,upstream=orders 0
+  reject reason=circuit_open,service=orders,upstream=inventory 0
+-- amplification: calls arriving at inventory per order placed at the gateway
+  ratio  1.015
+
