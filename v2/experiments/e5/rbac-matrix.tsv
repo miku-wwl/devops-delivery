@@ -30,6 +30,9 @@ bob	get	pods	storefront	no	another team's namespace
 bob	get	pods	shop-dev	no	another team's namespace
 bob	get	secrets	insight	no	no Secrets
 bob	create	networkpolicies	insight	no	guard rails belong to the platform
+bob	create	externalsecrets	insight	yes	the team chooses which secrets to copy (added with OpenBao)
+bob	create	secretstores	insight	no	the store and its login are the platform's (added with OpenBao)
+bob	get	secrets	insight	no	still no Secrets, also not the copied ones (added with OpenBao)
 carol	list	pods	*	yes	platform-wide read
 carol	create	pods:exec	storefront	yes	operator: shell for diagnosis
 carol	get	pods:exec	storefront	yes	WebSocket exec is authorized as get (added after who-1)
