@@ -1,0 +1,28 @@
+# E4 closing checks on Windows (book build, layout check, evidence verification of v2 and v1)
+# recorded: 2026-11-09T08:16:22Z
+
+$ manual/.venv/Scripts/python.exe manual/tools/build.py --chapters "v2/manual/chapters/*.md" --metadata v2/manual/metadata.yaml --math mathml --out manual/build/v2-check.pdf
+Object count 9121 exceeds defined trailer size 9118
+pandoc: 5 chapter file(s) -> manual\build\manual.html (6 image path(s) rebased from v2\manual\chapters)
+pdf: manual\build\v2-check.pdf | pages=80 (pass1=80) | headings mapped=131/131 | 6.5 MB | 20s
+[exit 0]
+
+$ manual/.venv/Scripts/python.exe manual/tools/layout_check.py manual/build/v2-check.pdf --accept-gaps-file v2/manual/layout-accepted-gaps.txt
+pages: 81  chapter starts: [6, 17, 33, 49, 66]
+gaps (< 60% of the text area used, next page is not a chapter start): 1
+  page 38: 55% used
+overflow past the right margin: 0 page(s) []
+blank pages: []
+RESULT: PASS
+
+$ manual/.venv/Scripts/python.exe manual/tools/verify_evidence.py --root v2 --out v2/evidence/e4/verify-evidence.md
+| 7 exercises | 34 | 0 |
+| 8 spot checks | 148 | 0 |
+
+RESULT: PASS
+
+$ manual/.venv/Scripts/python.exe manual/tools/verify_evidence.py --out manual/build/verify-v1.md
+| 7 exercises | 76 | 0 |
+| 8 spot checks | 31 | 0 |
+
+RESULT: PASS

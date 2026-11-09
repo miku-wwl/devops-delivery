@@ -1,0 +1,80 @@
+# transcript: E4: node-pressure eviction on ent-worker, run 2 - ranking by usage above request (prediction in eviction-prediction.md)
+# recorded: 2026-11-09T07:48:42Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e4/eviction.sh eviction-2 ent-worker
+== kubelet on ent-worker: evictionHard memory.available < 12720Mi, minimum reclaim 100Mi, pressure transition period 5m0s
+== before: the kubelet's memory-eviction ranking on ent-worker (top 6)
+  node working set 2014 MiB, memory.available 13628 MiB
+  allocatable 2666 MiB, requested by non-terminated pods 2306 MiB, free for admission 360 MiB
+  rank  pod                                                      QoS          priority  ws MiB req MiB ws-req
+     1  data/pg-main-1                                           Burstable           0     290     256     34
+     2  kube-system/kube-proxy-r8jlk                             BestEffort 2000001000      34       0     34
+     3  keda/keda-operator-metrics-apiserver-67675b58f-8kq7z     Burstable           0      46      48     -2
+     4  monitoring/kps-grafana-676885f46d-cq9mp                  Burstable           0     506     512     -6
+     5  monitoring/kps-prometheus-node-exporter-d88tq            Burstable           0      16      24     -8
+     6  storefront/orders-5cd5d8df65-tvqsm                       Burstable           0      78      96    -18
+  be-hog       BestEffort   Running   <none>
+  burst-hog    Burstable    Running   <none>
+  guaranteed   Guaranteed   Running   <none>
+07:48:52 all three pods running; burst-hog grows, be-hog holds
+07:51:48 first to stop: burst-hog (Failed/Evicted/)
+07:51:53 node MemoryPressure=True; probe: a BestEffort pod bound to ent-worker
+  be-probe: Failed/Evicted/ - Pod was rejected: The node had condition: [MemoryPressure]. 
+07:52:02 be-hog signalled: grows 3 MiB/s from now
+07:56:30 second to stop: be-hog (Failed/Evicted/ContainerStatusUnknown)
+== timeline (lines where pressure, taint or a pod state changed, and every 20 s)
+07:48:44 avail=13628MiB ws=2013MiB | pressure=False taint=0 | be-hog:Pending burst-hog:Pending guaranteed:Pending | 
+07:48:47 avail=13577MiB ws=2064MiB | pressure=False taint=0 | be-hog:Running burst-hog:Running guaranteed:Pending | be-hog=0 burst-hog=0
+07:48:52 avail=13577MiB ws=2064MiB | pressure=False taint=0 | be-hog:Running burst-hog:Running guaranteed:Running | be-hog=0 burst-hog=0 guaranteed=0
+07:49:12 avail=13147MiB ws=2494MiB | pressure=False taint=0 | be-hog:Running burst-hog:Running guaranteed:Running | be-hog=160 burst-hog=207 guaranteed=82
+07:49:39 avail=13022MiB ws=2619MiB | pressure=False taint=0 | be-hog:Running burst-hog:Running guaranteed:Running | be-hog=160 burst-hog=287 guaranteed=89
+07:50:07 avail=12923MiB ws=2719MiB | pressure=False taint=0 | be-hog:Running burst-hog:Running guaranteed:Running | be-hog=160 burst-hog=431 guaranteed=89
+07:50:35 avail=12878MiB ws=2763MiB | pressure=False taint=0 | be-hog:Running burst-hog:Running guaranteed:Running | be-hog=160 burst-hog=503 guaranteed=89
+07:51:00 avail=12818MiB ws=2823MiB | pressure=False taint=0 | be-hog:Running burst-hog:Running guaranteed:Running | be-hog=160 burst-hog=635 guaranteed=89
+07:51:26 avail=12757MiB ws=2884MiB | pressure=False taint=0 | be-hog:Running burst-hog:Running guaranteed:Running | be-hog=160 burst-hog=755 guaranteed=89
+07:51:51 avail=13482MiB ws=2159MiB | pressure=False taint=0 | be-hog:Running burst-hog:Failed/Evicted/ContainerStatusUnknown guaranteed:Running | be-hog=160 guaranteed=89
+07:51:54 avail=13482MiB ws=2159MiB | pressure=True taint=1 | be-hog:Running be-probe:Failed/Evicted burst-hog:Failed/Evicted/ContainerStatusUnknown guaranteed:Running | be-hog=160 guaranteed=89
+07:52:21 avail=13418MiB ws=2223MiB | pressure=True taint=1 | be-hog:Running be-probe:Failed/Evicted burst-hog:Failed/Evicted/ContainerStatusUnknown guaranteed:Running | be-hog=205 guaranteed=89
+07:52:49 avail=13321MiB ws=2320MiB | pressure=True taint=1 | be-hog:Running be-probe:Failed/Evicted burst-hog:Failed/Evicted/ContainerStatusUnknown guaranteed:Running | be-hog=292 guaranteed=89
+07:53:16 avail=13215MiB ws=2427MiB | pressure=True taint=1 | be-hog:Running be-probe:Failed/Evicted burst-hog:Failed/Evicted/ContainerStatusUnknown guaranteed:Running | be-hog=340 guaranteed=89
+07:53:44 avail=13120MiB ws=2521MiB | pressure=True taint=1 | be-hog:Running be-probe:Failed/Evicted burst-hog:Failed/Evicted/ContainerStatusUnknown guaranteed:Running | be-hog=421 guaranteed=89
+07:54:08 avail=13024MiB ws=2617MiB | pressure=True taint=1 | be-hog:Running be-probe:Failed/Evicted burst-hog:Failed/Evicted/ContainerStatusUnknown guaranteed:Running | be-hog=524 guaranteed=89
+07:54:33 avail=12959MiB ws=2682MiB | pressure=True taint=1 | be-hog:Running be-probe:Failed/Evicted burst-hog:Failed/Evicted/ContainerStatusUnknown guaranteed:Running | be-hog=611 guaranteed=89
+07:54:57 avail=12863MiB ws=2778MiB | pressure=True taint=1 | be-hog:Running be-probe:Failed/Evicted burst-hog:Failed/Evicted/ContainerStatusUnknown guaranteed:Running | be-hog=662 guaranteed=89
+07:55:23 avail=12863MiB ws=2779MiB | pressure=True taint=1 | be-hog:Running be-probe:Failed/Evicted burst-hog:Failed/Evicted/ContainerStatusUnknown guaranteed:Running | be-hog=773 guaranteed=89
+07:55:48 avail=12770MiB ws=2871MiB | pressure=True taint=1 | be-hog:Running be-probe:Failed/Evicted burst-hog:Failed/Evicted/ContainerStatusUnknown guaranteed:Running | be-hog=839 guaranteed=89
+07:56:13 avail=12748MiB ws=2893MiB | pressure=True taint=1 | be-hog:Running be-probe:Failed/Evicted burst-hog:Failed/Evicted/ContainerStatusUnknown guaranteed:Running | be-hog=923 guaranteed=89
+07:56:29 avail=12710MiB ws=2931MiB | pressure=True taint=1 | be-hog:Failed/Evicted be-probe:Failed/Evicted burst-hog:Failed/Evicted/ContainerStatusUnknown guaranteed:Running | guaranteed=89
+07:56:31 avail=13658MiB ws=1983MiB | pressure=True taint=1 | be-hog:Failed/Evicted/ContainerStatusUnknown be-probe:Failed/Evicted burst-hog:Failed/Evicted/ContainerStatusUnknown guaranteed:Running | guaranteed=89
+== lowest memory.available sampled: 12710 MiB (threshold 12720 MiB)
+== pods in e4-evict at the end
+  be-hog BestEffort Failed/Evicted: The node was low on resource: memory. Threshold quantity: 12720Mi, available: 13015816Ki. Container hog was using 954968Ki, request is 0, has larger consumption of memory. 
+  be-probe BestEffort Failed/Evicted: Pod was rejected: The node had condition: [MemoryPressure]. 
+  burst-hog Burstable Failed/Evicted: The node was low on resource: memory. Threshold quantity: 12720Mi, available: 13023444Ki. Container hog was using 794192Ki, request is 64Mi, has larger consumption of memory. 
+  guaranteed Guaranteed Running/-: -
+  log guaranteed: 07:49:00 holding 80 MiB;07:49:00 growing 0 MiB/s;07:49:00 done at 80 MiB;
+  log burst-hog: Error from server (BadRequest): container "hog" in pod "burst-hog" is terminated;
+  log be-hog: Error from server (BadRequest): container "hog" in pod "be-hog" is terminated;
+== events in e4-evict
+  07:51:44 burst-hog Evicted: The node was low on resource: memory. Threshold quantity: 12720Mi, available: 13023444Ki. Container hog was using 794192Ki, request is 64Mi, has larger consumption of memory. 
+  07:51:44 burst-hog Killing: Stopping container hog
+  07:51:53 be-probe Evicted: The node had condition: [MemoryPressure]. 
+  07:56:26 be-hog Evicted: The node was low on resource: memory. Threshold quantity: 12720Mi, available: 13015816Ki. Container hog was using 954968Ki, request is 0, has larger consumption of memory. 
+  07:56:26 be-hog Killing: Stopping container hog
+== node events since the start
+  07:51:52 NodeHasInsufficientMemory x1: Node ent-worker status is now: NodeHasInsufficientMemory
+  07:56:26 EvictionThresholdMet x2: Attempting to reclaim memory
+== Evicted events outside e4-evict since the start: 0
+== other pods on ent-worker whose phase or restart count changed during the run
+  none
+== after: ranking on ent-worker (top 4)
+  node working set 1983 MiB, memory.available 13659 MiB
+  allocatable 2666 MiB, requested by non-terminated pods 2434 MiB, free for admission 232 MiB
+  rank  pod                                                      QoS          priority  ws MiB req MiB ws-req
+     1  kube-system/kube-proxy-r8jlk                             BestEffort 2000001000      31       0     31
+     2  keda/keda-operator-metrics-apiserver-67675b58f-8kq7z     Burstable           0      45      48     -3
+     3  monitoring/kps-prometheus-node-exporter-d88tq            Burstable           0      15      24     -9
+     4  storefront/orders-5cd5d8df65-tvqsm                       Burstable           0      77      96    -19
+== waiting for MemoryPressure to clear
+  08:01:33 MemoryPressure=False, since 2026-11-09T08:01:32Z; taints: 
+

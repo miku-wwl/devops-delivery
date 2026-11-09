@@ -103,6 +103,8 @@ Argo CD 默认用客户端方式应用清单（相当于 `kubectl apply`）：�
 
 扩出来的两个 Pod 在整个高负载阶段**一个请求也没有收到**。原因是第 3 章讲过的 L4 负载均衡与长连接：k6 的每个虚拟用户在第一次迭代时建立一条保持连接（keep-alive），之后一直复用它；负载均衡器、NodePort 都在连接建立时决定后端。台阶开始的头几秒里所有虚拟用户都已经连上了原来的两个 Pod，新 Pod 就绪时已经没有新连接了。HPA 看到的是四个 Pod 的平均值：两个 0.8–0.9 核、两个 0.01 核，平均约 0.43 核，正好在目标附近，“一切正常”；用户看到的是五分之一的请求失败。
 
+![170 迭代/秒的台阶（2026-11-09 02:18:31–02:23:41 UTC）：网关的 HPA 从 2 个扩到 4 个，通知服务的 KEDA 从 1 个扩到 5 个（右上）；两个原有网关 Pod 的 CPU 升到 0.84 和 0.92 核，02:19 和 02:21 扩出的两个 Pod 始终不到 0.1 核（左中）；网关的 5xx 按 1 分钟速率最多每秒 106 个（左下）（Grafana 原始截图，看板 Storefront: load and saturation）](../../evidence/e4/grafana-capacity-hpa-170.png)
+
 这个实验得出三点：
 
 - **扩容不等于分担负载。**流量要能到达新的副本：要么客户端会重新建立连接，要么入口按请求（L7）而不是按连接分配。本环境的外部入口是 L4，第 9 章（E8）用网关 API 在入口做 L7 路由。
@@ -117,7 +119,7 @@ Argo CD 默认用客户端方式应用清单（相当于 `kubectl apply`）：�
 
 ## 实验 3：按队列积压扩容（KEDA） {#e4-keda}
 
-通知服务的 CPU 很低，它的“负载”是 JetStream 消费者中未处理的消息。KEDA 2.21.0 经 GitOps 安装（`evidence/e4/keda-install.log`），通知服务的 ScaledObject 以“每个副本 50 条积压”为目标，1–5 个副本，每 10 秒读一次 NATS 的监控接口。安装时有一个细节：KEDA 的 CRD 太大，客户端方式应用时写不进 `last-applied-configuration` 注解，它的 Argo CD 应用用服务端应用。为了让一个副本跟不上，通知服务的“发送”被调慢为每条 200 ms、同时 2 条，即每个副本每秒 10 条（`[模拟]` 的慢速外部服务）；170 迭代/秒时每秒约有 35 笔订单确认，即 35 条消息（实测 35.3 笔/秒，通知服务处理 35.2 条/秒），需要 4 个副本。
+通知服务的 CPU 很低，它的“负载”是 JetStream 消费者中未处理的消息。KEDA 2.21.0 经 GitOps 安装（`evidence/e4/keda-install.log`），通知服务的 ScaledObject 以“每个副本 50 条积压”为目标，1–5 个副本，每 10 秒读一次 NATS 的监控接口。安装时有一个细节：客户端方式应用会把整个对象存进 `last-applied-configuration` 注解，而一个对象的注解总共最多 262 144 字节；KEDA 的 ScaledJob CRD 有 324 010 字节，写不进去（`metadata.annotations: Too long`，`evidence/e4/keda-crd-size.log`），所以 KEDA 的 Argo CD 应用用服务端应用。为了让一个副本跟不上，通知服务的“发送”被调慢为每条 200 ms、同时 2 条，即每个副本每秒 10 条（`[模拟]` 的慢速外部服务）；170 迭代/秒时每秒约有 35 笔订单确认，即 35 条消息（实测 35.3 笔/秒，通知服务处理 35.2 条/秒），需要 4 个副本。
 
 与网关的台阶在同一次运行中（`evidence/e4/hpa-timeline-2.log`）：
 
@@ -155,13 +157,16 @@ KEDA 比 CPU 扩容快得多：第一次扩容只用了 15 秒，因为积压在
 
 到达速率可以直接从订单服务的指标得到：每确认一笔订单就产生一条通知。通知服务的 ScaledObject 增加第二个触发器，用 KEDA 的 Prometheus 触发器按“每秒确认的订单数 ÷ 8”计算副本数（每个副本每秒能处理 10 条，8 是 80% 的利用率），积压触发器保留，用来应对突发；KEDA 取两个触发器中要求副本最多的那个（`gitops/envs/prod/storefront/services/notifier.yaml`）。同样的 12 分钟、90 迭代/秒再做一次，每分钟记录到达速率、发送速率、副本数和“订单确认到通知发出”的 p95（`evidence/e4/keda-steady-2.log`、`evidence/e4/keda-compare.log`）：
 
-| | 只有积压触发器 | 积压 + 到达速率 |
+| 每分钟的通知 p95 | 只有积压触发器 | 积压 + 到达速率 |
 |---|---|---|
-| 稳定阶段的副本数 | 3 → 1 → 5 → 1 → 4，两次缩到 1 | 5 → 3，之后一直是 3 |
-| 缩到 1 个之后的那一分钟 | 通知 p95 19.7 s、20.9 s | — |
-| 稳定阶段的通知 p95 | 0.5–0.7 s，缩容后跳到约 20 s | 0.48–0.73 s |
+| 台阶开始后的头两分钟（从 1 个副本扩容） | 最高 22.2 s | 最高 15.7 s |
+| 之后的副本数 | 3 → 1 → 5 → 1 → 4，两次缩到 1 | 5 → 3，之后一直是 3 |
+| 每次缩到 1 个之后的那一分钟 | 19.7 s、20.9 s | —（没有缩到 1） |
+| 其余时间 | 0.48–0.72 s（缩容后恢复的那一分钟 2.1 s） | 0.48–0.73 s |
 
-每秒约 22–23 笔确认，按每个副本 8 条计算需要 3 个副本，这正是修正后稳定下来的副本数。积压衡量“排着多少”，到达速率衡量“来得多快”；扩缩容需要后者来决定稳态，前者只适合处理突发。
+每秒约 22–23 笔确认，按每个副本 8 条计算需要 3 个副本，这正是修正后稳定下来的副本数。积压衡量“排着多少”，到达速率衡量“来得多快”；扩缩容需要后者来决定稳态，前者只适合处理突发。两种配置在台阶开始时都要从 1 个副本扩上来，头一两分钟的积压是一样的；要避免它，需要更高的最小副本数，或者在已知的高峰之前提前扩容。
+
+两次运行中 HTTP 请求分别有 2.7% 和 4.5% 失败，几乎全部是网关自己返回的 503 和 504（每秒 4.0 次和 7.0 次，`evidence/e4/keda-steady-failures.log`）。503 正好等于网关的快速拒绝，主要是对 catalog 的熔断器打开，其次是隔舱已满（`evidence/e4/keda-steady-rejections.log`）；504 是上游超时。这些失败发生在主频下降之后的同步请求路径上。通知服务是异步的消费者，不在这条路径上；第二次失败更多的原因本章没有分析。
 
 ## 实验 4：CPU 限制与限流 {#e4-limits}
 
@@ -189,11 +194,59 @@ KEDA 比 CPU 扩容快得多：第一次扩容只用了 15 秒，因为积压在
 | BestEffort 消耗者 | 17.6 / 16.6 ms | 9.5 / 8.6 ms | 13.3 / 4.8 ms | 20.5 / 7.7 ms | 12.9 / 5.9 ms |
 | Burstable 消耗者（请求 2 核） | 130.8 / 13.9 ms | 88.8 / 7.2 ms | 72.2 / 2.6 ms | 162.5 / 3.7 ms | 50.0 / 2.5 ms |
 
-没有消耗者时，两边几乎相同。BestEffort 的消耗者（没有请求）对请求 500m 的网关几乎没有影响，请求 50m 的服务事件循环延迟增加了 2–3 倍，但仍在十几毫秒。同样的进程只要声明请求 2 核，就变成了真正的灾难：网关在这个节点上的 p50 从 14 ms 变成 131 ms，orders 的 p50 达到 1.6 秒、p99 达到 6 秒（超时上限），整个下单流程被拖垮，网关对 orders 的熔断器打开，连其他节点上的 orders 副本也几乎收不到请求了。
+没有消耗者时，两边几乎相同。BestEffort 的消耗者（没有请求）对请求 500m 的网关几乎没有影响，请求 50m 的服务事件循环延迟增加了 2–3 倍，但仍在十几毫秒。同样的进程只要声明请求 2 核，就变成了真正的灾难：这个节点上网关的 p50 是 131 ms，同一时刻其他节点上的网关只有 14 ms；orders 的 p50 达到 1.6 秒、p99 达到 6 秒（超时上限），整个下单流程被拖垮。网关对 orders 的熔断器打开，每秒拒绝 14.3 次调用（前两个阶段为 0，`evidence/e4/noisy-rejections.log`），连其他节点上的 orders 副本每秒也只收到约 1 个请求（没有消耗者时约 8 个）。
 
-原因在 cgroup 的层次与权重（`evidence/e4/cgroup-weights.log`）。kubelet 把请求换算成权重：50m 为 2，500m 为 20，2 核为 79；QoS 分组的权重是组内所有请求之和换算的结果。BestEffort 的 Pod 都在一个权重为 1 的分组里，与 Burstable 分组（消耗者在时为 125，之后为 47）竞争 CPU，它只能捡别人剩下的时间。声明了请求的消耗者进入 Burstable 分组，与服务的 Pod 按各自的权重分配 CPU：79 对网关的 20、对 50m 服务的 2。“请求”不只是调度器的记账，它在 CPU 不够时就是每个 Pod 的份额。给关键服务真实的请求，给批处理作业更低的请求（或者干脆隔离到专用节点），比在服务上设 CPU 限制有效得多。
+原因在 cgroup 的层次与权重（`evidence/e4/cgroup-weights.log`）。kubelet 把请求换算成权重：50m 为 2，500m 为 20，2 核为 79；QoS 分组的权重是组内所有请求之和换算的结果。BestEffort 的 Pod 都在一个权重为 1 的分组里，与 Burstable 分组（计入消耗者的 2 核请求时为 125，消耗者删除、kubelet 更新之后为 47）竞争 CPU，它只能捡别人剩下的时间。声明了请求的消耗者进入 Burstable 分组，与服务的 Pod 按各自的权重分配 CPU：79 对网关的 20、对 50m 服务的 2。“请求”不只是调度器的记账，它在 CPU 不够时就是每个 Pod 的份额。给关键服务真实的请求，给批处理作业更低的请求（或者干脆隔离到专用节点），比在服务上设 CPU 限制有效得多。
 
-EVICTION
+## 实验 6：节点内存压力与驱逐 {#e4-eviction}
+
+`experiments/e4/eviction.sh` 在 ent-worker 上用 `nodeName` 直接放三个 Pod（不经过调度器），用真实的内存占用制造压力：
+
+| Pod | QoS | 内存请求 | 行为 |
+|---|---|---|---|
+| guaranteed | Guaranteed | 128Mi（等于限制） | 保持 80 MiB |
+| burst-hog | Burstable | 64Mi，没有限制 | 从 100 MiB 起每秒增长 4 MiB |
+| be-hog | BestEffort | 无 | 保持 150 MiB；第一个 hog 停止后，脚本发信号让它每秒增长 3 MiB |
+
+这个设计检验的是驱逐排序的规则本身。kubelet 先看用量是否超过请求，再看优先级，最后看超出请求的多少（`experiments/e4/evict_rank.py` 按同样的规则给节点上的 Pod 排序），QoS 类别不在排序键里。如果“BestEffort 先走”的说法成立，第一个被驱逐的应当是 be-hog；按规则，应当是超出请求最多的 burst-hog。预测和判据在实验前提交（`evidence/e4/eviction-prediction.md`）。
+
+第一次运行没有做成：脚本在 Pod 还处于 Pending 时就判断“没有运行中的 hog”而结束了。它却记录了一个值得知道的结果：用 `nodeName` 绑定的 Pod 绕过了调度器，绕不过 kubelet 自己的准入检查。ent-worker 可分配 2666 MiB 内存，已被请求 2402 MiB，请求 300Mi 的 Guaranteed Pod 被 kubelet 直接拒绝，原因是 `OutOfmemory`（`evidence/e4/eviction-1.log`）。第二次运行把它改为 128Mi。
+
+实验前这个节点的排序里（`evidence/e4/eviction-2.log`），超出请求的业务 Pod 只有一个：数据库副本 pg-main-1，工作集 290 MiB，请求 256Mi（kube-proxy 没有请求，也算超出，但它的优先级是 system-node-critical，排在所有优先级为 0 的 Pod 之后）。也就是说，这个节点如果在平时遇到内存压力，第一个被驱逐的会是数据库。
+
+第二次运行的时间线（每约 2.5 秒采样一次可用内存、节点状态和 Pod 状态，`evidence/e4/eviction-2/watch.txt`）：
+
+| 时刻 | 事件 |
+|---|---|
+| 07:48:52 | 三个 Pod 都在运行，节点可用内存 13 577 MiB（阈值 12 720 MiB） |
+| 07:51:44 | **驱逐 burst-hog**：“Container hog was using 794192Ki, request is 64Mi, has larger consumption of memory”。be-hog 保持在 160 MiB，没有被选中 |
+| 07:51:52 | 节点状态变为 MemoryPressure；两秒后的采样中，节点已带上 `node.kubernetes.io/memory-pressure:NoSchedule` 污点 |
+| 07:51:53 | 探测：绑定到这个节点的一个新 BestEffort Pod 被 kubelet 拒绝，状态 `Failed`、原因 `Evicted`：“Pod was rejected: The node had condition: [MemoryPressure].” |
+| 07:52:02 | be-hog 开始每秒增长 3 MiB |
+| 07:56:26 | **驱逐 be-hog**：“Container hog was using 954968Ki, request is 0” |
+| 08:01:32 | MemoryPressure 解除，污点移除：第二次驱逐后 5 分 6 秒 |
+
+六项预测全部符合（OOM 的核对记录在 `evidence/e4/eviction-2-oom-check.log`）：
+
+| | 预测 | 结果 |
+|---|---|---|
+| V1 | 先驱逐 burst-hog，尽管 be-hog 是 BestEffort | 符合：被驱逐时 burst-hog 用 776 MiB（超出请求 712 MiB），be-hog 用 160 MiB |
+| V2 | be-hog 开始增长后第二个被驱逐 | 符合，被驱逐时用 933 MiB |
+| V3 | 其他 Pod 不受影响 | 符合：Guaranteed Pod 一直运行；实验命名空间之外没有驱逐事件；节点上其他 Pod 的状态和重启次数都没有变化 |
+| V4 | kubelet 在越过阈值后很快动作，不发生内核的 OOM | 符合：两次驱逐时 kubelet 观测到的可用内存比阈值低 1.8 MiB 和 9.2 MiB；没有容器因 OOM 被杀，内核日志中也没有 OOM 记录 |
+| V5 | 压力期间，新的 BestEffort Pod 在准入时被拒绝 | 符合 |
+| V6 | 压力状态在第一次驱逐后约 20 秒内出现，最后一次压力后约 5 分钟解除 | 符合：8 秒后出现，第二次驱逐后 5 分 6 秒解除 |
+
+预测之外还有几点值得注意：
+
+- **驱逐管理器的反应是即时的，慢在统计数据。**kubelet 统计接口中的可用内存大约每 10 秒更新一次。第一次越过阈值的那次更新（12 718 MiB）正是驱逐消息里的数字，驱逐紧接着发生。从越过阈值到驱逐，最长是一个统计周期，这期间内存继续增长的量就是超调。本实验的增长只有每秒 3–4 MiB，超调不到 10 MiB；增长快得多的进程（例如一次分配几百 MiB）会在 kubelet 看到之前就撞上内存上限，那时出手的是内核的 OOM killer，而不是有序的驱逐。驱逐阈值要留出“最快的增长速度 × 统计周期”的余量。
+- **驱逐之前，内核已经在回收页缓存。**hog 增长的那几分钟里，同一节点上 pg-main-1 的页缓存从 411 MiB 降到 145 MiB，第二阶段又降到 115 MiB，工作集从 290 MiB 降到 161 MiB，而它的匿名内存（RSS）一直在 41–47 MiB（`evidence/e4/eviction-2-pagecache.log`）。内存压力最先伤害的不是被驱逐的 Pod，而是同节点上依赖页缓存的服务：数据库失去的缓存要靠之后的磁盘读取重新填满（本实验没有测量这对查询延迟的影响）。在 Kind 中，回收是由节点容器自己的 3 GiB 上限触发的：实验后虚拟机仍有约 5 GiB 可用内存（`evidence/e4/eviction-2-vm-memory.log`），节点 cgroup 自身记录了 6011 次触及上限（计数没有时间戳）。在真实节点上，起作用的是整机的空闲内存水位，页缓存同样最先被回收。
+- **几秒钟的压力，换来近 10 分钟的 MemoryPressure。**两次真正低于阈值的时间各只有几秒，节点却从 07:51:52 到 08:01:32 一直处于 MemoryPressure：压力消失后，状态还要保持 `evictionPressureTransitionPeriod`（默认 5 分钟），以免来回抖动。这期间节点带着 NoSchedule 污点，调度器不会再往这里放没有相应容忍度的 Pod，kubelet 也拒绝绑定到这里的 BestEffort Pod。被拒绝的 Pod 状态是 `Failed`、原因 `Evicted`，看起来和被驱逐的 Pod 一样，其实它从未运行过。
+- **被驱逐的 Pod 不会重启，日志也拿不回来。**两个 hog 停在 `Failed`（容器状态 `ContainerStatusUnknown`），`kubectl logs` 报错“container is terminated”。由 Deployment 管理的 Pod 会在别处重建，直接创建的 Pod 就没有了。本环境只收集服务主动通过 OTLP 发送的日志，这两个 Pod 的标准输出不在 Loki 里（`evidence/e4/eviction-2-logs.log`）；节点级的日志采集留给第 10 章（E9）。
+
+时间与预期的差别：第一次驱逐在三个 Pod 都运行之后 172 秒，在预期的 50–200 秒之内；第二次在信号之后 264 秒，比预期的 150–250 秒稍长。原因还是页缓存的回收：第一次驱逐后节点的工作集只有 2159 MiB，be-hog 要增长约 770 MiB 才能让工作集回到阈值，按每秒 3 MiB 计算约 257 秒。
+
+对实践的含义：给重要的 Pod，尤其是数据库，设置不低于实际用量的内存请求，或者干脆让它成为 Guaranteed，它就排到所有超出请求的 Pod 之后；请求很低的 Burstable Pod 并不比 BestEffort 更安全，超出得越多越先被驱逐。
 
 ## 实验 7：优先级与抢占 {#e4-preemption}
 
@@ -201,7 +254,7 @@ EVICTION
 
 ```text
 02:35:19  critical-…-xmq4x  FailedScheduling  0/4 nodes are available: … 3 Insufficient cpu.
-          preemption: found a potential placement for pod on node ent-worker3, preempting 1 victim
+          preemption: found a potential placement for pod on node ent-worker3, preempting 1 victims
 02:35:19  filler-…-kvfx8    Preempted         Preempted by pod 5d6b799e-… on node ent-worker3
 02:35:20  critical-…-xmq4x  Scheduled         Successfully assigned e4-sched/critical-…-xmq4x to ent-worker3
 02:35:20  filler-…-2jmpb    FailedScheduling  … preemption: not eligible due to preemptionPolicy=Never.
@@ -239,7 +292,8 @@ EVICTION
 - **入口是 L4。**外部流量经由 cloud-provider-kind 的 TCP 负载均衡器和 NodePort，新副本拿不到已有连接上的请求。生产环境的 L7 入口（或客户端的连接寿命限制）会改变实验 2 的结论；本章没有验证这一点，第 9 章（E8）会做。
 - **负载生成器只有一个地址。**每次迭代新建连接的对照因客户端端口耗尽而失败。
 - **只测了默认参数。**HPA 的容差、同步周期、稳定窗口，KEDA 的轮询间隔都用默认值或单一取值；调整它们的效果没有逐一测量。
-- **驱逐实验只在一个节点上做了一次**（实验 6），而且是在 Kind 节点这种“容器中的节点”上：节点的内存上限由 Docker 施加，kubelet 看到的总内存是整台虚拟机的，驱逐阈值是第 1 章为此专门换算的。
+- **驱逐实验只在一个节点上完整地做了一次**（实验 6；第一次运行因脚本的等待逻辑有误而中止），而且是在 Kind 节点这种“容器中的节点”上：节点的内存上限由 Docker 施加，kubelet 看到的总内存是整台虚拟机的，驱逐阈值是第 1 章为此专门换算的；页缓存的回收也是由这个容器上限、而不是整机的内存水位触发的。增长速度只取了每秒 3–4 MiB，更快的增长下 kubelet 与内核 OOM killer 谁先动作没有测量。
+- **日志只覆盖主动发送的服务。**OpenTelemetry Collector 只接收 OTLP，没有节点级的日志采集；被驱逐、被抢占的 Pod 和平台组件的标准输出不在 Loki 中（实验 6）。
 
 ## 常见问题 {#e4-faq}
 
@@ -266,3 +320,16 @@ EVICTION
 :::
 
 参考答案见附录。
+
+## 本章小结
+
+- 把副本数交给 HPA 本身就是一次变更：客户端方式应用删除 `replicas` 字段后，Deployment 先缩到 1 个，约 7 秒只剩一个就绪副本。用服务端应用，或者先 `ignoreDifferences` 再删除字段，可以避免这段空窗。
+- HPA 从决定到新 Pod 就绪只要 8 秒，慢的是决定本身：利用率停在目标的 102%–114%，在 10% 的容差边缘，扩容等了 5 分 26 秒；缩容在最后一次“需要更多副本”的计算之后 300 秒（稳定窗口）才发生。目标利用率是允许长期停留的水平，而不是开始扩容的水平。
+- 扩容不等于分担负载：L4 入口加上保持连接，扩出的两个网关 Pod 一个请求也没有收到，这一档 20.5% 的请求失败，而 HPA 看到的平均 CPU（约 0.43 核）“正常”。会快速拒绝请求的服务，CPU 低估了需求。
+- 积压只说明“排着多少”：只按积压扩缩容，恒定负载下通知服务两次被缩到 1 个，之后一分钟的通知 p95 约 20 秒；加上按到达速率计算的触发器后，副本数稳定在 3，p95 保持在 0.48–0.73 秒。
+- CPU 限制：平均用量（0.28 核）低于限制（0.3 核），仍有 67% 的周期被限流，事件循环延迟 p99 从约 6 ms 升到 96 ms。对延迟敏感的服务，用请求保证份额，不设 CPU 限制。
+- 请求就是 CPU 不够时的份额：同一个占满 4 个 CPU 的消耗者，不声明请求时几乎无害；声明 2 核请求时，同节点网关的 p50 是 131 ms（其他节点 14 ms），orders 的 p99 达到 6 秒，网关对 orders 的熔断器打开。
+- 驱逐按“是否超出请求 → 优先级 → 超出多少”排序，QoS 类别不是排序键：请求 64Mi、用了 776 MiB 的 Burstable Pod 先于只用 160 MiB 的 BestEffort Pod 被驱逐，事先提交的六项预测全部符合。kubelet 在第一次看到可用内存低于阈值时就动作（超调不到 10 MiB），但统计约 10 秒才更新一次；驱逐之前，内核已经回收了同节点数据库约 70% 的页缓存（411 → 115 MiB）；两次各几秒的压力，让节点近 10 分钟处于 MemoryPressure。
+- 抢占在 1 秒内完成，每个关键任务 Pod 只牺牲一个批处理 Pod。批处理要用负的优先级和 `preemptionPolicy: Never`，否则优先级高于默认 0 的批处理会让在线服务成为牺牲者。
+- 默认值会悄悄改变行为：LimitRange 只写 `max.cpu` 时，最大值成为每个容器的默认 CPU 限制。拓扑分布的硬约束宁可让 Pod Pending 也不打破均匀，调度器也不会在节点恢复后重新分散已经挤在一起的 Pod。
+- 主机在实验中途降频到标称频率的 65%，每个请求的 CPU 翻倍：绝对数字只能在同一时段内并排比较。

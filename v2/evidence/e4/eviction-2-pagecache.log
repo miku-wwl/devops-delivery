@@ -1,0 +1,33 @@
+# transcript: E4 eviction run 2: the database replica on ent-worker (pg-main-1) during the run - page cache, RSS and working set (cAdvisor via Prometheus)
+# recorded: 2026-11-09T08:04:38Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e4/series.sh 2026-11-09T07:47:00Z 2026-11-09T08:00:00Z 30 'pg1_ws_MiB=sum(container_memory_working_set_bytes{namespace="data",pod="pg-main-1",container="postgres"})/1048576' 'pg1_cache_MiB=sum(container_memory_cache{namespace="data",pod="pg-main-1",container="postgres"})/1048576' 'pg1_rss_MiB=sum(container_memory_rss{namespace="data",pod="pg-main-1",container="postgres"})/1048576' 'grafana_ws_MiB=sum(container_memory_working_set_bytes{namespace="monitoring",pod=~"kps-grafana-.*",container!=""})/1048576' 'evict_ws_MiB=sum(container_memory_working_set_bytes{namespace="e4-evict",container!=""})/1048576'
+time pg1_ws_MiB pg1_cache_MiB pg1_rss_MiB grafana_ws_MiB evict_ws_MiB
+07:47:00  290.01  411.3   43.61  505.53  
+07:47:30  289.09  411.3   42.69  505.56  
+07:48:00  288.86  411.3   42.47  505.54  
+07:48:30  289.34  411.3   42.95  505.55  
+07:49:00  285.07  402.29  41.61  505.77  277.98
+07:49:30  277.97  386.12  42.63  505.79  535.75
+07:50:00  262.25  357.66  42.9   507.7   631.67
+07:50:30  250.46  337.59  43.75  502.89  763.07
+07:51:00  211.48  248.84  45.82  492.77  892.04
+07:51:30  192.95  213.52  46.05  493.42  1024.29
+07:52:00  166.71  154.79  46.12  476.72  248.71
+07:52:30  166.22  145.27  45.88  485.73  302.98
+07:53:00  166.97  145.53  46.44  488.37  414.2
+07:53:30  167.24  145.53  46.71  489.53  495.36
+07:54:00  167.01  145.53  46.48  489.57  594.55
+07:54:30  167.04  145.53  46.52  490.69  642.65
+07:55:00  166.98  145.53  46.46  490.73  747.86
+07:55:30  166.99  145.53  46.46  490.86  853.06
+07:56:00  167.74  139.84  46.76  496.68  952.26
+07:56:30  161.25  116.18  46.32  484.13  88.81
+07:57:00  161.04  114.45  46.18  483.74  88.81
+07:57:30  161.65  114.9   46.45  524.13  88.81
+07:58:00  162.03  114.95  46.86  526.06  88.81
+07:58:30  161.78  115.3   46.45  527.21  88.81
+07:59:00  162.03  115.39  46.7   528.11  88.81
+07:59:30  162.39  115.39  47.05  528.23  88.81
+08:00:00  161.79  115.54  46.39  528.16  88.81
+

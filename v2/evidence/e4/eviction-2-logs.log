@@ -1,0 +1,17 @@
+# transcript: E4 eviction run 2: are the evicted pods logs anywhere? kubectl logs fails (eviction-2.log); Loki only receives what services send over OTLP (control: the 03:00-04:00 load window)
+# recorded: 2026-11-09T08:06:54Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl get --raw "/api/v1/namespaces/observability/services/loki:3100/proxy/loki/api/v1/query_range?query=$(jq -rn --arg q '{k8s_namespace_name="e4-evict"}' '$q|@uri')&start=2026-11-09T07:48:00Z&end=2026-11-09T08:00:00Z&limit=100" | jq '[.data.result[].values[]] | length'
+0
+
+$ kubectl get --raw "/api/v1/namespaces/observability/services/loki:3100/proxy/loki/api/v1/query_range?query=$(jq -rn --arg q '{service_name=~".+"}' '$q|@uri')&start=2026-11-09T03:00:00Z&end=2026-11-09T04:00:00Z&limit=1000" | jq -r '[.data.result[] | {s: .stream.service_name, n: (.values | length)}] | group_by(.s) | map("\(.[0].s)=\(map(.n) | add)") | join(" ")'
+catalog=175 gateway=697 inventory=26 orders=85 payments=17
+
+$ grep -n "^mode:" v2/gitops/platform/values/otel-collector.yaml
+4:mode: deployment
+
+$ grep -n -A2 "logs:" v2/gitops/platform/values/otel-collector.yaml
+34:      logs:
+35-        receivers: [otlp]
+36-        processors: [memory_limiter, k8sattributes, batch]
+

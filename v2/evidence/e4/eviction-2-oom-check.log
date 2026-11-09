@@ -1,0 +1,22 @@
+# transcript: E4 eviction run 2: were there kernel OOM kills on ent-worker during the run? (memory.events counts since 2026-11-07, without timestamps; the kernel log has timestamps)
+# recorded: 2026-11-09T08:03:28Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ docker exec ent-worker sh -c 'echo "node container, own level: $(tr "\n" " " < /sys/fs/cgroup/memory.events.local)"; echo "node container, with children: $(tr "\n" " " < /sys/fs/cgroup/memory.events)"'
+node container, own level: low 0 high 0 max 6011 oom 0 oom_kill 0 oom_group_kill 0 
+node container, with children: low 0 high 0 max 18382 oom 6 oom_kill 12 oom_group_kill 6 
+
+$ kubectl get pods -A --field-selector spec.nodeName=ent-worker -o json | jq -r '.items[] | .metadata as $m | .status.containerStatuses[]? | select(.lastState.terminated.reason == "OOMKilled") | "\($m.namespace)/\($m.name) container=\(.name) OOMKilled at \(.lastState.terminated.finishedAt)"' | wc -l
+0
+
+$ date; dmesg -T | sed -n '1p;$p'
+Mon Nov  9 21:03:29 NZDT 2026
+[Sat Nov  7 23:19:56 2026] RSP: 002b:0000716cb762f110 EFLAGS: 00000246 ORIG_RAX: 00000000000000ea
+[Mon Nov  9 19:40:02 2026] systemd-journald[48]: Time jumped backwards, rotating.
+
+$ dmesg -T | wc -l
+3668
+
+$ dmesg -T | grep -c -i -E "out of memory|oom-kill|killed process"
+0
+[exit 1]
+

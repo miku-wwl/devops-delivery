@@ -516,5 +516,523 @@
   "按大小删除了三次最旧的数据块",
   "evidence/e3/prometheus-retention.log",
   "prometheus_tsdb_size_retentions_total = 3"
+ ],
+ [
+  "E4 handover: one ready replica",
+  "05-e4-elasticity.md",
+  "01:52:58 | hpa 2 1  | deploy 2 1 | gm44w:Pending:false qhww7:Pending:false 9c2jd:Running:true twsgl:Running:true",
+  "evidence/e4/hpa-switch.log",
+  "01:52:58 | hpa 2 1  | deploy 2 1 | gm44w:Pending:false qhww7:Pending:false 9c2jd:Running:true twsgl:Running:true"
+ ],
+ [
+  "E4 handover: HPA restores minReplicas",
+  "05-e4-elasticity.md",
+  "`New size: 2; reason: Current number of replicas below Spec.MinReplicas`",
+  "evidence/e4/hpa-switch.log",
+  "New size: 2; reason: Current number of replicas below Spec.MinReplicas"
+ ],
+ [
+  "E4 HPA 120: load step at 01:57:17",
+  "05-e4-elasticity.md",
+  "| 01:57:17 | 负载升到 120 迭代/秒 |",
+  "evidence/e4/hpa-timeline.log",
+  "load step to 120 it/s at 01:57:17"
+ ],
+ [
+  "E4 HPA 120: scale-up at 02:02:43",
+  "05-e4-elasticity.md",
+  "| 02:02:43 | HPA 决定扩到 3 个，Pod 创建并调度到 ent-worker2 |",
+  "evidence/e4/hpa-timeline-collect.log",
+  "2026-11-09T02:02:43Z   HorizontalPodAutoscaler   gateway                    SuccessfulRescale              New size: 3; reason: cpu resource utilization (percentage of request) above target"
+ ],
+ [
+  "E4 HPA 120: startup probe failed 02:02:49",
+  "05-e4-elasticity.md",
+  "| 02:02:49 | 启动探针第一次失败（进程还没开始监听） |",
+  "evidence/e4/hpa-timeline-collect.log",
+  "2026-11-09T02:02:49Z   Pod                       gateway-7b844f9fc9-j9lkf   Unhealthy                      Startup probe failed"
+ ],
+ [
+  "E4 HPA 120: scale-down at 02:08:28",
+  "05-e4-elasticity.md",
+  "| 02:08:28 | 缩回 2 个",
+  "evidence/e4/hpa-timeline-collect.log",
+  "2026-11-09T02:08:28Z   HorizontalPodAutoscaler   gateway                    SuccessfulRescale              New size: 2; reason: All metrics below target"
+ ],
+ [
+  "E4 HPA 120: browse p95 31.8 ms",
+  "05-e4-elasticity.md",
+  "120 迭代/秒时浏览 p95 31.8 ms",
+  "evidence/e4/hpa-1/k6.txt",
+  "stage 120: achieved 120.0 it/s, requests=85464 failed=0.01% | browse p50=13.4 p95=31.8"
+ ],
+ [
+  "E4 HPA 170: utilisation 116 % at 3",
+  "05-e4-elasticity.md",
+  "台阶开始 44 秒后扩到 3 个（利用率 116%）",
+  "evidence/e4/hpa-timeline-2.log",
+  "02:19:15 | hpa 3 2 116 | deploy 3 2"
+ ],
+ [
+  "E4 HPA 170: step at 02:18:31",
+  "05-e4-elasticity.md",
+  "| 02:18:31 | 负载升到 170 迭代/秒 |",
+  "evidence/e4/hpa-timeline-2.log",
+  "load step to 170 it/s at 02:18:31"
+ ],
+ [
+  "E4 HPA 170: 20.5 % failed",
+  "05-e4-elasticity.md",
+  "这一档有 20.5% 的请求失败",
+  "evidence/e4/hpa-timeline-2.log",
+  "stage 170: achieved 170.0 it/s, requests=86761 failed=20.49%"
+ ],
+ [
+  "E4 HPA 170: busy old pod",
+  "05-e4-elasticity.md",
+  "| gateway-…-qhww7（原有） | 142 | 0.92 核 | 21.4 |",
+  "evidence/e4/hpa-2-pods.log",
+  "gateway-7b844f9fc9-qhww7 0.92\t\tgateway-7b844f9fc9-gm44w 35.98\tgateway-7b844f9fc9-qhww7 21.44"
+ ],
+ [
+  "E4 HPA 170: new pod got no requests",
+  "05-e4-elasticity.md",
+  "| gateway-…-d5j6r（02:21 扩出） | 0 | 0.01 核 | — |",
+  "evidence/e4/hpa-2-pods.log",
+  "gateway-7b844f9fc9-d5j6r 0.01"
+ ],
+ [
+  "E4 k6 port exhaustion",
+  "05-e4-elasticity.md",
+  "32 546 个错误中有 32 518 个是 `connect: cannot assign requested address`",
+  "evidence/e4/hpa-timeline-3.log",
+  "all 32546 by error: 32518 dial tcp ADDR: connect: cannot assign requested address"
+ ],
+ [
+  "E4 host clock at 65 %",
+  "05-e4-elasticity.md",
+  "只有标称频率的 65%",
+  "evidence/e4/host-cpu.txt",
+  "% processor performance: 64.9"
+ ],
+ [
+  "E4 drift: gateway 8.94 ms",
+  "05-e4-elasticity.md",
+  "网关 4.47 → 8.94 ms",
+  "evidence/e4/drift-check.log",
+  "gateway      155.5  1.389       8.94"
+ ],
+ [
+  "E4 drift: gateway 4.47 ms earlier",
+  "05-e4-elasticity.md",
+  "网关 4.47 → 8.94 ms",
+  "evidence/e4/drift-check.log",
+  "gateway      169.7  0.759       4.47"
+ ],
+ [
+  "E4 KEDA CRD too large for client-side apply",
+  "05-e4-elasticity.md",
+  "KEDA 的 ScaledJob CRD 有 324 010 字节",
+  "evidence/e4/keda-crd-size.log",
+  "scaledjobs.keda.sh 324010 bytes"
+ ],
+ [
+  "E4 KEDA CRD annotation error",
+  "05-e4-elasticity.md",
+  "`metadata.annotations: Too long`",
+  "evidence/e4/keda-crd-size.log",
+  "metadata.annotations: Too long: may not be more than 262144 bytes"
+ ],
+ [
+  "E4 KEDA: 35.3 confirmed vs 35.2 sent",
+  "05-e4-elasticity.md",
+  "实测 35.3 笔/秒，通知服务处理 35.2 条/秒",
+  "evidence/e4/hpa-2-rates.log",
+  "{\"CONFIRMED\":35.3}"
+ ],
+ [
+  "E4 KEDA: first scale-up after 15 s",
+  "05-e4-elasticity.md",
+  "| 02:18:46 | 扩到 2 个（每个副本积压 100 条），8 秒后就绪 |",
+  "evidence/e4/hpa-timeline-2.log",
+  "02:18:46 | hpa 2 1 100 | deploy 2 1"
+ ],
+ [
+  "E4 KEDA: 193.5 per replica",
+  "05-e4-elasticity.md",
+  "| 02:19:16 | 扩到 4 个（每个副本 193.5 条） |",
+  "evidence/e4/hpa-timeline-2.log",
+  "02:19:18 | hpa 4 2 193500m | deploy 4 2"
+ ],
+ [
+  "E4 KEDA steady: 3 -> 1 at 02:58:21",
+  "05-e4-elasticity.md",
+  "| 02:58:21 | 3 → **1** | 1.7 |",
+  "evidence/e4/keda-steady.log",
+  "02:58:21 | hpa 1 3 1667m | deploy 1 1"
+ ],
+ [
+  "E4 KEDA steady: 5 -> 1 at 03:03:45",
+  "05-e4-elasticity.md",
+  "| 03:03:45 | 5 → **1** | 1.6 |",
+  "evidence/e4/keda-steady.log",
+  "2026-11-09T03:03:45Z   HorizontalPodAutoscaler   keda-hpa-notifier            SuccessfulRescale              New size: 1; reason: All metrics below target"
+ ],
+ [
+  "E4 KEDA compare: 19.7 s after the scale-down",
+  "05-e4-elasticity.md",
+  "| 每次缩到 1 个之后的那一分钟 | 19.7 s、20.9 s | —（没有缩到 1） |",
+  "evidence/e4/keda-compare.log",
+  "02:59:00  22.3   10.93  3  19.73"
+ ],
+ [
+  "E4 KEDA compare: 20.9 s after the second",
+  "05-e4-elasticity.md",
+  "| 每次缩到 1 个之后的那一分钟 | 19.7 s、20.9 s | —（没有缩到 1） |",
+  "evidence/e4/keda-compare.log",
+  "03:05:00  19.86  21.02  4  20.9"
+ ],
+ [
+  "E4 KEDA compare: initial backlog 22.2 s",
+  "05-e4-elasticity.md",
+  "| 台阶开始后的头两分钟（从 1 个副本扩容） | 最高 22.2 s | 最高 15.7 s |",
+  "evidence/e4/keda-compare.log",
+  "02:54:00  19.1   20.01  3  22.21"
+ ],
+ [
+  "E4 KEDA compare: fixed run holds 3",
+  "05-e4-elasticity.md",
+  "| 之后的副本数 | 3 → 1 → 5 → 1 → 4，两次缩到 1 | 5 → 3，之后一直是 3 |",
+  "evidence/e4/keda-compare.log",
+  "03:34:00  22.99  23.2   3  0.49"
+ ],
+ [
+  "E4 KEDA compare: fixed p95 up to 0.73",
+  "05-e4-elasticity.md",
+  "| 其余时间 | 0.48–0.72 s（缩容后恢复的那一分钟 2.1 s） | 0.48–0.73 s |",
+  "evidence/e4/keda-compare.log",
+  "03:37:00  23.35  23.27  3  0.73"
+ ],
+ [
+  "E4 KEDA runs: gateway 503 rate",
+  "05-e4-elasticity.md",
+  "每秒 4.0 次和 7.0 次",
+  "evidence/e4/keda-steady-failures.log",
+  "code=503,service=gateway 6.462"
+ ],
+ [
+  "E4 KEDA runs: breaker open on catalog",
+  "05-e4-elasticity.md",
+  "主要是对 catalog 的熔断器打开",
+  "evidence/e4/keda-steady-rejections.log",
+  "reason=circuit_open,upstream=catalog 4.336"
+ ],
+ [
+  "E4 limit: cpu.max",
+  "05-e4-elasticity.md",
+  "`cpu.max: 30000 100000`",
+  "evidence/e4/ab-limit-300m.log",
+  "cpu.max: 30000 100000"
+ ],
+ [
+  "E4 limit: throttled periods after",
+  "05-e4-elasticity.md",
+  "增加了 1816 个周期，其中 1218 个被限流，累计被暂停 44.8 秒",
+  "evidence/e4/ab-limit-300m.log",
+  "cpu.stat after:  usage_usec 53053395 nr_periods 2137 nr_throttled 1289 throttled_usec 48211517"
+ ],
+ [
+  "E4 limit: throttled during start-up",
+  "05-e4-elasticity.md",
+  "就已经被限流了 71 个周期",
+  "evidence/e4/ab-limit-300m.log",
+  "nr_periods 321 nr_throttled 71 throttled_usec 3413548"
+ ],
+ [
+  "E4 limit: limited pod lag 95.5 ms",
+  "05-e4-elasticity.md",
+  "| 事件循环延迟 p99 | 5–7 ms | 95.5 ms |",
+  "evidence/e4/ab-limit-300m-table.log",
+  "gateway-limited-788f6c7b94-qkbg7   ent-worker2  300m      37.3  0.282       7.55     21.9    474.9      95.5       67 %"
+ ],
+ [
+  "E4 noisy: BestEffort phase",
+  "05-e4-elasticity.md",
+  "| BestEffort 消耗者 | 17.6 / 16.6 ms | 9.5 / 8.6 ms | 13.3 / 4.8 ms | 20.5 / 7.7 ms | 12.9 / 5.9 ms |",
+  "evidence/e4/noisy.log",
+  "orders-5cd5d8df65-tvqsm            ent-worker   none       7.4  0.220      29.98    155.4    471.4      20.5"
+ ],
+ [
+  "E4 noisy: Burstable phase gateway",
+  "05-e4-elasticity.md",
+  "| Burstable 消耗者（请求 2 核） | 130.8 / 13.9 ms | 88.8 / 7.2 ms | 72.2 / 2.6 ms | 162.5 / 3.7 ms | 50.0 / 2.5 ms |",
+  "evidence/e4/noisy.log",
+  "gateway-7b844f9fc9-qhww7           ent-worker   none      39.2  0.280       7.13    130.8   1887.0      88.8"
+ ],
+ [
+  "E4 noisy: orders p50 1.6 s",
+  "05-e4-elasticity.md",
+  "orders 的 p50 达到 1.6 秒、p99 达到 6 秒",
+  "evidence/e4/noisy.log",
+  "orders-5cd5d8df65-tvqsm            ent-worker   none       1.1  0.045      41.39   1636.4   6000.0     162.5"
+ ],
+ [
+  "E4 noisy: breaker on orders",
+  "05-e4-elasticity.md",
+  "每秒拒绝 14.3 次调用",
+  "evidence/e4/noisy-rejections.log",
+  "reason=circuit_open,upstream=orders 14.307"
+ ],
+ [
+  "E4 weights: 2 CPU -> 79",
+  "05-e4-elasticity.md",
+  "50m 为 2，500m 为 20，2 核为 79",
+  "evidence/e4/cgroup-weights.log",
+  "2000m: shares 2048 -> weight 79"
+ ],
+ [
+  "E4 weights: slice 125 with the hog",
+  "05-e4-elasticity.md",
+  "计入消耗者的 2 核请求时为 125",
+  "evidence/e4/noisy.log",
+  "kubelet-kubepods-burstable.slice: 125"
+ ],
+ [
+  "E4 weights: slice 47 later",
+  "05-e4-elasticity.md",
+  "消耗者删除、kubelet 更新之后为 47",
+  "evidence/e4/cgroup-weights.log",
+  "kubepods-burstable slice: cpu.weight 47"
+ ],
+ [
+  "E4 preemption: one victim",
+  "05-e4-elasticity.md",
+  "preempting 1 victims",
+  "evidence/e4/preemption.log",
+  "preemption: found a potential placement for pod on node ent-worker3, preempting 1 victims"
+ ],
+ [
+  "E4 preemption: policy Never",
+  "05-e4-elasticity.md",
+  "preemption: not eligible due to preemptionPolicy=Never.",
+  "evidence/e4/preemption.log",
+  "preemption: not eligible due to preemptionPolicy=Never."
+ ],
+ [
+  "E4 LimitRange: implicit CPU limit",
+  "05-e4-elasticity.md",
+  "`{\"limits\":{\"cpu\":\"500m\",\"memory\":\"128Mi\"},\"requests\":{\"cpu\":\"100m\",\"memory\":\"64Mi\"}}`",
+  "evidence/e4/quota.log",
+  "{\"limits\":{\"cpu\":\"500m\",\"memory\":\"128Mi\"},\"requests\":{\"cpu\":\"100m\",\"memory\":\"64Mi\"}}"
+ ],
+ [
+  "E4 quota: 2 CPU rejected",
+  "05-e4-elasticity.md",
+  "`must be less than or equal to cpu limit of 500m`",
+  "evidence/e4/quota.log",
+  "must be less than or equal to cpu limit of 500m"
+ ],
+ [
+  "E4 quota: exceeded",
+  "05-e4-elasticity.md",
+  "`exceeded quota: tenant, requested: pods=1, used: pods=4, limited: pods=4`",
+  "evidence/e4/quota.log",
+  "exceeded quota: tenant, requested: pods=1, used: pods=4, limited: pods=4"
+ ],
+ [
+  "E4 quota: 3/6 ready",
+  "05-e4-elasticity.md",
+  "最终 3/6 就绪",
+  "evidence/e4/quota.log",
+  "deployment many: ready 3/6"
+ ],
+ [
+  "E4 spread: hard constraint pending",
+  "05-e4-elasticity.md",
+  "“2 node(s) didn't match pod topology spread constraints”",
+  "evidence/e4/spread.log",
+  "2 node(s) didn't match pod topology spread constraints"
+ ],
+ [
+  "E4 spread: hard 1 + 1 + Pending",
+  "05-e4-elasticity.md",
+  "| `DoNotSchedule` | 1 + 1，第 3 个 Pending | 1 + 1 + 1（恢复的同一秒被调度） |",
+  "evidence/e4/spread.log",
+  "hard: Pending on unscheduled x1; Running on ent-worker x1; Running on ent-worker3 x1;"
+ ],
+ [
+  "E4 eviction run 1: admission OutOfmemory",
+  "05-e4-elasticity.md",
+  "原因是 `OutOfmemory`",
+  "evidence/e4/eviction-1.log",
+  "guaranteed:Failed/OutOfmemory"
+ ],
+ [
+  "E4 eviction: prediction before the run",
+  "05-e4-elasticity.md",
+  "预测和判据在实验前提交",
+  "evidence/e4/eviction-prediction.md",
+  "written before run 2"
+ ],
+ [
+  "E4 eviction: pg-main-1 above its request",
+  "05-e4-elasticity.md",
+  "数据库副本 pg-main-1，工作集 290 MiB，请求 256Mi",
+  "evidence/e4/eviction-2.log",
+  "1  data/pg-main-1                                           Burstable           0     290     256     34"
+ ],
+ [
+  "E4 eviction: burst-hog first",
+  "05-e4-elasticity.md",
+  "“Container hog was using 794192Ki, request is 64Mi, has larger consumption of memory”",
+  "evidence/e4/eviction-2.log",
+  "07:51:44 burst-hog Evicted: The node was low on resource: memory. Threshold quantity: 12720Mi, available: 13023444Ki. Container hog was using 794192Ki, request is 64Mi, has larger consumption of memory."
+ ],
+ [
+  "E4 eviction: be-hog at 160 MiB meanwhile",
+  "05-e4-elasticity.md",
+  "be-hog 保持在 160 MiB，没有被选中",
+  "evidence/e4/eviction-2/watch.txt",
+  "07:51:47 avail=12718MiB ws=2923MiB | pressure=False taint=0 | be-hog:Running burst-hog:Running guaranteed:Running | be-hog=160 guaranteed=89"
+ ],
+ [
+  "E4 eviction: be-hog second",
+  "05-e4-elasticity.md",
+  "“Container hog was using 954968Ki, request is 0”",
+  "evidence/e4/eviction-2.log",
+  "07:56:26 be-hog Evicted: The node was low on resource: memory. Threshold quantity: 12720Mi, available: 13015816Ki. Container hog was using 954968Ki, request is 0"
+ ],
+ [
+  "E4 eviction: MemoryPressure at 07:51:52",
+  "05-e4-elasticity.md",
+  "| 07:51:52 | 节点状态变为 MemoryPressure",
+  "evidence/e4/eviction-2.log",
+  "07:51:52 NodeHasInsufficientMemory x1: Node ent-worker status is now: NodeHasInsufficientMemory"
+ ],
+ [
+  "E4 eviction: taint two seconds later",
+  "05-e4-elasticity.md",
+  "两秒后的采样中，节点已带上",
+  "evidence/e4/eviction-2/watch.txt",
+  "07:51:54 avail=13482MiB ws=2159MiB | pressure=True taint=1"
+ ],
+ [
+  "E4 eviction: BestEffort probe rejected",
+  "05-e4-elasticity.md",
+  "“Pod was rejected: The node had condition: [MemoryPressure].”",
+  "evidence/e4/eviction-2.log",
+  "be-probe: Failed/Evicted/ - Pod was rejected: The node had condition: [MemoryPressure]."
+ ],
+ [
+  "E4 eviction: pressure cleared 08:01:32",
+  "05-e4-elasticity.md",
+  "| 08:01:32 | MemoryPressure 解除，污点移除：第二次驱逐后 5 分 6 秒 |",
+  "evidence/e4/eviction-2.log",
+  "MemoryPressure=False, since 2026-11-09T08:01:32Z"
+ ],
+ [
+  "E4 eviction: no evictions elsewhere",
+  "05-e4-elasticity.md",
+  "实验命名空间之外没有驱逐事件",
+  "evidence/e4/eviction-2.log",
+  "== Evicted events outside e4-evict since the start: 0"
+ ],
+ [
+  "E4 eviction: no other pod changed",
+  "05-e4-elasticity.md",
+  "节点上其他 Pod 的状态和重启次数都没有变化",
+  "evidence/e4/eviction-2.log",
+  "== other pods on ent-worker whose phase or restart count changed during the run\n  none"
+ ],
+ [
+  "E4 eviction: Guaranteed pod survived",
+  "05-e4-elasticity.md",
+  "Guaranteed Pod 一直运行",
+  "evidence/e4/eviction-2.log",
+  "guaranteed Guaranteed Running/-: -"
+ ],
+ [
+  "E4 eviction: no kernel OOM",
+  "05-e4-elasticity.md",
+  "内核日志中也没有 OOM 记录",
+  "evidence/e4/eviction-2-oom-check.log",
+  "dmesg -T | grep -c -i -E \"out of memory|oom-kill|killed process\"\n0"
+ ],
+ [
+  "E4 eviction: no OOMKilled container",
+  "05-e4-elasticity.md",
+  "没有容器因 OOM 被杀",
+  "evidence/e4/eviction-2-oom-check.log",
+  "OOMKilled at \\(.lastState.terminated.finishedAt)\"' | wc -l\n0"
+ ],
+ [
+  "E4 eviction: stats update 12718 MiB",
+  "05-e4-elasticity.md",
+  "第一次越过阈值的那次更新（12 718 MiB）正是驱逐消息里的数字",
+  "evidence/e4/eviction-2/watch.txt",
+  "07:51:45 avail=12718MiB"
+ ],
+ [
+  "E4 eviction: pg page cache before",
+  "05-e4-elasticity.md",
+  "pg-main-1 的页缓存从 411 MiB 降到 145 MiB",
+  "evidence/e4/eviction-2-pagecache.log",
+  "07:47:00  290.01  411.3   43.61"
+ ],
+ [
+  "E4 eviction: pg page cache after phase 1",
+  "05-e4-elasticity.md",
+  "pg-main-1 的页缓存从 411 MiB 降到 145 MiB",
+  "evidence/e4/eviction-2-pagecache.log",
+  "07:52:30  166.22  145.27  45.88"
+ ],
+ [
+  "E4 eviction: pg page cache after phase 2",
+  "05-e4-elasticity.md",
+  "第二阶段又降到 115 MiB，工作集从 290 MiB 降到 161 MiB",
+  "evidence/e4/eviction-2-pagecache.log",
+  "07:57:00  161.04  114.45  46.18"
+ ],
+ [
+  "E4 eviction: node container limit hits",
+  "05-e4-elasticity.md",
+  "节点 cgroup 自身记录了 6011 次触及上限",
+  "evidence/e4/eviction-2-oom-check.log",
+  "node container, own level: low 0 high 0 max 6011 oom 0 oom_kill 0"
+ ],
+ [
+  "E4 eviction: VM memory available",
+  "05-e4-elasticity.md",
+  "实验后虚拟机仍有约 5 GiB 可用内存",
+  "evidence/e4/eviction-2-vm-memory.log",
+  "Mem:           15642       10514        1136         616        4848        5127"
+ ],
+ [
+  "E4 eviction: kubectl logs fails",
+  "05-e4-elasticity.md",
+  "`kubectl logs` 报错“container is terminated”",
+  "evidence/e4/eviction-2.log",
+  "container \"hog\" in pod \"burst-hog\" is terminated"
+ ],
+ [
+  "E4 eviction: logs not in Loki",
+  "05-e4-elasticity.md",
+  "这两个 Pod 的标准输出不在 Loki 里",
+  "evidence/e4/eviction-2-logs.log",
+  "{k8s_namespace_name=\"e4-evict\"}' '$q|@uri')&start=2026-11-09T07:48:00Z&end=2026-11-09T08:00:00Z&limit=100\" | jq '[.data.result[].values[]] | length'\n0"
+ ],
+ [
+  "E4 eviction: Loki control window",
+  "05-e4-elasticity.md",
+  "这两个 Pod 的标准输出不在 Loki 里",
+  "evidence/e4/eviction-2-logs.log",
+  "catalog=175 gateway=697 inventory=26 orders=85 payments=17"
+ ],
+ [
+  "E4 eviction: working set after the first",
+  "05-e4-elasticity.md",
+  "第一次驱逐后节点的工作集只有 2159 MiB",
+  "evidence/e4/eviction-2/watch.txt",
+  "07:51:51 avail=13482MiB ws=2159MiB"
  ]
 ]

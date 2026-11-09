@@ -1,0 +1,54 @@
+# transcript: E4: where the HTTP failures of the two 12-minute 90 it/s runs came from (backlog-only 02:53-03:05, both triggers 03:28:40-03:40:40)
+# recorded: 2026-11-09T07:51:07Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e4/promq.sh 2026-11-09T03:05:00Z 'sum by (service, code) (rate(http_server_requests_total{namespace="storefront",code=~"5.."}[12m]))'
+  code=503,service=gateway 3.874
+  code=504,service=gateway 0.115
+  code=503,service=catalog 0.064
+  code=504,service=orders 0.008
+  code=500,service=payments 0.006
+  code=503,service=orders 0.004
+  code=500,service=catalog 0.003
+  code=503,service=inventory 0.001
+  code=500,service=orders 0
+  code=500,service=inventory 0
+  code=502,service=gateway 0
+
+$ bash v2/experiments/e4/promq.sh 2026-11-09T03:05:00Z 'sum by (upstream, outcome) (rate(upstream_requests_total{namespace="storefront",outcome!="ok"}[12m]))'
+  outcome=timeout,upstream=catalog 0.411
+  outcome=timeout,upstream=orders 0.31
+  outcome=timeout,upstream=payments 0.025
+  outcome=timeout,upstream=inventory 0.018
+  outcome=http_503,upstream=catalog 0.007
+  outcome=http_503,upstream=orders 0
+  outcome=http_504,upstream=orders 0
+  outcome=http_503,upstream=inventory 0
+  outcome=http_503,upstream=payments 0
+
+$ bash v2/experiments/e4/promq.sh 2026-11-09T03:40:40Z 'sum by (service, code) (rate(http_server_requests_total{namespace="storefront",code=~"5.."}[12m]))'
+  code=503,service=gateway 6.462
+  code=504,service=gateway 0.57
+  code=503,service=catalog 0.097
+  code=503,service=orders 0.09
+  code=504,service=orders 0.047
+  code=502,service=gateway 0.011
+  code=500,service=orders 0.01
+  code=500,service=catalog 0.006
+  code=500,service=payments 0.001
+  code=500,service=inventory 0.001
+  code=503,service=inventory 0
+
+$ bash v2/experiments/e4/promq.sh 2026-11-09T03:40:40Z 'sum by (upstream, outcome) (rate(upstream_requests_total{namespace="storefront",outcome!="ok"}[12m]))'
+  outcome=timeout,upstream=catalog 0.782
+  outcome=timeout,upstream=orders 0.297
+  outcome=timeout,upstream=inventory 0.042
+  outcome=http_503,upstream=orders 0.039
+  outcome=timeout,upstream=payments 0.031
+  outcome=http_503,upstream=catalog 0.006
+  outcome=http_504,upstream=orders 0.003
+  outcome=http_503,upstream=inventory 0
+  outcome=http_503,upstream=payments 0
+
+$ bash v2/experiments/e4/promq.sh 2026-11-09T03:40:40Z 'sum by (service) (rate(container_cpu_usage_seconds_total{namespace="storefront",container="app"}[12m]))'
+  service=kps-kubelet 3.625
+

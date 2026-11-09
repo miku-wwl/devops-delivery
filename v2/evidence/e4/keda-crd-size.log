@@ -1,0 +1,17 @@
+# transcript: E4: why KEDA is applied server-side - its CRDs against the 262144-byte annotation limit (client-side apply keeps the whole object in last-applied-configuration)
+# recorded: 2026-11-09T07:55:08Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ for c in $(kubectl get crd -o name | grep keda.sh); do echo "$c $(kubectl get $c -o json | jq -c 'del(.metadata.managedFields, .metadata.resourceVersion, .metadata.uid, .metadata.creationTimestamp, .metadata.generation, .metadata.annotations, .status)' | wc -c) bytes"; done
+customresourcedefinition.apiextensions.k8s.io/cloudeventsources.eventing.keda.sh 5129 bytes
+customresourcedefinition.apiextensions.k8s.io/clustercloudeventsources.eventing.keda.sh 5076 bytes
+customresourcedefinition.apiextensions.k8s.io/clustertriggerauthentications.keda.sh 15313 bytes
+customresourcedefinition.apiextensions.k8s.io/scaledjobs.keda.sh 324010 bytes
+customresourcedefinition.apiextensions.k8s.io/scaledobjects.keda.sh 13699 bytes
+customresourcedefinition.apiextensions.k8s.io/triggerauthentications.keda.sh 15193 bytes
+
+$ kubectl get crd scaledjobs.keda.sh -o json | jq -r '.metadata.annotations // {} | keys | join(" ")'
+controller-gen.kubebuilder.io/version
+
+$ kubectl get crd scaledjobs.keda.sh -o json | jq 'del(.metadata.managedFields, .metadata.resourceVersion, .metadata.uid, .metadata.creationTimestamp, .metadata.generation, .metadata.annotations, .status)' > /tmp/sj.json && kubectl create --dry-run=server -f /tmp/sj.json --save-config -o name 2>&1 | cut -c1-200; rm -f /tmp/sj.json
+The CustomResourceDefinition "scaledjobs.keda.sh" is invalid: metadata.annotations: Too long: may not be more than 262144 bytes
+
