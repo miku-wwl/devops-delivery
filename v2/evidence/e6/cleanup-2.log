@@ -1,0 +1,9 @@
+# transcript: E6 closing state: the partition chain E6PART is gone from ent-worker (no chain, no jump left in FORWARD)
+# recorded: 2026-11-09T13:16:01Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ docker exec ent-worker sh -c 'iptables -S E6PART 2>&1 | grep -v Warning; iptables -S FORWARD | grep -c E6PART'
+iptables: No chain/target/match by that name.
+# Warning: iptables-legacy tables present, use iptables-legacy to see them
+0
+[exit 1]
+

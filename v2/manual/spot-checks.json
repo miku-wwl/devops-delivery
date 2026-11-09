@@ -1475,5 +1475,313 @@
   "秘密的值以 HMAC 形式出现，不是明文",
   "evidence/e5/openbao-facts.log",
   "\"value_is_hmac\":{\"value\":true}"
+ ],
+ [
+  "E6 slow resilient: 17.00 % failed",
+  "07-e6-chaos.md",
+  "17.00% 的请求失败（几乎全部订单）",
+  "evidence/e6/slow-resilient.log",
+  "stage 2-30: achieved 30.0 it/s, requests=6122 failed=17.00%"
+ ],
+ [
+  "E6 slow resilient: fail fast",
+  "07-e6-chaos.md",
+  "订单 p50 4.0 ms：快速失败",
+  "evidence/e6/slow-resilient.log",
+  "order p50=4.0 p95=1026.5"
+ ],
+ [
+  "E6 slow naive: all succeed, slow",
+  "07-e6-chaos.md",
+  "0.00% 失败；订单 p50 1616 ms、p95 1769 ms",
+  "evidence/e6/slow-naive.log",
+  "requests=6057 failed=0.00% | browse p50=12.1 p95=17.7 p99=23.3 max=48.5 ms | order p50=1615.8 p95=1768.8"
+ ],
+ [
+  "E6 slow: ratio resilient",
+  "07-e6-chaos.md",
+  "| 　每笔下单在 inventory 上的调用 | 0.05 | 1.04 |",
+  "evidence/e6/slow-resilient.log",
+  "ratio  0.052"
+ ],
+ [
+  "E6 slow: ratio naive",
+  "07-e6-chaos.md",
+  "| 　每笔下单在 inventory 上的调用 | 0.05 | 1.04 |",
+  "evidence/e6/slow-naive.log",
+  "ratio  1.037"
+ ],
+ [
+  "E6 slow resilient: breaker rejects orders",
+  "07-e6-chaos.md",
+  "此后网关每秒直接拒绝 8.95 个下单请求",
+  "evidence/e6/slow-resilient.log",
+  "reject reason=circuit_open,service=gateway,upstream=orders 8.95"
+ ],
+ [
+  "E6 errors resilient: 17.26 %",
+  "07-e6-chaos.md",
+  "17.26% 的请求失败（全部订单）",
+  "evidence/e6/errors-resilient-2.log",
+  "requests=6119 failed=17.26%"
+ ],
+ [
+  "E6 errors naive: 9.80 %",
+  "07-e6-chaos.md",
+  "9.80% 的请求失败；订单 p50 705 ms",
+  "evidence/e6/errors-naive.log",
+  "requests=6105 failed=9.80% | browse p50=11.9 p95=17.1 p99=23.4 max=72.1 ms | order p50=705.4"
+ ],
+ [
+  "E6 errors naive: amplification",
+  "07-e6-chaos.md",
+  "5.56（inventory 每秒 44 个请求，稳态 7.9 个）",
+  "evidence/e6/errors-naive.log",
+  "ratio  5.556"
+ ],
+ [
+  "E6 errors naive: inventory 44 req/s",
+  "07-e6-chaos.md",
+  "5.56（inventory 每秒 44 个请求，稳态 7.9 个）",
+  "evidence/e6/errors-naive.log",
+  "req service=inventory 44.061"
+ ],
+ [
+  "E6 errors resilient: ratio 0.07",
+  "07-e6-chaos.md",
+  "| 　每笔下单在 inventory 上的调用 | 0.07 |",
+  "evidence/e6/errors-resilient-2.log",
+  "ratio  0.073"
+ ],
+ [
+  "E6 errors naive: retries",
+  "07-e6-chaos.md",
+  "orders 对 inventory 每秒重试 31.6 次，网关对 orders 每秒重试 5.1 次",
+  "evidence/e6/errors-naive.log",
+  "retry service=orders,upstream=inventory 31.556"
+ ],
+ [
+  "E6 node-1: 100 % failures",
+  "07-e6-chaos.md",
+  "| 10–320 s | **100% 的请求失败**，浏览也不例外 |",
+  "evidence/e6/node-1.log",
+  "t=  320s   599 requests   599 failed  100.0 %"
+ ],
+ [
+  "E6 node-1: NotReady at 47 s",
+  "07-e6-chaos.md",
+  "| 47 s | 节点 NotReady",
+  "evidence/e6/node-1.log",
+  "t=47s 10:50:10 ready=Unknown endpoints-on-node-ready=0/5"
+ ],
+ [
+  "E6 node-1: evictions at 331 s",
+  "07-e6-chaos.md",
+  "| 331 s | 节点控制器标记删除节点上的 Pod",
+  "evidence/e6/node-1.log",
+  "t=331s 10:54:54"
+ ],
+ [
+  "E6 node-1: 54 % failed",
+  "07-e6-chaos.md",
+  "整个运行 54% 的请求失败",
+  "evidence/e6/node-1.log",
+  "requests=33668 (53.7/s) failed=54.36%"
+ ],
+ [
+  "E6 node-1: Grafana unplaceable",
+  "07-e6-chaos.md",
+  "Grafana 的替代者因内存不足无法调度",
+  "evidence/e6/node-1.log",
+  "FailedScheduling monitoring/kps-grafana-676885f46d-ghn6b: 0/4 nodes are available: 2 Insufficient memory"
+ ],
+ [
+  "E6 node-1: JetStream lost nothing",
+  "07-e6-chaos.md",
+  "已确认的位置等于流的最后一条（193 792），没有待处理、没有重投",
+  "evidence/e6/incident-2c.log",
+  "{\"stream_last_seq\":193792,\"consumers\":[{\"name\":\"notifier\",\"delivered\":193792,\"ack_floor\":193792,\"num_pending\":0,\"num_ack_pending\":0,\"num_redelivered\":0}]}"
+ ],
+ [
+  "E6 incident-2: Prometheus preempted",
+  "07-e6-chaos.md",
+  "| 10:54:55 | Prometheus 被抢占",
+  "evidence/e6/incident-2.log",
+  "2026-11-09T10:54:55Z   Preempted          Preempted by pod c0807979-a181-4678-b687-914f59154ae6 on node ent-worker2"
+ ],
+ [
+  "E6 incident-2: cannot return",
+  "07-e6-chaos.md",
+  "| 10:56:33 | Prometheus 无法调度：“didn't match PersistentVolume's node affinity … Insufficient memory” |",
+  "evidence/e6/incident-2.log",
+  "1 node(s) didn't match PersistentVolume's node affinity, 1 node(s) had untolerated taint(s), 2 Insufficient memory"
+ ],
+ [
+  "E6 incident-2: first manual attempt",
+  "07-e6-chaos.md",
+  "（11:00、11:10，每次等待 10 分钟）",
+  "evidence/e6/incident-2.log",
+  "error: timed out waiting for the condition on pods/prometheus-kps-prometheus-0"
+ ],
+ [
+  "E6 incident-2: second manual attempt",
+  "07-e6-chaos.md",
+  "（11:00、11:10，每次等待 10 分钟）",
+  "evidence/e6/incident-2b.log",
+  "# recorded: 2026-11-09T11:10:45Z"
+ ],
+ [
+  "E6 incident-2: back with priority",
+  "07-e6-chaos.md",
+  "| 11:21:38 | 加上 PriorityClass `platform-critical` 后，Prometheus 在原节点上启动 |",
+  "evidence/e6/incident-2c.log",
+  "prometheus: priority 1000000, started 2026-11-09T11:21:38Z"
+ ],
+ [
+  "E6 spof: waypoint rollout stuck",
+  "07-e6-chaos.md",
+  "（“didn't match pod topology spread constraints … Insufficient memory”）",
+  "evidence/e6/spof-fix.log",
+  "1 node(s) didn't match pod topology spread constraints, 1 node(s) had untolerated taint(s), 2 Insufficient memory"
+ ],
+ [
+  "E6 spof: zone-a 56 Mi left",
+  "07-e6-chaos.md",
+  "zone-a 的内存请求只剩 56 Mi",
+  "evidence/e6/incident-2c.log",
+  "ent-worker: 2610Mi (97%) requested"
+ ],
+ [
+  "E6 spof: metrics-server usage",
+  "07-e6-chaos.md",
+  "（实际用约 40 MiB，`evidence/e6/metrics-server-usage.log`）",
+  "evidence/e6/metrics-server-usage.log",
+  "working set 42 MiB"
+ ],
+ [
+  "E6 node-2: 8.2 % failed",
+  "07-e6-chaos.md",
+  "| 全部请求的失败率 | 54% | 8.2% |",
+  "evidence/e6/node-2.log",
+  "requests=33483 (52.5/s) failed=8.21%"
+ ],
+ [
+  "E6 node-2: NotReady at 52 s",
+  "07-e6-chaos.md",
+  "| 节点 NotReady | 47 s | 52 s |",
+  "evidence/e6/node-2.log",
+  "t=52s 12:52:47 ready=Unknown endpoints-on-node-ready=0/2"
+ ],
+ [
+  "E6 node-2: 99 % until endpoints removed",
+  "07-e6-chaos.md",
+  "这 55 秒里 99% 的请求失败",
+  "evidence/e6/node-2.log",
+  "t=   10s   514 requests   511 failed   99.4 %"
+ ],
+ [
+  "E6 node-2: few real timeouts",
+  "07-e6-chaos.md",
+  "一分钟内网关到 catalog 超时 105 次、到 orders 68 次",
+  "evidence/e6/node-2-analysis.log",
+  "outcome=timeout,service=gateway,upstream=catalog 105.294"
+ ],
+ [
+  "E6 node-2: 5xx = breaker rejections",
+  "07-e6-chaos.md",
+  "此后网关每秒 52.9 次直接拒绝，5xx 正好是 52.8 次",
+  "evidence/e6/node-2-analysis.log",
+  "12:52:30  52.82  52.9"
+ ],
+ [
+  "E6 node-2: evictions cancelled",
+  "07-e6-chaos.md",
+  "节点控制器取消了对仍在节点上的 Pod 的删除",
+  "evidence/e6/node-2.log",
+  "Cancelling deletion of Pod storefront/catalog-cdb4f59b9-4c8xz"
+ ],
+ [
+  "E6 node-2: Argo CD unplaceable",
+  "07-e6-chaos.md",
+  "Argo CD 控制器、Grafana、第二个 waypoint 的替代者都因内存不足无法调度",
+  "evidence/e6/node-2.log",
+  "FailedScheduling argocd/argocd-application-controller-0: 0/4 nodes are available: 2 Insufficient memory"
+ ],
+ [
+  "E6 partition: node stays Ready",
+  "07-e6-chaos.md",
+  "300 秒内节点一直 Ready，waypoint 的端点一直就绪",
+  "evidence/e6/partition-1.log",
+  "t=290s 13:09:12 ready=True endpoints-on-node-ready=1/1"
+ ],
+ [
+  "E6 partition: 0.22 % failed",
+  "07-e6-chaos.md",
+  "整个运行只有 0.22% 的请求失败",
+  "evidence/e6/partition-1.log",
+  "requests=27558 (52.9/s) failed=0.22%"
+ ],
+ [
+  "E6 partition: bump at 50 s",
+  "07-e6-chaos.md",
+  "分区开始后 50–60 秒有一个小高峰（4.7%）",
+  "evidence/e6/partition-1.log",
+  "t=   50s   598 requests    28 failed    4.7 %"
+ ],
+ [
+  "E6 partition: 10 targets down",
+  "07-e6-chaos.md",
+  "12 秒后第一个，24 秒后 10 个",
+  "evidence/e6/partition-1.log",
+  "t=24s 13:04:46 ready=True endpoints-on-node-ready=1/1 targets-down=10"
+ ],
+ [
+  "E6 partition: recovery 13:09:17",
+  "07-e6-chaos.md",
+  "分区在 13:09:11 解除，13:09:17 所有目标恢复",
+  "evidence/e6/partition-1.log",
+  "t=295s 13:09:17 ready=True endpoints-on-node-ready=1/1 targets-down=0"
+ ],
+ [
+  "E6 partition: ztunnel kept using zone-a",
+  "07-e6-chaos.md",
+  "106 条去了 zone-b 的 waypoint，91 条去了 zone-a 的那个，还有 68 次连接超时",
+  "evidence/e6/partition-1-analysis.log",
+  "     91 dst.workload=\"waypoint-cfd6dc8fb-qs7hx\""
+ ],
+ [
+  "E6 partition: HBONE timeouts",
+  "07-e6-chaos.md",
+  "（“connection timed out, maybe a NetworkPolicy is blocking HBONE port 15008”）",
+  "evidence/e6/partition-1-analysis.log",
+  "     68 error=\"connection timed out, maybe a NetworkPolicy is blocking HBONE port 15008"
+ ],
+ [
+  "E6 incident-1: Argo CD evicted",
+  "07-e6-chaos.md",
+  "| 10:27:58 | 驱逐 Argo CD 应用控制器：使用 538 MiB，请求 512 Mi |",
+  "evidence/e6/incident-1.log",
+  "Container application-controller was using 538356Ki, request is 512Mi"
+ ],
+ [
+  "E6 incident-1: Prometheus evicted",
+  "07-e6-chaos.md",
+  "| 10:29:06 | 驱逐 Prometheus |",
+  "evidence/e6/incident-1.log",
+  "2026-11-09T10:29:06Z monitoring/prometheus-kps-prometheus-0"
+ ],
+ [
+  "E6 incident-1: pressure over",
+  "07-e6-chaos.md",
+  "| 10:34:01 | 内存压力解除，Prometheus 在同一节点上重新启动 |",
+  "evidence/e6/incident-1.log",
+  "2026-11-09T10:34:01Z NodeHasSufficientMemory"
+ ],
+ [
+  "E6 incident-1: Prometheus over its request",
+  "07-e6-chaos.md",
+  "Prometheus 请求 640 Mi，实际约 940 MiB",
+  "evidence/e6/incident-1.log",
+  "monitoring/prometheus-kps-prometheus-0                   Burstable           0     941     640    301"
  ]
 ]

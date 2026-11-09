@@ -1,0 +1,9 @@
+time="2026-11-10T02:05:20+13:00" level=warning msg="Request Failed" error="Get \"http://172.20.0.8:8080/api/products?limit=20\": request timeout"
+time="2026-11-10T02:05:20+13:00" level=warning msg="Request Failed" error="Get \"http://172.20.0.8:8080/api/products?limit=20\": request timeout"
+time="2026-11-10T02:05:20+13:00" level=warning msg="Request Failed" error="Get \"http://172.20.0.8:8080/api/products?limit=20\": request timeout"
+[32 more 'Request Failed' warnings collapsed; all 35 by error: 27 request timeout, 8 read tcp ADDR->ADDR: read: connection reset by peer]
+rate=30/s duration=540s iterations=16200 dropped=0
+requests=27558 (52.9/s) failed=0.22%
+browse: p50=10.2 p95=17.3 p99=26.7 max=57742.5 ms
+order:  p50=108.0 p95=246.5 p99=1149.6 max=57742.5 ms
+checks: 99.78% passed

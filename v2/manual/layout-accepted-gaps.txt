@@ -2,6 +2,7 @@
 # whose gap was reviewed by looking at the page and kept on purpose.
 # layout_check.py --accept-gaps-file reads this list; any other gap fails the check.
 # Rebuilding the book moves pages: re-review the gaps and update this list in the same commit.
-#   38: chapter 3, section 3.5.2 ends at 55 % of the page; figure 3-2 (a full-page Grafana
-#       screenshot of the per-pod request rates) does not fit below it and starts page 39.
-38
+#   39: chapter 3, section 3.5.2 ends at 55 % of the page; figure 3-2 (a full-page Grafana
+#       screenshot of the per-pod request rates) does not fit below it and starts page 40.
+#       (page 38 until chapter 7 lengthened the table of contents by one page; re-reviewed)
+39

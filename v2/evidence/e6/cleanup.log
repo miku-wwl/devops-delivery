@@ -1,0 +1,43 @@
+# transcript: E6 closing state: no injected fault left (nodes unpaused, no partition chain, no inventory faults, resilient mode); what stays (two waypoints, two notifiers, platform-critical Prometheus); memory headroom
+# recorded: 2026-11-09T13:15:41Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ docker inspect -f '{{.Name}} paused={{.State.Paused}}' ent-worker ent-worker2 ent-worker3
+/ent-worker paused=false
+/ent-worker2 paused=false
+/ent-worker3 paused=false
+
+$ docker exec ent-worker sh -c 'iptables -S E6PART 2>&1 | head -1'
+# Warning: iptables-legacy tables present, use iptables-legacy to see them
+
+$ kubectl -n storefront get deploy -o jsonpath='{range .items[*]}{.metadata.name}={.spec.template.spec.containers[0].env[?(@.name=="RESILIENCE_MODE")].value} {end}{"\n"}'
+catalog=resilient gateway=resilient inventory=resilient notifier=resilient orders=resilient payments=resilient waypoint= 
+
+$ for p in $(kubectl -n storefront get pods -l app.kubernetes.io/name=inventory -o jsonpath='{.items[*].metadata.name}'); do kubectl -n storefront exec $p -c app -- python -c "import urllib.request; print('$p faults', urllib.request.urlopen('http://127.0.0.1:8080/admin/faults', timeout=5).read().decode())"; done
+inventory-7f7684694c-ptvn7 faults {"latency_ms":0.0,"error_rate":0.0,"status":500}
+inventory-7f7684694c-wx2nh faults {"latency_ms":0.0,"error_rate":0.0,"status":500}
+
+$ kubectl -n storefront get deploy waypoint notifier -o custom-columns=NAME:.metadata.name,READY:.status.readyReplicas --no-headers
+waypoint   2
+notifier   2
+
+$ kubectl -n monitoring get pod prometheus-kps-prometheus-0 -o jsonpath='prometheus priority {.spec.priority} on {.spec.nodeName}{"\n"}'
+prometheus priority 1000000 on ent-worker2
+
+$ kubectl -n argocd get applications --no-headers -o custom-columns=A:.metadata.name,S:.status.sync.status,H:.status.health.status | grep -vcE 'Synced +Healthy'
+0
+[exit 1]
+
+$ kubectl get pods -A --no-headers | grep -vcE 'Running|Completed'
+0
+[exit 1]
+
+$ for n in ent-worker ent-worker2 ent-worker3; do echo "$n: $(kubectl describe node $n | grep -E '^  memory ' | awk '{print $2, $3}') requested"; done
+ent-worker: 2442Mi (91%) requested
+ent-worker2: 2602Mi (97%) requested
+ent-worker3: 2634Mi (98%) requested
+
+$ kubectl -n storefront get pods -o custom-columns=POD:.metadata.name,NODE:.spec.nodeName --no-headers | awk '{print $2}' | sort | uniq -c
+      1 ent-worker
+      4 ent-worker2
+      9 ent-worker3
+
