@@ -1,0 +1,15 @@
+# transcript: E5: behind a waypoint, which path did the request take - again with the corrected probe
+# recorded: 2026-11-09T08:53:35Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e5/mesh-np-diag3.sh
+== client 10.240.3.89 (ent-worker3), server 10.240.2.79 (ent-worker2), waypoint 10.240.2.78 (ent-worker2)
+  request: s timeout 3080ms
+== ztunnel on ent-worker3 (ztunnel-2gc4b): access log lines for e5-b since 2026-11-09T08:54:11Z
+2026-11-09T08:54:15.371216Z	info	access	connection complete	src.addr=10.240.3.89:60672 src.workload="client" src.namespace="e5-b" src.identity="spiffe://cluster.local/ns/e5-b/sa/default" src.cluster="Kubernetes" dst.addr=10.240.2.78:15008 dst.hbone_addr=10.96.195.73:8080 dst.service="server.e5-b.svc.cluster.local" dst.workload="waypoint-555c664d55-97jt8" dst.namespace="e5-b" dst.identity="spiffe://cluster.local/ns/e5
+== ztunnel on ent-worker2 (ztunnel-zd5ms): access log lines for e5-b since 2026-11-09T08:54:11Z
+== ztunnel on ent-worker2 (ztunnel-zd5ms): access log lines for e5-b since 2026-11-09T08:54:11Z
+== conntrack on ent-worker2: connections to port 15008 involving the client, server or waypoint
+  src=10.240.3.89 dst=10.240.2.78 dport=15008 src=10.240.2.78 dst=10.240.3.89 dport=58874 ESTABLISHED
+== conntrack on ent-worker2: connections to port 15008 involving the client, server or waypoint
+  src=10.240.3.89 dst=10.240.2.78 dport=15008 src=10.240.2.78 dst=10.240.3.89 dport=58874 ESTABLISHED
+

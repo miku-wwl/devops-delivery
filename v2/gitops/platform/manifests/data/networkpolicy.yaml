@@ -1,0 +1,59 @@
+# E5: the data namespace accepts its consumers only, each on its own ports. The consumers were
+# taken from what is running (chapter 6): the storefront services (clients), Prometheus (the
+# exporters' ports of its active targets), the KEDA trigger (NATS monitoring), the CNPG operator.
+# Replication and clustering stay inside the namespace. kindnet never blocks kubelet probes.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: default-deny-ingress, namespace: data}
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: allow-same-namespace, namespace: data}
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]
+  ingress:
+    - from: [{podSelector: {}}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: allow-storefront-clients, namespace: data}
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]
+  ingress:
+    - from: [{namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: storefront}}}]
+      ports: [{port: 5432, protocol: TCP}, {port: 6379, protocol: TCP}, {port: 4222, protocol: TCP}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: allow-monitoring-exporters, namespace: data}
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]
+  ingress:
+    - from: [{namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: monitoring}}}]
+      ports: [{port: 9187, protocol: TCP}, {port: 7777, protocol: TCP}, {port: 9121, protocol: TCP}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: allow-keda-nats-monitoring, namespace: data}
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]
+  ingress:
+    - from: [{namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: keda}}}]
+      ports: [{port: 8222, protocol: TCP}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: allow-cnpg-operator, namespace: data}
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]
+  ingress:
+    - from: [{namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: cnpg-system}}}]
+      ports: [{port: 8000, protocol: TCP}, {port: 5432, protocol: TCP}]

@@ -1,0 +1,5 @@
+source	dns	catalog	gateway	postgres	valkey	nats	insight-api	prometheus	otel
+insight	ok	ok	ok	ok	ok	ok	ok	ok	ok
+shop-dev	ok	ok	ok	ok	ok	ok	ok	ok	ok
+storefront	ok	ok	ok	ok	ok	ok	ok	ok	ok
+e5-outside	ok	ok	ok	ok	ok	ok	ok	ok	ok

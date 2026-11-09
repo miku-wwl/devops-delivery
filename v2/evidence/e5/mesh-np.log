@@ -1,0 +1,27 @@
+# transcript: E5: NetworkPolicy outside and inside the ambient mesh, one rule at a time (application-level client probe, server readiness)
+# recorded: 2026-11-09T08:40:55Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e5/mesh-np.sh
+== e5-plain
+  e5-plain  S0 no policy                                                   client->server: ok 58ms        server Ready: True
+  e5-plain  S1 default-deny ingress                                        client->server: timeout 3057ms server Ready: True
+  e5-plain  S2 + allow role=client on 8080                                 client->server: ok 57ms        server Ready: True
+  e5-plain  S3 + allow role=client on 15008 (HBONE)                        client->server: ok 39ms        server Ready: True
+  e5-plain  S4 + allow 169.254.7.127/32 (kubelet probes in ambient)        client->server: ok 43ms        server Ready: True
+== e5-mesh
+  e5-mesh   S0 no policy                                                   client->server: ok 85ms        server Ready: True
+  e5-mesh   S1 default-deny ingress                                        client->server: ok 58ms        server Ready: True
+  e5-mesh   S2 + allow role=client on 8080                                 client->server: ok 45ms        server Ready: True
+  e5-mesh   S3 + allow role=client on 15008 (HBONE)                        client->server: ok 46ms        server Ready: True
+  e5-mesh   S4 + allow 169.254.7.127/32 (kubelet probes in ambient)        client->server: ok 47ms        server Ready: True
+== e5-mesh with a waypoint (as in storefront)
+  e5-mesh   S5 via waypoint; allow client -> waypoint on 15008             client->server: ok 55ms        server Ready: True
+  e5-mesh   S6 + allow waypoint -> server on 15008                         client->server: ok 68ms        server Ready: True
+== policies in e5-mesh at the end
+allow-client-8080          map[role:server]
+allow-client-hbone         map[role:server]
+allow-client-to-waypoint   map[gateway.networking.k8s.io/gateway-name:waypoint]
+allow-probes               <none>
+allow-waypoint-to-server   map[role:server]
+default-deny               <none>
+

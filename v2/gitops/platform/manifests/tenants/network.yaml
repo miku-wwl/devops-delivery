@@ -1,0 +1,83 @@
+# E5: network isolation of the tenant namespaces - deny everything, then allow DNS and traffic
+# inside the namespace. Added after the baseline (no policy: every pod reaches every other) was
+# measured with experiments/e5/reach.sh.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: default-deny, namespace: shop-dev}
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: allow-dns-and-same-namespace, namespace: shop-dev}
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from: [{podSelector: {}}]
+  egress:
+    - to: [{podSelector: {}}]
+    - to: [{namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: kube-system}}, podSelector: {matchLabels: {k8s-app: kube-dns}}}]
+      ports: [{port: 53, protocol: UDP}, {port: 53, protocol: TCP}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: default-deny, namespace: insight}
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: allow-dns-and-same-namespace, namespace: insight}
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from: [{podSelector: {}}]
+  egress:
+    - to: [{podSelector: {}}]
+    - to: [{namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: kube-system}}, podSelector: {matchLabels: {k8s-app: kube-dns}}}]
+      ports: [{port: 53, protocol: UDP}, {port: 53, protocol: TCP}]
+---
+# storefront (team-shop's prod namespace, ambient mesh behind a waypoint). The rules follow what
+# was measured (chapter 6): inside the mesh, traffic arrives on 15008 (HBONE), and behind the
+# waypoint it comes from the waypoint pod - so the namespace allows itself on every port; from
+# outside the mesh, traffic arrives on the application port. kindnet never blocks kubelet probes.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: default-deny-ingress, namespace: storefront}
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: allow-same-namespace, namespace: storefront}
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]
+  ingress:
+    - from: [{podSelector: {}}]
+---
+# Prometheus scrapes the services (8080) and the waypoint (15020), from outside the mesh
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: allow-monitoring, namespace: storefront}
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]
+  ingress:
+    - from: [{namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: monitoring}}}]
+      ports: [{port: 8080, protocol: TCP}, {port: 15020, protocol: TCP}]
+---
+# the public entry point: the load balancer's traffic reaches the gateway through a NodePort
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: allow-public-gateway, namespace: storefront}
+spec:
+  podSelector: {matchLabels: {app.kubernetes.io/name: gateway}}
+  policyTypes: [Ingress]
+  ingress:
+    - ports: [{port: 8080, protocol: TCP}]

@@ -1,0 +1,25 @@
+# transcript: E5: what an answer through the storefront waypoint looks like (HTTP/1.1): headers of a proxied answer, and the corrected probe
+# recorded: 2026-11-09T08:50:44Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl -n storefront create configmap reach-probe --from-file=reach_probe.py=v2/experiments/e5/reach_probe.py --dry-run=client -o yaml | kubectl apply -f - >/dev/null; kubectl -n storefront run hdr-probe --image=$(kubectl -n storefront get deploy catalog -o jsonpath='{.spec.template.spec.containers[0].image}') --restart=Never --overrides='{"spec":{"securityContext":{"runAsNonRoot":true,"runAsUser":10001,"seccompProfile":{"type":"RuntimeDefault"}},"containers":[{"name":"hdr-probe","image":"'$(kubectl -n storefront get deploy catalog -o jsonpath='{.spec.template.spec.containers[0].image}')'","command":["python","-c","import time; time.sleep(600)"],"securityContext":{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true},"volumeMounts":[{"name":"p","mountPath":"/probe"}]}],"volumes":[{"name":"p","configMap":{"name":"reach-probe"}}]}}' >/dev/null; kubectl -n storefront wait --for=condition=Ready pod/hdr-probe --timeout=90s >/dev/null; echo ready
+ready
+
+$ kubectl -n storefront exec hdr-probe -- python -c "import socket; s = socket.create_connection(('catalog.storefront.svc.cluster.local', 8080), 3); s.sendall(b'GET / HTTP/1.1' + bytes([13, 10]) + b'Host: catalog' + bytes([13, 10]) + b'Connection: close' + bytes([13, 10, 13, 10])); print(s.recv(600).decode(errors='replace').split(chr(13) + chr(10) + chr(13) + chr(10))[0])"
+HTTP/1.1 404 Not Found
+date: Mon, 09 Nov 2026 08:50:46 GMT
+server: istio-envoy
+content-length: 22
+content-type: application/json
+x-request-id: aa2aba66-52fb-4309-9856-dcc06ed08d39
+x-envoy-upstream-service-time: 39
+connection: close
+x-envoy-decorator-operation: catalog.storefront.svc.cluster.local:8080/*
+
+$ kubectl -n storefront exec hdr-probe -- python /probe/reach_probe.py "catalog=http:catalog.storefront.svc.cluster.local:8080" "gateway=http:gateway.storefront.svc.cluster.local:8080"
+catalog ok 44ms
+gateway ok 43ms
+
+$ kubectl -n storefront delete pod hdr-probe --wait=false; kubectl -n storefront delete configmap reach-probe
+pod "hdr-probe" deleted from storefront namespace
+configmap "reach-probe" deleted from storefront namespace
+

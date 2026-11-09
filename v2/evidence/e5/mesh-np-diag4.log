@@ -1,0 +1,30 @@
+# transcript: E5: the waypoint -> server connection - every connection between them, and the waypoint Envoy upstream statistics
+# recorded: 2026-11-09T08:47:26Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ KEEP=1 bash v2/experiments/e5/mesh-np-diag3.sh
+== client 10.240.3.80 (ent-worker3), server 10.240.2.67 (ent-worker2), waypoint 10.240.2.66 (ent-worker2)
+  request: s ok 90ms
+== ztunnel on ent-worker3 (ztunnel-2gc4b): access log lines for e5-b since 2026-11-09T08:47:36Z
+2026-11-09T08:47:36.687446Z	info	access	connection complete	src.addr=10.240.3.80:50764 src.workload="client" src.namespace="e5-b" src.identity="spiffe://cluster.local/ns/e5-b/sa/default" src.cluster="Kubernetes" dst.addr=10.240.2.66:15008 dst.hbone_addr=10.96.25.194:8080 dst.service="server.e5-b.svc.cluster.local" dst.workload="waypoint-555c664d55-lprrf" dst.namespace="e5-b" dst.identity="spiffe://cluster.local/ns/e5
+== ztunnel on ent-worker2 (ztunnel-zd5ms): access log lines for e5-b since 2026-11-09T08:47:36Z
+== ztunnel on ent-worker2 (ztunnel-zd5ms): access log lines for e5-b since 2026-11-09T08:47:36Z
+== conntrack on ent-worker2: connections to port 15008 involving the client, server or waypoint
+  src=10.240.3.80 dst=10.240.2.66 dport=15008 src=10.240.2.66 dst=10.240.3.80 dport=35188 ESTABLISHED
+== conntrack on ent-worker2: connections to port 15008 involving the client, server or waypoint
+  src=10.240.3.80 dst=10.240.2.66 dport=15008 src=10.240.2.66 dst=10.240.3.80 dport=35188 ESTABLISHED
+
+$ WIP=$(kubectl -n e5-b get pods -l gateway.networking.k8s.io/gateway-name=waypoint -o jsonpath='{.items[0].status.podIP}'); SIP=$(kubectl -n e5-b get pod server -o jsonpath='{.status.podIP}'); echo "waypoint $WIP server $SIP"; for n in ent-worker ent-worker2 ent-worker3; do docker exec $n conntrack -L 2>/dev/null | grep "src=$WIP" | grep "dst=$SIP" | sed "s/^/  $n: /" | cut -c1-200; done
+waypoint 10.240.2.66 server 10.240.2.67
+[exit 1]
+
+$ kubectl -n e5-b exec deploy/waypoint -- pilot-agent request GET clusters 2>/dev/null | grep -E "server\.e5-b.*(cx_active|cx_total|rq_total)" | head -8
+inbound-vip|8080|http|server.e5-b.svc.cluster.local::envoy://connect_originate/10.240.2.67:8080::cx_active::0
+inbound-vip|8080|http|server.e5-b.svc.cluster.local::envoy://connect_originate/10.240.2.67:8080::cx_total::0
+inbound-vip|8080|http|server.e5-b.svc.cluster.local::envoy://connect_originate/10.240.2.67:8080::rq_total::0
+
+$ kubectl -n e5-b exec deploy/waypoint -- pilot-agent request GET clusters 2>/dev/null | grep -E "server\.e5-b" | grep -o "::[0-9.]*:[0-9]*::" | sort -u
+[exit 1]
+
+$ kubectl delete ns e5-b --wait=false
+namespace "e5-b" deleted
+

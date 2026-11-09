@@ -1,0 +1,10 @@
+# transcript: E5 network baseline: no NetworkPolicy, no AuthorizationPolicy - who can reach whom (application-level probes)
+# recorded: 2026-11-09T08:39:53Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e5/reach.sh reach-baseline
+source      dns  catalog  gateway  postgres  valkey  nats  insight-api  prometheus  otel
+insight     ok   ok       ok       ok        ok      ok    ok           ok          ok
+shop-dev    ok   ok       ok       ok        ok      ok    ok           ok          ok
+storefront  ok   ok       ok       ok        ok      ok    ok           ok          ok
+e5-outside  ok   ok       ok       ok        ok      ok    ok           ok          ok
+

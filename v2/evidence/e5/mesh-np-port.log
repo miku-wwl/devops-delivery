@@ -1,0 +1,8 @@
+# transcript: E5: which port must a NetworkPolicy allow inside the ambient mesh (new connections only)
+# recorded: 2026-11-09T08:55:20Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e5/mesh-np-port.sh
+  C1 deny + allow role=client on 8080 (new client pod)           client->server: timeout 3054ms
+  C2 deny + allow role=client on 15008 only (new client pod)     client->server: ok 79ms
+  C3 client outside the mesh, allowed on 8080 from its namespace client->server: ok 69ms
+
