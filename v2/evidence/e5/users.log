@@ -1,0 +1,25 @@
+# transcript: E5: lab users with client certificates from the cluster CA (subjects, groups, expiry and fingerprints only; keys and kubeconfigs stay in ~/.lab-secrets/v2/users)
+# recorded: 2026-11-09T08:32:05Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/platform/tenants/users.sh
+== client certificates from the cluster CA (kubeconfigs in ~/.lab-secrets/v2/users/)
+  alice             /O=team-shop/CN=alice                until 2026-11-16T08:27:06Z  sha256 1F552523BF681E31
+  bob               /O=team-insight/CN=bob               until 2026-11-16T08:27:06Z  sha256 588B5AD5EC269373
+  carol             /O=platform-sre/CN=carol             until 2026-11-16T08:27:07Z  sha256 17F9B42FA69050A3
+  dave              /O=auditors/CN=dave                  until 2026-11-16T08:27:08Z  sha256 5C0205BDD5900B1D
+
+$ stat -c '%A %n' ~/.lab-secrets/v2/users ~/.lab-secrets/v2/users/* | sed "s|$HOME|~|"
+drwx------ ~/.lab-secrets/v2/users
+-rw------- ~/.lab-secrets/v2/users/alice.crt
+-rw------- ~/.lab-secrets/v2/users/alice.key
+-rw------- ~/.lab-secrets/v2/users/alice.kubeconfig
+-rw------- ~/.lab-secrets/v2/users/bob.crt
+-rw------- ~/.lab-secrets/v2/users/bob.key
+-rw------- ~/.lab-secrets/v2/users/bob.kubeconfig
+-rw------- ~/.lab-secrets/v2/users/carol.crt
+-rw------- ~/.lab-secrets/v2/users/carol.key
+-rw------- ~/.lab-secrets/v2/users/carol.kubeconfig
+-rw------- ~/.lab-secrets/v2/users/dave.crt
+-rw------- ~/.lab-secrets/v2/users/dave.key
+-rw------- ~/.lab-secrets/v2/users/dave.kubeconfig
+

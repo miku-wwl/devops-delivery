@@ -31,7 +31,7 @@ fi
 # mirror v2/gitops exactly (deleted files are deleted), keep .git
 find "$work" -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
 cp -r "$V2/gitops/." "$work/"
-grep -rl 'IMAGE_TAG' "$work/envs" | xargs -r sed -i "s/IMAGE_TAG/$TAG/g"
+grep -rl 'IMAGE_TAG' "$work/envs" "$work/tenants" | xargs -r sed -i "s/IMAGE_TAG/$TAG/g"   # tenants/: E5
 git -C "$work" add -A
 if git -C "$work" diff --cached --quiet; then
   echo "platform-gitops: no changes"

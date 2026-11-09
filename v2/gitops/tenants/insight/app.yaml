@@ -3,7 +3,7 @@
 # "insight", which may only create these kinds in the namespace insight.
 apiVersion: apps/v1
 kind: Deployment
-metadata: {name: insight-api, labels: {app: insight-api}}
+metadata: {name: insight-api, labels: {app: insight-api, team: insight}}
 spec:
   replicas: 1
   selector: {matchLabels: {app: insight-api}}
