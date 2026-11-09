@@ -22,6 +22,7 @@ spec:
     - https://openbao.github.io/openbao-helm
     - https://charts.external-secrets.io
     - https://charts.jetstack.io                 # E7: cert-manager
+    - https://vmware-tanzu.github.io/helm-charts # E7: Velero
   destinations:
     - {server: https://kubernetes.default.svc, namespace: "*"}
   clusterResourceWhitelist:

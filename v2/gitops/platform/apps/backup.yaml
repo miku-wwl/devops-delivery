@@ -43,3 +43,25 @@ spec:
     automated: {prune: true, selfHeal: true}
     syncOptions: [ServerSideApply=true]
     retry: {limit: 10, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}
+---
+# Velero: backups of Kubernetes objects (and of volume contents, where the node agent can read
+# them) to the same object store, bucket "velero"
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: velero
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-1"}
+spec:
+  project: platform
+  sources:
+    - repoURL: https://vmware-tanzu.github.io/helm-charts
+      chart: velero
+      targetRevision: 12.2.3
+      helm: {releaseName: velero, valueFiles: [$values/platform/values/velero.yaml]}
+    - {repoURL: "http://gitlab:8929/root/platform-gitops.git", targetRevision: main, ref: values}
+  destination: {server: "https://kubernetes.default.svc", namespace: velero}
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    syncOptions: [CreateNamespace=true, ServerSideApply=true]
+    retry: {limit: 10, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}
