@@ -41,20 +41,21 @@ destroy)
   echo "== $(now) gone after $(( $(date +%s) - T0 )) s; outside the cluster: $(docker ps --format '{{.Names}}' | grep -vE '^ent-(control-plane|worker)' | sort | tr '\n' ' ')"
   ;;
 dr-change)
-  # the runbook's prepared change: bootstrap from the archive of the lost cluster (serverName
-  # pg-main, all WAL to the end of the archive), archive under a new name (one writer per archive)
+  # the runbook's prepared change: bootstrap from the archive of the lost cluster (all WAL to the end
+  # of the archive), archive under a new name (one writer per archive). First rebuild: the original
+  # cluster archived as "pg-main"; later rebuilds: pg-main-rN -> pg-main-r(N+1).
   python3 - "$ROOT/v2/gitops/platform/manifests/data/pg-main.yaml" <<'PY'
-import sys, pathlib
+import re, sys, pathlib
 p = pathlib.Path(sys.argv[1]); s = p.read_text()
-old = """  plugins:
+plain = """  plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
       parameters: {barmanObjectName: pg-backups}
 """
-new = """  # E7 R1: this cluster was rebuilt after the loss of the whole Kubernetes cluster (chapter 8):
-  # born from the archive of its predecessor (serverName pg-main: last base backup + all WAL to
-  # the end of the archive) and archiving under a name of its own - an archive takes one writer.
-  # The next rebuild points "source" at pg-main-r1 and archives as pg-main-r2.
+if plain in s:   # first rebuild
+    new = """  # E7: this cluster was rebuilt after the loss of the whole Kubernetes cluster (chapter 8): born
+  # from the archive of its predecessor (last base backup + all WAL to the end of the archive) and
+  # archiving under a name of its own - an archive takes one writer. Each rebuild moves both names on.
   bootstrap:
     recovery:
       source: pg-main-archive
@@ -68,9 +69,19 @@ new = """  # E7 R1: this cluster was rebuilt after the loss of the whole Kuberne
       isWALArchiver: true
       parameters: {barmanObjectName: pg-backups, serverName: pg-main-r1}
 """
-assert s.count(old) == 1, "pg-main.yaml does not have the expected plugins block"
-p.write_text(s.replace(old, new))
-print("pg-main.yaml: bootstrap from pg-main's archive, archiving as pg-main-r1")
+    s = s.replace(plain, new); src, dst = "pg-main", "pg-main-r1"
+else:            # a later rebuild: line by line
+    lines = s.split(chr(10))
+    arch = next(i for i, l in enumerate(lines) if l.strip() == "isWALArchiver: true") + 1
+    ext = next(i for i, l in enumerate(lines) if l.strip() == "plugin:") + 2
+    assert "serverName: pg-main-r" in lines[arch] and "serverName:" in lines[ext], "unexpected pg-main.yaml"
+    src = lines[arch].split("serverName: ")[1].rstrip("}")
+    dst = "pg-main-r%d" % (int(src.rsplit("-r", 1)[1]) + 1)
+    lines[ext] = lines[ext].split("serverName: ")[0] + "serverName: " + src + "}"
+    lines[arch] = lines[arch].split("serverName: ")[0] + "serverName: " + dst + "}"
+    s = chr(10).join(lines)
+p.write_text(s)
+print(f"pg-main.yaml: bootstrap from the archive {src}, archiving as {dst}")
 PY
   ;;
 restore)

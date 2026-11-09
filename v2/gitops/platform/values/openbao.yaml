@@ -9,6 +9,12 @@ injector: {enabled: false}
 ui: {enabled: false}
 server:
   priorityClassName: platform-critical   # E7: pinned to its volume (chapter 7, incident 2)
+  # E7 (chapter 8, rebuild R1): Ready means "the server runs", sealed or not. With the chart's default
+  # probe a new OpenBao is never Ready before someone initialises and unseals it, Argo CD reports it
+  # Progressing, and the root application starts no later sync wave - PostgreSQL could not even begin
+  # its restore (evidence/e7/r1/intervention-2.log). Clients of a sealed server get 503 "sealed".
+  readinessProbe:
+    path: "/v1/sys/health?standbyok=true&sealedcode=204&uninitcode=204"
   resources: {requests: {cpu: 50m, memory: 96Mi}, limits: {memory: 256Mi}}
   authDelegator: {enabled: true}   # TokenReview for the Kubernetes auth method
   dataStorage: {enabled: true, size: 1Gi}

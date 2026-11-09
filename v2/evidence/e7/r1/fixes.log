@@ -1,0 +1,45 @@
+# transcript: E7: the fixes from rebuild R1
+# recorded: 2026-11-09T23:02:46Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# E7 fixes from rebuild R1, applied to the rebuilt cluster
+# 1. PriorityClass to the new app platform-baseline (wave -8). First keep the app "policies" from pruning it on the way:
+$ kubectl annotate priorityclass platform-critical argocd.argoproj.io/sync-options=Prune=false --overwrite
+priorityclass.scheduling.k8s.io/platform-critical annotated
+
+$ bash v2/platform/bootstrap/publish-gitops.sh fd38028 "e7: PriorityClasses in platform-baseline (wave -8); OpenBao ready while sealed"
+platform-gitops: pushed acfd42c (e7: PriorityClasses in platform-baseline (wave -8); OpenBao ready while sealed)
+
+$ kubectl -n argocd annotate app platform-root argocd.argoproj.io/refresh=normal --overwrite >/dev/null; for i in $(seq 1 30); do s=$(kubectl -n argocd get app platform-baseline -o jsonpath='{.status.sync.status}/{.status.health.status}' 2>/dev/null); [ "$s" = Synced/Healthy ] && break; sleep 5; done; echo "platform-baseline: $s"
+platform-baseline: Synced/Healthy
+
+$ kubectl -n argocd annotate app policies argocd.argoproj.io/refresh=normal --overwrite >/dev/null; sleep 15; kubectl -n argocd get app policies -o jsonpath='policies: {.status.sync.status}/{.status.health.status}{"\n"}'
+policies: Synced/Healthy
+
+$ kubectl get priorityclass platform-critical -o jsonpath='{.metadata.name} value={.value} tracked-by={.metadata.annotations.argocd\.argoproj\.io/tracking-id}{"\n"}'
+platform-critical value=1000000 tracked-by=platform-baseline:scheduling.k8s.io/PriorityClass:default/platform-critical
+
+# 2. OpenBao's new readiness probe (StatefulSet updateStrategy OnDelete): restart it and look at it while it is sealed
+$ for i in $(seq 1 20); do p=$(kubectl -n secrets get sts openbao -o jsonpath='{.spec.template.spec.containers[0].readinessProbe.httpGet.path}'); [ -n "$p" ] && break; sleep 5; done; echo "template probe: $p"
+template probe: /v1/sys/health?standbyok=true&sealedcode=204&uninitcode=204
+
+$ kubectl -n secrets delete pod openbao-0
+pod "openbao-0" deleted from secrets namespace
+
+$ kubectl -n secrets wait --for=condition=Ready pod/openbao-0 --timeout=120s
+pod/openbao-0 condition met
+
+$ kubectl -n secrets exec openbao-0 -- bao status -format=json | jq -c '{initialized, sealed}'
+command terminated with exit code 2
+{"initialized":true,"sealed":true}
+[exit 2]
+
+$ kubectl -n argocd get app openbao -o jsonpath='openbao app while sealed: {.status.sync.status}/{.status.health.status}{"\n"}'
+openbao app while sealed: Synced/Healthy
+
+$ bash v2/platform/secrets/openbao-init.sh 2>&1 | grep -E "unsealed|status"
+unsealed
+status: {"initialized":true,"sealed":false,"version":"2.7.2","storage_type":"raft"}
+
+$ kubectl -n secrets exec openbao-0 -- bao status -format=json | jq -c '{initialized, sealed}'
+{"initialized":true,"sealed":false}
+

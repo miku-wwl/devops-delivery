@@ -1,0 +1,19 @@
+# E7 (chapter 8, rebuild R1): cluster-wide prerequisites that workloads of every later wave refer to
+# (PriorityClasses). Before them, a sync wave whose pods need them cannot become healthy - and the
+# root application starts no later wave (evidence/e7/r1/intervention-1.log).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: platform-baseline
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-8"}
+spec:
+  project: platform
+  source:
+    repoURL: http://gitlab:8929/root/platform-gitops.git
+    targetRevision: main
+    path: platform/manifests/baseline
+  destination: {server: "https://kubernetes.default.svc", namespace: default}
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    retry: {limit: 10, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}

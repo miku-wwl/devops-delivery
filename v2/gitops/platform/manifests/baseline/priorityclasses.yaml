@@ -4,9 +4,15 @@
 # the node's memory requested by others, Prometheus could not come back (evidence/e6/incident-2*).
 # With this class it preempts ordinary pods on its own node instead of waiting.
 # Workloads keep priority 0; batch is negative (chapter 5).
+# E7 (chapter 8, rebuild R1): moved out of the app "policies" (wave -1) into "platform-baseline"
+# (wave -8). Prometheus and OpenBao (wave -3) refer to it: on an empty cluster their pods were
+# forbidden ("no PriorityClass with name platform-critical was found") and the waves deadlocked.
+# Never pruned: running pods refer to it.
 apiVersion: scheduling.k8s.io/v1
 kind: PriorityClass
-metadata: {name: platform-critical}
+metadata:
+  name: platform-critical
+  annotations: {argocd.argoproj.io/sync-options: Prune=false}
 value: 1000000
 globalDefault: false
 preemptionPolicy: PreemptLowerPriority
