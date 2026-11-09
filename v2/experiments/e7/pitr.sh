@@ -53,8 +53,8 @@ restore() { # target-time label -> 0 when pg-pitr became ready
       echo "$(now) [$2] restore failed after $(( $(date +%s) - t0 )) s (phase: $phase)"
       kubectl -n data get pods -l cnpg.io/cluster=pg-pitr --no-headers | sed 's/^/  /'
       for p in $(kubectl -n data get pods -l cnpg.io/cluster=pg-pitr -o name); do
-        kubectl -n data logs "$p" --all-containers 2>/dev/null | grep -iE "recovery|target|FATAL|restored log file|archive" |
-          jq -rR 'fromjson? // {msg: .} | "\(.ts // "")[11:23] \(.record.message // .msg // "")"' 2>/dev/null | tail -12 | sed 's/^/  /'
+        kubectl -n data logs "$p" --all-containers 2>/dev/null |
+          jq -rc 'select(.record.error_severity != null) | select(.record.message | test("recovery|target|restored|redo")) | "\(.record.log_time[11:23]) \(.record.error_severity): \(.record.message)"' 2>/dev/null | tail -8 | sed 's/^/  /'
       done > "$OUT/recovery-$2.txt"
       cat "$OUT/recovery-$2.txt"
       return 1
