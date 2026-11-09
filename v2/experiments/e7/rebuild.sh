@@ -23,7 +23,7 @@ before)
   kubectl get nodes --no-headers | awk '{print "  " $1, $2}'
   echo "  applications: $(kubectl -n argocd get applications --no-headers | wc -l), not Synced/Healthy: $(kubectl -n argocd get applications --no-headers | grep -vc 'Synced.*Healthy')"
   echo "  pods: $(kubectl get pods -A --no-headers | wc -l)"
-  echo "  orders: $(psqlp -d orders -c 'select count(*) || ", newest " || max(created_at) from orders')"
+  echo "  orders: $(psqlp -d orders -c "select format('%s, newest %s', count(*), max(created_at)) from orders")"
   echo "  outbox not yet published: $(psqlp -d orders -c 'select count(*) from outbox where published_at is null')"
   echo "  JetStream: $(kubectl -n data exec nats-0 -c nats -- wget -qO- http://localhost:8222/jsz | jq -c '{streams, consumers, messages}')"
   echo "  base backups: $(kubectl -n data get backups.postgresql.cnpg.io --no-headers | awk '{print $1 "=" $5}' | tr '\n' ' ')"
@@ -87,7 +87,7 @@ verify)
   T0=$(cat "$OUT/t0")
   echo "== $(now) (T0 + $(( $(date +%s) - T0 )) s) what came back"
   echo "  pg-main: $(kubectl -n data get cluster pg-main -o jsonpath='{.status.phase}, primary {.status.currentPrimary}, ready {.status.readyInstances}/{.status.instances}')"
-  echo "  orders: $(psqlp -d orders -c 'select count(*) || ", newest " || max(created_at) from orders')"
+  echo "  orders: $(psqlp -d orders -c "select format('%s, newest %s', count(*), max(created_at)) from orders")"
   echo "  outbox not yet published right after the restore: $(psqlp -d orders -c 'select count(*) from outbox where published_at is null')"
   echo "  secret insight/api-key sha256 prefix: $({ jq -r .root_token ~/.lab-secrets/v2/openbao/init.json; echo 'bao kv get -mount=secret -field=value insight/api-key | sha256sum | cut -c1-16'; } | kubectl -n secrets exec -i openbao-0 -- sh -c 'read -r BAO_TOKEN; export BAO_TOKEN; sh -s')"
   echo "  external secrets: $(kubectl get externalsecrets -A --no-headers | awk '{print $1 "/" $2 "=" $NF}' | tr '\n' ' ')"

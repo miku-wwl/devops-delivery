@@ -36,10 +36,22 @@ spec:
       dataDurability: required
   # E7: WAL archiving (and the WAL that replicas and restores fetch) through the Barman Cloud
   # plugin to the ObjectStore pg-backups (pg-backup.yaml), outside the cluster
+  # E7 R1: this cluster was rebuilt after the loss of the whole Kubernetes cluster (chapter 8):
+  # born from the archive of its predecessor (serverName pg-main: last base backup + all WAL to
+  # the end of the archive) and archiving under a name of its own - an archive takes one writer.
+  # The next rebuild points "source" at pg-main-r1 and archives as pg-main-r2.
+  bootstrap:
+    recovery:
+      source: pg-main-archive
+  externalClusters:
+    - name: pg-main-archive
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters: {barmanObjectName: pg-backups, serverName: pg-main}
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
-      parameters: {barmanObjectName: pg-backups}
+      parameters: {barmanObjectName: pg-backups, serverName: pg-main-r1}
   managed:
     roles:
       - {name: catalog, ensure: present, login: true, passwordSecret: {name: pg-role-catalog}}
