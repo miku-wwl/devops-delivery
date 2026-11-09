@@ -1,0 +1,18 @@
+# transcript: E4: node-pressure eviction on ent-worker - BestEffort and Burstable memory hogs, a Guaranteed pod
+# recorded: 2026-11-09T03:43:40Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e4/eviction.sh eviction-1 ent-worker
+== ent-worker: eviction when memory.available < 12720Mi; capacity 16017488Ki
+== node working set before: 2346 MiB
+  be-hog       BestEffort
+  burst-hog    Burstable
+  guaranteed   Guaranteed
+== timeline: lines where the pressure flag or a pod state changed
+03:43:42 ws=2346MiB pressure=False be-hog:Pending burst-hog:Pending guaranteed:Failed/OutOfmemory 
+03:43:44 ws=2353MiB pressure=False be-hog:Running burst-hog:Running guaranteed:Failed/OutOfmemory 
+== eviction events
+TIME   REASON   MSG
+== other pods evicted on ent-worker during the run: 0
+== waiting for MemoryPressure to clear (kubelet transition period)
+  03:43:48 MemoryPressure=False, taints: 
+
