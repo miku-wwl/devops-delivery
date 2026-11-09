@@ -1,0 +1,9 @@
+stages=30,30,30 it/s, 120,120,120 s (ramp 1 s, warm-up 5 s) iterations=10934 dropped=0
+requests=18526 (53.1/s) failed=6.01%
+browse: p50=12.2 p95=17.7 p99=22.5 max=110.0 ms
+order:  p50=94.5 p95=200.5 p99=280.4 max=469.4 ms
+checks: 93.99% passed
+stage 1-30: achieved 30.0 it/s, requests=6093 failed=0.00% | browse p50=12.1 p95=17.7 p99=22.7 max=40.9 ms | order p50=111.2 p95=220.2 p99=352.1 max=469.4 ms
+stage 2-30: achieved 30.0 it/s, requests=6119 failed=17.26% | browse p50=12.3 p95=17.5 p99=21.8 max=92.2 ms | order p50=4.0 p95=93.8 p99=153.7 max=281.6 ms
+stage 3-30: achieved 30.0 it/s, requests=6086 failed=0.72% | browse p50=12.0 p95=17.5 p99=22.6 max=110.0 ms | order p50=113.2 p95=220.9 p99=300.0 max=449.0 ms
+time="2026-11-09T23:45:49+13:00" level=error msg="thresholds on metrics 'http_req_failed{kind:browse}' have been crossed"
