@@ -1,0 +1,11 @@
+# transcript: E5 step A: Kyverno webhooks scoped to tenant namespaces, one admission controller replica - restart
+# recorded: 2026-11-09T09:25:13Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e5/admission-restart.sh
+== Kyverno: 1 admission controller replica(s); webhook namespaceSelector: {}
+  09:25:13.893 deleting kyverno-admission-controller-5df689c86f-mx9l6
+  09:25:14 shop-dev=FAIL(failed calling webhook "validate.kyverno.svc-fail") insight=FAIL(failed calling webhook "validate.kyverno.svc-fail") storefront=ok
+  09:25:56 shop-dev=ok insight=ok storefront=ok
+  (70 samples; lines are printed when a result changes)
+  kyverno-admission-controller-5df689c86f-whknn   2026-11-09T09:25:14Z   2026-11-09T09:25:36Z
+

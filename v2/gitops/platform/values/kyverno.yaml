@@ -7,7 +7,9 @@
 global:
   image: {registry: ghcr.io}
 admissionController:
-  replicas: 1
+  # Chapter 6, step B: two replicas (the chart adds a PodDisruptionBudget, minAvailable 1), so
+  # losing one pod does not stop admission in the tenant namespaces.
+  replicas: 2
   container:
     resources: {requests: {cpu: 50m, memory: 128Mi}, limits: {memory: 384Mi}}
   serviceMonitor: {enabled: true}
