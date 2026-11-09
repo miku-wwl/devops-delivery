@@ -9,7 +9,13 @@ metadata:
   namespace: data
 spec:
   instances: 3
+  # E7: pinned to their volumes, the instances must be able to preempt a pod that took their
+  # place while they were away (incident 2 of chapter 7)
+  priorityClassName: platform-critical
   primaryUpdateStrategy: unsupervised
+  # E7: a rolling update promotes an already updated replica (switchover, seconds) instead of
+  # restarting the primary in place (the default "restart": writes wait for the same pod)
+  primaryUpdateMethod: switchover
   postgresql:
     parameters:
       shared_buffers: 64MB
@@ -17,11 +23,22 @@ spec:
       max_connections: "200"
       work_mem: 4MB
       log_min_duration_statement: "250ms"
+      # the default, written down: a finished WAL segment is archived at least every 5 minutes,
+      # which bounds what a loss of the whole cluster costs (chapter 8)
+      archive_timeout: 5min
+  # E7: WAL archiving (and the WAL that replicas and restores fetch) through the Barman Cloud
+  # plugin to the ObjectStore pg-backups (pg-backup.yaml), outside the cluster
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters: {barmanObjectName: pg-backups}
   managed:
     roles:
       - {name: catalog, ensure: present, login: true, passwordSecret: {name: pg-role-catalog}}
       - {name: inventory, ensure: present, login: true, passwordSecret: {name: pg-role-inventory}}
       - {name: orders, ensure: present, login: true, passwordSecret: {name: pg-role-orders}}
+      # E7: drills (failover, recovery) write here, not into a service's database
+      - {name: drill, ensure: present, login: true, passwordSecret: {name: pg-role-drill}}
   storage:
     size: 2Gi
   resources:
@@ -45,6 +62,11 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata: {name: pg-main-orders, namespace: data}
 spec: {cluster: {name: pg-main}, name: orders, owner: orders}
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata: {name: pg-main-drill, namespace: data}
+spec: {cluster: {name: pg-main}, name: drill, owner: drill}
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor

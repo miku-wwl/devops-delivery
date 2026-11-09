@@ -1,0 +1,44 @@
+# transcript: E7: workers 3 GiB -> 3.5 GiB
+# recorded: 2026-11-09T14:00:38Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# E7 capacity: the backup stack (cert-manager, Barman Cloud plugin, Velero) does not fit into 3 GiB workers
+# before: memory requests per worker, allocatable, instance type; the host VM
+$ for n in ent-worker ent-worker2 ent-worker3; do echo "$n requests $(kubectl describe node $n | sed -n '/Allocated resources/,/Events/p' | awk '$1 == "memory" {print $2, $3}')"; done
+ent-worker requests 2442Mi (91%)
+ent-worker2 requests 2602Mi (97%)
+ent-worker3 requests 2634Mi (98%)
+
+$ kubectl get nodes -l '!node-role.kubernetes.io/control-plane' -o custom-columns=NAME:.metadata.name,TYPE:.metadata.labels.node\.kubernetes\.io/instance-type,ALLOCATABLE:.status.allocatable.memory
+NAME          TYPE     ALLOCATABLE
+ent-worker    <none>   2730064Ki
+ent-worker2   <none>   2730064Ki
+ent-worker3   <none>   2730064Ki
+
+$ free -m
+               total        used        free      shared  buff/cache   available
+Mem:           15642       11354         532         670        4686        4287
+Swap:           4096        1229        2866
+
+# resize: cgroup limit first, then the kubelet threshold (MemTotal - (3584 - 150) MiB)
+$ bash v2/platform/cluster/resize-workers.sh 3584
+ent-worker: 3072 -> 3584 MiB (cgroup 3758096384), eviction memory.available<12208Mi, allocatable 3254352Ki, sim-4c3.5g
+ent-worker2: 3072 -> 3584 MiB (cgroup 3758096384), eviction memory.available<12208Mi, allocatable 3254352Ki, sim-4c3.5g
+ent-worker3: 3072 -> 3584 MiB (cgroup 3758096384), eviction memory.available<12208Mi, allocatable 3254352Ki, sim-4c3.5g
+
+# after
+$ for n in ent-worker ent-worker2 ent-worker3; do echo "$n requests $(kubectl describe node $n | sed -n '/Allocated resources/,/Events/p' | awk '$1 == "memory" {print $2, $3}')"; done
+ent-worker requests 2442Mi (76%)
+ent-worker2 requests 2602Mi (81%)
+ent-worker3 requests 2634Mi (82%)
+
+$ docker exec ent-worker2 cat /var/lib/kubelet/kubeadm-flags.env | grep -o 'eviction-hard=[^ ]*'
+eviction-hard=memory.available<12208Mi,nodefs.available<0%,nodefs.inodesFree<0%,imagefs.available<0%
+
+$ kubectl get pods -A --no-headers | awk '$4 != "Running" && $4 != "Completed"' | wc -l
+0
+
+$ free -m
+               total        used        free      shared  buff/cache   available
+Mem:           15642       11311         523         670        4738        4330
+Swap:           4096        1224        2871
+

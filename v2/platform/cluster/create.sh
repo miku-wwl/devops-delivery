@@ -5,13 +5,14 @@
 #
 # What is real and what is simulated ([模拟]):
 #   - every node is a Docker container on this one machine; "zone-a/b/c" are only node labels;
-#   - each worker gets a REAL size from the kernel: 4 pinned CPUs (cpuset) and a 3 GiB memory
-#     limit (cgroup memory.max), like a small VM;
+#   - each worker gets a REAL size from the kernel: 4 pinned CPUs (cpuset) and a 3.5 GiB memory
+#     limit (cgroup memory.max), like a small VM (3 GiB in E0-E6; E7 added 512 MiB per worker for
+#     the backup stack - chapter 8, platform/cluster/resize-workers.sh changed the running nodes);
 #   - kubelet cannot see that size (it reads the VM's /proc/meminfo and /proc/cpuinfo), so the
 #     part of the machine that does not belong to the node is subtracted through kubelet flags:
 #       system-reserved cpu = host CPUs - 4             -> allocatable CPU  = 4 - 0.25
-#       eviction-hard memory.available < MemTotal - (3072Mi - 150Mi)
-#                                                        -> eviction starts at 2922 MiB used,
+#       eviction-hard memory.available < MemTotal - (3584Mi - 150Mi)
+#                                                        -> eviction starts at 3434 MiB used,
 #                                                           150 MiB before the kernel OOM limit
 #     (derivation and measurements: v2/manual chapter E0, evidence/e0/).
 # Outside the cluster: pull-through registry mirrors and the cloud-provider-kind load balancer
@@ -26,7 +27,7 @@ export KIND_EXPERIMENTAL_DOCKER_NETWORK=kind-ent   # own Docker network, apart f
 NET=$KIND_EXPERIMENTAL_DOCKER_NETWORK
 STATE=${ENT_STATE_DIR:-$HOME/ent-data}             # ext4, outside the repo (survives repo moves)
 
-NODE_CPUS=4 NODE_MEM_MI=3072 EVICT_MARGIN_MI=150 KUBE_RES="cpu=250m,memory=256Mi"
+NODE_CPUS=4 NODE_MEM_MI=3584 EVICT_MARGIN_MI=150 KUBE_RES="cpu=250m,memory=256Mi"
 HOST_CPUS=$(nproc)
 MEMTOTAL_MI=$(awk '/^MemTotal:/ {print int($2/1024)}' /proc/meminfo)
 PHANTOM_CPU=$((HOST_CPUS - NODE_CPUS))
@@ -47,7 +48,7 @@ worker() { # name zone
     labels:
       topology.kubernetes.io/region: local-1
       topology.kubernetes.io/zone: $2
-      node.kubernetes.io/instance-type: sim-4c3g
+      node.kubernetes.io/instance-type: sim-4c$(awk -v m="$NODE_MEM_MI" 'BEGIN {printf "%g", m / 1024}')g
     kubeadmConfigPatchesJSON6902:
       - group: kubeadm.k8s.io
         version: v1beta4

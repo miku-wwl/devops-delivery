@@ -14,7 +14,7 @@ kubectl config use-context kind-ent >/dev/null
 
 echo "==> 1. generated credentials in $SECRETS (never printed, never committed)"
 mkdir -p "$SECRETS" && chmod 700 "$SECRETS"
-for name in pg-catalog pg-inventory pg-orders grafana-admin; do
+for name in pg-catalog pg-inventory pg-orders pg-drill grafana-admin; do
   [ -s "$SECRETS/$name" ] || { openssl rand -hex 16 > "$SECRETS/$name"; chmod 600 "$SECRETS/$name"; }
 done
 for ns in data storefront monitoring argocd; do
@@ -28,9 +28,14 @@ for svc in catalog inventory orders; do
     --from-literal=url="postgresql://$svc:$pw@pg-main-rw.data.svc:5432/$svc" \
     --dry-run=client -o yaml | kubectl apply -f - >/dev/null
 done
+# E7: the role of the drill database (failover and recovery drills, chapter 8); no service uses it
+kubectl -n data create secret generic pg-role-drill --type=kubernetes.io/basic-auth \
+  --from-literal=username=drill --from-literal=password="$(cat "$SECRETS/pg-drill")" --dry-run=client -o yaml | kubectl apply -f - >/dev/null
+# E7: credentials of the backup target outside the cluster (platform/backup/object-store.sh)
+[ -d "$SECRETS/backup" ] && bash "$V2/platform/backup/secrets.sh"
 kubectl -n monitoring create secret generic grafana-admin --from-literal=admin-user=admin \
   --from-file=admin-password="$SECRETS/grafana-admin" --dry-run=client -o yaml | kubectl apply -f - >/dev/null
-echo "secrets: data/pg-role-{catalog,inventory,orders}, storefront/db-{catalog,inventory,orders}, monitoring/grafana-admin"
+echo "secrets: data/pg-role-{catalog,inventory,orders,drill}, storefront/db-{catalog,inventory,orders}, monitoring/grafana-admin"
 
 echo "==> 2. image"
 TAG="$(bash "$HERE/build-image.sh")"

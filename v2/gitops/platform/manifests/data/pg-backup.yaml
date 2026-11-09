@@ -1,0 +1,23 @@
+# E7 (chapter 8): backups of pg-main to the bucket pg-backups on the object store outside the
+# cluster (platform/backup/object-store.sh; credentials from platform/backup/secrets.sh, not from
+# OpenBao - see there). WAL is archived continuously: every finished 16 MiB segment, at the latest
+# after archive_timeout (5 min). A base backup is taken every night. Recovery to any moment of the
+# last 7 days needs the last base backup before that moment plus all WAL after it; the plugin
+# deletes what falls out of that window.
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata: {name: pg-backups, namespace: data}
+spec:
+  retentionPolicy: 7d
+  configuration:
+    destinationPath: s3://pg-backups/
+    endpointURL: http://backup-s3:3900
+    s3Credentials:
+      accessKeyId: {name: pg-backup-s3, key: ACCESS_KEY_ID}
+      secretAccessKey: {name: pg-backup-s3, key: ACCESS_SECRET_KEY}
+      region: {name: pg-backup-s3, key: REGION}
+    wal: {compression: gzip, maxParallel: 2}
+    data: {compression: gzip, jobs: 2}
+  # the sidecar in every instance pod (barman-cloud-wal-archive, -backup, -wal-restore)
+  instanceSidecarConfiguration:
+    resources: {requests: {cpu: 10m, memory: 64Mi}, limits: {memory: 384Mi}}

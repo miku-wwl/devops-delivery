@@ -1,0 +1,45 @@
+# E7 (chapter 8): backups. cert-manager issues the TLS certificates between the CloudNativePG
+# operator and the Barman Cloud plugin (CNPG-I: gRPC with mutual TLS); the plugin injects a sidecar
+# into every PostgreSQL pod that archives WAL and takes base backups to the object store outside
+# the cluster (platform/backup/object-store.sh). It replaces the operator's built-in Barman Cloud
+# support, deprecated since 1.26 and removed in 1.31.0.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-3"}
+spec:
+  project: platform
+  sources:
+    - repoURL: https://charts.jetstack.io
+      chart: cert-manager
+      targetRevision: v1.21.3
+      helm: {releaseName: cert-manager, valueFiles: [$values/platform/values/cert-manager.yaml]}
+    - {repoURL: "http://gitlab:8929/root/platform-gitops.git", targetRevision: main, ref: values}
+  destination: {server: "https://kubernetes.default.svc", namespace: cert-manager}
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    syncOptions: [CreateNamespace=true, ServerSideApply=true]
+    retry: {limit: 10, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: barman-cloud
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-1"}
+spec:
+  project: platform
+  sources:
+    - repoURL: https://cloudnative-pg.github.io/charts
+      chart: plugin-barman-cloud
+      targetRevision: 0.8.1
+      helm: {releaseName: barman-cloud, valueFiles: [$values/platform/values/barman-cloud.yaml]}
+    - {repoURL: "http://gitlab:8929/root/platform-gitops.git", targetRevision: main, ref: values}
+  # the operator finds its plugins in its own namespace
+  destination: {server: "https://kubernetes.default.svc", namespace: cnpg-system}
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    syncOptions: [ServerSideApply=true]
+    retry: {limit: 10, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}

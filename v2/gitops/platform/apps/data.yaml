@@ -53,5 +53,7 @@ spec:
   destination: {server: "https://kubernetes.default.svc", namespace: data}
   syncPolicy:
     automated: {prune: false, selfHeal: true}   # never let a Git mistake prune the database
-    syncOptions: [CreateNamespace=true]
+    # E7: the ObjectStore kind comes from the barman-cloud application; on a fresh cluster the
+    # first sync may run before its CRD exists (retried)
+    syncOptions: [CreateNamespace=true, SkipDryRunOnMissingResource=true]
     retry: {limit: 10, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}
