@@ -1,0 +1,43 @@
+attempts 6107: ok 6041, fail 36, unknown 30
+lost writes (acknowledged, row missing): 0
+unknown outcomes: 30, of them committed: 2, not committed: 28
+'fail' rows that exist anyway (classification error): 0
+  fail OperationalError: 1
+  fail TimeoutError: 35
+  unk TimeoutError: 30
+write outages (no acknowledgement in between; >= 0.5 s):
+  14:58:25.285 (t=+0.8s) -> 15:00:43.214 (t=+138.8s): 137.9 s (seq 1142..1207)
+slowest acknowledgements: seq 1208 1470 ms at 15:00:41.745 (t=+137.3s), seq 1132 91 ms at 14:58:25.014 (t=+0.6s), seq 890 67 ms at 14:58:20.121 (t=-4.3s)
+commit latency ms: p50 5.1, p99 16.3, max 1469.5
+connections:
+  14:58:03.061 (t=-21.4s) -> 10.240.2.118/32 in_recovery=False
+  14:58:27.437 (t=+3.0s) -> 10.240.2.118/32 in_recovery=False
+  14:58:29.566 (t=+5.1s) -> 10.240.2.118/32 in_recovery=False
+  14:58:31.691 (t=+7.3s) -> 10.240.2.118/32 in_recovery=False
+  14:58:33.818 (t=+9.4s) -> 10.240.2.118/32 in_recovery=False
+  14:58:35.946 (t=+11.5s) -> 10.240.2.118/32 in_recovery=False
+  14:58:38.077 (t=+13.6s) -> 10.240.2.118/32 in_recovery=False
+  14:58:40.206 (t=+15.8s) -> 10.240.2.118/32 in_recovery=False
+  14:58:42.331 (t=+17.9s) -> 10.240.2.118/32 in_recovery=False
+  14:58:44.455 (t=+20.0s) -> 10.240.2.118/32 in_recovery=False
+  14:58:46.584 (t=+22.1s) -> 10.240.2.118/32 in_recovery=False
+  14:58:48.713 (t=+24.3s) -> 10.240.2.118/32 in_recovery=False
+  14:58:50.094 (t=+25.7s) -> 10.240.2.118/32 in_recovery=False
+  14:58:52.219 (t=+27.8s) -> 10.240.2.118/32 in_recovery=False
+  14:58:54.343 (t=+29.9s) -> 10.240.2.118/32 in_recovery=False
+  14:58:56.474 (t=+32.0s) -> 10.240.2.118/32 in_recovery=False
+  14:58:58.600 (t=+34.2s) -> 10.240.2.118/32 in_recovery=False
+  14:59:00.724 (t=+36.3s) -> 10.240.2.118/32 in_recovery=False
+  14:59:02.864 (t=+38.4s) -> 10.240.2.118/32 in_recovery=False
+  14:59:04.990 (t=+40.6s) -> 10.240.2.118/32 in_recovery=False
+  14:59:07.118 (t=+42.7s) -> 10.240.2.118/32 in_recovery=False
+  14:59:09.245 (t=+44.8s) -> 10.240.2.118/32 in_recovery=False
+  14:59:11.367 (t=+46.9s) -> 10.240.2.118/32 in_recovery=False
+  14:59:13.491 (t=+49.1s) -> 10.240.2.118/32 in_recovery=False
+  14:59:15.623 (t=+51.2s) -> 10.240.2.118/32 in_recovery=False
+  14:59:17.761 (t=+53.3s) -> 10.240.2.118/32 in_recovery=False
+  14:59:19.885 (t=+55.4s) -> 10.240.2.118/32 in_recovery=False
+  14:59:21.344 (t=+56.9s) -> 10.240.2.118/32 in_recovery=False
+  14:59:23.474 (t=+59.0s) -> 10.240.2.118/32 in_recovery=False
+  15:00:39.642 (t=+135.2s) -> 10.240.1.130/32 in_recovery=False
+  15:00:41.769 (t=+137.3s) -> 10.240.1.130/32 in_recovery=False

@@ -1,0 +1,18 @@
+# transcript: F4: alert states around the cut and the freeze
+# recorded: 2026-11-09T15:03:31Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# F4: what the new alert rules saw. Prometheus (single replica, pinned to ent-worker2 by its volume) was frozen together with the primary 14:59:24-15:01:22.
+$ P=/api/v1/namespaces/monitoring/services/kps-prometheus:9090/proxy/api/v1; for st in pending firing; do kubectl get --raw "$P/query_range?start=$(date -d 2026-11-09T14:57:00Z +%s)&end=$(date -d 2026-11-09T15:04:00Z +%s)&step=15&query=$(jq -rn --arg q "max by (alertname, pod) (ALERTS{alertname=~\"Postgres.*\",alertstate=\"$st\"})" '$q|@uri')" | jq -r --arg st "$st" '.data.result[] | "\($st) \(.metric.alertname) \(.metric.pod): \(.values[0][0] | todate) .. \(.values[-1][0] | todate) (\(.values | length) samples)"'; done
+pending PostgresPrimaryMissingReplicas pg-main-1: 2026-11-09T15:02:00Z .. 2026-11-09T15:02:00Z (1 samples)
+pending PostgresPrimaryMissingReplicas pg-main-2: 2026-11-09T14:59:00Z .. 2026-11-09T15:01:15Z (10 samples)
+pending PostgresReplicaNotStreaming pg-main-1: 2026-11-09T14:59:00Z .. 2026-11-09T15:01:15Z (10 samples)
+pending PostgresReplicaNotStreaming pg-main-2: 2026-11-09T14:57:15Z .. 2026-11-09T14:57:15Z (1 samples)
+pending PostgresReplicaNotStreaming pg-main-3: 2026-11-09T14:57:15Z .. 2026-11-09T15:01:15Z (10 samples)
+firing PostgresPrimaryMissingReplicas pg-main-2: 2026-11-09T15:01:30Z .. 2026-11-09T15:01:30Z (1 samples)
+firing PostgresReplicaNotStreaming pg-main-1: 2026-11-09T15:01:30Z .. 2026-11-09T15:01:30Z (1 samples)
+firing PostgresReplicaNotStreaming pg-main-3: 2026-11-09T15:01:30Z .. 2026-11-09T15:01:30Z (1 samples)
+
+# Prometheus' own scrape gap on the frozen node: samples of up{job="data/pg-main"} per minute
+$ kubectl get --raw "$P/query_range?start=$(date -d 2026-11-09T14:57:00Z +%s)&end=$(date -d 2026-11-09T15:04:00Z +%s)&step=60&query=$(jq -rn --arg q 'count(up{job="data/pg-main"})' '$q|@uri')" | jq -r '.data.result[] | [.values[] | "\(.[0] | todate | .[11:16])=\(.[1])"] | join(" ")'
+14:57=3 14:58=3 14:59=3 15:00=3 15:01=3 15:02=3 15:03=3 15:04=3
+
