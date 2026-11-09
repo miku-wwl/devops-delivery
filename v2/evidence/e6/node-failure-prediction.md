@@ -20,3 +20,24 @@ waypoint: every call between storefront services goes through it (chapter 3).
 | N4 | Some replacements may not fit: ent-worker2 has 98 % of its memory requested | Pending count in watch.txt, FailedScheduling events |
 | N5 | Notifications wait in JetStream while the only notifier is gone and are sent after it returns; none is lost | notifier sent vs orders confirmed |
 | N6 | After the unpause the node comes back Ready; nothing moves back to it (the scheduler does not rebalance) | final placement |
+
+## Second run (node-2), after the fixes - written before the run
+
+node-1 confirmed N1 (NotReady after 46 s), N2 (100 % of requests failed from t=10 s to t=320 s,
+browse included), N3 (evictions at t=331 s, recovery at about t=345 s), N4 (Grafana could not be
+placed: insufficient memory), N5 (JetStream: everything delivered and acknowledged, no
+redelivery) and N6. Not predicted: the replacement metrics-server preempted Prometheus on
+ent-worker2, where its volume pins it (incident-2).
+
+Fixes since: two waypoints, one in zone-a (ent-worker) and one in zone-b, with a disruption budget;
+two notifiers (zone-b, zone-c); PriorityClass platform-critical for Prometheus; metrics-server
+requests 64Mi. Memory requested: 95 % (ent-worker), 97 %, 99 %. On ent-worker now: one catalog
+(of 2), one waypoint (of 2), the Argo CD application controller, Grafana, Tempo, a PostgreSQL
+replica, a NATS server, metrics-server.
+
+| | Hypothesis |
+|---|---|
+| M1 | Failures only until ent-worker turns NotReady (about 46 s) - the requests that the frozen waypoint or catalog would have answered; resilient retries recover part of them. No failures after that |
+| M2 | After the evictions (t ~ 330 s) most replacements cannot be placed (memory requested 97-99 % on the other nodes): the second waypoint, Grafana, the Argo CD controller stay Pending until ent-worker is back - the storefront keeps running on its remaining replicas |
+| M3 | Prometheus stays where it is (priority platform-critical) and records the whole run |
+| M4 | The Argo CD controller is gone while the node is frozen: GitOps does not sync in that time (no change is made, so nothing is lost) |

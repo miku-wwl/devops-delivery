@@ -1,0 +1,57 @@
+# transcript: E6: removing the single points of failure found by node-1 - two waypoints in two zones (the rollout stuck until metrics-server gave back 136 Mi of requested memory in zone-a), two notifiers
+# recorded: 2026-11-09T12:49:20Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl -n storefront get events --field-selector reason=FailedScheduling -o custom-columns=TIME:.lastTimestamp,POD:.involvedObject.name,MSG:.message --no-headers | grep waypoint | tail -1 | cut -c1-260
+2026-11-09T12:47:56Z   waypoint-cfd6dc8fb-lc6kp   0/4 nodes are available: 1 node(s) didn't match pod topology spread constraints, 1 node(s) had untolerated taint(s), 2 Insufficient memory. preemption: 0/4 nodes are available: 1 Preemption is not helpful for s
+
+$ kubectl apply -k v2/platform/addons/metrics-server
+serviceaccount/metrics-server unchanged
+clusterrole.rbac.authorization.k8s.io/system:aggregated-metrics-reader unchanged
+clusterrole.rbac.authorization.k8s.io/system:metrics-server unchanged
+rolebinding.rbac.authorization.k8s.io/metrics-server-auth-reader unchanged
+clusterrolebinding.rbac.authorization.k8s.io/metrics-server:system:auth-delegator unchanged
+clusterrolebinding.rbac.authorization.k8s.io/system:metrics-server unchanged
+service/metrics-server unchanged
+deployment.apps/metrics-server configured
+apiservice.apiregistration.k8s.io/v1beta1.metrics.k8s.io unchanged
+
+$ kubectl -n kube-system rollout status deploy/metrics-server --timeout=180s
+Waiting for deployment "metrics-server" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "metrics-server" rollout to finish: 1 old replicas are pending termination...
+deployment "metrics-server" successfully rolled out
+
+$ kubectl -n storefront rollout status deploy/waypoint --timeout=300s
+Waiting for deployment "waypoint" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "waypoint" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "waypoint" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "waypoint" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "waypoint" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "waypoint" rollout to finish: 1 old replicas are pending termination...
+deployment "waypoint" successfully rolled out
+
+$ kubectl -n storefront get pods -l gateway.networking.k8s.io/gateway-name=waypoint -o custom-columns=POD:.metadata.name,NODE:.spec.nodeName,ZONE:.metadata.labels.topology\.kubernetes\.io/zone --no-headers
+waypoint-6c97c95658-t9hsp   ent-worker3   <none>
+waypoint-cfd6dc8fb-hvb2g    ent-worker2   <none>
+waypoint-cfd6dc8fb-lc6kp    ent-worker    <none>
+
+$ kubectl get nodes -L topology.kubernetes.io/zone --no-headers | awk '{print $1, $NF}'
+ent-control-plane v1.37.0
+ent-worker zone-a
+ent-worker2 zone-b
+ent-worker3 zone-c
+
+$ kubectl -n storefront get pdb waypoint -o custom-columns=NAME:.metadata.name,MIN:.spec.minAvailable,ALLOWED:.status.disruptionsAllowed --no-headers
+waypoint   1     1
+
+$ kubectl -n storefront get pods -l app.kubernetes.io/name=notifier -o custom-columns=POD:.metadata.name,NODE:.spec.nodeName --no-headers
+notifier-59fddb4fd9-8dxlv   ent-worker3
+notifier-59fddb4fd9-b5shc   ent-worker2
+
+$ for n in ent-worker ent-worker2 ent-worker3; do echo "$n: $(kubectl describe node $n | grep -E '^  memory ' | awk '{print $2, $3}') requested"; done
+ent-worker: 2538Mi (95%) requested
+ent-worker2: 2602Mi (97%) requested
+ent-worker3: 2666Mi (99%) requested
+
+$ kubectl get pods -A --no-headers | grep -vcE 'Running|Completed'
+1
+

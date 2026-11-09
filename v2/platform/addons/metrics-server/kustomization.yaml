@@ -15,3 +15,12 @@ patches:
       - op: add
         path: /spec/template/spec/containers/0/args/-
         value: --kubelet-insecure-tls
+  # E6 (chapter 7): 200Mi requested, 38 MiB used; with every node's memory requested to 95 % the
+  # second waypoint could not be placed in zone-a (evidence/e6/spof-fix.log)
+  - target:
+      kind: Deployment
+      name: metrics-server
+    patch: |
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/memory
+        value: 64Mi
