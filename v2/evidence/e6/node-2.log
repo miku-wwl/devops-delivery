@@ -1,0 +1,141 @@
+# transcript: E6 [注入]: ent-worker frozen (docker pause) for 420 s under 30 it/s, after the fixes - hypotheses M1-M4 in node-failure-prediction.md
+# recorded: 2026-11-09T12:50:56Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e6/node-failure.sh node-2 ent-worker 420 30
+== on ent-worker before: 12 pods
+  argocd/argocd-application-controller-0
+  data/nats-0
+  data/pg-main-1
+  monitoring/kps-grafana-676885f46d-kxb6x
+  monitoring/kps-prometheus-node-exporter-d88tq
+  storefront/catalog-cdb4f59b9-4c8xz
+  storefront/waypoint-cfd6dc8fb-lc6kp
+== tolerations of a storefront pod: [{"key":"node.kubernetes.io/not-ready","tolerationSeconds":300},{"key":"node.kubernetes.io/unreachable","tolerationSeconds":300}]
+12:51:55 docker pause ent-worker
+12:58:41 docker unpause ent-worker
+  requests=33483 (52.5/s) failed=8.21%
+  browse: p50=10.2 p95=20.4 p99=61.5 max=3015.9 ms
+  order:  p50=108.1 p95=248.6 p99=1036.4 max=3017.6 ms
+== timeline (lines where something changed; t = seconds after the pause)
+  t=-58s 12:50:57 ready=True endpoints-on-node-ready=2/2 pending/terminating=0 0
+  t=52s 12:52:47 ready=Unknown endpoints-on-node-ready=0/2 pending/terminating=0 0
+  t=341s 12:57:36 ready=Unknown endpoints-on-node-ready=0/2 pending/terminating=2 7
+  t=408s 12:58:43 ready=False endpoints-on-node-ready=0/2 pending/terminating=2 7
+  t=411s 12:58:46 ready=False endpoints-on-node-ready=0/2 pending/terminating=4 5
+  t=413s 12:58:48 ready=False endpoints-on-node-ready=0/2 pending/terminating=5 3
+  t=416s 12:58:51 ready=False endpoints-on-node-ready=0/0 pending/terminating=6 0
+  t=419s 12:58:54 ready=True endpoints-on-node-ready=0/0 pending/terminating=0 0
+  t=421s 12:58:56 ready=True endpoints-on-node-ready=0/1 pending/terminating=0 0
+  t=424s 12:58:59 ready=True endpoints-on-node-ready=1/1 pending/terminating=0 0
+== client failures per 10 s (k6 http_req_failed; t = seconds after the pause)
+  t=  -50s   356 requests    14 failed    3.9 %
+  t=  -40s   561 requests     0 failed    0.0 %
+  t=  -30s   502 requests     0 failed    0.0 %
+  t=  -20s   494 requests     0 failed    0.0 %
+  t=  -10s   559 requests     0 failed    0.0 %
+  t=    0s   962 requests   342 failed   35.6 %
+  t=   10s   514 requests   511 failed   99.4 %
+  t=   20s   571 requests   563 failed   98.6 %
+  t=   30s   508 requests   502 failed   98.8 %
+  t=   40s   507 requests   506 failed   99.8 %
+  t=   50s   551 requests   310 failed   56.3 %
+  t=   60s   516 requests     0 failed    0.0 %
+  t=   70s   522 requests     0 failed    0.0 %
+  t=   80s   565 requests     0 failed    0.0 %
+  t=   90s   505 requests     0 failed    0.0 %
+  t=  100s   505 requests     0 failed    0.0 %
+  t=  110s   564 requests     0 failed    0.0 %
+  t=  120s   518 requests     0 failed    0.0 %
+  t=  130s   509 requests     0 failed    0.0 %
+  t=  140s   570 requests     0 failed    0.0 %
+  t=  150s   503 requests     0 failed    0.0 %
+  t=  160s   505 requests     0 failed    0.0 %
+  t=  170s   557 requests     0 failed    0.0 %
+  t=  180s   503 requests     0 failed    0.0 %
+  t=  190s   509 requests     0 failed    0.0 %
+  t=  200s   586 requests     0 failed    0.0 %
+  t=  210s   516 requests     0 failed    0.0 %
+  t=  220s   507 requests     0 failed    0.0 %
+  t=  230s   513 requests     0 failed    0.0 %
+  t=  240s   561 requests     0 failed    0.0 %
+  t=  250s   508 requests     0 failed    0.0 %
+  t=  260s   510 requests     0 failed    0.0 %
+  t=  270s   576 requests     0 failed    0.0 %
+  t=  280s   513 requests     0 failed    0.0 %
+  t=  290s   508 requests     0 failed    0.0 %
+  t=  300s   560 requests     0 failed    0.0 %
+  t=  310s   506 requests     0 failed    0.0 %
+  t=  320s   516 requests     0 failed    0.0 %
+  t=  330s   569 requests     0 failed    0.0 %
+  t=  340s   498 requests     2 failed    0.4 %
+  t=  350s   511 requests     0 failed    0.0 %
+  t=  360s   559 requests     0 failed    0.0 %
+  t=  370s   510 requests     0 failed    0.0 %
+  t=  380s   515 requests     0 failed    0.0 %
+  t=  390s   556 requests     0 failed    0.0 %
+  t=  400s   507 requests     0 failed    0.0 %
+  t=  410s   504 requests     0 failed    0.0 %
+  t=  420s   559 requests     0 failed    0.0 %
+  t=  430s   504 requests     0 failed    0.0 %
+  t=  440s   496 requests     0 failed    0.0 %
+  t=  450s   530 requests     0 failed    0.0 %
+  t=  460s   533 requests     0 failed    0.0 %
+  t=  470s   524 requests     0 failed    0.0 %
+  t=  480s   508 requests     0 failed    0.0 %
+  t=  490s   573 requests     0 failed    0.0 %
+  t=  500s   498 requests     0 failed    0.0 %
+  t=  510s   503 requests     0 failed    0.0 %
+  t=  520s   562 requests     0 failed    0.0 %
+  t=  530s   515 requests     0 failed    0.0 %
+  t=  540s   507 requests     0 failed    0.0 %
+  t=  550s   561 requests     0 failed    0.0 %
+  t=  560s   500 requests     0 failed    0.0 %
+  t=  570s   518 requests     0 failed    0.0 %
+  t=  580s    47 requests     0 failed    0.0 %
+== events: evictions by the node controller, and pods that could not be placed
+  12:52:46 NodeNotReady /ent-worker: Node ent-worker status is now: NodeNotReady
+  12:52:46 NodeNotReady argocd/argocd-application-controller-0: Node is not ready
+  12:52:46 NodeNotReady data/nats-0: Node is not ready
+  12:52:46 NodeNotReady data/pg-main-1: Node is not ready
+  12:52:46 NodeNotReady istio-system/istio-cni-node-djwqf: Node is not ready
+  12:52:46 NodeNotReady istio-system/ztunnel-6r97l: Node is not ready
+  12:52:46 NodeNotReady kube-system/kindnet-pccsk: Node is not ready
+  12:52:46 NodeNotReady kube-system/kube-proxy-r8jlk: Node is not ready
+  12:52:46 NodeNotReady monitoring/kps-grafana-676885f46d-kxb6x: Node is not ready
+  12:52:46 NodeNotReady monitoring/kps-prometheus-node-exporter-d88tq: Node is not ready
+  12:52:46 NodeNotReady observability/tempo-0: Node is not ready
+  12:52:46 NodeNotReady storefront/catalog-cdb4f59b9-4c8xz: Node is not ready
+  12:52:46 NodeNotReady storefront/waypoint-cfd6dc8fb-lc6kp: Node is not ready
+  12:57:34 TaintManagerEviction argocd/argocd-application-controller-0: Marking for deletion Pod argocd/argocd-application-controller-0
+  12:57:34 TaintManagerEviction data/nats-0: Marking for deletion Pod data/nats-0
+  12:57:34 TaintManagerEviction data/pg-main-1: Marking for deletion Pod data/pg-main-1
+  12:57:34 TaintManagerEviction monitoring/kps-grafana-676885f46d-kxb6x: Marking for deletion Pod monitoring/kps-grafana-676885f46d-kxb6x
+  12:57:34 TaintManagerEviction observability/tempo-0: Marking for deletion Pod observability/tempo-0
+  12:57:34 TaintManagerEviction storefront/catalog-cdb4f59b9-4c8xz: Marking for deletion Pod storefront/catalog-cdb4f59b9-4c8xz
+  12:57:34 TaintManagerEviction storefront/waypoint-cfd6dc8fb-lc6kp: Marking for deletion Pod storefront/waypoint-cfd6dc8fb-lc6kp
+  12:58:41 NodeNotReady /ent-worker: Node ent-worker status is now: NodeNotReady
+  12:58:48 TaintManagerEviction monitoring/kps-grafana-676885f46d-kxb6x: Cancelling deletion of Pod monitoring/kps-grafana-676885f46d-kxb6x
+  12:58:49 FailedScheduling argocd/argocd-application-controller-0: 0/4 nodes are available: 2 Insufficient memory, 2 node(s) had untolerated taint(s). preemption: 0/4 nodes are available: 2 No preemption victims found
+  12:58:49 FailedScheduling data/nats-0: 0/4 nodes are available: 2 Insufficient memory, 2 node(s) had untolerated taint(s). preemption: 0/4 nodes are available: 2 No preemption victims found
+  12:58:49 FailedScheduling data/pg-main-1: 0/4 nodes are available: 2 Insufficient memory, 2 node(s) had untolerated taint(s). preemption: 0/4 nodes are available: 2 No preemption victims found
+  12:58:49 FailedScheduling monitoring/kps-grafana-676885f46d-9vmhz: 0/4 nodes are available: 2 Insufficient memory, 2 node(s) had untolerated taint(s). preemption: 0/4 nodes are available: 2 No preemption victims found
+  12:58:49 FailedScheduling storefront/waypoint-cfd6dc8fb-qs7hx: 0/4 nodes are available: 2 Insufficient memory, 2 node(s) had untolerated taint(s). preemption: 0/4 nodes are available: 2 No preemption victims found
+  12:58:50 FailedScheduling observability/tempo-0: 0/4 nodes are available: 2 Insufficient memory, 2 node(s) had untolerated taint(s). preemption: 0/4 nodes are available: 2 No preemption victims found
+  12:58:50 TaintManagerEviction storefront/catalog-cdb4f59b9-4c8xz: Cancelling deletion of Pod storefront/catalog-cdb4f59b9-4c8xz
+  12:58:50 TaintManagerEviction storefront/waypoint-cfd6dc8fb-lc6kp: Cancelling deletion of Pod storefront/waypoint-cfd6dc8fb-lc6kp
+== after: pods not Running/Completed, and where the storefront runs
+  catalog-cdb4f59b9-kjt2v      ent-worker3
+  catalog-cdb4f59b9-rrkfp      ent-worker3
+  gateway-7b844f9fc9-8cgst     ent-worker3
+  gateway-7b844f9fc9-ww8q2     ent-worker3
+  inventory-7f7684694c-ptvn7   ent-worker3
+  inventory-7f7684694c-wx2nh   ent-worker2
+  notifier-59fddb4fd9-8dxlv    ent-worker3
+  notifier-59fddb4fd9-b5shc    ent-worker2
+  orders-5cd5d8df65-lsmph      ent-worker2
+  orders-5cd5d8df65-z45rb      ent-worker3
+  payments-856b5fddf8-7cxzk    ent-worker3
+  payments-856b5fddf8-dsdxg    ent-worker3
+  waypoint-cfd6dc8fb-hvb2g     ent-worker2
+  waypoint-cfd6dc8fb-qs7hx     ent-worker
+
