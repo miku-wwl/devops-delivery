@@ -9,6 +9,7 @@ alertmanager:
 prometheus:
   prometheusSpec:
     retention: 3d
+    priorityClassName: platform-critical   # E6: pinned to its node by the volume (incident-2)
     retentionSize: 3GB
     scrapeInterval: 15s
     evaluationInterval: 15s

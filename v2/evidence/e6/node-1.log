@@ -1,0 +1,146 @@
+# transcript: E6 [注入]: ent-worker frozen (docker pause) for 420 s under 30 it/s - hypotheses in node-failure-prediction.md
+# recorded: 2026-11-09T10:48:25Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e6/node-failure.sh node-1 ent-worker 420 30
+== on ent-worker before: 19 pods
+  data/nats-0
+  data/pg-main-1
+  keda/keda-operator-bd4b87784-zpbq9
+  keda/keda-operator-metrics-apiserver-67675b58f-8kq7z
+  kyverno/kyverno-background-controller-85d56dc94d-9ptcz
+  monitoring/kps-grafana-676885f46d-cq9mp
+  monitoring/kps-prometheus-node-exporter-d88tq
+  storefront/catalog-cdb4f59b9-bkpnq
+  storefront/inventory-7f7684694c-qxfmw
+  storefront/notifier-59fddb4fd9-6mqhr
+  storefront/orders-5cd5d8df65-xm8xl
+  storefront/waypoint-6c97c95658-9gcdq
+== tolerations of a storefront pod: [{"key":"node.kubernetes.io/not-ready","tolerationSeconds":300},{"key":"node.kubernetes.io/unreachable","tolerationSeconds":300}]
+10:49:23 docker pause ent-worker
+10:56:01 docker unpause ent-worker
+  requests=33668 (53.7/s) failed=54.36%
+  browse: p50=4.5 p95=18.6 p99=49.0 max=2138.4 ms
+  order:  p50=7.5 p95=250.9 p99=1011.2 max=3007.2 ms
+== timeline (lines where something changed; t = seconds after the pause)
+  t=-57s 10:48:26 ready=True endpoints-on-node-ready=5/5 pending/terminating=0 0
+  t=47s 10:50:10 ready=Unknown endpoints-on-node-ready=0/5 pending/terminating=0 0
+  t=331s 10:54:54 ready=Unknown endpoints-on-node-ready=0/5 pending/terminating=1 2
+  t=334s 10:54:57 ready=Unknown endpoints-on-node-ready=0/5 pending/terminating=7 15
+  t=350s 10:55:13 ready=Unknown endpoints-on-node-ready=0/5 pending/terminating=2 14
+  t=404s 10:56:07 ready=Unknown endpoints-on-node-ready=0/5 pending/terminating=2 12
+  t=407s 10:56:10 ready=Unknown endpoints-on-node-ready=0/5 pending/terminating=3 7
+  t=410s 10:56:13 ready=True endpoints-on-node-ready=0/1 pending/terminating=1 3
+  t=413s 10:56:16 ready=True endpoints-on-node-ready=0/1 pending/terminating=1 2
+  t=415s 10:56:18 ready=True endpoints-on-node-ready=0/2 pending/terminating=1 2
+  t=421s 10:56:24 ready=True endpoints-on-node-ready=1/2 pending/terminating=1 2
+  t=431s 10:56:34 ready=True endpoints-on-node-ready=1/1 pending/terminating=1 0
+== client failures per 10 s (k6 http_req_failed; t = seconds after the pause)
+  t=  -50s   355 requests     0 failed    0.0 %
+  t=  -40s   597 requests     0 failed    0.0 %
+  t=  -30s   510 requests     0 failed    0.0 %
+  t=  -20s   511 requests     0 failed    0.0 %
+  t=  -10s   605 requests     0 failed    0.0 %
+  t=    0s   975 requests   485 failed   49.7 %
+  t=   10s   594 requests   594 failed  100.0 %
+  t=   20s   504 requests   504 failed  100.0 %
+  t=   30s   524 requests   524 failed  100.0 %
+  t=   40s   583 requests   583 failed  100.0 %
+  t=   50s   512 requests   512 failed  100.0 %
+  t=   60s   507 requests   507 failed  100.0 %
+  t=   70s   607 requests   607 failed  100.0 %
+  t=   80s   498 requests   498 failed  100.0 %
+  t=   90s   509 requests   509 failed  100.0 %
+  t=  100s   576 requests   576 failed  100.0 %
+  t=  110s   512 requests   512 failed  100.0 %
+  t=  120s   508 requests   508 failed  100.0 %
+  t=  130s   599 requests   599 failed  100.0 %
+  t=  140s   520 requests   520 failed  100.0 %
+  t=  150s   516 requests   516 failed  100.0 %
+  t=  160s   547 requests   547 failed  100.0 %
+  t=  170s   562 requests   562 failed  100.0 %
+  t=  180s   501 requests   501 failed  100.0 %
+  t=  190s   504 requests   504 failed  100.0 %
+  t=  200s   602 requests   602 failed  100.0 %
+  t=  210s   507 requests   507 failed  100.0 %
+  t=  220s   514 requests   514 failed  100.0 %
+  t=  230s   601 requests   601 failed  100.0 %
+  t=  240s   512 requests   512 failed  100.0 %
+  t=  250s   527 requests   527 failed  100.0 %
+  t=  260s   586 requests   586 failed  100.0 %
+  t=  270s   514 requests   514 failed  100.0 %
+  t=  280s   514 requests   514 failed  100.0 %
+  t=  290s   602 requests   602 failed  100.0 %
+  t=  300s   504 requests   504 failed  100.0 %
+  t=  310s   519 requests   519 failed  100.0 %
+  t=  320s   599 requests   599 failed  100.0 %
+  t=  330s   520 requests   481 failed   92.5 %
+  t=  340s   502 requests    52 failed   10.4 %
+  t=  350s   593 requests     0 failed    0.0 %
+  t=  360s   501 requests     0 failed    0.0 %
+  t=  370s   505 requests     0 failed    0.0 %
+  t=  380s   575 requests     0 failed    0.0 %
+  t=  390s   502 requests     0 failed    0.0 %
+  t=  400s   507 requests     0 failed    0.0 %
+  t=  410s   582 requests     0 failed    0.0 %
+  t=  420s   513 requests     0 failed    0.0 %
+  t=  430s   520 requests     0 failed    0.0 %
+  t=  440s   616 requests     0 failed    0.0 %
+  t=  450s   506 requests     0 failed    0.0 %
+  t=  460s   514 requests     0 failed    0.0 %
+  t=  470s   593 requests     0 failed    0.0 %
+  t=  480s   508 requests     0 failed    0.0 %
+  t=  490s   523 requests     0 failed    0.0 %
+  t=  500s   597 requests     0 failed    0.0 %
+  t=  510s   517 requests     0 failed    0.0 %
+  t=  520s   511 requests     0 failed    0.0 %
+  t=  530s   539 requests     0 failed    0.0 %
+  t=  540s   556 requests     0 failed    0.0 %
+  t=  550s   497 requests     0 failed    0.0 %
+  t=  560s   508 requests     0 failed    0.0 %
+  t=  570s    26 requests     0 failed    0.0 %
+== events: evictions by the node controller, and pods that could not be placed
+  10:50:09 NodeNotReady /ent-worker: Node ent-worker status is now: NodeNotReady
+  10:50:09 NodeNotReady cnpg-system/cnpg-cloudnative-pg-76fbd7956c-g4kzt: Node is not ready
+  10:50:09 NodeNotReady data/nats-0: Node is not ready
+  10:50:09 NodeNotReady data/pg-main-1: Node is not ready
+  10:50:09 NodeNotReady istio-system/istio-cni-node-djwqf: Node is not ready
+  10:50:09 NodeNotReady istio-system/ztunnel-6r97l: Node is not ready
+  10:50:09 NodeNotReady keda/keda-operator-bd4b87784-zpbq9: Node is not ready
+  10:50:09 NodeNotReady keda/keda-operator-metrics-apiserver-67675b58f-8kq7z: Node is not ready
+  10:50:09 NodeNotReady kube-system/kindnet-pccsk: Node is not ready
+  10:50:09 NodeNotReady kube-system/kube-proxy-r8jlk: Node is not ready
+  10:50:09 NodeNotReady kube-system/metrics-server-76558b4bb9-4gnk2: Node is not ready
+  10:50:09 NodeNotReady kyverno/kyverno-background-controller-85d56dc94d-9ptcz: Node is not ready
+  10:50:09 NodeNotReady monitoring/kps-prometheus-node-exporter-d88tq: Node is not ready
+  10:50:09 NodeNotReady observability/tempo-0: Node is not ready
+  10:50:09 NodeNotReady storefront/catalog-cdb4f59b9-bkpnq: Node is not ready
+  10:50:09 NodeNotReady storefront/inventory-7f7684694c-qxfmw: Node is not ready
+  10:50:09 NodeNotReady storefront/notifier-59fddb4fd9-6mqhr: Node is not ready
+  10:50:09 NodeNotReady storefront/orders-5cd5d8df65-xm8xl: Node is not ready
+  10:50:09 NodeNotReady storefront/waypoint-6c97c95658-9gcdq: Node is not ready
+  10:50:10 NodeNotReady monitoring/kps-grafana-676885f46d-cq9mp: Node is not ready
+  10:54:54 FailedScheduling monitoring/kps-grafana-676885f46d-ghn6b: 0/4 nodes are available: 2 Insufficient memory, 2 node(s) had untolerated taint(s). preemption: 0/4 nodes are available: 2 No preemption victims found
+  10:54:54 TaintManagerEviction cnpg-system/cnpg-cloudnative-pg-76fbd7956c-g4kzt: Marking for deletion Pod cnpg-system/cnpg-cloudnative-pg-76fbd7956c-g4kzt
+  10:54:54 TaintManagerEviction data/nats-0: Marking for deletion Pod data/nats-0
+  10:54:54 TaintManagerEviction data/pg-main-1: Marking for deletion Pod data/pg-main-1
+  10:54:54 TaintManagerEviction keda/keda-operator-bd4b87784-zpbq9: Marking for deletion Pod keda/keda-operator-bd4b87784-zpbq9
+  10:54:54 TaintManagerEviction keda/keda-operator-metrics-apiserver-67675b58f-8kq7z: Marking for deletion Pod keda/keda-operator-metrics-apiserver-67675b58f-8kq7z
+  10:54:54 TaintManagerEviction kube-system/metrics-server-76558b4bb9-4gnk2: Marking for deletion Pod kube-system/metrics-server-76558b4bb9-4gnk2
+  10:54:54 TaintManagerEviction kyverno/kyverno-background-controller-85d56dc94d-9ptcz: Marking for deletion Pod kyverno/kyverno-background-controller-85d56dc94d-9ptcz
+  10:54:54 TaintManagerEviction monitoring/kps-grafana-676885f46d-cq9mp: Marking for deletion Pod monitoring/kps-grafana-676885f46d-cq9mp
+  10:54:54 TaintManagerEviction observability/tempo-0: Marking for deletion Pod observability/tempo-0
+== after: pods not Running/Completed, and where the storefront runs
+  monitoring           prometheus-kps-prometheus-0                        0/2   Pending     0              4m1s
+  catalog-cdb4f59b9-4c8xz      ent-worker
+  catalog-cdb4f59b9-kjt2v      ent-worker3
+  gateway-7b844f9fc9-8cgst     ent-worker3
+  gateway-7b844f9fc9-ww8q2     ent-worker3
+  inventory-7f7684694c-9dzfr   ent-worker2
+  inventory-7f7684694c-ptvn7   ent-worker3
+  notifier-59fddb4fd9-8dxlv    ent-worker3
+  orders-5cd5d8df65-n94vv      ent-worker2
+  orders-5cd5d8df65-z45rb      ent-worker3
+  payments-856b5fddf8-7cxzk    ent-worker3
+  payments-856b5fddf8-dsdxg    ent-worker3
+  waypoint-6c97c95658-t9hsp    ent-worker3
+

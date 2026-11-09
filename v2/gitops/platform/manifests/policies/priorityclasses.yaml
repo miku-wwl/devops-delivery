@@ -1,0 +1,13 @@
+# E6 (chapter 7): platform components whose volume pins them to one node need a priority above the
+# workloads. During the node-failure experiment the replacement metrics-server (system-cluster-
+# critical) preempted Prometheus (priority 0) on ent-worker2; pinned there by its volume and with
+# the node's memory requested by others, Prometheus could not come back (evidence/e6/incident-2*).
+# With this class it preempts ordinary pods on its own node instead of waiting.
+# Workloads keep priority 0; batch is negative (chapter 5).
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata: {name: platform-critical}
+value: 1000000
+globalDefault: false
+preemptionPolicy: PreemptLowerPriority
+description: "Platform components pinned to a node by their volume (monitoring, data stores)."
