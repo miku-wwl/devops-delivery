@@ -124,7 +124,14 @@ def capacity() -> dict:
     p = []
     p.append(panel("Load: gateway requests per second", [
         (f'sum(rate(http_server_requests_total{{{NS},service="gateway"}}[1m]))', "gateway req/s")],
-        "reqps", 0, 0, w=24, h=6))
+        "reqps", 0, 0, w=12, h=6))
+    p.append(panel("Replicas: HPA desired and current, pods ready (E4)", [
+        ('max by (horizontalpodautoscaler) (kube_horizontalpodautoscaler_status_desired_replicas{namespace="storefront"})',
+         "desired {{horizontalpodautoscaler}}"),
+        ('max by (horizontalpodautoscaler) (kube_horizontalpodautoscaler_status_current_replicas{namespace="storefront"})',
+         "current {{horizontalpodautoscaler}}"),
+        ('max by (deployment) (kube_deployment_status_replicas_ready{namespace="storefront",deployment=~"gateway|notifier"})',
+         "ready {{deployment}}")], "none", 12, 0, w=12, h=6))
     cpu = panel("CPU per pod (cores) - one Python process saturates near 1 core", [
         (f'sum by (pod) (rate(container_cpu_usage_seconds_total{{{NS},container="app",'
          f'pod=~"(gateway|catalog|orders)-.*"}}[1m]))', "{{pod}}")], "none", 0, 6, w=12, h=9)

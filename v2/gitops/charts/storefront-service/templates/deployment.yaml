@@ -4,7 +4,9 @@ metadata:
   name: {{ include "svc.name" . }}
   labels: {{- include "svc.labels" . | nindent 4 }}
 spec:
+  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicas }}
+  {{- end }}
   revisionHistoryLimit: 5
   selector:
     matchLabels: {{- include "svc.selector" . | nindent 6 }}

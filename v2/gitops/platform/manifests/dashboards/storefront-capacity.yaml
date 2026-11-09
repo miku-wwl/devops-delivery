@@ -29,7 +29,7 @@ data:
        "gridPos": {
         "x": 0,
         "y": 0,
-        "w": 24,
+        "w": 12,
         "h": 6
        },
        "datasource": {
@@ -57,6 +57,54 @@ data:
          "refId": "A",
          "expr": "sum(rate(http_server_requests_total{namespace=~\"storefront.*\",service=\"gateway\"}[1m]))",
          "legendFormat": "gateway req/s"
+        }
+       ]
+      },
+      {
+       "type": "timeseries",
+       "title": "Replicas: HPA desired and current, pods ready (E4)",
+       "description": "",
+       "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 6
+       },
+       "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+       },
+       "fieldConfig": {
+        "defaults": {
+         "unit": "none"
+        },
+        "overrides": []
+       },
+       "options": {
+        "legend": {
+         "displayMode": "table",
+         "placement": "right",
+         "calcs": [
+          "lastNotNull",
+          "max"
+         ]
+        }
+       },
+       "targets": [
+        {
+         "refId": "A",
+         "expr": "max by (horizontalpodautoscaler) (kube_horizontalpodautoscaler_status_desired_replicas{namespace=\"storefront\"})",
+         "legendFormat": "desired {{horizontalpodautoscaler}}"
+        },
+        {
+         "refId": "B",
+         "expr": "max by (horizontalpodautoscaler) (kube_horizontalpodautoscaler_status_current_replicas{namespace=\"storefront\"})",
+         "legendFormat": "current {{horizontalpodautoscaler}}"
+        },
+        {
+         "refId": "C",
+         "expr": "max by (deployment) (kube_deployment_status_replicas_ready{namespace=\"storefront\",deployment=~\"gateway|notifier\"})",
+         "legendFormat": "ready {{deployment}}"
         }
        ]
       },

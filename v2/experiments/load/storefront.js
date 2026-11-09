@@ -17,6 +17,11 @@ const DURATION = __ENV.DURATION || '1m';
 const PRODUCTS = 18;                       // sku-001 .. sku-018 have unlimited stock
 const STAGES = (__ENV.STAGES || '').split(',').filter((x) => x).map(Number);
 const STEP = Number(__ENV.STEP || 120), RAMP = Number(__ENV.RAMP || 10), WARMUP = Number(__ENV.WARMUP || 30);
+// STEPS=120,420,480 gives every stage its own duration in seconds (default: STEP for all)
+const STEPS = (__ENV.STEPS || '').split(',').filter((x) => x).map(Number);
+const dur = (i) => (STEPS[i] !== undefined ? STEPS[i] : STEP);
+// stage tag: the rate, or "<position>-<rate>" when a rate occurs twice (30,120,30 -> 1-30,120,3-30)
+const LABELS = STAGES.map((r, i) => (STAGES.indexOf(r) !== STAGES.lastIndexOf(r) ? `${i + 1}-${r}` : String(r)));
 const TOP = STAGES.length ? Math.max(...STAGES) : RATE;
 const MAX_VUS = Number(__ENV.MAX_VUS || Math.max(50, TOP * 20));
 // MAX_VUS caps concurrency: when the system cannot keep up, k6 would otherwise start thousands
@@ -28,7 +33,7 @@ const thresholds = {
   'http_req_duration{kind:order}': ['p(95)<1500'],
 };
 // k6 reports a tagged sub-metric only when a threshold names it: always-true thresholds per stage
-for (const r of STAGES) {
+for (const r of LABELS) {
   thresholds[`http_req_duration{stage:${r},kind:browse}`] = ['max>=0'];
   thresholds[`http_req_duration{stage:${r},kind:order}`] = ['max>=0'];
   thresholds[`http_req_failed{stage:${r}}`] = ['rate>=0'];
@@ -36,8 +41,8 @@ for (const r of STAGES) {
   thresholds[`iterations{stage:${r}}`] = ['count>=0'];
 }
 const stagesFor = () => {
-  const out = [{ target: STAGES[0], duration: `${WARMUP}s` }, { target: STAGES[0], duration: `${STEP}s` }];
-  for (const r of STAGES.slice(1)) out.push({ target: r, duration: `${RAMP}s` }, { target: r, duration: `${STEP}s` });
+  const out = [{ target: STAGES[0], duration: `${WARMUP}s` }, { target: STAGES[0], duration: `${dur(0)}s` }];
+  STAGES.slice(1).forEach((r, i) => out.push({ target: r, duration: `${RAMP}s` }, { target: r, duration: `${dur(i + 1)}s` }));
   return out;
 };
 // The arrival schedule fixes how many iterations start before each moment, so the scenario-wide
@@ -46,7 +51,7 @@ const BOUNDS = (() => {
   const b = [[STAGES[0] * WARMUP / 2, 'warmup']];
   STAGES.forEach((r, i) => {
     if (i > 0) b.push([b[b.length - 1][0] + (STAGES[i - 1] + r) / 2 * RAMP, 'ramp']);
-    b.push([b[b.length - 1][0] + r * STEP, String(r)]);
+    b.push([b[b.length - 1][0] + r * dur(i), LABELS[i]]);
   });
   return b;
 })();
@@ -100,7 +105,7 @@ export function handleSummary(data) {
   const m = data.metrics;
   const fmt = (t) => t ? `p50=${t.values.med.toFixed(1)} p95=${t.values['p(95)'].toFixed(1)} p99=${t.values['p(99)'].toFixed(1)} max=${t.values.max.toFixed(1)} ms` : '-';
   const lines = [
-    STAGES.length ? `stages=${STAGES.join(',')} it/s, ${STEP} s each (ramp ${RAMP} s, warm-up ${WARMUP} s)` :
+    STAGES.length ? `stages=${STAGES.join(',')} it/s, ${STEPS.length ? STEPS.join(',') + ' s' : STEP + ' s each'} (ramp ${RAMP} s, warm-up ${WARMUP} s)` :
     `rate=${RATE}/s duration=${DURATION} iterations=${m.iterations.values.count} dropped=${m.dropped_iterations ? m.dropped_iterations.values.count : 0}`,
     `requests=${m.http_reqs.values.count} (${m.http_reqs.values.rate.toFixed(1)}/s) failed=${(m.http_req_failed.values.rate * 100).toFixed(2)}%`,
     `browse: ${fmt(m['http_req_duration{kind:browse}'])}`,
@@ -109,9 +114,9 @@ export function handleSummary(data) {
   ];
   if (STAGES.length) {
     lines[0] += ` iterations=${m.iterations.values.count} dropped=${m.dropped_iterations ? m.dropped_iterations.values.count : 0}`;
-    for (const r of STAGES) {
+    for (const [i, r] of LABELS.entries()) {
       const it = m[`iterations{stage:${r}}`], rq = m[`http_reqs{stage:${r}}`], f = m[`http_req_failed{stage:${r}}`];
-      lines.push(`stage ${r}: achieved ${it ? (it.values.count / STEP).toFixed(1) : 0} it/s, ` +
+      lines.push(`stage ${r}: achieved ${it ? (it.values.count / dur(i)).toFixed(1) : 0} it/s, ` +
         `requests=${rq ? rq.values.count : 0} failed=${f ? (f.values.rate * 100).toFixed(2) : '-'}% | ` +
         `browse ${fmt(m[`http_req_duration{stage:${r},kind:browse}`])} | order ${fmt(m[`http_req_duration{stage:${r},kind:order}`])}`);
     }
