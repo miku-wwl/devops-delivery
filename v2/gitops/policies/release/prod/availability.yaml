@@ -1,0 +1,22 @@
+# E8 (chapter 9): release policies of production only (applied to rendered/prod/).
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata: {name: release-prod-availability}
+spec:
+  validationFailureAction: Enforce
+  background: false
+  rules:
+    - name: two-replicas
+      match: {any: [{resources: {kinds: [Deployment]}}]}
+      validate:
+        message: "Production runs at least two replicas of every service: a single replica is a single point of failure (chapter 7)."
+        cel:
+          expressions:
+            - expression: "!has(object.spec.replicas) || object.spec.replicas >= 2"
+    - name: autoscaler-floor
+      match: {any: [{resources: {kinds: [HorizontalPodAutoscaler]}}]}
+      validate:
+        message: "An autoscaled production service never scales below two replicas."
+        cel:
+          expressions:
+            - expression: "has(object.spec.minReplicas) && object.spec.minReplicas >= 2"

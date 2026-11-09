@@ -1,0 +1,44 @@
+# E8 (chapter 9): release policies of every environment. The configuration repository's pipeline
+# (.gitlab-ci.yml) applies them with the Kyverno CLI to what Argo CD would deploy (ci/render.sh),
+# before a merge request can be merged. Not installed in the cluster.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata: {name: release-images}
+spec:
+  validationFailureAction: Enforce
+  background: false
+  rules:
+    - name: platform-registry-fixed-tag
+      match: {any: [{resources: {kinds: [Deployment, StatefulSet]}}]}
+      validate:
+        message: "Images come from the platform registry (localhost:5001) with a fixed tag, never :latest - every image must be traceable to a commit."
+        pattern:
+          spec:
+            template:
+              spec:
+                =(initContainers): [{image: "localhost:5001/*:* & !*:latest"}]
+                containers: [{image: "localhost:5001/*:* & !*:latest"}]
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata: {name: release-resources}
+spec:
+  validationFailureAction: Enforce
+  background: false
+  rules:
+    - name: requests-and-memory-limit
+      match: {any: [{resources: {kinds: [Deployment]}}]}
+      validate:
+        message: "Every container needs CPU and memory requests and a memory limit: scheduling and the eviction order are computed from them (chapters 4 and 5)."
+        pattern:
+          spec:
+            template:
+              spec:
+                containers: [{resources: {requests: {cpu: "?*", memory: "?*"}, limits: {memory: "?*"}}}]
+    - name: readiness-probe
+      match: {any: [{resources: {kinds: [Deployment]}}]}
+      validate:
+        message: "Every container needs a readiness probe: without one a rollout sends requests to pods that cannot serve yet."
+        cel:
+          expressions:
+            - expression: "object.spec.template.spec.containers.all(c, has(c.readinessProbe))"

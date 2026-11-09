@@ -2,8 +2,10 @@
 # Publish v2/gitops to the configuration repository root/platform-gitops on the lab GitLab.
 #   bash v2/platform/bootstrap/publish-gitops.sh <image-tag> "<commit message>"
 # The repository on GitLab is what Argo CD reads; v2/gitops in this GitHub repository is its
-# reviewed source. IMAGE_TAG placeholders are replaced with the built image tag. From E8 on,
-# changes go through merge requests instead (platform/gitops/*.sh).
+# reviewed source. IMAGE_TAG placeholders are replaced with the built image tag.
+# E8: once main is gated (platform/gitops/setup.sh: nobody pushes to main), the same tree goes in as a
+# merge request (platform/gitops/mr.sh): published only when its pipeline - render + release
+# policies - succeeds. A direct push remains only for the first publish into an empty repository.
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 V2="$(cd "$HERE/../.." && pwd)"
@@ -19,6 +21,19 @@ if ! api "$GL/api/v4/projects/root%2Fplatform-gitops" >/dev/null 2>&1; then
   api -X POST "$GL/api/v4/projects" --data-urlencode "name=platform-gitops" \
     --data-urlencode "visibility=private" --data-urlencode "initialize_with_readme=false" \
     --data-urlencode "default_branch=main" | jq -c '{id, path_with_namespace}'
+fi
+
+gated=$(api "$GL/api/v4/projects/root%2Fplatform-gitops/protected_branches/main" 2>/dev/null |
+  jq -r '.push_access_levels[0].access_level // empty' || true)
+if [ "$gated" = 0 ]; then
+  rc=0; out=$(bash "$V2/platform/gitops/mr.sh" propose "$TAG" "$MSG" 2>&1) || rc=$?
+  echo "$out"
+  if [ "$rc" = 3 ]; then echo "platform-gitops: no changes"; exit 0; fi
+  if [ "$rc" != 0 ]; then echo "platform-gitops: the merge request's pipeline did not succeed - not published" >&2; exit 1; fi
+  iid=$(sed -n 's/^MR !\([0-9]*\).*/\1/p' <<<"$out")
+  bash "$V2/platform/gitops/mr.sh" merge "$iid"
+  echo "platform-gitops: merged !$iid ($MSG)"
+  exit 0
 fi
 
 work="$(mktemp -d)"

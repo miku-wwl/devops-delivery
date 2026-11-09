@@ -1,0 +1,17 @@
+# E8 (chapter 9): the gate of the configuration repository. For every merge request (and every
+# commit on main) the pipeline renders what Argo CD will deploy and applies the release policies
+# with the Kyverno CLI - the engine of the cluster's admission policies (chapter 6). The project
+# merges a merge request only when this pipeline succeeded (platform/gitops/setup.sh).
+default:
+  image: localhost:5001/ci-tools:helm4.3.1-kyverno1.19.2   # platform/gitops/ci-tools/
+stages: [render, policy]
+render:
+  stage: render
+  script: [sh ci/render.sh]
+  artifacts: {paths: [rendered/], expire_in: 1 week}
+release-policies:
+  stage: policy
+  needs: [render]
+  script:
+    - kyverno apply policies/release/common/ policies/release/prod/ --resource rendered/prod/ --remove-color
+    - kyverno apply policies/release/common/ --resource rendered/tenants/ --remove-color

@@ -17,6 +17,9 @@ spec:
           command: ["python", "-m", "http.server", "8080", "--directory", "/srv"]
           ports: [{containerPort: 8080, name: http}]
           resources: {requests: {cpu: 20m, memory: 48Mi}, limits: {memory: 96Mi}}
+          # E8: the release policies (policies/release/) require one; the first run of the new
+          # pipeline found this Deployment without it
+          readinessProbe: {httpGet: {path: /, port: 8080}, periodSeconds: 10}
           securityContext: {allowPrivilegeEscalation: false, capabilities: {drop: [ALL]}, readOnlyRootFilesystem: true}
           volumeMounts: [{name: srv, mountPath: /srv}]
       volumes: [{name: srv, emptyDir: {}}]
