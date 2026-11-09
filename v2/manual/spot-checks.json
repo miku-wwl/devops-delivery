@@ -1561,6 +1561,48 @@
   "retry service=orders,upstream=inventory 31.556"
  ],
  [
+  "E6 D1: browse unaffected",
+  "07-e6-chaos.md",
+  "符合：浏览 p95 18.7 ms（稳态 19.2 ms）",
+  "evidence/e6/errors50-resilient.log",
+  "requests=6110 failed=15.81% | browse p50=12.1 p95=18.7"
+ ],
+ [
+  "E6 D2: no retry storm",
+  "07-e6-chaos.md",
+  "| D2 | 重试预算和熔断器限制 inventory 的负载，没有重试风暴：每笔下单不超过 1.3 次调用 | 符合：0.07 次 |",
+  "evidence/e6/errors50-resilient.log",
+  "ratio  0.072"
+ ],
+ [
+  "E6 D3: fail fast",
+  "07-e6-chaos.md",
+  "符合：订单 p50 4.1 ms",
+  "evidence/e6/errors50-resilient.log",
+  "order p50=4.1 p95=148.5"
+ ],
+ [
+  "E6 D4: recovered within 30 s",
+  "07-e6-chaos.md",
+  "撤除后的第一个完整 30 秒窗口里已经没有 5xx",
+  "evidence/e6/errors50-recovery.log",
+  "13:24:45  0      0      9.8"
+ ],
+ [
+  "E6 D: breaker half-open oscillation",
+  "07-e6-chaos.md",
+  "orders 每秒的请求数在 0.6 和 3 之间来回",
+  "evidence/e6/errors50-recovery.log",
+  "13:23:45  10.78  11.51  0.58"
+ ],
+ [
+  "E6 D: hypotheses committed",
+  "07-e6-chaos.md",
+  "先提交假设（`evidence/e6/dependency-prediction.md`）",
+  "evidence/e6/dependency-prediction.md",
+  "| D2 | The retry budget (20 %) and the breakers bound the load on inventory: no retry storm |"
+ ],
+ [
   "E6 node-1: 100 % failures",
   "07-e6-chaos.md",
   "| 10–320 s | **100% 的请求失败**，浏览也不例外 |",

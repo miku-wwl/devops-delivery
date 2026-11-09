@@ -1,31 +1,31 @@
 # E6 closing checks on Windows (book build, layout check, evidence verification of v2 and v1)
-# recorded: 2026-11-09T13:16:01Z
+# recorded: 2026-11-09T13:28:40Z (final run; the reviewed layout gap moved from page 38 to 39 with this chapter - re-reviewed)
 
 $ manual/.venv/Scripts/python.exe manual/tools/build.py --chapters "v2/manual/chapters/*.md" --metadata v2/manual/metadata.yaml --math mathml --out manual/build/v2-check.pdf
-Object count 11216 exceeds defined trailer size 11213
+Object count 11280 exceeds defined trailer size 11277
 pandoc: 7 chapter file(s) -> manual\build\manual.html (6 image path(s) rebased from v2\manual\chapters)
-pdf: manual\build\v2-check.pdf | pages=102 (pass1=102) | headings mapped=173/173 | 7.7 MB | 26s
+pdf: manual\build\v2-check.pdf | pages=103 (pass1=103) | headings mapped=174/174 | 7.8 MB | 25s
 [exit 0]
 
 $ manual/.venv/Scripts/python.exe manual/tools/layout_check.py manual/build/v2-check.pdf --accept-gaps-file v2/manual/layout-accepted-gaps.txt
+pages: 104  chapter starts: [7, 18, 34, 50, 67, 83, 95]
 gaps (< 60% of the text area used, next page is not a chapter start): 1
   page 39: 55% used
 overflow past the right margin: 0 page(s) []
 blank pages: []
-note: accepted gap pages that are no longer gaps (update --accept-gaps): [38]
-RESULT: FAIL - unreviewed gaps on pages [39]
+RESULT: PASS
 
 $ manual/.venv/Scripts/python.exe manual/tools/verify_evidence.py --root v2 --out v2/evidence/e6/verify-evidence.md
 | 检查 | 数量 | 问题 |
 |---|---|---|
 | 1 images | 6 | 0 |
-| 2 evidence paths | 182 | 0 |
+| 2 evidence paths | 185 | 0 |
 | 3 run IDs | 0 | 0 |
 | 4 digests | 0 | 0 |
 | 5 internal links | 0 | 0 |
-| 6 secrets | 434 | 0 |
+| 6 secrets | 441 | 0 |
 | 7 exercises | 48 | 0 |
-| 8 spot checks | 255 | 0 |
+| 8 spot checks | 261 | 0 |
 
 RESULT: PASS
 
@@ -33,13 +33,4 @@ $ manual/.venv/Scripts/python.exe manual/tools/verify_evidence.py --out manual/b
 | 7 exercises | 76 | 0 |
 | 8 spot checks | 31 | 0 |
 
-RESULT: PASS
-
-# layout check again after the reviewed gap moved from page 38 to 39 (same gap, re-reviewed)
-$ manual/.venv/Scripts/python.exe manual/tools/layout_check.py manual/build/v2-check.pdf --accept-gaps-file v2/manual/layout-accepted-gaps.txt
-pages: 103  chapter starts: [7, 18, 34, 50, 67, 83, 95]
-gaps (< 60% of the text area used, next page is not a chapter start): 1
-  page 39: 55% used
-overflow past the right margin: 0 page(s) []
-blank pages: []
 RESULT: PASS

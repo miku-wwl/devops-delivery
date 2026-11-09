@@ -1,13 +1,13 @@
 {
  "counts": {
   "images": 6,
-  "evidence references": 182,
+  "evidence references": 185,
   "run IDs": 0,
   "digests": 0,
   "internal links": 0,
-  "files scanned for secrets": 434,
+  "files scanned for secrets": 441,
   "exercises": 48,
-  "spot checks": 255
+  "spot checks": 261
  },
  "results": {
   "1 images": [],
