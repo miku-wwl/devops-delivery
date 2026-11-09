@@ -1,0 +1,12 @@
+2026-11-09T14:29:28.97514766Z Setting primary label to unhealthy in the old primary during failover  
+2026-11-09T14:29:28.996452136Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-1 pg-main-2
+2026-11-09T14:29:29.132394933Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-1 pg-main-2
+2026-11-09T14:29:29.207951053Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-1 pg-main-2
+2026-11-09T14:29:30.281053358Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-1 pg-main-2
+2026-11-09T14:29:31.349396684Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-1 pg-main-2
+2026-11-09T14:29:31.647336687Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-1 pg-main-2
+2026-11-09T14:29:31.736529932Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-1 pg-main-2
+2026-11-09T14:29:31.940313777Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-1 pg-main-2
+2026-11-09T14:29:33.015211372Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-1 pg-main-2
+2026-11-09T14:29:34.094533001Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-1 pg-main-2
+2026-11-09T14:29:36.96638772Z Setting primary label  

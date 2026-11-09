@@ -75,6 +75,9 @@ case $MODE in
   cut-freeze)
     pip=$(kubectl -n data get pod "$primary" -o jsonpath='{.status.podIP}')
     rips=$(kubectl -n data get pods -l cnpg.io/cluster=pg-main,cnpg.io/instanceRole=replica -o jsonpath='{.items[*].status.podIP}')
+    # close the current WAL segment first: the next one reaches the archive only after archive_timeout
+    # (5 min), so nothing written during the cut can reach the replicas through the archive either
+    echo "$(now) closed WAL segment $(kubectl -n data exec "$primary" -c postgres -- psql -U postgres -tAc 'select pg_walfile_name(pg_switch_wal())')"
     docker exec -i "$PNODE" sh -s "$pip" $rips <<'SH'
 p=$1; shift
 iptables -N E7CUT

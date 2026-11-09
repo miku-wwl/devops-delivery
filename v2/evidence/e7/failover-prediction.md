@@ -52,3 +52,13 @@ the old primary accepts writes after the unpause.
 | F0c | Planned switchover to pg-main-2 | as F0b: about 10 s, 0 lost |
 | F2 | (unchanged, above) plus the lease: the frozen primary cannot renew its lease, which has expired long before the node is marked NotReady | write outage 45-60 s through pg-main-rw, 0 lost |
 | F2-Z | The direct writer after the unpause | the old primary acknowledges writes for at most about 2 s after the unpause, until its instance manager finds the lease taken and stops PostgreSQL; **those writes are lost** (rewound away) |
+
+## Added after F2, before F3
+
+F2: 78.0 s (50.7 s until the node was NotReady, then the same 16 s lease wait), 0 lost through the
+service; the direct writer lost 7 acknowledged writes in a 2.5 s split brain after the unpause
+(`f2-freeze/analysis.md`). F0d moves the primary back to pg-main-2. In F3 the primary closes its
+current WAL segment right before the cut, so that nothing written during the cut can reach the
+replicas through the archive (archive_timeout 5 min); the F3 hypothesis is unchanged: about 3000
+acknowledged writes lost. Expected outage of F3 by the same arithmetic as F2: about 78 s after the
+freeze (the cut itself does not stop writes).
