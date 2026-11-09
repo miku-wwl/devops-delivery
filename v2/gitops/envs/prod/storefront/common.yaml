@@ -2,6 +2,6 @@
 image:
   repository: localhost:5001/storefront
   tag: "IMAGE_TAG"   # replaced by publish.sh with the built commit; one image for all services
-resilienceMode: resilient
+resilienceMode: naive   # E6: TEMPORARY - the naive policy for the failure-propagation comparison (chapter 7)
 otelEndpoint: http://otel-collector.observability.svc:4318
 tracesSampleRatio: "0.1"   # E3: 10 % head sampling (tracing cost measured in chapter 4)
