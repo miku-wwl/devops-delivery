@@ -1,0 +1,21 @@
+# transcript: E5: OpenBao initialised, unsealed and configured (keys stay in ~/.lab-secrets/v2/openbao; nothing secret is printed)
+# recorded: 2026-11-09T09:42:52Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/platform/secrets/openbao-init.sh
+initialised (one key share; key and root token in ~/.lab-secrets/v2/openbao/init.json)
+Error unsealing: Error making API request.
+
+URL: PUT http://127.0.0.1:8200/v1/sys/unseal
+Code: 400. Errors:
+
+* 'key' must be a valid hex or base64 string
+command terminated with exit code 2
+[exit 2]
+
+$ stat -c "%A %n" ~/.lab-secrets/v2/openbao ~/.lab-secrets/v2/openbao/init.json | sed "s|$HOME|~|"
+drwx------ ~/.lab-secrets/v2/openbao
+-rw------- ~/.lab-secrets/v2/openbao/init.json
+
+$ kubectl -n secrets get pod openbao-0 --no-headers
+openbao-0   0/1   Running   0     32s
+

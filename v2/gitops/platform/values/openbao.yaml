@@ -25,3 +25,11 @@ server:
         path = "/openbao/data"
       }
       cluster_addr = "http://POD_IP:8201"
+      # OpenBao 2.7 refuses to enable audit devices through the API (an attacker with a token
+      # could redirect the audit trail); they are declared here. stdout: kubectl logs.
+      audit "file" "stdout" {
+        description = "every request and response, secret values HMAC-ed"
+        options {
+          file_path = "stdout"
+        }
+      }
