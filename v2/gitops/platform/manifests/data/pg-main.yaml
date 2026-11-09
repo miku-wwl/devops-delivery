@@ -36,10 +36,10 @@ spec:
       dataDurability: required
   # E7: WAL archiving (and the WAL that replicas and restores fetch) through the Barman Cloud
   # plugin to the ObjectStore pg-backups (pg-backup.yaml), outside the cluster
-  # E7 R1: this cluster was rebuilt after the loss of the whole Kubernetes cluster (chapter 8):
-  # born from the archive of its predecessor (serverName pg-main: last base backup + all WAL to
-  # the end of the archive) and archiving under a name of its own - an archive takes one writer.
-  # The next rebuild points "source" at pg-main-r1 and archives as pg-main-r2.
+  # E7 (chapter 8): this cluster was rebuilt after the loss of the whole Kubernetes cluster: born from
+  # the archive of its predecessor (last base backup + all WAL to the end of the archive) and archiving
+  # under a name of its own - an archive takes one writer. Each rebuild moves both names on
+  # (experiments/e7/rebuild.sh dr-change): R1 pg-main -> pg-main-r1, R2 pg-main-r1 -> pg-main-r2.
   bootstrap:
     recovery:
       source: pg-main-archive

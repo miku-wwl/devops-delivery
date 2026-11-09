@@ -1,1 +1,2 @@
 k6 against http://172.20.0.12:8080 from 23:06:34
+k6 ended 23:14:20
