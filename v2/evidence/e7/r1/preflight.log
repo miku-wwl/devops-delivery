@@ -1,0 +1,49 @@
+# transcript: R1 pre-flight and safety net
+# recorded: 2026-11-09T22:25:42Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# R1 pre-flight: what the rebuild needs from outside the cluster (file names and sizes only, never contents)
+$ for f in ~/.lab-secrets/gitlab-root-token ~/.lab-secrets/v2/pg-catalog ~/.lab-secrets/v2/pg-inventory ~/.lab-secrets/v2/pg-orders ~/.lab-secrets/v2/pg-drill ~/.lab-secrets/v2/grafana-admin ~/.lab-secrets/v2/platform-gitops-read-token ~/.lab-secrets/v2/openbao/init.json ~/.lab-secrets/v2/backup/s3-cnpg.env ~/.lab-secrets/v2/backup/s3-velero.env ~/.lab-secrets/v2/backup/s3-platform.env; do [ -s "$f" ] && echo "ok   $f" || echo "MISSING $f"; done
+ok   /home/devops/.lab-secrets/gitlab-root-token
+ok   /home/devops/.lab-secrets/v2/pg-catalog
+ok   /home/devops/.lab-secrets/v2/pg-inventory
+ok   /home/devops/.lab-secrets/v2/pg-orders
+ok   /home/devops/.lab-secrets/v2/pg-drill
+ok   /home/devops/.lab-secrets/v2/grafana-admin
+ok   /home/devops/.lab-secrets/v2/platform-gitops-read-token
+ok   /home/devops/.lab-secrets/v2/openbao/init.json
+ok   /home/devops/.lab-secrets/v2/backup/s3-cnpg.env
+ok   /home/devops/.lab-secrets/v2/backup/s3-velero.env
+ok   /home/devops/.lab-secrets/v2/backup/s3-platform.env
+
+$ docker manifest inspect --insecure localhost:5001/storefront:fd38028 >/dev/null && echo "image localhost:5001/storefront:fd38028 present"
+image localhost:5001/storefront:fd38028 present
+
+$ docker ps --format '{{.Names}} {{.Status}}' | grep -E '^(gitlab|kind-registry|mirror-|backup-s3|ent-ccm)' 
+backup-s3 Up 9 hours
+ent-ccm Up 2 days
+mirror-k8s Up 2 days
+mirror-quay Up 2 days
+mirror-docker Up 2 days
+mirror-ghcr Up 2 days
+gitlab Up 2 days (healthy)
+kind-registry Up 2 days
+gitlab-runner Up 2 days
+
+$ kind get clusters
+ent
+lab
+
+$ git -C /mnt/d/workshop/nov/devops-delivery status --porcelain | wc -l
+1
+
+# safety net (not part of the procedure): all objects in Velero, a fresh OpenBao snapshot
+$ V=$(kubectl -n velero get pods -o name | grep -m1 '^pod/velero-'); kubectl -n velero exec $V -c velero -- /velero backup create pre-r1-objects --include-namespaces '*' --snapshot-volumes=false --default-volumes-to-fs-backup=false --wait | tail -1
+Backup completed with status: Completed. You may check for more information using the commands `velero backup describe pre-r1-objects` and `velero backup logs pre-r1-objects`.
+
+$ kubectl -n velero get backups.velero.io pre-r1-objects -o jsonpath='{.status.phase} items={.status.progress.itemsBackedUp} warnings={.status.warnings} errors={.status.errors}{"\n"}'
+Completed items=1319 warnings= errors=
+
+$ kubectl -n secrets create job --from=cronjob/openbao-snapshot openbao-snapshot-pre-r1 >/dev/null && kubectl -n secrets wait --for=condition=Complete job/openbao-snapshot-pre-r1 --timeout=180s && kubectl -n secrets logs job/openbao-snapshot-pre-r1 -c upload | tail -1
+job.batch/openbao-snapshot-pre-r1 condition met
+uploaded openbao/20261109T222618Z.snap 30233 bytes
+

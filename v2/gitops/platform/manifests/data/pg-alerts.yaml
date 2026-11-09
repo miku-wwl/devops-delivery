@@ -27,14 +27,17 @@ spec:
           annotations:
             summary: "{{ $labels.pod }} (primary) has {{ $value }} streaming replicas"
             description: With asynchronous replication every commit from now on exists only on the primary until the replicas catch up.
-        - alert: PostgresWALArchivingStale
-          # archive_timeout is 5 min: more than 10 min without an archived segment means archiving is stuck
-          expr: cnpg_pg_stat_archiver_seconds_since_last_archival > 600 and on (namespace, pod) cnpg_pg_replication_in_recovery == 0
-          for: 5m
+        - alert: PostgresWALNotArchived
+          # finished WAL segments waiting for the archive (pg_wal/archive_status/*.ready). The first
+          # version of this rule used the time since the last archival (> 10 min) and fired for 7 hours
+          # on a database that had nothing to archive: an idle database writes no WAL, so archive_timeout
+          # never closes a segment (evidence/e7/alert-false-positive.log)
+          expr: cnpg_collector_pg_wal_archive_status{value="ready"} > 0 and on (namespace, pod) cnpg_pg_replication_in_recovery == 0
+          for: 10m
           labels: {severity: critical}
           annotations:
-            summary: "{{ $labels.pod }} has not archived WAL for {{ $value | humanizeDuration }}"
-            description: What a loss of the whole cluster would cost grows with every minute (chapter 8).
+            summary: "{{ $labels.pod }}: {{ $value }} finished WAL segments not archived for 10 minutes"
+            description: What a loss of the whole cluster would cost grows with every segment that waits (chapter 8).
         - alert: PostgresBaseBackupTooOld
           # nightly at 02:00 UTC; 26 h leaves room for one slow run
           expr: time() - max by (namespace) (barman_cloud_cloudnative_pg_io_last_available_backup_timestamp) > 26 * 3600
