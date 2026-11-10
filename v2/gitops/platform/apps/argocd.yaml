@@ -24,5 +24,9 @@ spec:
       targetRevision: main
       ref: values
   destination: {server: https://kubernetes.default.svc, namespace: argocd}
+  # step 2 (E11, after the first look): the chart at 10.14.0 differed from what helm installed only in
+  # Argo CD's tracking annotations and the hook job argocd-redis-secret-init (a server-side dry run of
+  # the same render: 1 object of 59 differed) - automated from here on
   syncPolicy:
+    automated: {prune: false, selfHeal: true}
     syncOptions: [ServerSideApply=true]
