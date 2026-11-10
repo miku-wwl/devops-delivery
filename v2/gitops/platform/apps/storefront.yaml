@@ -22,6 +22,9 @@ spec:
       labels:
         storefront/env: '{{ index .path.segments 1 }}'
         storefront/service: '{{ .service }}'
+      annotations:   # E8: deployment events to GitLab (gitops/bootstrap/argocd-values.yaml notifications)
+        notifications.argoproj.io/subscribe.on-deployed.gitlab-deployments: ""
+        notifications.argoproj.io/subscribe.on-sync-failed.gitlab-deployments: ""
     spec:
       project: storefront
       source:

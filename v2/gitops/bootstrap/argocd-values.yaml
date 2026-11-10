@@ -3,7 +3,43 @@
 global:
   domain: argocd.ent.local
 dex: {enabled: false}
-notifications: {enabled: false}
+# E8 (chapter 9): deployment events. Every finished sync of a subscribed application (the storefront
+# services: annotations in platform/apps/storefront.yaml) becomes a deployment in GitLab (Deployments
+# API) on the environment <env>/<service>, with the synced commit and success/failed: GitLab links it to
+# the merge requests it contains, and the record outlives the cluster. One event per sync operation
+# (oncePer startedAt), sent when the application is healthy again. Credential: argocd-notifications-
+# secret (platform/gitops/deploy-events.sh). DORA metrics: platform/gitops/dora.py.
+notifications:
+  enabled: true
+  resources: {requests: {cpu: 10m, memory: 32Mi}, limits: {memory: 128Mi}}
+  secret: {create: false}
+  notifiers:
+    service.webhook.gitlab-deployments: |
+      url: http://gitlab:8929/api/v4/projects/root%2Fplatform-gitops
+      headers:
+        - name: PRIVATE-TOKEN
+          value: $gitlab-deployments-token
+        - name: Content-Type
+          value: application/json
+  templates:
+    template.gitlab-deployment: |
+      webhook:
+        gitlab-deployments:
+          method: POST
+          path: /deployments
+          body: |
+            {"environment": "{{index .app.metadata.labels "storefront/env"}}/{{index .app.metadata.labels "storefront/service"}}", "sha": "{{if .app.status.operationState.syncResult}}{{.app.status.operationState.syncResult.revision}}{{else}}{{.app.status.operationState.operation.sync.revision}}{{end}}", "ref": "main", "tag": false, "status": "{{if eq .app.status.operationState.phase "Succeeded"}}success{{else}}failed{{end}}"}
+  triggers:
+    trigger.on-deployed: |
+      - description: a sync finished and the application is healthy
+        when: app.status.operationState != nil and app.status.operationState.phase in ['Succeeded'] and app.status.health.status == 'Healthy'
+        oncePer: app.status.operationState.startedAt
+        send: [gitlab-deployment]
+    trigger.on-sync-failed: |
+      - description: a sync failed
+        when: app.status.operationState != nil and app.status.operationState.phase in ['Error', 'Failed']
+        oncePer: app.status.operationState.startedAt
+        send: [gitlab-deployment]
 configs:
   params:
     server.insecure: true          # reached through kubectl port-forward only

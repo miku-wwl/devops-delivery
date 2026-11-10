@@ -47,6 +47,11 @@ spec:
   # E8: applied as storefront's own deployer account (platform/manifests/tenants/argocd-deployers.yaml)
   destinationServiceAccounts:
     - {server: https://kubernetes.default.svc, namespace: "storefront*", defaultServiceAccount: argocd-storefront}
+  # E8 (chapter 9): change freeze, the second key (the first: the job "freeze" of the gate,
+  # .gitlab-ci.yml). In a deny window Argo CD runs no automated sync of this project, self-heal
+  # included; an operator may still sync by hand (manualSync) - the emergency path.
+  syncWindows:
+    - {kind: deny, schedule: "0 0 24 12 *", duration: 72h, applications: ["*"], manualSync: true, timeZone: UTC}   # year-end freeze, 24-26 December
   clusterResourceWhitelist: []   # E8: no namespaces either - they are the platform's (no CreateNamespace)
   namespaceResourceWhitelist:
     - {group: "", kind: "*"}

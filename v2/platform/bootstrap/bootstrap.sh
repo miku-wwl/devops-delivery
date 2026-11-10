@@ -56,6 +56,7 @@ echo "==> 4. Argo CD (helm chart argo-cd 10.14.0)"
 helm repo add argo https://argoproj.github.io/argo-helm --force-update >/dev/null
 helm upgrade --install argocd argo/argo-cd --version 10.14.0 -n argocd \
   -f "$V2/gitops/bootstrap/argocd-values.yaml" --wait --timeout 10m >/dev/null
+bash "$V2/platform/gitops/deploy-events.sh"   # E8: GitLab credential of the deployment events
 kubectl -n argocd apply -f - >/dev/null <<EOF
 apiVersion: v1
 kind: Secret
