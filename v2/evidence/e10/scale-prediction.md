@@ -35,3 +35,15 @@ container's limit unless GOMEMLIMIT is set; the containers of kwokctl do not set
 | | Hypothesis | Measured by |
 |---|---|---|
 | K5b | with `GOMEMLIMIT=1300MiB` (85 % of the container's 1536 MiB) the API server is not killed during the same flood (40 workers, 60 s): 0 OOM kills, 0 restarts; the flood's 429 carry APF's message ("Too many requests"), not the watch cache's; the victim's GETs keep p99 within 2x of the quiet value | kernel log, restart count, 429 messages, victim latencies (`scale.sh apf`) |
+
+## Added 2026-11-10 11:25 UTC, after K5 run 4 and before run 5
+
+Run 4: K5b refuted - GOMEMLIMIT was in effect (`go_gc_gomemlimit_bytes` 1363148800) and the API server
+was still killed 4 times at 1536 MiB. Not only the collector's headroom: under this flood the API server
+needs more than 1.5 GiB with 10 000 pods. Every run so far lost the API server, so K5's question - does
+APF keep another client's latency - is still open. Run 5 halves the objects instead of raising the limit
+(the VM cannot spare more memory while the lab cluster runs).
+
+| | Hypothesis | Measured by |
+|---|---|---|
+| K5c | with 5000 pods (a LIST of about 16.5 MiB) and everything else as in run 3 - defaults, APF on, kube-apiserver limited to 1536 MiB, no GOMEMLIMIT, 40 workers for 60 s - the API server is not killed; the flood's 429 are APF's; the victim's GETs keep p99 within 2x of the quiet value | kernel log, restarts, 429 messages, victim latencies, the API server's cgroup memory every second |

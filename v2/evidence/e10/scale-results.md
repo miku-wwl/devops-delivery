@@ -60,10 +60,11 @@ Sizes from `etcdctl endpoint status` (db size and db size in use), not Prometheu
 The pods are minimal (one container, pause image, 3.4 KB as JSON). Real pods are larger; the per-pod
 figure applies to these objects only.
 
-Two procedural errors on the way, both in the records: the named deletion of 5000 pods ran at about 5
-deletions/s (kubectl deletes named objects one by one at its client-side limit) and was stopped by the
-script's 600 s timeout at 7134 pods; one re-run used the old script and labels the 7134-pod line "10000
-pods" (annotated in the log). The corrected script deletes with 16 kubectl in parallel.
+Two procedural errors on the way, both in the records: the named deletion of 5000 pods (one kubectl,
+5000 names) ran at about 5 deletions/s - `kubectl delete pods --all` had managed at least 84/s on the
+same cluster; the cause was not investigated - and was stopped by the script's 600 s timeout at 7134
+pods; one re-run used the old script and labels the 7134-pod line "10000 pods" (annotated in the log).
+The corrected script deletes with 16 kubectl in parallel (1969 pods in about 60 s).
 
 ## K4: LIST of 10 000 pods
 
@@ -94,6 +95,27 @@ level were accepted (the API is served) and did nothing. What it did show:
 - the flood client spun against the dead server: 16 873 requests answered 000 within about 2 ms - a
   client without backoff; 2089 x 429 (not APF - see the restart probe), 156 x 403.
 
-RESTART_PROBE
+Restart probe (k2, 10 000 pods, `restart-probe.log`, `screens/restart-probe.png`): `docker restart` of
+the API server returned after 11.7 s; LISTs as e10-flood every 0.2 s answered 000 (11.8 s), then 403
+"pods is forbidden: User system:serviceaccount:default:e10-flood cannot list resource pods" (13.3 s) -
+the service account has the permission, the authorizer had not yet loaded the RBAC bindings - then 429
+"storage is (re)initializing" (13.6 s) - the watch cache for pods filling up - and 200 from 16.3 s.
+This is what the clients of runs 2 and 3 saw after every kill. A client that treats 403 as final gives
+up on a request it is allowed to make.
 
-RUN3
+Run 3 (k5, defaults: APF on, memory limits, 40 workers; `k5-apf-final.log`, `k5/`):
+- APF was on and classified as intended: the victim's GET went through flow schema service-accounts,
+  priority level workload-low (244 nominal seats); a flood request through e10-flood, e10-low (3 seats);
+- and the API server was killed 6 times at its limit of 1536 MiB (6 restarts; 6 cgroup OOM kills of
+  container b41116c940d1 in `k5-oom-kernel.log`). Before the flood it held 976 MiB (`k5-state.log`);
+- the probe 20 s into the flood got 429 with the message "storage is (re)initializing": after a restart
+  the 429s come from the watch cache, not from APF. The per-request messages were not recorded in this
+  run, so the split of its 4033 x 429 is unknown;
+- flood: 17 875 requests, 13 683 x 000, 4033 x 429, 155 x 403, 4 x 200 (5.2-6.9 s each);
+- victim: quiet p50 11.9 ms, p99 19.4 ms; during the flood 86 GETs: 25 x 200 (p50 100.5 ms, p99 219.0
+  ms), 57 x 000, 4 x 403. K5 refuted - not by APF's queuing, by the API server's memory;
+- APF's rejection counter showed +0: it lives in the process and restarts at zero.
+- The same cluster repeated K1 on the way: 52 pods/s between 31 and 166 s (`k5/timeline.txt`); the
+  summary line's "first 31.3 s, 64 pods/s" comes from the skewed counts during creation.
+
+RUN4

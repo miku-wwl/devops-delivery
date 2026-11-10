@@ -6,7 +6,7 @@ Blameless. Unplanned; everything below happened.
 
 | Time (UTC) | |
 |---|---|
-| 09:41-09:49 | kwokctl cluster "scale" (real control plane, `[虚拟]` nodes and pods) with 1000 nodes and 10 000 pods: K1 and K4 measured. Its containers held about 1.85 GiB; the WSL VM had **2.3 GiB available** before K5 |
+| 09:41-09:49 | kwokctl cluster "scale" (real control plane, `[虚拟]` nodes and pods) with 1000 nodes and 10 000 pods: K1 and K4 measured. Its containers held about 1.8 GiB (1820 MiB, `k1-state.log`); the WSL VM had **2.3 GiB available** before K5 |
 | 09:50:00 | K5: the victim client alone for 30 s (p50 16.8 ms, p99 42.8 ms) |
 | 09:50:30 | the flood starts: 40 workers LIST all pods (33 MiB each) as e10-flood |
 | 09:50:30-~09:54 | APF rejects 1289 of 1329 flood requests with 429 (p50 0.095 s); 36 end in 504; 4 are admitted and take 123-208 s each. The victim's GETs slow down (p50 430 ms, p99 10.4 s) and stop after 36 of about 120 |
@@ -21,7 +21,7 @@ Blameless. Unplanned; everything below happened.
 ## Why
 
 - The control plane under test ran next to the lab in the same VM, without memory limits. Virtual
-  nodes need no memory; the control plane that manages them does - about 1.85 GiB at 10 000 pods (the
+  nodes need no memory; the control plane that manages them does - about 1.8 GiB at 10 000 pods (the
   API server alone 0.95 GiB) - and it shares the VM's 15.3 GiB with the lab cluster (11.8 GiB in use).
 - APF limits how many requests the API server works on, not how much memory or CPU the machine has.
   The admitted LISTs of 33 MiB and the rest of the load pushed a VM with 2.3 GiB available into
@@ -36,6 +36,6 @@ Blameless. Unplanned; everything below happened.
 | # | | Status |
 |---|---|---|
 | 1 | The alert bridge survives errors (each dead man's check isolated, retried; `/healthz` reports a dead thread) | done (`platform/alerting/bridge.py`) |
-| 2 | Experiment control planes get memory limits (`docker update --memory`) so that an overload kills a container inside its own cgroup instead of freezing the VM; the flood watches the available memory and stops below 1.2 GiB | for the K5 re-run |
+| 2 | Experiment control planes get memory limits (`docker update --memory`) so that an overload kills a container inside its own cgroup instead of freezing the VM; the flood watches the available memory and stops below 1.2 GiB | done (`experiments/e10/scale.sh`, `apf.sh`); in K5 runs 2-3 the kernel killed the API server 14 times inside its cgroup and the VM stayed responsive (`scale-results.md`) |
 | 3 | A watcher on another machine (here: none exists; chapter 10, limits) | open |
 | 4 | Load experiments that can exhaust a resource run with less sharing: lower scale, or the lab cluster paused | noted |

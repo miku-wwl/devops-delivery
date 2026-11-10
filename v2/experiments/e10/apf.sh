@@ -79,12 +79,24 @@ echo "  API server flags: $(docker inspect kwok-scale-kube-apiserver --format '{
 echo "== $(now) K5: victim alone for 30 s"
 curl -sk -o /dev/null -D "$tmp/v.hdr" -H @"$tmp/victim.hdr" "$SERVER/api/v1/namespaces/default/pods/$POD"
 echo "  victim's GET: $(pf "$tmp/v.hdr")"
+# K5 run 5: the API server's memory (its cgroup) every second, from about 10 s before the flood until
+# 5 s after it; 0 while the container is down
+CG=/sys/fs/cgroup/system.slice/docker-$(docker inspect -f '{{.Id}}' kwok-scale-kube-apiserver).scope
+FLOOD_AT=$(( $(date +%s) + 30 ))
+( sleep 20; T0=$(date +%s.%N); echo "t_s memory_current_MiB anon_MiB (t=0 about 10 s before the flood)"
+  while [ "$(date +%s)" -lt "$(( FLOOD_AT + 65 ))" ]; do
+    echo "$(awk -v a="$(date +%s.%N)" -v b="$T0" 'BEGIN {printf "%.1f", a - b}') $(( $(cat "$CG/memory.current" 2>/dev/null || echo 0) / 1048576 )) $(( $(awk '/^anon / {print $2}' "$CG/memory.stat" 2>/dev/null || echo 0) / 1048576 ))"
+    sleep 1
+  done > "$OUT/apf-apiserver-mem.txt" ) &
+sampler=$!
 victim 30 > "$OUT/apf-victim-quiet.txt"
 echo "  nominal seats: $($K get --raw /metrics | grep -E '^apiserver_flowcontrol_nominal_limit_seats[{]priority_level="(e10-low|workload-low)"' | sed -E 's/.*priority_level="([^"]+)"[}] /\1=/' | tr '\n' ' ')"
 r0=$(metric e10-low); w0=$(metric workload-low)
 ( sleep 20; curl -sk -m 90 -D "$tmp/probe.hdr" -o "$tmp/probe.body" -H @"$tmp/flood.hdr" "$SERVER/api/v1/pods?resourceVersion=0"
-  echo "  $(now) a flood request 20 s in: $(pf "$tmp/probe.hdr")"
-  [ "$(stat -c %s "$tmp/probe.body")" -lt 4096 ] && echo "    body: $(cat "$tmp/probe.body")" ) &
+  if [ -s "$tmp/probe.hdr" ]; then
+    echo "  $(now) a flood request 20 s in: $(pf "$tmp/probe.hdr")"
+    [ "$(stat -c %s "$tmp/probe.body")" -lt 4096 ] && echo "    body: $(tr -s ' \n' '  ' < "$tmp/probe.body")"
+  else echo "  $(now) a flood request 20 s in: no answer (connection failed)"; fi ) &
 probe=$!
 echo "== $(now) flood: ${WORKERS:-40} workers LIST all pods for 60 s; the victim keeps going"
 END=$(( $(date +%s) + 60 ))
@@ -94,7 +106,10 @@ for w in $(seq 1 ${WORKERS:-40}); do
       r=$(curl -sk -m 90 -o "$tmp/body-$w" -w '%{http_code} %{time_total}' -H @"$tmp/flood.hdr" "$SERVER/api/v1/pods?resourceVersion=0")
       # K5 run 3: a 429 says who refused - APF ("Too many requests...") or the watch cache ("storage is
       # (re)initializing" after a restart); keep the message, spaces as _
-      case $r in 429*) echo "$r $(grep -o '"message": *"[^"]*"' "$tmp/body-$w" | head -1 | sed 's/"message": *//; s/[" ]/_/g')" ;; *) echo "$r" ;; esac
+      # (run 4: APF's 429 is not a JSON Status - keep the start of the plain text instead)
+      case $r in 429*) m=$(grep -o '"message": *"[^"]*"' "$tmp/body-$w" | head -1 | sed 's/"message": *//')
+                       [ -z "$m" ] && m="text:$(head -c 48 "$tmp/body-$w")"
+                       echo "$r $(printf '%s' "$m" | tr -s ' \n"' '___')" ;; *) echo "$r" ;; esac
     done > "$tmp/flood-$w.txt" ) &
   pids+=($!)
 done
@@ -110,7 +125,7 @@ done
   done ) &
 guard=$!
 victim 60 > "$OUT/apf-victim-flood.txt"
-wait "${pids[@]}" 2>/dev/null; kill "$guard" 2>/dev/null; wait "$guard" 2>/dev/null; wait "$probe" 2>/dev/null
+wait "${pids[@]}" 2>/dev/null; kill "$guard" 2>/dev/null; wait "$guard" 2>/dev/null; wait "$probe" "$sampler" 2>/dev/null
 cat "$tmp"/flood-*.txt > "$OUT/apf-flood.txt"
 echo "== $(now) rejected by APF (apiserver_flowcontrol_rejected_requests_total): e10-low +$(( $(metric e10-low) - r0 )), workload-low +$(( $(metric workload-low) - w0 ))"
 $K get --raw /metrics | grep -E '^apiserver_flowcontrol_rejected_requests_total[{].*priority_level="(e10-low|workload-low)"' | sed 's/^/  /'

@@ -1,0 +1,18 @@
+  API server flags: 
+== 11:13:50 K5: victim alone for 30 s
+  victim's GET: HTTP/2 200 : flow schema service-accounts, priority level workload-low
+  nominal seats: e10-low=3 workload-low=244 
+== 11:14:20 flood: 40 workers LIST all pods for 60 s; the victim keeps going
+The connection to the server 127.0.0.1:32766 was refused - did you specify the right host or port?
+The connection to the server 127.0.0.1:32766 was refused - did you specify the right host or port?
+  11:14:40 a flood request 20 s in: : flow schema , priority level 
+stat: cannot statx '/tmp/tmp.plMKigdWGb/probe.body': No such file or directory
+/mnt/d/workshop/nov/devops-delivery/v2/experiments/e10/apf.sh: line 87: [: : integer expression expected
+== 11:15:25 rejected by APF (apiserver_flowcontrol_rejected_requests_total): e10-low +54, workload-low +0
+  apiserver_flowcontrol_rejected_requests_total{flow_schema="e10-flood",priority_level="e10-low",reason="queue-full"} 54
+  flood: 13688 requests, codes {'000': 9438, '403': 153, '429': 4071, '200': 26}; LIST p50 7.37 s, p99 9.30 s (200 only)
+  429 by message: {'_storage_is_(re)initializing_': 1528, '': 2543}
+  victim quiet: 56 GETs, codes {'200': 56}; p50 12.4 ms, p99 19.4 ms
+  victim flood: 80 GETs, codes {'200': 35, '000': 42, '403': 3}; p50 105.9 ms, p99 1799.5 ms
+  kwok-scale-kube-apiserver: restarts 4, memory peak since its last start 1536 MiB of 1536 MiB
+  OOM kills of this container in the kernel log: 4

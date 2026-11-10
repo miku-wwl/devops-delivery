@@ -1,0 +1,23 @@
+== 11:13:38 10 000 pods Running, defaults (APF on), GOMEMLIMIT=1300MiB
+  etcd db size MiB: 92.7773 (in use 92.7773)
+  objects: events=9588 nodes=1000 pods=10000 leases=1003
+  resident memory MiB by component: prometheus=155.965 kube-apiserver=996.84 etcd=118.125 kube-scheduler=471.324 kube-controller-manager=259.5 kwok-controller=68.8281
+  docker: kwok-scale-prometheus 120.5MiB / 384MiB 0.37%
+  docker: kwok-scale-kube-scheduler 462.1MiB / 768MiB 3.01%
+  docker: kwok-scale-kube-controller-manager 250.5MiB / 512MiB 2.88%
+  docker: kwok-scale-kwok-controller 50.92MiB / 256MiB 0.13%
+  docker: kwok-scale-kube-apiserver 958.6MiB / 1.5GiB 6.78%
+  docker: kwok-scale-etcd 84.5MiB / 512MiB 3.61%
+  WSL available MiB: 2970
+  Go runtime of kube-apiserver: go_gc_gogc_percent 100 go_gc_gomemlimit_bytes 1.3631488e+09 
+== 11:15:26 after the flood
+  etcd db size MiB: 94.1211 (in use 94.1211)
+  objects: events=11002 nodes=1000 pods=10000 leases=1003
+  resident memory MiB by component: prometheus=162.34 kube-apiserver=559.309 etcd=160.215 kube-scheduler=461.98 kube-controller-manager=294.188 kwok-controller=92.5586
+  docker: kwok-scale-prometheus 167.1MiB / 384MiB 0.51%
+  docker: kwok-scale-kube-scheduler 459.6MiB / 768MiB 0.43%
+  docker: kwok-scale-kube-controller-manager 292.6MiB / 512MiB 25.88%
+  docker: kwok-scale-kwok-controller 90.02MiB / 256MiB 0.00%
+  docker: kwok-scale-kube-apiserver 1.241GiB / 1.5GiB 24.05%
+  docker: kwok-scale-etcd 135.4MiB / 512MiB 1.75%
+  WSL available MiB: 2600
