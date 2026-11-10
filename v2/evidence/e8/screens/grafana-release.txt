@@ -6,3 +6,7 @@ $ manual/.venv/Scripts/python.exe manual/tools/webshot.py --url "http://127.0.0.
 v2\evidence\e8\screens\grafana-release-canary-c1-c3.png
 $ manual/.venv/Scripts/python.exe manual/tools/webshot.py --url "http://127.0.0.1:3000/d/storefront-release/x?orgId=1&from=1794274470000&to=1794274860000&kiosk" --out v2/evidence/e8/screens/grafana-release-canary-c4.png --width 1600 --height 1010 --wait-until load --wait-ms 5000
 v2\evidence\e8\screens\grafana-release-canary-c4.png
+# derived for the book (manual/.venv python, Pillow): the per-gateway-pod panels of the l4 and l7
+# screenshots stacked (crop box 0,1005-2400,1462 of each) -> grafana-release-l4-l7-per-pod.png;
+# the top two rows of canary-c1-c3 (crop 0,0-2400,1000) -> grafana-release-canary-c1-c3-top.png.
+# The originals above stay unchanged (Prometheus no longer holds these series after rebuilds R3/R4).

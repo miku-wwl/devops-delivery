@@ -1,0 +1,23 @@
+== 06:06:10 W3: writes with impersonation since the R4 cluster exists (create.sh done 05:52:52)
+  argocd-insight         HTTP 201:     3 writes, first at 2026-11-10T06:03:48
+  argocd-platform        HTTP 200:   616 writes, first at 2026-11-10T05:57:30
+  argocd-platform        HTTP 201:   398 writes, first at 2026-11-10T05:57:30
+  argocd-platform        HTTP 404:    14 writes, first at 2026-11-10T05:57:30
+  argocd-root            HTTP 201:    14 writes, first at 2026-11-10T05:59:34
+  argocd-storefront      HTTP 200:     5 writes, first at 2026-11-10T06:03:33
+  argocd-storefront      HTTP 201:    31 writes, first at 2026-11-10T06:03:33
+  refused by RBAC (401/403): none
+== W4: GitLab deployments since T0 (05:51:00)
+  #19 prod/orders success 6ab4f718b12d created 2026-11-10T06:04:27.681Z
+  #20 prod/notifier success 6ab4f718b12d created 2026-11-10T06:04:33.826Z
+  #21 prod/catalog success 6ab4f718b12d created 2026-11-10T06:04:35.960Z
+  #22 prod/payments success 6ab4f718b12d created 2026-11-10T06:04:36.512Z
+  #23 prod/inventory success 6ab4f718b12d created 2026-11-10T06:04:37.629Z
+  #24 prod/gateway success 6ab4f718b12d created 2026-11-10T06:05:03.419Z
+     36 Synced/Healthy
+== 06:06:29 W3 over all audit files (the log rotates at 100 MB; bootstrap filled one): writes since 05:52:52 by the application controller, with and without impersonation
+  as (itself)               argoproj.io objects    854 writes, first at 2026-11-10T05:54:32
+  as argocd-insight         other                    3 writes, first at 2026-11-10T06:03:48
+  as argocd-platform        other                 1315 writes, first at 2026-11-10T05:54:38
+  as argocd-root            argoproj.io objects     33 writes, first at 2026-11-10T05:54:35
+  as argocd-storefront      other                   36 writes, first at 2026-11-10T06:03:33

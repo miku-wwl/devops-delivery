@@ -1,0 +1,36 @@
+== 05:50:59 archiver right before the loss: 0000000D00000000000000FE at 2026-11-10 05:36:18.855157+00, current 0000000D00000000000000FF
+== 05:51:00 T0: kind delete cluster --name ent
+Deleting cluster "ent" ...
+Deleted nodes: ["ent-control-plane" "ent-worker" "ent-worker3" "ent-worker2"]
+== 05:51:36 gone after 36 s; outside the cluster: backup-s3 ent-ccm gitlab gitlab-runner kind-registry kindccm-409fd4d1dfdb mirror-docker mirror-ghcr mirror-k8s mirror-quay storefront-test-nats-1 storefront-test-postgres-1 storefront-test-valkey-1 
+== 05:57:26 OpenBao from its newest snapshot
+initialised with throwaway keys, unsealed: {"initialized":true,"sealed":false}
+newest snapshot: openbao/20261110T041704Z.snap
+in the pod: 32281 bytes
+after the restore: {"initialized":true,"sealed":true}
+unsealed with the original key: {"initialized":true,"sealed":false}
+"stdout/"
+== 05:58:36 lab users (new cluster CA)
+  bob               /O=team-insight/CN=bob               until 2026-11-17T05:53:37Z  sha256 40B3569A5B54EE5E
+  carol             /O=platform-sre/CN=carol             until 2026-11-17T05:53:38Z  sha256 ECB3E6123F9589F8
+  dave              /O=auditors/CN=dave                  until 2026-11-17T05:53:39Z  sha256 54DF0E739046684E
+== 05:58:39 load balancer limits set
+== 06:05:07 (T0 + 847 s) what came back
+  pg-main: Cluster in healthy state, primary pg-main-1, ready 3/3
+  orders: 239152, newest 2026-11-10 01:10:44.231067+00
+  outbox not yet published right after the restore: 0
+  secret insight/api-key sha256 prefix: 1251145cb0ed8b54
+  external secrets: insight/insight-api-key=21s 
+  JetStream: {"streams":1,"consumers":1,"messages":0}
+  Velero sees the old backups: pre-r1-objects v1-coverage v2-restore velero-objects-daily-20261110023002 
+  Prometheus samples older than T0: 0
+== RPO: the drill writer's acknowledgements against the restored rows
+attempts 610: ok 610, fail 0, unknown 0
+lost writes (acknowledged, row missing): 610
+  seq 1 acknowledged at 05:50:48.114 (t=-11.9s) in 57.4 ms
+  seq 2 acknowledged at 05:50:48.172 (t=-11.8s) in 4.5 ms
+  seq 3 acknowledged at 05:50:48.192 (t=-11.8s) in 4.9 ms
+  seq 4 acknowledged at 05:50:48.212 (t=-11.8s) in 4.6 ms
+  seq 5 acknowledged at 05:50:48.232 (t=-11.8s) in 4.8 ms
+  ...
+  last restored write: seq , acknowledged at ; T0 05:51:00

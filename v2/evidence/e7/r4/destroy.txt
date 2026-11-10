@@ -1,0 +1,5 @@
+== 05:50:59 archiver right before the loss: 0000000D00000000000000FE at 2026-11-10 05:36:18.855157+00, current 0000000D00000000000000FF
+== 05:51:00 T0: kind delete cluster --name ent
+Deleting cluster "ent" ...
+Deleted nodes: ["ent-control-plane" "ent-worker" "ent-worker3" "ent-worker2"]
+== 05:51:36 gone after 36 s; outside the cluster: backup-s3 ent-ccm gitlab gitlab-runner kind-registry kindccm-409fd4d1dfdb mirror-docker mirror-ghcr mirror-k8s mirror-quay storefront-test-nats-1 storefront-test-postgres-1 storefront-test-valkey-1 

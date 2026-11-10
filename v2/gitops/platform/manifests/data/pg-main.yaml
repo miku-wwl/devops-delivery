@@ -47,11 +47,11 @@ spec:
     - name: pg-main-archive
       plugin:
         name: barman-cloud.cloudnative-pg.io
-        parameters: {barmanObjectName: pg-backups, serverName: pg-main-r2}
+        parameters: {barmanObjectName: pg-backups, serverName: pg-main-r3}
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
-      parameters: {barmanObjectName: pg-backups, serverName: pg-main-r3}
+      parameters: {barmanObjectName: pg-backups, serverName: pg-main-r4}
   managed:
     roles:
       - {name: catalog, ensure: present, login: true, passwordSecret: {name: pg-role-catalog}}

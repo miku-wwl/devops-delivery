@@ -1,0 +1,12 @@
+== 05:57:26 OpenBao from its newest snapshot
+initialised with throwaway keys, unsealed: {"initialized":true,"sealed":false}
+newest snapshot: openbao/20261110T041704Z.snap
+in the pod: 32281 bytes
+after the restore: {"initialized":true,"sealed":true}
+unsealed with the original key: {"initialized":true,"sealed":false}
+"stdout/"
+== 05:58:36 lab users (new cluster CA)
+  bob               /O=team-insight/CN=bob               until 2026-11-17T05:53:37Z  sha256 40B3569A5B54EE5E
+  carol             /O=platform-sre/CN=carol             until 2026-11-17T05:53:38Z  sha256 ECB3E6123F9589F8
+  dave              /O=auditors/CN=dave                  until 2026-11-17T05:53:39Z  sha256 54DF0E739046684E
+== 05:58:39 load balancer limits set

@@ -2399,5 +2399,425 @@
   "55.9 秒、2956 次写入、约 62 笔订单",
   "evidence/e7/r2/k6-orders.txt",
   "acknowledged (2xx): 349"
+ ],
+ [
+  "E8 G1 pipeline",
+  "09-e8-release.md",
+  "合并请求 !1，流水线 50 s 成功",
+  "evidence/e8/g1-introduce.log",
+  "pipeline 5: success after 50 s"
+ ],
+ [
+  "E8 G2 latest refused",
+  "09-e8-release.md",
+  "流水线 48 s 失败于 `release-images`",
+  "evidence/e8/gate-drill.log",
+  "pipeline 7: failed after 48 s"
+ ],
+ [
+  "E8 G2 policy",
+  "09-e8-release.md",
+  "流水线 48 s 失败于 `release-images`",
+  "evidence/e8/gate-drill.log",
+  "policy release-images -> resource default/Deployment/catalog failed"
+ ],
+ [
+  "E8 G3 memory limit",
+  "09-e8-release.md",
+  "31 s 失败于 `release-resources`",
+  "evidence/e8/gate-drill.log",
+  "pipeline 8: failed after 31 s"
+ ],
+ [
+  "E8 G4 one replica",
+  "09-e8-release.md",
+  "32 s 失败于 `release-prod-availability`",
+  "evidence/e8/gate-drill.log",
+  "pipeline 9: failed after 32 s"
+ ],
+ [
+  "E8 G2-G4 merge refused",
+  "09-e8-release.md",
+  "合并返回 HTTP 405",
+  "evidence/e8/gate-drill.log",
+  "HTTP 405 405 Method Not Allowed"
+ ],
+ [
+  "E8 G5 alice cannot merge",
+  "09-e8-release.md",
+  "alice 合并返回 HTTP 401",
+  "evidence/e8/gate-drill-g5.log",
+  "merge !8 as alice (Developer): HTTP 401"
+ ],
+ [
+  "E8 G5 rollout",
+  "09-e8-release.md",
+  "root 合并后 27 s，catalog 的滚动更新已经完成",
+  "evidence/e8/gate-drill-g5.log",
+  "rollout complete after 27 s"
+ ],
+ [
+  "E8 G6 direct push",
+  "09-e8-release.md",
+  "You are not allowed to push code to protected branches on this project",
+  "evidence/e8/gate-drill.log",
+  "You are not allowed to push code to protected branches on this project"
+ ],
+ [
+  "E8 G5 first attempt 403",
+  "09-e8-release.md",
+  "一次没有解释的 HTTP 403",
+  "evidence/e8/gate-drill.log",
+  "The requested URL returned error: 403"
+ ],
+ [
+  "E8 H1 added pods idle",
+  "09-e8-release.md",
+  "+48 s 与 +93 s 扩出两个 Pod",
+  "evidence/e8/hpa-results.md",
+  "pods added at +48 s and +93 s"
+ ],
+ [
+  "E8 H2 first added pod",
+  "09-e8-release.md",
+  "服务了 79 请求/秒",
+  "evidence/e8/hpa-results.md",
+  "served 79 requests/s"
+ ],
+ [
+  "E8 H3 failures",
+  "09-e8-release.md",
+  "高负载阶段失败 57.20%",
+  "evidence/e8/hpa-results.md",
+  "57.20 %"
+ ],
+ [
+  "E8 H3 run A",
+  "09-e8-release.md",
+  "49.18%（复测 run A）",
+  "evidence/e8/hpa-results.md",
+  "run A 49.18 %"
+ ],
+ [
+  "E8 H4 no cost",
+  "09-e8-release.md",
+  "11.6 ms（L7）对 12.4 ms（L4）",
+  "evidence/e8/hpa-results.md",
+  "11.6 ms (L7) against 12.4 ms (L4)"
+ ],
+ [
+  "E8 H5 no retries",
+  "09-e8-release.md",
+  "重试 **0** 次",
+  "evidence/e8/hpa-results.md",
+  "**0 retries**"
+ ],
+ [
+  "E8 run A answers",
+  "09-e8-release.md",
+  "得到 40 704 个 503",
+  "evidence/e8/hpa-results.md",
+  "40 704 x 503"
+ ],
+ [
+  "E8 breaker",
+  "09-e8-release.md",
+  "`circuit_open` 40 010 次",
+  "evidence/e8/hpa-results.md",
+  "circuit_open 40 010"
+ ],
+ [
+  "E8 entrance p95",
+  "09-e8-release.md",
+  "p95 却是 9446 ms",
+  "evidence/e8/hpa-results.md",
+  "p95 **9446 ms**"
+ ],
+ [
+  "E8 C0 preview",
+  "09-e8-release.md",
+  "300 个不带头的请求全部由 fd38028 回答",
+  "evidence/e8/canary-results.md",
+  "300 of 300 requests without the header answered by fd38028"
+ ],
+ [
+  "E8 C1 k6",
+  "09-e8-release.md",
+  "20 001 个中 986 个 = 4.93%",
+  "evidence/e8/canary-results.md",
+  "986 of 20 001 = 4.93 %"
+ ],
+ [
+  "E8 C1 Prometheus",
+  "09-e8-release.md",
+  "20 019 个中 1007 个 = **5.03%**",
+  "evidence/e8/canary-results.md",
+  "1007 of 20 019 = **5.03 %**"
+ ],
+ [
+  "E8 C3 blast radius",
+  "09-e8-release.md",
+  "失败 88 个 = 2.45%",
+  "evidence/e8/canary-results.md",
+  "88 failed = 2.45 %"
+ ],
+ [
+  "E8 C3 rollback",
+  "09-e8-release.md",
+  "决定后 46.1 s",
+  "evidence/e8/canary-c3/report.txt",
+  "+46.1 s after the decision"
+ ],
+ [
+  "E8 C4 promotion",
+  "09-e8-release.md",
+  "提升期间 8697 个请求 **0 个失败**",
+  "evidence/e8/canary-results.md",
+  "8697 requests during the promotion: **0 failed**"
+ ],
+ [
+  "E8 I1 controller wrote the Secret",
+  "09-e8-release.md",
+  "`create secrets 201`",
+  "evidence/e8/impersonation-i1.log",
+  "argocd-application-controller as=- create secrets storefront/e8-probe 201"
+ ],
+ [
+  "E8 I2 refused",
+  "09-e8-release.md",
+  "cannot get resource \"secrets\"",
+  "evidence/e8/impersonation-i2.log",
+  "User \"system:serviceaccount:storefront:argocd-storefront\" cannot get resource \"secrets\""
+ ],
+ [
+  "E8 I3 orders as deployer",
+  "09-e8-release.md",
+  "03:54:07 合并，03:55:25 同步完成（78 s）",
+  "evidence/e8/impersonation-i2.log",
+  "storefront-orders-prod Synced Healthy Succeeded 2026-11-10T03:55:25Z"
+ ],
+ [
+  "E8 I3 audit",
+  "09-e8-release.md",
+  "被冒用的用户 `argocd-storefront`，200",
+  "evidence/e8/impersonation-i2.log",
+  "system:serviceaccount:storefront:argocd-storefront patch deployments storefront 200 applied: 1"
+ ],
+ [
+  "E8 I4 root without account",
+  "09-e8-release.md",
+  "`no matching service account found for destination server ... namespace argocd`",
+  "evidence/e8/impersonation-i4.log",
+  "no matching service account found for destination server https://kubernetes.default.svc and namespace argocd"
+ ],
+ [
+  "E8 I4 fixed",
+  "09-e8-release.md",
+  "修复后根应用在 04:05:33 同步成功",
+  "evidence/e8/impersonation-i4-fixed.log",
+  "platform-root Synced Healthy Succeeded 2026-11-10T04:05:33Z"
+ ],
+ [
+  "E8 I4 root account prunes",
+  "09-e8-release.md",
+  "`delete applications 200`，2 次",
+  "evidence/e8/impersonation-i4-fixed.log",
+  "system:serviceaccount:argocd:argocd-root delete applications argocd 200 applied: 2"
+ ],
+ [
+  "E8 I5 namespace read",
+  "09-e8-release.md",
+  "namespace auto creation failed",
+  "evidence/e8/impersonation-i2.log",
+  "namespace auto creation failed: namespaces"
+ ],
+ [
+  "E8 race cm",
+  "09-e8-release.md",
+  "在 03:50:17.572 写入 `argocd-cm`",
+  "evidence/e8/impersonation-upgrade.log",
+  "2026-11-10T03:50:17.572 kubernetes-admin patch configmaps argocd argocd-cm 200"
+ ],
+ [
+  "E8 race crb",
+  "09-e8-release.md",
+  "在 03:50:19.574 才写入 ClusterRoleBinding",
+  "evidence/e8/impersonation-upgrade.log",
+  "2026-11-10T03:50:19.574 kubernetes-admin patch clusterrolebindings - argocd-platform 201"
+ ],
+ [
+  "E8 F1 refused",
+  "09-e8-release.md",
+  "流水线 17 s 失败于 `freeze`",
+  "evidence/e8/freeze/run.txt",
+  "pipeline 37: failed after 17 s"
+ ],
+ [
+  "E8 F1 405",
+  "09-e8-release.md",
+  "合并返回 HTTP 405；随后关闭",
+  "evidence/e8/freeze/run.txt",
+  "merge !19 as root (Maintainer): HTTP 405"
+ ],
+ [
+  "E8 F2 emergency",
+  "09-e8-release.md",
+  "流水线 23 s，`emergency change, allowed`",
+  "evidence/e8/freeze/run.txt",
+  "deploy freeze active - emergency change, allowed"
+ ],
+ [
+  "E8 F3 window",
+  "09-e8-release.md",
+  "控制器日志 `Sync prevented by sync window`",
+  "evidence/e8/freeze/run.txt",
+  "Sync prevented by sync window"
+ ],
+ [
+  "E8 F3 manual sync",
+  "09-e8-release.md",
+  "04:31:23 catalog 已同步且健康",
+  "evidence/e8/freeze/run.txt",
+  "== 04:31:23 catalog: Synced Healthy op=Succeeded"
+ ],
+ [
+  "E8 F4 after the window",
+  "09-e8-release.md",
+  "结束后 **76 s** 已同步且健康",
+  "evidence/e8/freeze/run.txt",
+  "(76 s after the end of the window)"
+ ],
+ [
+  "E8 D1 catalog event",
+  "09-e8-release.md",
+  "#11 prod/catalog 04:31:22.98",
+  "evidence/e8/freeze/run.txt",
+  "#11 prod/catalog success 3783f5247d77 created 2026-11-10T04:31:22.980Z"
+ ],
+ [
+  "E8 D2 linked MRs",
+  "09-e8-release.md",
+  "两条部署都关联了 !20 **和 !18**",
+  "evidence/e8/freeze/run.txt",
+  "deployment #11 merge requests: !20 !18"
+ ],
+ [
+  "E8 DORA all deployments",
+  "09-e8-release.md",
+  "5.5 小时的记录中 56 次应用部署",
+  "evidence/e8/dora-argocd.txt",
+  "56 service deployments in 5.5 h of records = 243 per day"
+ ],
+ [
+  "E8 DORA lead time",
+  "09-e8-release.md",
+  "中位数 1.2 min，最长 14.3 min（冻结）",
+  "evidence/e8/dora-argocd.txt",
+  "lead time for changes: median 1.2 min, max 14.3 min (n=16)"
+ ],
+ [
+  "E8 DORA failure rate",
+  "09-e8-release.md",
+  "1/16 = 6%：!11（金丝雀权重 5%）被 !12 撤回",
+  "evidence/e8/dora-argocd.txt",
+  "change failure rate: 1 of 16 = 6 %"
+ ],
+ [
+  "E8 DORA restore",
+  "09-e8-release.md",
+  "7.0 min（部署到部署）",
+  "evidence/e8/dora-argocd.txt",
+  "time to restore 7.0 min (deployment to deployment)"
+ ],
+ [
+  "E8 DORA storefront",
+  "09-e8-release.md",
+  "中位数 1.4 min，最长 14.3 min",
+  "evidence/e8/dora-storefront-argocd.txt",
+  "median 1.4 min, max 14.3 min (n=5)"
+ ],
+ [
+  "E8 DORA no sync",
+  "09-e8-release.md",
+  "!9 在六个服务上都是 no sync",
+  "evidence/e8/dora-storefront-argocd.txt",
+  "catalog(no sync), gateway(no sync)"
+ ],
+ [
+  "E8 R3 stuck",
+  "09-e8-release.md",
+  "30 分钟后仍有 3 个应用没有出现",
+  "evidence/e7/r3/wait-apps.txt",
+  "timeout after 1800s"
+ ],
+ [
+  "E8 R3 route",
+  "09-e8-release.md",
+  "`ResolvedRefs=False`（BackendNotFound）",
+  "evidence/e8/waves-results.md",
+  "ResolvedRefs=False BackendNotFound"
+ ],
+ [
+  "E8 R3 Kyverno immutable",
+  "09-e8-release.md",
+  "生成规则的匹配条件不可变",
+  "evidence/e7/r3/recovery.txt",
+  "changes of immutable fields of a rule spec in a generate rule is disallowed"
+ ],
+ [
+  "E8 R3 recovered",
+  "09-e8-release.md",
+  "这一次花了 55.8 分钟",
+  "evidence/e8/waves-results.md",
+  "T0 + 55.8 min"
+ ],
+ [
+  "E8 R4 root",
+  "09-e8-release.md",
+  "**636 s**（36 个应用；R2 为 35 个）",
+  "evidence/e7/r4/wait-apps.txt",
+  "all 36 applications Synced and Healthy after 636s"
+ ],
+ [
+  "E8 R4 total",
+  "09-e8-release.md",
+  "**14.1 min**；R4 的步骤之间没有停顿",
+  "evidence/e7/r4/wait-apps.txt",
+  "(T0 + 847 s) wait-apps.sh exit 0"
+ ],
+ [
+  "E8 R4 impersonation",
+  "09-e8-release.md",
+  "argocd-platform 1315 次",
+  "evidence/e7/r4/impersonation-deploy-events.txt",
+  "as argocd-platform        other                 1315 writes"
+ ],
+ [
+  "E8 R4 controller itself",
+  "09-e8-release.md",
+  "854 次状态更新",
+  "evidence/e7/r4/impersonation-deploy-events.txt",
+  "as (itself)               argoproj.io objects    854 writes"
+ ],
+ [
+  "E8 R4 deployment events",
+  "09-e8-release.md",
+  "GitLab 部署记录 #19–#24",
+  "evidence/e7/r4/impersonation-deploy-events.txt",
+  "#19 prod/orders success 6ab4f718b12d"
+ ],
+ [
+  "E8 R4 pg-main earlier",
+  "09-e8-release.md",
+  "PostgreSQL 提前 130 秒开始恢复",
+  "evidence/e8/waves-results.md",
+  "starts **130 s earlier**"
+ ],
+ [
+  "E8 R2 root",
+  "09-e8-release.md",
+  "根应用从第一次同步到全部应用就绪用了 692 秒",
+  "evidence/e8/waves-prediction.md",
+  "The root application took 692 s from its first sync"
  ]
 ]

@@ -1,0 +1,26 @@
+== 05:52:52 (T0 + 112 s) bootstrap.sh
+==> 1. generated credentials in /home/devops/.lab-secrets/v2 (never printed, never committed)
+secret data/pg-backup-s3
+secret velero/velero-s3
+secret secrets/platform-snapshot-s3
+secrets: data/pg-role-{catalog,inventory,orders,drill}, storefront/db-{catalog,inventory,orders}, monitoring/grafana-admin
+==> 2. image
+localhost:5001/storefront:8ef5584
+==> 3. configuration repository
+MR !26 (mr/20261110-055259-root, by root) pipeline 51: success after 32 s; diff: platform/manifests/data/pg-main.yaml
+merge !26 as root (Maintainer): HTTP 200 merged
+platform-gitops: merged !26 (bootstrap: platform and storefront 8ef5584)
+==> 4. Argo CD (helm chart argo-cd 10.14.0)
+argocd-notifications-secret applied
+NAME                                               READY   STATUS      RESTARTS   AGE
+argocd-application-controller-0                    1/1     Running     0          31s
+argocd-applicationset-controller-9bb847c8f-k5ktb   1/1     Running     0          31s
+argocd-notifications-controller-5465ff58db-gg6qm   1/1     Running     0          31s
+argocd-redis-86fb5c84d-xk7b8                       1/1     Running     0          31s
+argocd-redis-secret-init-z8lm4                     0/1     Completed   0          49s
+argocd-repo-server-5ff856bd55-7n5vk                1/1     Running     0          31s
+argocd-server-687f6bdc58-95r9h                     1/1     Running     0          31s
+==> 5. root application
+appproject.argoproj.io/root created
+application.argoproj.io/platform-root created
+== 05:54:29 (T0 + 210 s) bootstrap.sh exit 0
