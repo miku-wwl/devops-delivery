@@ -1,0 +1,20 @@
+== 05:27:30 (T0 + 2028 s) what came back
+  pg-main: Cluster in healthy state, primary pg-main-1, ready 3/3
+  orders: 239152, newest 2026-11-10 01:10:44.231067+00
+  outbox not yet published right after the restore: 0
+  secret insight/api-key sha256 prefix: 1251145cb0ed8b54
+No resources found
+  external secrets: 
+  JetStream: {"streams":0,"consumers":0,"messages":0}
+  Velero sees the old backups: pre-r1-objects v1-coverage v2-restore velero-objects-daily-20261110023002 
+  Prometheus samples older than T0: 0
+== RPO: the drill writer's acknowledgements against the restored rows
+attempts 931: ok 931, fail 0, unknown 0
+lost writes (acknowledged, row missing): 931
+  seq 1 acknowledged at 04:53:24.021 (t=-18.0s) in 27.9 ms
+  seq 2 acknowledged at 04:53:24.049 (t=-18.0s) in 5.4 ms
+  seq 3 acknowledged at 04:53:24.069 (t=-17.9s) in 4.9 ms
+  seq 4 acknowledged at 04:53:24.089 (t=-17.9s) in 4.3 ms
+  seq 5 acknowledged at 04:53:24.109 (t=-17.9s) in 4.3 ms
+  ...
+  last restored write: seq , acknowledged at ; T0 04:53:42

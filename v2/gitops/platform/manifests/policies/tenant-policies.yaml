@@ -49,8 +49,11 @@ spec:
 # A namespace created with the label "tenant" gets the platform's defaults at once, even when
 # nobody remembers to add them: default-deny networking (DNS and the namespace itself allowed),
 # a quota and container defaults. Kyverno owns the generated objects (synchronize: a deleted or
-# edited copy is restored). Existing namespaces are left alone (shop-dev and insight get theirs
-# from Git, platform/manifests/tenants/).
+# edited copy is restored). Namespaces whose defaults come from Git carry the label
+# "tenant-defaults: git" and are excluded (shop-dev and insight: platform/manifests/tenants/).
+# E8 (rebuild R3, chapter 9): the exclusion used to rest on the order alone - those namespaces
+# existed before this policy did; with both in one sync wave on an empty cluster, Kyverno generated
+# their objects first, and Argo CD and Kyverno then both claimed them.
 apiVersion: kyverno.io/v1
 kind: ClusterPolicy
 metadata:
@@ -64,7 +67,7 @@ spec:
         any:
           - resources:
               kinds: [Namespace]
-              selector: {matchExpressions: [{key: tenant, operator: Exists}]}
+              selector: {matchExpressions: [{key: tenant, operator: Exists}, {key: tenant-defaults, operator: DoesNotExist}]}
       generate:
         synchronize: true
         apiVersion: networking.k8s.io/v1
@@ -80,7 +83,7 @@ spec:
         any:
           - resources:
               kinds: [Namespace]
-              selector: {matchExpressions: [{key: tenant, operator: Exists}]}
+              selector: {matchExpressions: [{key: tenant, operator: Exists}, {key: tenant-defaults, operator: DoesNotExist}]}
       generate:
         synchronize: true
         apiVersion: networking.k8s.io/v1
@@ -102,7 +105,7 @@ spec:
         any:
           - resources:
               kinds: [Namespace]
-              selector: {matchExpressions: [{key: tenant, operator: Exists}]}
+              selector: {matchExpressions: [{key: tenant, operator: Exists}, {key: tenant-defaults, operator: DoesNotExist}]}
       generate:
         synchronize: true
         apiVersion: v1
@@ -117,7 +120,7 @@ spec:
         any:
           - resources:
               kinds: [Namespace]
-              selector: {matchExpressions: [{key: tenant, operator: Exists}]}
+              selector: {matchExpressions: [{key: tenant, operator: Exists}, {key: tenant-defaults, operator: DoesNotExist}]}
       generate:
         synchronize: true
         apiVersion: v1

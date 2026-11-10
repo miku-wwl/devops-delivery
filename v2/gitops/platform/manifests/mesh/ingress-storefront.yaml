@@ -2,8 +2,9 @@
 # gateway pod for every request, not for every connection: in chapter 5 the two gateway pods added
 # by the autoscaler behind the L4 load balancer received no request at all - the clients' keep-alive
 # connections stayed on the old pods (evidence/e4/hpa-2-pods.log). The L4 entrance (Service gateway,
-# type LoadBalancer) stays until the re-test has compared both. Routes for canaries and previews
-# are added to this HTTPRoute.
+# type LoadBalancer) stays until the re-test has compared both. The routes are in
+# platform/manifests/routes/ (application storefront-routes, the last sync wave): they need the
+# storefront's services, which come after this application (rebuild R3, chapter 9).
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
@@ -53,17 +54,3 @@ data:
   podDisruptionBudget: |
     spec:
       minAvailable: 1
----
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
-metadata:
-  name: storefront
-  namespace: storefront
-spec:
-  parentRefs:
-    - {name: storefront-ingress, sectionName: http}
-  rules:
-    # E8: the canary of 8ef5584 ran here with a weight and a preview header (merge requests !10-!12,
-    # evidence/e8/canary-*); promoted in !13 - one backend again
-    - backendRefs:
-        - {name: gateway, port: 8080}

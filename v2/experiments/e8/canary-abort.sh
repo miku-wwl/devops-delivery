@@ -33,7 +33,7 @@ probe=$!
 sleep "$FAULT"
 T_DECIDE=$(date +%s.%N); echo "== $(now) decision: roll the canary back (weight 0)"
 sed -i 's/        - {name: gateway, port: 8080, weight: 95}/        - {name: gateway, port: 8080, weight: 100}/; s/        - {name: gateway-canary, port: 8080, weight: 5}/        - {name: gateway-canary, port: 8080, weight: 0}/' \
-  "$ROOT/v2/gitops/platform/manifests/mesh/ingress-storefront.yaml"
+  "$ROOT/v2/gitops/platform/manifests/routes/storefront.yaml"   # since R3 (was mesh/ingress-storefront.yaml)
 bash "$ROOT/v2/platform/bootstrap/publish-gitops.sh" fd38028 "e8: canary rollback - weight 0" | sed 's/^/  /'
 T_MERGED=$(date +%s.%N); echo "== $(now) merged"
 kubectl -n argocd annotate app mesh argocd.argoproj.io/refresh=normal --overwrite >/dev/null

@@ -10,6 +10,7 @@ metadata:
   annotations: {argocd.argoproj.io/sync-options: Delete=false}
   labels:
     tenant: shop
+    tenant-defaults: git   # E8: quota, LimitRange, NetworkPolicies from Git, not from Kyverno
     pod-security.kubernetes.io/enforce: restricted
     pod-security.kubernetes.io/enforce-version: latest
     pod-security.kubernetes.io/warn: restricted
@@ -22,6 +23,7 @@ metadata:
   annotations: {argocd.argoproj.io/sync-options: Delete=false}
   labels:
     tenant: insight
+    tenant-defaults: git   # E8: quota, LimitRange, NetworkPolicies from Git, not from Kyverno
     pod-security.kubernetes.io/enforce: restricted
     pod-security.kubernetes.io/enforce-version: latest
     pod-security.kubernetes.io/warn: restricted

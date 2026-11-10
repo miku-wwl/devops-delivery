@@ -13,3 +13,22 @@ spec:
   destination: {server: "https://kubernetes.default.svc"}
   syncPolicy:
     automated: {prune: true, selfHeal: true}
+---
+# E8 (chapter 9): the storefront's routes, after the storefront (wave -1) and the tenants' last
+# application (wave 0): their backends must exist, or the route is Degraded and the root waits.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: storefront-routes
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "1"}
+spec:
+  project: platform
+  source:
+    repoURL: http://gitlab:8929/root/platform-gitops.git
+    targetRevision: main
+    path: platform/manifests/routes
+  destination: {server: "https://kubernetes.default.svc"}
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    retry: {limit: 10, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}
