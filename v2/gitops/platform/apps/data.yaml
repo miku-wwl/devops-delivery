@@ -1,11 +1,12 @@
-# Data services in namespace "data": NATS JetStream and Valkey (wave -1), then the PostgreSQL
-# cluster (wave 0, needs the CloudNativePG CRDs from wave -2).
+# Data services in namespace "data": NATS JetStream, Valkey and the PostgreSQL cluster, all in wave -2
+# (E8, chapter 9: were -1 and 0) - after the CloudNativePG operator and its Barman Cloud plugin
+# (wave -3), before the storefront (wave -1).
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: nats
   namespace: argocd
-  annotations: {argocd.argoproj.io/sync-wave: "-1"}
+  annotations: {argocd.argoproj.io/sync-wave: "-2"}
 spec:
   project: platform
   sources:
@@ -25,7 +26,7 @@ kind: Application
 metadata:
   name: valkey
   namespace: argocd
-  annotations: {argocd.argoproj.io/sync-wave: "-1"}
+  annotations: {argocd.argoproj.io/sync-wave: "-2"}
 spec:
   project: platform
   source:
@@ -43,7 +44,7 @@ kind: Application
 metadata:
   name: pg-main
   namespace: argocd
-  annotations: {argocd.argoproj.io/sync-wave: "0"}
+  annotations: {argocd.argoproj.io/sync-wave: "-2"}
 spec:
   project: platform
   source:

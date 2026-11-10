@@ -3,7 +3,7 @@ kind: Application
 metadata:
   name: namespaces
   namespace: argocd
-  annotations: {argocd.argoproj.io/sync-wave: "-3"}
+  annotations: {argocd.argoproj.io/sync-wave: "-8"}
 spec:
   project: platform
   source:

@@ -1,5 +1,5 @@
 # Wave -3: Kyverno (admission policy, E5 / chapter 6). Its CRDs (ClusterPolicy) must exist before
-# the "policies" application (wave -1) uses them. Server-side apply: the CRDs are too large for
+# the "policies" application (wave -2) uses them. Server-side apply: the CRDs are too large for
 # the last-applied-configuration annotation of a client-side apply (as with KEDA).
 apiVersion: argoproj.io/v1alpha1
 kind: Application

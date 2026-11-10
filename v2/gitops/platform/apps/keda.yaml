@@ -1,5 +1,5 @@
 # Wave -3: KEDA (event-driven autoscaling, E4 / chapter 5). Its CRDs (ScaledObject) must exist
-# before the storefront applications (wave 1) use them. Server-side apply: the KEDA CRDs are too
+# before the storefront applications (wave -1) use them. Server-side apply: the KEDA CRDs are too
 # large for the last-applied-configuration annotation of a client-side apply.
 apiVersion: argoproj.io/v1alpha1
 kind: Application

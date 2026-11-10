@@ -28,7 +28,7 @@ kind: Application
 metadata:
   name: barman-cloud
   namespace: argocd
-  annotations: {argocd.argoproj.io/sync-wave: "-1"}
+  annotations: {argocd.argoproj.io/sync-wave: "-3"}
 spec:
   project: platform
   sources:
@@ -41,7 +41,7 @@ spec:
   destination: {server: "https://kubernetes.default.svc", namespace: cnpg-system}
   syncPolicy:
     automated: {prune: true, selfHeal: true}
-    syncOptions: [ServerSideApply=true]
+    syncOptions: [ServerSideApply=true, SkipDryRunOnMissingResource=true]
     retry: {limit: 10, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}
 ---
 # Velero: backups of Kubernetes objects (and of volume contents, where the node agent can read
@@ -51,7 +51,7 @@ kind: Application
 metadata:
   name: velero
   namespace: argocd
-  annotations: {argocd.argoproj.io/sync-wave: "-1"}
+  annotations: {argocd.argoproj.io/sync-wave: "-3"}
 spec:
   project: platform
   sources:
@@ -63,7 +63,7 @@ spec:
   destination: {server: "https://kubernetes.default.svc", namespace: velero}
   syncPolicy:
     automated: {prune: true, selfHeal: true}
-    syncOptions: [CreateNamespace=true, ServerSideApply=true]
+    syncOptions: [CreateNamespace=true, ServerSideApply=true, SkipDryRunOnMissingResource=true]
     retry: {limit: 10, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}
 ---
 # backup jobs of components that need their own consistent snapshot (OpenBao raft)
@@ -72,7 +72,7 @@ kind: Application
 metadata:
   name: backup-jobs
   namespace: argocd
-  annotations: {argocd.argoproj.io/sync-wave: "1"}
+  annotations: {argocd.argoproj.io/sync-wave: "-1"}
 spec:
   project: platform
   source:

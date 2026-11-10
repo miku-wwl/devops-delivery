@@ -6,7 +6,7 @@ kind: ApplicationSet
 metadata:
   name: storefront
   namespace: argocd
-  annotations: {argocd.argoproj.io/sync-wave: "1"}
+  annotations: {argocd.argoproj.io/sync-wave: "-1"}
 spec:
   goTemplate: true
   goTemplateOptions: ["missingkey=error"]

@@ -25,7 +25,7 @@ kind: Application
 metadata:
   name: insight
   namespace: argocd
-  annotations: {argocd.argoproj.io/sync-wave: "2"}
+  annotations: {argocd.argoproj.io/sync-wave: "0"}
 spec:
   project: insight
   source:

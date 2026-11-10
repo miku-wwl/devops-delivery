@@ -4,7 +4,7 @@ kind: Application
 metadata:
   name: tempo
   namespace: argocd
-  annotations: {argocd.argoproj.io/sync-wave: "-1"}
+  annotations: {argocd.argoproj.io/sync-wave: "-2"}
 spec:
   project: platform
   sources:
@@ -24,7 +24,7 @@ kind: Application
 metadata:
   name: loki
   namespace: argocd
-  annotations: {argocd.argoproj.io/sync-wave: "-1"}
+  annotations: {argocd.argoproj.io/sync-wave: "-2"}
 spec:
   project: platform
   sources:
@@ -44,7 +44,7 @@ kind: Application
 metadata:
   name: otel-collector
   namespace: argocd
-  annotations: {argocd.argoproj.io/sync-wave: "-1"}
+  annotations: {argocd.argoproj.io/sync-wave: "-2"}
 spec:
   project: platform
   sources:
@@ -64,7 +64,7 @@ kind: Application
 metadata:
   name: dashboards
   namespace: argocd
-  annotations: {argocd.argoproj.io/sync-wave: "0"}
+  annotations: {argocd.argoproj.io/sync-wave: "-2"}
 spec:
   project: platform
   source:

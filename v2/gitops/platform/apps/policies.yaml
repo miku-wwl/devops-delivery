@@ -1,12 +1,12 @@
-# Wave -1: the platform's admission policies (E5 / chapter 6), after Kyverno (wave -3) and the
-# tenants (wave -2). SkipDryRunOnMissingResource: on a fresh cluster the ClusterPolicy CRD
-# appears only when Kyverno is installed in the same sync.
+# Wave -2 (E8: was -1): the platform's admission policies (E5 / chapter 6), two ClusterPolicies,
+# after Kyverno (wave -3) and before the storefront (wave -1). SkipDryRunOnMissingResource: on a
+# fresh cluster the ClusterPolicy CRD appears only when Kyverno is installed in the same sync.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: policies
   namespace: argocd
-  annotations: {argocd.argoproj.io/sync-wave: "-1"}
+  annotations: {argocd.argoproj.io/sync-wave: "-2"}
 spec:
   project: platform
   source:
