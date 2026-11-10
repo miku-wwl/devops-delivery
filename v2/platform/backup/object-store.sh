@@ -12,8 +12,8 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HERE/../versions.env"
 NAME=backup-s3 NET=kind-ent VOL=backup-s3-data
 SEC="$HOME/.lab-secrets/v2/backup"
-# consumer -> bucket
-declare -A BUCKET=([cnpg]=pg-backups [velero]=velero [platform]=platform-snapshots)
+# consumer -> bucket (tofu: the OpenTofu state of E11, chapter 12)
+declare -A BUCKET=([cnpg]=pg-backups [velero]=velero [platform]=platform-snapshots [tofu]=tofu-state)
 umask 077
 mkdir -p "$SEC"
 [ -s "$SEC/rpc_secret" ] || openssl rand -hex 32 > "$SEC/rpc_secret"
