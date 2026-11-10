@@ -1,0 +1,18 @@
+  e10-low: {"borrowingLimitPercent":0,"lendablePercent":0,"limitResponse":{"queuing":{"handSize":1,"queueLengthLimit":5,"queues":1},"type":"Queue"},"nominalConcurrencyShares":1}; workload-low lendablePercent 90
+  API server flags: 
+== 11:37:22 K5: victim alone for 30 s
+  victim's GET: HTTP/2 200 : flow schema service-accounts, priority level workload-low
+  nominal seats: e10-low=3 workload-low=244 
+== 11:37:51 flood: 40 workers LIST all pods for 60 s; the victim keeps going
+error: Get "https://127.0.0.1:32766/apis/flowcontrol.apiserver.k8s.io/v1/flowschemas?limit=500": dial tcp 127.0.0.1:32766: connect: connection refused - error from a previous attempt: EOF
+The connection to the server 127.0.0.1:32766 was refused - did you specify the right host or port?
+  11:38:10 a flood request 20 s in: HTTP/2 429 : flow schema , priority level 
+    body: Too many requests, please try again later. 
+== 11:38:56 rejected by APF (apiserver_flowcontrol_rejected_requests_total): e10-low +428, workload-low +0
+  apiserver_flowcontrol_rejected_requests_total{flow_schema="e10-flood",priority_level="e10-low",reason="queue-full"} 428
+  flood: 13959 requests, codes {'429': 4849, '000': 9032, '403': 40, '200': 38}; LIST p50 8.56 s, p99 18.12 s (200 only)
+  429 by message: {'text:Too_many_requests,_please_try_again_later.': 3711, '_storage_is_(re)initializing_': 1138}
+  victim quiet: 55 GETs, codes {'200': 55}; p50 13.0 ms, p99 20.3 ms
+  victim flood: 91 GETs, codes {'200': 44, '000': 46, '403': 1}; p50 70.5 ms, p99 193.8 ms
+  kwok-scale-kube-apiserver: restarts 1, memory peak since its last start 2081 MiB of 2560 MiB
+  OOM kills of this container in the kernel log: 1

@@ -1,0 +1,14 @@
+== 11:33:09 kwokctl create cluster (v1.37.0, Prometheus on 19090)   - available MiB 5133
+{"time":"2026-11-11T00:33:14.271323399+13:00","level":"INFO","source":{"function":"sigs.k8s.io/kwok/pkg/kwokctl/cmd/create/cluster.runE","file":"/home/runner/work/kwok/kwok/pkg/kwokctl/cmd/create/cluster/cluster.go","line":433},"msg":"Cluster is started","cluster":"scale","elapsed":{"nanosecond":3885242980,"human":"3.88524298s"}}
+{"time":"2026-11-11T00:33:14.271432301+13:00","level":"INFO","source":{"function":"sigs.k8s.io/kwok/pkg/kwokctl/cmd/create/cluster.runE","file":"/home/runner/work/kwok/kwok/pkg/kwokctl/cmd/create/cluster/cluster.go","line":449},"msg":"Waiting for cluster to be ready","cluster":"scale"}
+{"time":"2026-11-11T00:33:16.07735009+13:00","level":"INFO","source":{"function":"sigs.k8s.io/kwok/pkg/kwokctl/cmd/create/cluster.runE","file":"/home/runner/work/kwok/kwok/pkg/kwokctl/cmd/create/cluster/cluster.go","line":457},"msg":"Cluster is ready","cluster":"scale","elapsed":{"nanosecond":1805906142,"human":"1.805906142s"}}
+  11:33:16 server: v1.37.0; lab context unchanged: kind-ent
+  kube-apiserver environment: 
+  memory limit 2560m on kwok-scale-kube-apiserver
+  memory limit 512m on kwok-scale-etcd
+  memory limit 512m on kwok-scale-kube-controller-manager
+  memory limit 768m on kwok-scale-kube-scheduler
+  memory limit 256m on kwok-scale-kwok-controller
+  memory limit 384m on kwok-scale-prometheus
+  11:33:28 1000 virtual nodes created in 11.8 s, Ready: 1000; available MiB 4539
+  example node: node-000000 {"cpu":"32","memory":"256Gi","pods":"110"} taints=

@@ -27,7 +27,7 @@ Between k1 and k2 the VM froze: incident E10-1 (`incident-1.md`).
 | K2 | `--disable-qps-limits`: at least 5x faster; the bound moves to the scheduler's CPU and the API server's write latency | all scheduled at 29.4 s (6.6x), while the 8 creators needed 27.5 s: the scheduler kept pace with creation, so the creators were the bound. All Running at 48.6 s (the kwok controller lagged) | first part confirmed (a lower bound); second part not tested |
 | K3 | etcd grows linearly, a few KB per pod; deleting does not shrink the file until a defragmentation | live (compacted, defragmented): 0 pods 17.65 MiB, 5000 35.85, 6969 43.02, 7134 43.62, 10 000 54.14 - **3.73 KiB per pod**, linear (0-5000: 3.73, 5000-10 000: 3.75). Deleting **grows** the file: +80 MiB for 10 000 pods (92.5 -> 172.7 MiB), about 8 KiB per deleted pod. The API server's compaction left the file at 178.6 MiB with 24.3 MiB in use; the defragmentation took it to 18.7 MiB | confirmed, and deletion is worse than predicted |
 | K4 | a consistent LIST is served from the watch cache: latency close to resourceVersion=0, etcd not read; tens of MB | resourceVersion=0: 0.94-1.23 s; consistent: 0.88-1.06 s; 33 MiB each; one request of each kind: LISTs of pods sent to etcd +0, watch cache consistent reads +1 (consistent and a paginated walk); since the API server started: 2 LISTs of pods to etcd, 1043 consistent reads from the cache | confirmed |
-| K5 | a flooding client in a priority level of 1 share gets 429 for most requests; another client's GETs keep their latency (p99 within 2x) | run 1: 97 % 429, but the victim's p99 went to 10.4 s and the VM froze (E10-1); run 2: invalid (APF was off); run 3: see below | see below |
+| K5 | a flooding client in a priority level of 1 share gets 429 for most requests; another client's GETs keep their latency (p99 within 2x) | seven runs (below): APF rejected and queued as configured, but the API server ran out of memory in every run (VM froze in run 1; 40 cgroup OOM kills in runs 2-7) and the victim's p99 rose 9.5-243x | refuted; follow-up hypotheses K5b-K5e refuted or partly confirmed |
 
 ## K1 and K2: scheduling
 
@@ -157,4 +157,63 @@ it, and they lend: workload-low 90 % of its 244 seats, workload-high 50 %, globa
 33 %, node-high 25 %. Under demand, the "3-seat" level could borrow a few hundred idle seats - and run
 dozens of 33 MiB LISTs at once.
 
-RUN6
+Hypothesis K5d (added before run 6): with `borrowingLimitPercent: 0` e10-low keeps 3 seats and the
+API server survives; without it, e10-low borrows and the API server dies as before.
+
+Run 6 (k8, 10 000 pods, defaults, 1536 MiB; two floods on the same cluster; `k8-*.log`, `k8/`, `k8b/`):
+- 6a, `borrowingLimitPercent: 0`: e10-low's current limit stayed at 3 seats (`k8/apf-seats.txt`, every
+  2 s: limit 3, 3 seats executing, 3 requests executing, 5 queued) - and the API server was still killed
+  5 times. Its anonymous memory (`k8/apf-apiserver-mem.txt`): 938 MiB at rest, then 1066, 1204, 1487
+  MiB within about 4 s of the flood - killed; after each restart it climbed back past 1.4 GiB. Three
+  concurrent LISTs of 10 000 pods (33 MiB of JSON each) cost about 180 MiB each. 429s: 3375 APF, 650
+  watch cache. Victim: quiet p99 20.7 ms; flood 36 x 200 (p50 78.7 ms, p99 436.9 ms), 44 x 000, 4 x 403;
+- 6b, borrowing limit removed again: e10-low's current limit rose to 7 seats (`k8b/apf-seats.txt`:
+  7 executing, 5 queued) - it borrowed 4 - and the API server was killed 8 times (kernel log: 13 kills
+  of container 9acd43d5c26a for 6a and 6b together). Victim: quiet p99 14.7 ms; flood 35 x 200 (p99
+  1539.7 ms), 44 x 000, 6 x 403. (The restart count line failed: the cgroup was gone at that moment;
+  fixed in `scale.sh`.)
+
+K5d: the borrowing part confirmed (3 vs 7 seats); "the API server survives" refuted. APF limited
+exactly what it was configured to limit; three seats of full LISTs did not fit into the memory left.
+
+Hypothesis K5e (added before run 7): with 2560 MiB the API server survives (peak about 1.8 GiB) and
+the victim keeps p99 within 2x.
+
+Run 7 (k9, as 6a with the API server limited to 2560 MiB; `k9-*.log`, `k9/`):
+- e10-low held 3 seats (3 executing, 5 queued) until the kill; APF rejected 428 requests (queue-full)
+  in the process that survived to the end; 429s: 3711 APF, 1138 watch cache;
+- the API server's anonymous memory: 1018 MiB at rest, 1560 MiB one second into the flood, 2437 MiB
+  after 8 s, flat for 10 s, then 2552 MiB - killed once (1 restart, 1 cgroup OOM kill). After the
+  restart it held 1.6-2.0 GiB under the same flood until the end, without a second kill;
+- victim: quiet p50 13.0 ms, p99 20.3 ms; during the flood 91 GETs, 44 x 200 (p50 70.5 ms, p99 193.8
+  ms), 46 x 000, 1 x 403. Most failures came after the restart while the process was alive (25 in a
+  row); their cause (the API server not yet serving, or the connection path under 40 churning clients)
+  was not determined.
+
+**K5e refuted**: the peak was not 1.8 GiB but above 2.5 GiB - three concurrent LISTs of 10 000 pods
+add about 1.4 GiB including the garbage collector's headroom (the 180 MiB per LIST of run 6a was a
+slope before a kill, not a size) - and the victim's successful GETs were about 5x slower at the median
+and 9.5x at p99.
+
+kwokctl's `--disable-qps-limits`, recorded on a throwaway cluster afterwards (`k2-flags.log`):
+kube-apiserver `--max-requests-inflight=0 --max-mutating-requests-inflight=0
+--enable-priority-and-fairness=false`; kube-scheduler and kube-controller-manager `--kube-api-qps=5000
+--kube-api-burst=10000`.
+
+### K5 overall
+
+Refuted in all seven runs: no run kept the victim's p99 within 2x, and every run lost the API server at
+least once. What the runs established:
+
+1. APF did what it was configured to do: classification (flow schema, priority level, checked through
+   the response headers), 3 seats and a queue of 5 (sampled), 429 with "Too many requests" for the rest.
+2. A priority level without `borrowingLimitPercent` borrows: e10-low went from 3 to 7 seats (run 6b).
+3. Seats are not memory: three concurrent full LISTs of 10 000 pods (33 MiB of JSON each) took the API
+   server from about 1.0 GiB to 2.4 GiB (run 7); at 1536 MiB it was killed within seconds in runs 3-6,
+   and GOMEMLIMIT did not help (run 4). Even while it was up, the other client's GETs were 5-10x slower.
+4. A memory limit on the container turned the freeze of the whole VM (run 1) into kills of one process
+   (runs 2-7: 40 kills - 8, 6, 4, 8, 13, 1 - the VM always responsive). A killed API server restarts into more load: 403
+   until RBAC is loaded, 429 while the watch cache fills, the re-lists of every component.
+5. The client is the place to fix: no full LISTs in a loop (informers, pagination for a bounded
+   response, backoff on 429 and on connection failures - the flood client sent up to 16 873 requests
+   into a dead server in 60 s).

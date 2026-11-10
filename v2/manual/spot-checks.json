@@ -3134,5 +3134,390 @@
   "0.013 核 / 118 MiB",
   "evidence/e9/tracing-cost.log",
   "collector CPU cores =0.013, memory MiB =117.562"
+ ],
+ [
+  "E10 1000 virtual nodes in 15.1 s",
+  "11-e10-scale.md",
+  "kwokctl 在 15 秒内建好 1000 个虚拟节点",
+  "evidence/e10/k1-up.log",
+  "1000 virtual nodes created in 15.1 s"
+ ],
+ [
+  "E10 virtual node capacity",
+  "11-e10-scale.md",
+  "每个 32 核、256 GiB、最多 110 个 Pod",
+  "evidence/e10/k1-up.log",
+  "{\"cpu\":\"32\",\"memory\":\"256Gi\",\"pods\":\"110\"}"
+ ],
+ [
+  "E10 K1 creation 51.3 s",
+  "11-e10-scale.md",
+  "| 8 个 kubectl 创建完 10 000 个 Pod | 51.3 秒 | 27.5 秒 |",
+  "evidence/e10/k1-pods.log",
+  "created all 10000 after 51.3 s"
+ ],
+ [
+  "E10 K2 creation 27.5 s",
+  "11-e10-scale.md",
+  "| 8 个 kubectl 创建完 10 000 个 Pod | 51.3 秒 | 27.5 秒 |",
+  "evidence/e10/k2-pods.log",
+  "created all 10000 after 27.5 s"
+ ],
+ [
+  "E10 K1 all scheduled at 193.0 s",
+  "11-e10-scale.md",
+  "| 全部调度完成 | 193.0 秒 | 29.4 秒 |",
+  "evidence/e10/k1-pods.log",
+  "all 10000 at 193.0 s"
+ ],
+ [
+  "E10 K2 all scheduled at 29.4 s",
+  "11-e10-scale.md",
+  "| 全部调度完成 | 193.0 秒 | 29.4 秒 |",
+  "evidence/e10/k2-pods.log",
+  "all 10000 at 29.4 s"
+ ],
+ [
+  "E10 K1 50.3 pods/s: 3331 scheduled at 54.5 s",
+  "11-e10-scale.md",
+  "每秒 50.3 个（54.5–164.7 秒）",
+  "evidence/e10/k1/timeline.txt",
+  "54.5 10000 6669 3661"
+ ],
+ [
+  "E10 K1 50.3 pods/s: 8876 scheduled at 164.7 s",
+  "11-e10-scale.md",
+  "每秒 50.3 个（54.5–164.7 秒）",
+  "evidence/e10/k1/timeline.txt",
+  "164.7 10000 1124 8923"
+ ],
+ [
+  "E10 K2 all Running at 48.6 s",
+  "11-e10-scale.md",
+  "| 全部 Running | 193.0 秒 | 48.6 秒 |",
+  "evidence/e10/k2-pods.log",
+  "all Running at 48.6 s"
+ ],
+ [
+  "E10 K3 92.5 MiB before deleting",
+  "11-e10-scale.md",
+  "集群里有 10 000 个 Pod 时，数据库文件是 92.5 MiB",
+  "evidence/e10/k3-clean.log",
+  "etcd db size MiB: 92.4844"
+ ],
+ [
+  "E10 K3 172.7 MiB after deleting",
+  "11-e10-scale.md",
+  "删除全部 Pod 之后，文件变成了 172.7 MiB",
+  "evidence/e10/k3-clean.log",
+  "etcd db size MiB: 172.656"
+ ],
+ [
+  "E10 K3 defrag before compaction timed out",
+  "11-e10-scale.md",
+  "etcdctl 在默认的 5 秒命令超时后失败",
+  "evidence/e10/k3-clean.log",
+  "took 5.004020744s. (context deadline exceeded)"
+ ],
+ [
+  "E10 K3 API server compaction at 10:28:47",
+  "11-e10-scale.md",
+  "它在 10:28:47 出现",
+  "evidence/e10/k3-etcd.log",
+  "10:28:47 after the API server's compaction"
+ ],
+ [
+  "E10 K3 24.3 MiB in use after compaction",
+  "11-e10-scale.md",
+  "文件 178.6 MiB，其中有效数据只有 24.3 MiB",
+  "evidence/e10/k3-etcd.log",
+  "db size 178.6 MiB, in use 24.28 MiB"
+ ],
+ [
+  "E10 K3 defrag after compaction 0.35 s",
+  "11-e10-scale.md",
+  "压缩之后再整理，只用了 0.35 秒",
+  "evidence/e10/k3-etcd.log",
+  "took 351.587344ms"
+ ],
+ [
+  "E10 K3 18.7 MiB after defrag",
+  "11-e10-scale.md",
+  "**只有碎片整理让文件变小**：18.7 MiB",
+  "evidence/e10/k3-etcd.log",
+  "after defragmentation: revision 93025, db size 18.73 MiB"
+ ],
+ [
+  "E10 K3 live 0 pods 17.65 MiB",
+  "11-e10-scale.md",
+  "| 数据库（MiB） | 17.65 | 35.85 | 43.02 | 43.62 | 54.14 |",
+  "evidence/e10/k3-etcd-down.log",
+  "0 pods, compacted and defragmented: revision 192897, db size 17.65 MiB"
+ ],
+ [
+  "E10 K3 live 5000 pods 35.85 MiB",
+  "11-e10-scale.md",
+  "| 数据库（MiB） | 17.65 | 35.85 | 43.02 | 43.62 | 54.14 |",
+  "evidence/e10/k3-etcd-down.log",
+  "5000 pods, compacted and defragmented: revision 176463, db size 35.85 MiB"
+ ],
+ [
+  "E10 K3 live 6969 pods 43.02 MiB",
+  "11-e10-scale.md",
+  "| 数据库（MiB） | 17.65 | 35.85 | 43.02 | 43.62 | 54.14 |",
+  "evidence/e10/k3-etcd-down.log",
+  "db size 43.02 MiB, in use 43.02 MiB; pods 6969"
+ ],
+ [
+  "E10 K3 live 7134 pods 43.62 MiB",
+  "11-e10-scale.md",
+  "| 数据库（MiB） | 17.65 | 35.85 | 43.02 | 43.62 | 54.14 |",
+  "evidence/e10/k3-etcd-down.log",
+  "db size 43.62 MiB, in use 43.62 MiB; pods 7134"
+ ],
+ [
+  "E10 K3 live 10000 pods 54.14 MiB",
+  "11-e10-scale.md",
+  "| 数据库（MiB） | 17.65 | 35.85 | 43.02 | 43.62 | 54.14 |",
+  "evidence/e10/k3-etcd-down.log",
+  "10000 pods, compacted and defragmented: revision 132610, db size 54.14 MiB"
+ ],
+ [
+  "E10 K4 resourceVersion=0 33 MiB",
+  "11-e10-scale.md",
+  "| `resourceVersion=0` | 0.94–1.23 秒 | 33 MiB |",
+  "evidence/e10/k4-lists.log",
+  "resourceVersion=0 #1: 1.228 s, 33 MiB"
+ ],
+ [
+  "E10 K4 consistent LIST 0.88 s",
+  "11-e10-scale.md",
+  "| 不带 resourceVersion（一致的读） | 0.88–1.06 秒 | 33 MiB |",
+  "evidence/e10/k4-lists.log",
+  "resourceVersion unset (consistent) #1: 0.88 s, 33 MiB"
+ ],
+ [
+  "E10 K4 paginated walk etcd +0",
+  "11-e10-scale.md",
+  "三种请求发往 etcd 的 Pod LIST 都是 +0",
+  "evidence/e10/k4-lists.log",
+  "one paginated walk (20 pages of 500): etcd +0, watch cache consistent reads +1"
+ ],
+ [
+  "E10 K4 1043 consistent reads from the cache",
+  "11-e10-scale.md",
+  "却由缓存提供了 1043 次一致读",
+  "evidence/e10/k4-lists.log",
+  "LISTs of pods sent to etcd 2, consistent pod reads served by the watch cache 1043"
+ ],
+ [
+  "E10 incident load 858",
+  "11-e10-scale.md",
+  "1 分钟负载是 858",
+  "evidence/e10/incident-1.md",
+  "load average at restart 858 / 971 / 587"
+ ],
+ [
+  "E10 K5 run 1 1289 of 1329",
+  "11-e10-scale.md",
+  "1329 个洪水请求中有 1289 个",
+  "evidence/e10/incident-1.md",
+  "APF rejects 1289 of 1329 flood requests"
+ ],
+ [
+  "E10 control plane about 1.8 GiB",
+  "11-e10-scale.md",
+  "10 000 个 Pod 时它已占用约 1.8 GiB",
+  "evidence/e10/incident-1.md",
+  "about 1.8 GiB (1820 MiB"
+ ],
+ [
+  "E10 --disable-qps-limits turns APF off",
+  "11-e10-scale.md",
+  "以 `--enable-priority-and-fairness=false` 和 `--max-requests-inflight=0` 启动 API server",
+  "evidence/e10/k2-flags.log",
+  "--max-requests-inflight=0 --max-mutating-requests-inflight=0 --enable-priority-and-fairness=false"
+ ],
+ [
+  "E10 K5 run 2 kernel OOM kill line",
+  "11-e10-scale.md",
+  "anon-rss:1567152kB",
+  "evidence/e10/k5-oom-kernel.log",
+  "anon-rss:1567152kB"
+ ],
+ [
+  "E10 K5 run 2 flood 16873 connection failures",
+  "11-e10-scale.md",
+  "16 873 个请求在约 2 毫秒内以连接失败告终",
+  "evidence/e10/k5-apf-rerun.log",
+  "'000': 16873"
+ ],
+ [
+  "E10 restart probe 403",
+  "11-e10-scale.md",
+  "然后是 403——服务账号明明有权限",
+  "evidence/e10/restart-probe.log",
+  "t=13.3s 403 pods is forbidden"
+ ],
+ [
+  "E10 restart probe 429 watch cache",
+  "11-e10-scale.md",
+  "然后是 429“storage is (re)initializing”",
+  "evidence/e10/restart-probe.log",
+  "t=13.6s 429 storage is (re)initializing"
+ ],
+ [
+  "E10 K5 run 3 six kills",
+  "11-e10-scale.md",
+  "API server 仍然被杀死了 6 次",
+  "evidence/e10/k5-apf-final.log",
+  "kwok-scale-kube-apiserver: restarts 6"
+ ],
+ [
+  "E10 K5 run 3 probe 429 from the watch cache",
+  "11-e10-scale.md",
+  "消息却是“storage is (re)initializing”",
+  "evidence/e10/k5-apf-final.log",
+  "\"message\": \"storage is (re)initializing\""
+ ],
+ [
+  "E10 K5 run 3 976 MiB before the flood",
+  "11-e10-scale.md",
+  "洪水开始前 API server 已经常驻 976 MiB",
+  "evidence/e10/k5-state.log",
+  "kube-apiserver=976.273"
+ ],
+ [
+  "E10 K5 run 4 GOMEMLIMIT in effect",
+  "11-e10-scale.md",
+  "指标 `go_gc_gomemlimit_bytes` 证实它已生效",
+  "evidence/e10/k6-state.log",
+  "go_gc_gomemlimit_bytes 1.3631488e+09"
+ ],
+ [
+  "E10 K5 run 4 four kills",
+  "11-e10-scale.md",
+  "API server 仍然被杀了 4 次",
+  "evidence/e10/k6-apf.log",
+  "OOM kills of this container in the kernel log: 4"
+ ],
+ [
+  "E10 K5 run 5 eight kills",
+  "11-e10-scale.md",
+  "它仍然被杀了 8 次",
+  "evidence/e10/k7-apf.log",
+  "OOM kills of this container in the kernel log: 8"
+ ],
+ [
+  "E10 K5 run 5 662 MiB at rest",
+  "11-e10-scale.md",
+  "静止时 662 MiB",
+  "evidence/e10/k7/apf-apiserver-mem.txt",
+  "0.0 668 662"
+ ],
+ [
+  "E10 K5 run 5 1172 MiB",
+  "11-e10-scale.md",
+  "825、1172、1523 MiB",
+  "evidence/e10/k7/apf-apiserver-mem.txt",
+  "13.4 1169 1172"
+ ],
+ [
+  "E10 K5 run 5 1523 MiB",
+  "11-e10-scale.md",
+  "825、1172、1523 MiB",
+  "evidence/e10/k7/apf-apiserver-mem.txt",
+  "14.5 1524 1523"
+ ],
+ [
+  "E10 K5 run 5 all 429 from APF",
+  "11-e10-scale.md",
+  "所有 4033 个 429 都带着 APF 的消息",
+  "evidence/e10/k7-apf.log",
+  "{'text:Too_many_requests,_please_try_again_later.': 4033}"
+ ],
+ [
+  "E10 borrowingLimitPercent nil = infinite",
+  "11-e10-scale.md",
+  "这个字段“为空时，上限实际上是无限的”",
+  "evidence/e10/apf-explain.log",
+  "When this field is left `nil`, the limit is"
+ ],
+ [
+  "E10 workload-low lends 90 %",
+  "11-e10-scale.md",
+  "workload-low 借出 244 个席位中的 90%",
+  "evidence/e10/apf-explain.log",
+  "workload-low      100      90"
+ ],
+ [
+  "E10 workload-low 244 seats",
+  "11-e10-scale.md",
+  "workload-low 借出 244 个席位中的 90%",
+  "evidence/e10/k8-apf.log",
+  "nominal seats: e10-low=3 workload-low=244"
+ ],
+ [
+  "E10 K5 run 6a 3 seats, 5 queued",
+  "11-e10-scale.md",
+  "它的上限始终是 3 个席位（3 个在执行，5 个在排队）",
+  "evidence/e10/k8/apf-seats.txt",
+  "11:28:38 3 3 3 5"
+ ],
+ [
+  "E10 K5 run 6b 7 seats",
+  "11-e10-scale.md",
+  "上限升到 7 个",
+  "evidence/e10/k8b/apf-seats.txt",
+  "11:30:34 7 7 7 5"
+ ],
+ [
+  "E10 K5 run 6a 938 MiB -> 1487 MiB",
+  "11-e10-scale.md",
+  "从 938 MiB 涨到 1487 MiB",
+  "evidence/e10/k8/apf-apiserver-mem.txt",
+  "13.8 1511 1487"
+ ],
+ [
+  "E10 K5 run 7 1560 MiB after 1 s",
+  "11-e10-scale.md",
+  "它的内存在洪水开始 1 秒后是 1560 MiB",
+  "evidence/e10/k9/apf-apiserver-mem.txt",
+  "11.6 1592 1560"
+ ],
+ [
+  "E10 K5 run 7 2437 MiB plateau",
+  "11-e10-scale.md",
+  "8 秒后是 2437 MiB",
+  "evidence/e10/k9/apf-apiserver-mem.txt",
+  "19.5 2472 2437"
+ ],
+ [
+  "E10 K5 run 7 killed at 2552 MiB",
+  "11-e10-scale.md",
+  "然后涨到 2552 MiB，被杀了一次",
+  "evidence/e10/k9/apf-apiserver-mem.txt",
+  "29.5 2559 2552"
+ ],
+ [
+  "E10 K5 run 7 one kill",
+  "11-e10-scale.md",
+  "| 7 | 同 6a，API server 内存上限 2560 MiB（K5e） | 被杀 1 次 |",
+  "evidence/e10/k9-apf.log",
+  "OOM kills of this container in the kernel log: 1"
+ ],
+ [
+  "E10 K5 run 7 victim quiet p50 13.0 ms",
+  "11-e10-scale.md",
+  "中位数从 13 毫秒变成 71 毫秒",
+  "evidence/e10/k9-apf.log",
+  "victim quiet: 55 GETs, codes {'200': 55}; p50 13.0 ms, p99 20.3 ms"
+ ],
+ [
+  "E10 K5 run 7 victim flood p50 70.5 p99 193.8",
+  "11-e10-scale.md",
+  "p99 从 20 毫秒变成 194 毫秒",
+  "evidence/e10/k9-apf.log",
+  "p50 70.5 ms, p99 193.8 ms"
  ]
 ]
