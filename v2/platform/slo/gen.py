@@ -35,7 +35,9 @@ def main() -> None:
     for s in spec["slos"]:
         name, budget = s["name"], round(1 - s["objective"] / 100, 6)
         rec = [{"record": f"slo:error_ratio:{w}",
-                "expr": f"({s['errors'].replace('{{w}}', w)}) / ({s['total'].replace('{{w}}', w)})",
+                # "or vector(0)": with no failure at all the error series does not exist, and the
+                # ratio would be absent ("no data") instead of 0
+                "expr": f"(({s['errors'].replace('{{w}}', w)}) or vector(0)) / ({s['total'].replace('{{w}}', w)})",
                 "labels": {"slo": name}} for w in WINDOWS]
         alerts = []
         for sev, slo_sev, pairs, meaning in ALERTS:
