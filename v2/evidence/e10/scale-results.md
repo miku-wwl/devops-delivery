@@ -13,7 +13,11 @@ Clusters (all named `scale`, deleted after use):
 |---|---|---|---|---|
 | k1 | 09:41 | defaults (APF on), no memory limits | K1, K4, K5 run 1 | `k1-up.log`, `k1-pods.log`, `k1-state.log`, `k4-lists.log`, `k5-apf.log`, `k1/` |
 | k2 | 10:14 | `--disable-qps-limits`; memory limits per container | K2, K5 run 2, K3, restart probe | `k2-up.log`, `k2-pods.log`, `k2-state.log`, `k5-apf-rerun.log`, `k3-clean.log`, `k3-etcd.log`, `k3-etcd-down.log`, `probe-pods.log`, `restart-probe.log`, `k2-down.log` |
-| k5 | after k2 | defaults (APF on); memory limits per container | K5 run 3 | `k5-up.log`, `k5-pods.log`, `k5-state.log`, `k5-apf-final.log`, `k5/`, `k5-down.log` |
+| k5 | 11:00 | defaults (APF on); memory limits per container | K5 run 3 | `k5-up.log`, `k5-pods.log`, `k5-state.log`, `k5-apf-final.log`, `k5/`, `k5-down.log` |
+| k6 | 11:09 | as k5, plus `GOMEMLIMIT=1300MiB` for kube-apiserver | K5 run 4 | `k6-up.log`, `k6-pods.log`, `k6-state.log`, `k6-apf.log`, `k6/`, `k6-down.log` |
+| k7 | 11:27 | as k5, 5000 pods instead of 10 000 | K5 run 5 | `k7-up.log`, `k7-pods.log`, `k7-state.log`, `k7-apf.log`, `k7/`, `k7-down.log` |
+
+Kernel log of all cgroup OOM kills: `k5-oom-kernel.log` (and the count per run in the `apf` logs).
 
 Between k1 and k2 the VM froze: incident E10-1 (`incident-1.md`).
 
@@ -118,4 +122,21 @@ Run 3 (k5, defaults: APF on, memory limits, 40 workers; `k5-apf-final.log`, `k5/
 - The same cluster repeated K1 on the way: 52 pods/s between 31 and 166 s (`k5/timeline.txt`); the
   summary line's "first 31.3 s, 64 pods/s" comes from the skewed counts during creation.
 
-RUN4
+Hypothesis K5b (added before run 4, `scale-prediction.md`): the API server dies because Go's collector
+lets the heap grow to twice the live data and does not know the container's limit; with GOMEMLIMIT it
+survives.
+
+Run 4 (k6, as run 3 plus `GOMEMLIMIT=1300MiB` through kwokctl's `componentsPatches.extraEnvs`;
+`k6-up.log`, `k6-state.log`, `k6-apf.log`, `k6/`):
+- the limit was in effect: `go_gc_gomemlimit_bytes 1.3631488e+09`, `go_gc_gogc_percent 100`;
+- the API server was still killed 4 times (4 restarts, 4 cgroup OOM kills); 997 MiB resident before the
+  flood. **K5b refuted**: under this flood the API server needs more than 1.5 GiB with 10 000 pods; the
+  collector's headroom is not the whole story;
+- the 429s, now with their messages: 1528 "storage is (re)initializing" (the watch cache after a
+  restart) and 2543 without a JSON Status - APF answers its rejections as plain text; its counter showed
+  54 rejections, reason queue-full, flow schema e10-flood, since the last restart;
+- flood: 13 688 requests, 9438 x 000, 4071 x 429, 153 x 403, 26 x 200 (p50 7.4 s, p99 9.3 s);
+- victim: quiet p50 12.4 ms, p99 19.4 ms; during the flood 80 GETs, 35 x 200 (p50 105.9 ms, p99 1799.5
+  ms), 42 x 000, 3 x 403.
+
+RUN5

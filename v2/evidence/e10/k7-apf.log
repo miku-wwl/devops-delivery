@@ -1,0 +1,17 @@
+  API server flags: 
+== 11:20:11 K5: victim alone for 30 s
+  victim's GET: HTTP/2 200 : flow schema service-accounts, priority level workload-low
+t_s memory_current_MiB anon_MiB (t=0 about 10 s before the flood)
+  nominal seats: e10-low=3 workload-low=244 
+== 11:20:41 flood: 40 workers LIST all pods for 60 s; the victim keeps going
+  11:21:01 a flood request 20 s in: HTTP/2 429 : flow schema e10-flood, priority level e10-low
+    body: Too many requests, please try again later. 
+Unable to connect to the server: read tcp 127.0.0.1:43471->127.0.0.1:32766: read: connection reset by peer
+Unable to connect to the server: EOF
+== 11:21:46 rejected by APF (apiserver_flowcontrol_rejected_requests_total): e10-low +0, workload-low +0
+  flood: 14232 requests, codes {'200': 55, '000': 9896, '403': 248, '429': 4033}; LIST p50 3.51 s, p99 8.66 s (200 only)
+  429 by message: {'text:Too_many_requests,_please_try_again_later.': 4033}
+  victim quiet: 58 GETs, codes {'200': 58}; p50 11.6 ms, p99 15.6 ms
+  victim flood: 85 GETs, codes {'200': 46, '000': 33, '403': 6}; p50 99.8 ms, p99 1386.7 ms
+  kwok-scale-kube-apiserver: restarts 8, memory peak since its last start 283 MiB of 1536 MiB
+  OOM kills of this container in the kernel log: 8

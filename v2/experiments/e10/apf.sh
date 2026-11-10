@@ -55,6 +55,12 @@ spec:
     - subjects: [{kind: ServiceAccount, serviceAccount: {name: e10-flood, namespace: default}}]
       resourceRules: [{verbs: ["*"], apiGroups: ["*"], resources: ["*"], namespaces: ["*"], clusterScope: true}]
 EOF
+# K5 run 6: e10-low lends nothing (lendablePercent 0), but borrowing is a limit of its own - nil (runs
+# 1-5) means none. E10_BORROW=0 caps it, E10_BORROW=null removes the cap again.
+if [ -n "${E10_BORROW:-}" ]; then
+  $K patch prioritylevelconfiguration e10-low --type merge -p "{\"spec\":{\"limited\":{\"borrowingLimitPercent\":$E10_BORROW}}}" >/dev/null
+fi
+echo "  e10-low: $($K get prioritylevelconfiguration e10-low -o jsonpath='{.spec.limited}'); workload-low lendablePercent $($K get prioritylevelconfiguration workload-low -o jsonpath='{.spec.limited.lendablePercent}')"
 tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
 ( umask 077
   printf 'Authorization: Bearer %s\n' "$($K create token e10-flood -n default --duration 1h)" > "$tmp/flood.hdr"
@@ -83,12 +89,23 @@ echo "  victim's GET: $(pf "$tmp/v.hdr")"
 # 5 s after it; 0 while the container is down
 CG=/sys/fs/cgroup/system.slice/docker-$(docker inspect -f '{{.Id}}' kwok-scale-kube-apiserver).scope
 FLOOD_AT=$(( $(date +%s) + 30 ))
-( sleep 20; T0=$(date +%s.%N); echo "t_s memory_current_MiB anon_MiB (t=0 about 10 s before the flood)"
-  while [ "$(date +%s)" -lt "$(( FLOOD_AT + 65 ))" ]; do
-    echo "$(awk -v a="$(date +%s.%N)" -v b="$T0" 'BEGIN {printf "%.1f", a - b}') $(( $(cat "$CG/memory.current" 2>/dev/null || echo 0) / 1048576 )) $(( $(awk '/^anon / {print $2}' "$CG/memory.stat" 2>/dev/null || echo 0) / 1048576 ))"
-    sleep 1
-  done > "$OUT/apf-apiserver-mem.txt" ) &
+( sleep 20; T0=$(date +%s.%N)
+  { echo "t_s memory_current_MiB anon_MiB (t=0 about 10 s before the flood)"
+    while [ "$(date +%s)" -lt "$(( FLOOD_AT + 65 ))" ]; do
+      echo "$(awk -v a="$(date +%s.%N)" -v b="$T0" 'BEGIN {printf "%.1f", a - b}') $(( $(cat "$CG/memory.current" 2>/dev/null || echo 0) / 1048576 )) $(( $(awk '/^anon / {print $2}' "$CG/memory.stat" 2>/dev/null || echo 0) / 1048576 ))"
+      sleep 1
+    done; } > "$OUT/apf-apiserver-mem.txt" ) &
 sampler=$!
+# K5 run 6: e10-low's seats every 2 s (as the admin, who is exempt from APF); "down" while it restarts
+( sleep 25
+  { echo "utc current_limit_seats executing_seats executing_requests inqueue_requests (priority level e10-low)"
+    while [ "$(date +%s)" -lt "$(( FLOOD_AT + 62 ))" ]; do
+      s=$($K get --raw /metrics 2>/dev/null | grep 'priority_level="e10-low"' | grep -E '^apiserver_flowcontrol_(current_limit_seats|current_executing_seats|current_executing_requests|current_inqueue_requests)[{]' \
+          | awk '{split($1, a, "{"); v[a[1]] += $2} END {if (NR) printf "%d %d %d %d", v["apiserver_flowcontrol_current_limit_seats"], v["apiserver_flowcontrol_current_executing_seats"], v["apiserver_flowcontrol_current_executing_requests"], v["apiserver_flowcontrol_current_inqueue_requests"]}')
+      echo "$(date -u +%T) ${s:-down}"
+      sleep 2
+    done; } > "$OUT/apf-seats.txt" ) &
+seats=$!
 victim 30 > "$OUT/apf-victim-quiet.txt"
 echo "  nominal seats: $($K get --raw /metrics | grep -E '^apiserver_flowcontrol_nominal_limit_seats[{]priority_level="(e10-low|workload-low)"' | sed -E 's/.*priority_level="([^"]+)"[}] /\1=/' | tr '\n' ' ')"
 r0=$(metric e10-low); w0=$(metric workload-low)
@@ -125,7 +142,7 @@ done
   done ) &
 guard=$!
 victim 60 > "$OUT/apf-victim-flood.txt"
-wait "${pids[@]}" 2>/dev/null; kill "$guard" 2>/dev/null; wait "$guard" 2>/dev/null; wait "$probe" "$sampler" 2>/dev/null
+wait "${pids[@]}" 2>/dev/null; kill "$guard" 2>/dev/null; wait "$guard" 2>/dev/null; wait "$probe" "$sampler" "$seats" 2>/dev/null
 cat "$tmp"/flood-*.txt > "$OUT/apf-flood.txt"
 echo "== $(now) rejected by APF (apiserver_flowcontrol_rejected_requests_total): e10-low +$(( $(metric e10-low) - r0 )), workload-low +$(( $(metric workload-low) - w0 ))"
 $K get --raw /metrics | grep -E '^apiserver_flowcontrol_rejected_requests_total[{].*priority_level="(e10-low|workload-low)"' | sed 's/^/  /'

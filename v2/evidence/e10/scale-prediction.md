@@ -47,3 +47,17 @@ APF keep another client's latency - is still open. Run 5 halves the objects inst
 | | Hypothesis | Measured by |
 |---|---|---|
 | K5c | with 5000 pods (a LIST of about 16.5 MiB) and everything else as in run 3 - defaults, APF on, kube-apiserver limited to 1536 MiB, no GOMEMLIMIT, 40 workers for 60 s - the API server is not killed; the flood's 429 are APF's; the victim's GETs keep p99 within 2x of the quiet value | kernel log, restarts, 429 messages, victim latencies, the API server's cgroup memory every second |
+
+## Added 2026-11-10 11:35 UTC, after K5 run 5 and before run 6
+
+Run 5: K5c refuted - with 5000 pods the API server (662 MiB anonymous memory at rest) was killed 8 times;
+its anonymous memory rose from 662 to 1523 MiB within about 4 s of the flood's start and, after each
+restart, climbed past 1.2 GiB again within about 8 s (`k7/apf-apiserver-mem.txt`). All 4033 429s carried
+APF's message. About 200 MiB/s is not one LIST at a time. Suspected design error in the experiment:
+e10-low lends nothing (`lendablePercent: 0`), but its borrowing was never limited - in flowcontrol/v1 a
+missing `borrowingLimitPercent` means no limit - so under demand it may borrow the seats that idle
+levels lend.
+
+| | Hypothesis | Measured by |
+|---|---|---|
+| K5d | with `borrowingLimitPercent: 0` on e10-low and everything else as run 3 (10 000 pods, defaults, APF on, 1536 MiB, no GOMEMLIMIT, 40 workers, 60 s): e10-low's current limit stays at 3 seats, the API server is not killed, the victim's GETs keep p99 within 2x of the quiet value. Then, on the same cluster, the same flood with the borrowing limit removed (as in runs 1-5): e10-low's current limit rises above 3 seats and the API server's memory climbs as in runs 3-5 | `apiserver_flowcontrol_current_limit_seats` and executing seats every 2 s, the API server's cgroup memory every second, kernel log, restarts, victim latencies |
