@@ -1,0 +1,60 @@
+# E8 (chapter 9): the storefront's public entrance at layer 7 (Gateway API, Istio). Envoy picks a
+# gateway pod for every request, not for every connection: in chapter 5 the two gateway pods added
+# by the autoscaler behind the L4 load balancer received no request at all - the clients' keep-alive
+# connections stayed on the old pods (evidence/e4/hpa-2-pods.log). The L4 entrance (Service gateway,
+# type LoadBalancer) stays until the re-test has compared both. Routes for canaries and previews
+# are added to this HTTPRoute.
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: storefront-ingress
+  namespace: storefront
+spec:
+  gatewayClassName: istio
+  listeners:
+    - name: http
+      port: 8080
+      protocol: HTTP
+      allowedRoutes: {namespaces: {from: Same}}
+  # two Envoy replicas spread over the zones, a disruption budget, sized requests
+  infrastructure:
+    parametersRef: {group: "", kind: ConfigMap, name: ingress-options}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ingress-options
+  namespace: storefront
+data:
+  deployment: |
+    spec:
+      replicas: 2
+      template:
+        spec:
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: topology.kubernetes.io/zone
+              whenUnsatisfiable: ScheduleAnyway
+              labelSelector:
+                matchLabels:
+                  gateway.networking.k8s.io/gateway-name: storefront-ingress
+          containers:
+            - name: istio-proxy
+              resources:
+                requests: {cpu: 100m, memory: 64Mi}
+                limits: {memory: 256Mi}
+  podDisruptionBudget: |
+    spec:
+      minAvailable: 1
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: storefront
+  namespace: storefront
+spec:
+  parentRefs:
+    - {name: storefront-ingress, sectionName: http}
+  rules:
+    - backendRefs:
+        - {name: gateway, port: 8080}

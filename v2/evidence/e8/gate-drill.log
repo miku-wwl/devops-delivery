@@ -1,0 +1,46 @@
+== 23:59:18 before: main d7bf9a8c; catalog in the cluster: image storefront:fd38028, replicas 2, memory limit 256Mi, DB_POOL_MAX 10
+
+== 23:59:18 G2 catalog: image tag latest
+MR !2 (mr/20261109-235919-alice, by alice) pipeline 7: failed after 48 s; diff: envs/prod/storefront/services/catalog.yaml
+  failed job 22:
+    2026-11-10T00:00:08.994722Z 01O policy release-images -> resource default/Deployment/catalog failed:
+    2026-11-10T00:00:08.994736Z 01O 1 - platform-registry-fixed-tag validation error: Images come from the platform registry (localhost:5001) with a fixed tag, never :latest - every image must be traceable to a commit. rule platform-registry-fixed-tag failed at path /spec/template/spec/initContainers/0/image/
+    2026-11-10T00:00:08.910398Z 00O [31;1mERROR: Job failed: exit code 1[0;m
+merge !2 as root (Maintainer): HTTP 405 405 Method Not Allowed
+MR !2: closed
+   main: d7bf9a8c; catalog in the cluster: image storefront:fd38028, replicas 2, memory limit 256Mi, DB_POOL_MAX 10
+
+== 00:00:13 G3 catalog: no memory limit
+MR !3 (mr/20261110-000014-alice, by alice) pipeline 8: failed after 31 s; diff: envs/prod/storefront/services/catalog.yaml
+  failed job 24:
+    2026-11-10T00:00:45.475347Z 01O policy release-resources -> resource default/Deployment/catalog failed:
+    2026-11-10T00:00:45.475361Z 01O 1 - requests-and-memory-limit validation error: Every container needs CPU and memory requests and a memory limit: scheduling and the eviction order are computed from them (chapters 4 and 5). rule requests-and-memory-limit failed at path /spec/template/spec/containers/0/resources/limits/memory/
+    2026-11-10T00:00:47.083515Z 00O [31;1mERROR: Job failed: exit code 1[0;m
+merge !3 as root (Maintainer): HTTP 405 405 Method Not Allowed
+MR !3: closed
+   main: d7bf9a8c; catalog in the cluster: image storefront:fd38028, replicas 2, memory limit 256Mi, DB_POOL_MAX 10
+
+== 00:00:50 G4 catalog: one replica in production
+MR !4 (mr/20261110-000051-alice, by alice) pipeline 9: failed after 32 s; diff: envs/prod/storefront/services/catalog.yaml platform/manifests/mesh/ingress-storefront.yaml platform/manifests/tenants/network.yaml
+  failed job 26:
+    2026-11-10T00:01:22.100172Z 01O policy release-prod-availability -> resource default/Deployment/catalog failed:
+    2026-11-10T00:01:23.793646Z 00O [31;1mERROR: Job failed: exit code 1[0;m
+merge !4 as root (Maintainer): HTTP 405 405 Method Not Allowed
+MR !4: closed
+   main: d7bf9a8c; catalog in the cluster: image storefront:fd38028, replicas 2, memory limit 256Mi, DB_POOL_MAX 10
+
+== 00:01:27 G5 catalog: database pool 10 -> 12 (compliant)
+MR !5 (mr/20261110-000127-alice, by alice) pipeline 10: failed after 15 s; diff: envs/prod/storefront/services/catalog.yaml platform/manifests/mesh/ingress-storefront.yaml platform/manifests/tenants/network.yaml
+  failed job 27:
+    2026-11-10T00:01:40.190481Z 01E error: RPC failed; HTTP 403 curl 22 The requested URL returned error: 403
+    2026-11-10T00:01:41.688768Z 00O [31;1mERROR: Job failed: exit code 128[0;m
+merge !5 as alice (Developer): HTTP 401
+merge !5 as root (Maintainer): HTTP 405 405 Method Not Allowed
+   merged at 00:01:47, main d7bf9a8c
+   00:11:49 rollout complete after 602 s; catalog in the cluster: image storefront:fd38028, replicas 2, memory limit 256Mi, DB_POOL_MAX 10
+
+== 00:11:49 G6 a direct push to main, as the administrator
+   remote: GitLab: You are not allowed to push code to protected branches on this project.
+    ! [remote rejected] HEAD -> main (pre-receive hook declined)
+   error: failed to push some refs to 'http://localhost:8929/root/platform-gitops.git'
+   main: d7bf9a8c

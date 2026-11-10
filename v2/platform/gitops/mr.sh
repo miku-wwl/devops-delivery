@@ -40,8 +40,18 @@ propose)
   if git -C "$work" diff --cached --quiet; then echo "no changes against main"; exit 3; fi
   git -C "$work" -c user.name="$NAME" -c user.email="$MAIL" commit -q -m "$TITLE"
   git -C "$work" push -q origin "$branch" 2>&1 | grep -v "^remote:" || true
-  iid=$(api -X POST "$GL/api/v4/projects/$P/merge_requests" --data-urlencode "source_branch=$branch" \
-          --data target_branch=main --data-urlencode "title=$TITLE" --data remove_source_branch=true | jq -r .iid)
+  # right after a push GitLab may not know the branch yet (HTTP 400 "source branch does not exist"):
+  # retry a few times, and show GitLab's own message if it keeps refusing
+  iid=
+  for try in 1 2 3 4 5; do
+    resp=$(curl -sS -w '\n%{http_code}' -X POST -H "PRIVATE-TOKEN: $TOK" "$GL/api/v4/projects/$P/merge_requests" \
+             --data-urlencode "source_branch=$branch" --data target_branch=main --data-urlencode "title=$TITLE" \
+             --data remove_source_branch=true)
+    if [ "$(tail -1 <<<"$resp")" = 201 ]; then iid=$(head -n -1 <<<"$resp" | jq -r .iid); break; fi
+    echo "creating the merge request: HTTP $(tail -1 <<<"$resp") $(head -n -1 <<<"$resp" | jq -c '.message // .error // .' 2>/dev/null) (attempt $try)" >&2
+    sleep 3
+  done
+  [ -n "$iid" ] || exit 1
   TOK=$ROOT_TOKEN
   t0=$(date +%s)
   for i in $(seq 1 180); do

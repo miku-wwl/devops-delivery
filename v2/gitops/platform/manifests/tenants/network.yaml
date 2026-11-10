@@ -81,3 +81,14 @@ spec:
   policyTypes: [Ingress]
   ingress:
     - ports: [{port: 8080, protocol: TCP}]
+---
+# E8 (chapter 9): the layer-7 entrance (Gateway storefront-ingress, Istio's Envoy pods) receives the
+# public traffic on its listener port; from there it reaches the gateway pods inside the namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: allow-public-ingress, namespace: storefront}
+spec:
+  podSelector: {matchLabels: {gateway.networking.k8s.io/gateway-name: storefront-ingress}}
+  policyTypes: [Ingress]
+  ingress:
+    - ports: [{port: 8080, protocol: TCP}]

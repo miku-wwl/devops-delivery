@@ -1,0 +1,16 @@
+# transcript: E8 G1: the gate introduced through itself
+# recorded: 2026-11-09T23:57:26Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# E8 G1: switch the gate on, then publish the change that introduces it - through the gate
+$ bash v2/platform/gitops/setup.sh
+user alice created (5)
+impersonation token for alice -> /home/devops/.lab-secrets/v2/gitlab/alice-token
+{"project":"root/platform-gitops","only_allow_merge_if_pipeline_succeeds":true,"allow_merge_on_skipped_pipeline":false}
+{"branch":"main","push":["No one"],"merge":["Maintainers"]}
+{"member":"alice","access_level":30}
+
+$ bash v2/platform/bootstrap/publish-gitops.sh fd38028 "e8: the merge-request gate (pipeline, release policies) and a readiness probe for insight-api"
+MR !1 (mr/20261109-235737-root, by root) pipeline 5: success after 50 s; diff: ci/render.sh policies/release/common/release.yaml policies/release/prod/availability.yaml tenants/insight/app.yaml .gitlab-ci.yml
+merge !1 as root (Maintainer): HTTP 200 merged
+platform-gitops: merged !1 (e8: the merge-request gate (pipeline, release policies) and a readiness probe for insight-api)
+

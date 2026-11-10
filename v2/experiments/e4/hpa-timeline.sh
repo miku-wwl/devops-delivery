@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Scale-up and scale-down timeline of the gateway's HorizontalPodAutoscaler under a load step.
 #   bash v2/experiments/e4/hpa-timeline.sh <label> [low] [high] [low-s] [high-s] [after-s]
+#   OUT_DIR=... GW_URL=... (E8: another evidence directory and entrance)
 # Default: 30 it/s for 120 s, 120 it/s for 420 s, 30 it/s for 480 s (one k6 run, 10 s ramps).
 # NO_REUSE=1: k6 opens new connections every iteration (see experiments/load/storefront.js).
 # Records: the controllers' timing settings, a watcher line every ~2 s (watch.sh), k6 per
@@ -10,7 +11,7 @@ set -uo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$HERE/../../.." && pwd)"
 LABEL=${1:?label}; LOW=${2:-30}; HIGH=${3:-120}; T1=${4:-120}; T2=${5:-420}; T3=${6:-480}
-OUT="$ROOT/v2/evidence/e4/$LABEL"; mkdir -p "$OUT"
+OUT="${OUT_DIR:-$ROOT/v2/evidence/e4}/$LABEL"; mkdir -p "$OUT"
 NS=storefront
 echo "== settings that bound the reaction time"
 kubectl -n kube-system get deploy metrics-server -o jsonpath='{.spec.template.spec.containers[0].args}' | tr ',' '\n' |
@@ -27,7 +28,8 @@ if kubectl -n $NS get scaledobject notifier >/dev/null 2>&1; then
   bash "$HERE/watch.sh" notifier keda-hpa-notifier > "$OUT/notifier-watch.txt" 2>&1 &
   watcher="$watcher $!"
 fi
-GW=http://$(kubectl -n $NS get svc gateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}'):8080
+# GW_URL (E8, chapter 9): another entrance, e.g. the layer-7 Gateway storefront-ingress
+GW=${GW_URL:-http://$(kubectl -n $NS get svc gateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}'):8080}
 t0=$(date -u +%s)
 echo "== k6 start $(date -u -d @$t0 +%T); load step to $HIGH it/s at $(date -u -d @$((t0 + 30 + T1)) +%T), back to $LOW at $(date -u -d @$((t0 + 30 + T1 + 10 + T2)) +%T)"
 BASE_URL=$GW STAGES=$LOW,$HIGH,$LOW STEPS=$T1,$T2,$T3 RAMP=10 WARMUP=30 MAX_VUS=600 NO_REUSE=${NO_REUSE:-} SUMMARY="$OUT/k6.json" \
