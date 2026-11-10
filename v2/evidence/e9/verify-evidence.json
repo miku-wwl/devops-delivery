@@ -1,0 +1,22 @@
+{
+ "counts": {
+  "images": 10,
+  "evidence references": 229,
+  "run IDs": 0,
+  "digests": 0,
+  "internal links": 0,
+  "files scanned for secrets": 713,
+  "exercises": 70,
+  "spot checks": 448
+ },
+ "results": {
+  "1 images": [],
+  "2 evidence paths": [],
+  "3 run IDs": [],
+  "4 digests": [],
+  "5 internal links": [],
+  "6 secrets": [],
+  "7 exercises": [],
+  "8 spot checks": []
+ }
+}

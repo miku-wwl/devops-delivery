@@ -4,3 +4,9 @@
   CPU cores per service (5m): gateway=0.110 notifier=0.035 catalog=0.067 payments=0.037 orders=0.108 inventory=0.041
   collector: spans accepted/s =28.919, traces/s =7.363, spans exported to Tempo/s =3.436
   collector CPU cores =0.009, memory MiB =92.004
+== 09:18:04 after: 100 % head sampling, tail sampling decides (head sampling ratio 1.0, image 05a04fe)
+  gateway requests/s (5m): =17.025
+  CPU cores of the six services' app containers (5m): =0.413
+  CPU cores per service (5m): notifier=0.037 payments=0.037 gateway=0.115 catalog=0.074 inventory=0.038 orders=0.111
+  collector: spans accepted/s =291.207, traces/s =69.175, spans exported to Tempo/s =29.898
+  collector CPU cores =0.013, memory MiB =117.562

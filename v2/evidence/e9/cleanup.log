@@ -1,0 +1,32 @@
+# E9 cleanup: drills removed their probes (e9-probe application !29, e9-logprobe pod, table e9_deadman below); the Velero backup e9-warnings expires by its TTL (24 h); the GitLab project root/incidents keeps its issues as the record; the alert bridge stays (platform). k6 finished.
+== drop the A4 write probe: 
+# lab state 2026-11-10T09:30:50Z
+== Argo CD applications (sync/health: count)
+       38 Synced/Healthy
+== sync impersonation: true
+== projects: accounts and sync windows
+  PROJECT      ACCOUNT                  WINDOWS
+  default      <none>                   <none>
+  insight      argocd-insight           <none>
+  platform     argocd:argocd-platform   <none>
+  root         argocd:argocd-root       <none>
+  storefront   argocd-storefront        0 0 24 12 *
+== notifications secret keys: ['gitlab-deployments-token']
+== GitLab platform-gitops: freeze periods 0, open merge requests 0, deployments 34
+== storefront images
+  catalog                    localhost:5001/storefront:05a04fe
+  gateway                    localhost:5001/storefront:05a04fe
+  inventory                  localhost:5001/storefront:05a04fe
+  notifier                   localhost:5001/storefront:05a04fe
+  orders                     localhost:5001/storefront:05a04fe
+  payments                   localhost:5001/storefront:05a04fe
+  storefront-ingress-istio   docker.io/istio/proxyv2:1.31.4-distroless
+  waypoint                   docker.io/istio/proxyv2:1.31.4-distroless
+== worker memory requests (of allocatable)
+  ent-worker 2770Mi (87%)
+  ent-worker2 2650Mi (83%)
+  ent-worker3 3050Mi (95%)
+== pods not Running/Completed: 0
+== newest PostgreSQL base backup: pg-main-nightly-20261110055945 completed
+== alert bridge: running since 2026-11-10T06:35:59.61888831Z; open issues in root/incidents: #13 SLOBurnBrowseAvailabilityTicket: browse-availability: 0.9188; #11 SLOBurnCheckoutAvailabilityTicket: checkout-availability: 1.
+== Prometheus alerts firing: ['SLOBurnBrowseAvailabilityTicket', 'SLOBurnCheckoutAvailabilityTicket', 'Watchdog']

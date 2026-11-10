@@ -1,0 +1,5 @@
+# exemplar trace c950ab6e21f5046dea7d5c2f8b48e641
+$ manual/.venv/Scripts/python.exe manual/tools/webshot.py --url "http://127.0.0.1:3000/d/storefront-slo/x?orgId=1&from=1794301920000&to=1794302640000&kiosk" --out v2/evidence/e9/screens/grafana-slo-exemplars.png --width 1600 --height 1650 --wait-until load --wait-ms 7000
+v2\evidence\e9\screens\grafana-slo-exemplars.png
+$ manual/.venv/Scripts/python.exe manual/tools/webshot.py --url "http://127.0.0.1:3000/d/storefront-traces/x?orgId=1&var-trace_id=c950ab6e21f5046dea7d5c2f8b48e641&from=1794301920000&to=1794302640000&kiosk" --out v2/evidence/e9/screens/grafana-exemplar-trace.png --width 1600 --height 1100 --wait-until load --wait-ms 8000
+v2\evidence\e9\screens\grafana-exemplar-trace.png

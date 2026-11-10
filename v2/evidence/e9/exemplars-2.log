@@ -1,0 +1,12 @@
+== 09:18:06 X1 before: exemplars of the last 10 minutes (only fast, successful requests since the rollout)
+  none
+== 09:18:06 catalog: 1200 ms of injected latency for 45 s
+== 09:18:54 faults removed; waiting 60 s for scrapes and the collector's decisions
+== 09:19:54 X1 after: exemplars per bucket: le=0.005:33 le=0.01:1 le=0.03:2 le=0.05:2 le=0.075:2 le=0.1:2 le=2.0:21 le=5.0:3
+== 09:19:54 X2: the first five distinct trace IDs in Tempo
+  03cf99ed95cc3f6fd8a270a8198deaf8: 3 spans, longest gateway 'GET /api/products/{product_id}' 1 ms
+  049ddc294f317b6b2f3a912e70d845e7: 3 spans, longest gateway 'GET /api/products' 1 ms
+  09f4ec8bfb748d1a16e7d0f8e5594b2f: 3 spans, longest gateway 'GET /api/orders/{order_id}' 1 ms
+  0b7d0a53092c7ec26b29bb5992f55d13: 4 spans, longest gateway 'POST /api/orders' 1 ms
+  0c0e87d31b6b0a22121cc4f5cb574043: 21 spans, longest gateway 'POST /api/orders' 49 ms
+== 09:19:55 tail sampling over the incident (08:23:30-08:35:00), traces by policy and decision:

@@ -46,7 +46,7 @@ slow = max(spans, key=lambda x: x[2]) if spans else None
 print(f"  {sys.argv[1]}: {len(spans)} spans, longest {slow[0]} {slow[1]!r} {slow[2]:.0f} ms" if slow else f"  {sys.argv[1]}: not found")' "$id" || echo "  $id: not found"
 done
 echo "== $(now) tail sampling over the incident (08:23:30-08:35:00), traces by policy and decision:"
-kubectl get --raw "$P/query?query=$(enc 'sum by (policy, sampled) (increase(otelcol_processor_tail_sampling_count_traces_sampled_total[690s]))')&time=$(date -d 2026-11-10T08:35:00Z +%s)" | python3 -c '
+kubectl get --raw "$P/query?query=$(enc 'sum by (policy, sampled) (increase(otelcol_processor_tail_sampling_count_traces_sampled[690s]))')&time=$(date -d 2026-11-10T08:35:00Z +%s)" | python3 -c '
 import json, sys
 for r in sorted(json.load(sys.stdin)["data"]["result"], key=lambda r: (r["metric"]["policy"], r["metric"]["sampled"])):
     print("  ", r["metric"]["policy"], "sampled" if r["metric"]["sampled"] == "true" else "not sampled", round(float(r["value"][1])))'

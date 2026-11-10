@@ -2819,5 +2819,320 @@
   "根应用从第一次同步到全部应用就绪用了 692 秒",
   "evidence/e8/waves-prediction.md",
   "The root application took 692 s from its first sync"
+ ],
+ [
+  "E9 crashloop changes",
+  "10-e9-observability.md",
+  "10 分钟内变化了 14–15 次",
+  "evidence/e9/clock-drift.log",
+  "config-reloader 14"
+ ],
+ [
+  "E9 crashloop no restart",
+  "10-e9-observability.md",
+  "Alertmanager 的重启次数是 0",
+  "evidence/e9/clock-drift.log",
+  "alertmanager=0 config-reloader=0"
+ ],
+ [
+  "E9 clock WSL",
+  "10-e9-observability.md",
+  "WSL 里测得 +2.91%",
+  "evidence/e9/clock-drift.log",
+  "monotonic +2.91 % against the wall clock"
+ ],
+ [
+  "E9 clock node",
+  "10-e9-observability.md",
+  "kind 节点里 +2.86%",
+  "evidence/e9/clock-drift.log",
+  "monotonic +2.86 % against the wall clock"
+ ],
+ [
+  "E9 clock btime",
+  "10-e9-observability.md",
+  "60 秒的开机时长里墙上时间只走了 58.3 秒",
+  "evidence/e9/clock-drift.log",
+  "wall clock +58.32 s, uptime +60.02 s"
+ ],
+ [
+  "E9 A1 stale page",
+  "10-e9-observability.md",
+  "告警桥开了事故 #1，06:49:12 在告警解除后关闭",
+  "evidence/e9/alerting-results.md",
+  "closed at 06:49:12 when Alertmanager resolved it"
+ ],
+ [
+  "E9 A2 pending",
+  "10-e9-observability.md",
+  "41 秒 pending、102 秒 firing",
+  "evidence/e9/a2-openbao.log",
+  "+102s vault_core_unsealed=0 alert=firing"
+ ],
+ [
+  "E9 A2 opened",
+  "10-e9-observability.md",
+  "事故 #2 在 **128 秒**后开出",
+  "evidence/e9/alerting-results.md",
+  "incident #2 at 06:48:08.8 (**128 s**)"
+ ],
+ [
+  "E9 A2 closed",
+  "10-e9-observability.md",
+  "**112 秒**后关闭",
+  "evidence/e9/alerting-results.md",
+  "incident closed 06:50:05 (**112 s**)"
+ ],
+ [
+  "E9 A2 bridge",
+  "10-e9-observability.md",
+  "事故 #2 在 **128 秒**后开出",
+  "evidence/e9/a2-openbao.log",
+  "\"event\": \"opened\", \"kind\": \"incident\", \"alertname\": \"OpenBaoSealed\", \"iid\": 2"
+ ],
+ [
+  "E9 A3 backtest",
+  "10-e9-observability.md",
+  "新规则会在 06:58 到 07:07 之间触发",
+  "evidence/e9/a3-backtest.log",
+  "2026-11-10T06:58:00Z old rule: [] | new rule: ['e9-probe']"
+ ],
+ [
+  "E9 A3 counter born at 1",
+  "10-e9-observability.md",
+  "初值就是 1",
+  "evidence/e9/alerting-results.md",
+  "is born at 1 with the first failure and stays 1"
+ ],
+ [
+  "E9 root blocked",
+  "10-e9-observability.md",
+  "07:13:30 开出了事故 #5",
+  "evidence/e9/alerting-results.md",
+  "opened incident #5 at 07:13:30"
+ ],
+ [
+  "E9 A4 deadman",
+  "10-e9-observability.md",
+  "最后一次心跳后 **183.2 秒**开出",
+  "evidence/e9/a4-deadman.log",
+  "\"event\": \"deadman_opened\", \"iid\": 6, \"silent_seconds\": 183.2"
+ ],
+ [
+  "E9 A4 writes",
+  "10-e9-observability.md",
+  "冻结期间写入 14 行",
+  "evidence/e9/a4-deadman.log",
+  "rows during the pause | total | first | last: 14|16"
+ ],
+ [
+  "E9 A4 closed",
+  "10-e9-observability.md",
+  "解冻后 3 秒关闭",
+  "evidence/e9/a4-deadman.log",
+  "\"event\": \"deadman_closed\", \"iid\": 6"
+ ],
+ [
+  "E9 silent prometheus",
+  "10-e9-observability.md",
+  "告警桥关闭了工单 #3",
+  "evidence/e9/a4-deadman.log",
+  "\"event\": \"closed\", \"kind\": \"ticket\", \"alertname\": \"VeleroBackupWarnings\", \"iid\": 3"
+ ],
+ [
+  "E9 A5 warnings",
+  "10-e9-observability.md",
+  "备份 e9-warnings 完成，7 个警告",
+  "evidence/e9/a3-a5-tickets.log",
+  "backup: Completed warnings=7"
+ ],
+ [
+  "E9 A5 ticket",
+  "10-e9-observability.md",
+  "工单 #3 在 34 秒后开出",
+  "evidence/e9/a3-a5-tickets.log",
+  "\"event\": \"opened\", \"kind\": \"ticket\", \"alertname\": \"VeleroBackupWarnings\", \"iid\": 3"
+ ],
+ [
+  "E9 L1 kubectl",
+  "10-e9-observability.md",
+  "`kubectl logs` 返回 NotFound",
+  "evidence/e9/logs-audit.log",
+  "pods \"e9-logprobe\" not found"
+ ],
+ [
+  "E9 L1 loki",
+  "10-e9-observability.md",
+  "标记行**在 Loki 中**",
+  "evidence/e9/logs-audit.log",
+  "\"log\":\"E9-MARKER-1794295856\""
+ ],
+ [
+  "E9 U1 eso",
+  "10-e9-observability.md",
+  "External Secrets 读取 `insight/insight-api-key`",
+  "evidence/e9/logs-audit.log",
+  "external-secrets:external-secrets read by name: ['insight/insight-api-key']"
+ ],
+ [
+  "E9 U1 pg",
+  "10-e9-observability.md",
+  "`data:pg-main` 读取备份凭据 `pg-backup-s3`",
+  "evidence/e9/logs-audit.log",
+  "data:pg-main read by name: ['data/pg-backup-s3'"
+ ],
+ [
+  "E9 U1 restart",
+  "10-e9-observability.md",
+  "这次重启用了 8 秒",
+  "evidence/e9/logs-audit.log",
+  "07:31:38 API server ready again"
+ ],
+ [
+  "E9 drill merge",
+  "10-e9-observability.md",
+  "合并请求 !37 合并（流水线 42 s 通过）",
+  "evidence/e9/incident/timeline.log",
+  "change: alice's merge request !37, pipeline 73: success after 42 s"
+ ],
+ [
+  "E9 drill detection",
+  "10-e9-observability.md",
+  "**呼叫告警触发**（SLOBurnCheckoutAvailabilityPage）",
+  "evidence/e9/incident/postmortem.md",
+  "| 08:26:18.5 | **SLOBurnCheckoutAvailabilityPage fires** |"
+ ],
+ [
+  "E9 drill escalation",
+  "10-e9-observability.md",
+  "**告警桥开出事故 #12**（分组等待 30 秒）",
+  "evidence/e9/incident/timeline.log",
+  "escalation: the bridge opened GitLab incident #12 in root/incidents"
+ ],
+ [
+  "E9 drill ack",
+  "10-e9-observability.md",
+  "值班工程师确认（GitLab 中的评论）",
+  "evidence/e9/incident/timeline.log",
+  "response: incident #12 acknowledged"
+ ],
+ [
+  "E9 drill diagnosis",
+  "10-e9-observability.md",
+  "prod/payments 的部署记录 #25 关联了 alice 的 !37",
+  "evidence/e9/incident/timeline.log",
+  "diagnosis: prod/payments deployment #25 contains !37"
+ ],
+ [
+  "E9 drill revert",
+  "10-e9-observability.md",
+  "**撤回合并**（经过门禁）",
+  "evidence/e9/incident/timeline.log",
+  "2026-11-10T08:28:04.617Z mitigation: revert merged"
+ ],
+ [
+  "E9 drill resolved",
+  "10-e9-observability.md",
+  "**事故 #12 关闭**（告警解除）",
+  "evidence/e9/incident/timeline.log",
+  "resolution: the bridge closed the incident"
+ ],
+ [
+  "E9 drill 98 %",
+  "10-e9-observability.md",
+  "638 个下单中 626 个是 503（**98.1%**）",
+  "evidence/e9/incident/postmortem.md",
+  "626 of 638 (98.1 %)"
+ ],
+ [
+  "E9 drill impact",
+  "10-e9-observability.md",
+  "670 次失败的下单占当月预算的 **0.97%**",
+  "evidence/e9/incident/timeline.log",
+  "orders at the gateway 5365.2162, 5xx 670.252"
+ ],
+ [
+  "E9 drill budget",
+  "10-e9-observability.md",
+  "670 次失败的下单占当月预算的 **0.97%**",
+  "evidence/e9/incident/postmortem.md",
+  "**0.97 % of the month's budget**"
+ ],
+ [
+  "E9 drill sleep",
+  "10-e9-observability.md",
+  "死人开关立即开出了事故 #8（“1548.5 秒没有心跳”）",
+  "evidence/e9/incident/timeline.log",
+  "dead man's incident #8 opened 08:13:32 after 1548.5 s of silence"
+ ],
+ [
+  "E9 action 1",
+  "10-e9-observability.md",
+  "流水线在 `release-prod-availability` 失败，合并返回 405",
+  "evidence/e9/incident/action-item-1-gate.log",
+  "policy release-prod-availability -> resource default/Deployment/payments failed"
+ ],
+ [
+  "E9 action 2",
+  "10-e9-observability.md",
+  "用演练的数据回测：08:26:15 触发",
+  "evidence/e9/incident/symptom-backtest.log",
+  "CheckoutFailing expression true from 08:25:15"
+ ],
+ [
+  "E9 tail incident",
+  "10-e9-observability.md",
+  "出错策略只保留了 86 条",
+  "evidence/e9/exemplars-results.md",
+  "the error policy kept 86"
+ ],
+ [
+  "E9 X1 fast errors",
+  "10-e9-observability.md",
+  "**还有 30 个落在 5 毫秒桶**",
+  "evidence/e9/exemplars.log",
+  "le=0.005:30"
+ ],
+ [
+  "E9 X2 first",
+  "10-e9-observability.md",
+  "第一次：5 个里只有 **1 个**",
+  "evidence/e9/exemplars-results.md",
+  "first run: **1 of 5**"
+ ],
+ [
+  "E9 X2 second",
+  "10-e9-observability.md",
+  "第二次检验 5 个链路全部能打开",
+  "evidence/e9/exemplars-results.md",
+  "Second run: **5 of 5**"
+ ],
+ [
+  "E9 cost cpu",
+  "10-e9-observability.md",
+  "0.413 核（+5%，每个请求 +9%）",
+  "evidence/e9/tracing-cost.log",
+  "CPU cores of the six services' app containers (5m): =0.413"
+ ],
+ [
+  "E9 cost spans",
+  "10-e9-observability.md",
+  "291 个/秒",
+  "evidence/e9/tracing-cost.log",
+  "spans accepted/s =291.207"
+ ],
+ [
+  "E9 cost tempo",
+  "10-e9-observability.md",
+  "29.9 个/秒（8.7 倍）",
+  "evidence/e9/tracing-cost.log",
+  "spans exported to Tempo/s =29.898"
+ ],
+ [
+  "E9 cost collector",
+  "10-e9-observability.md",
+  "0.013 核 / 118 MiB",
+  "evidence/e9/tracing-cost.log",
+  "collector CPU cores =0.013, memory MiB =117.562"
  ]
 ]
