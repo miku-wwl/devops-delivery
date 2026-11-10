@@ -4,5 +4,6 @@ migrations: true
 env:
   VALKEY_URL: redis://valkey.data.svc:6379/0
   DB_POOL_MAX: "12"   # E8: merge request !8 by alice (team shop), taken over from the configuration repository
+  LOG_LEVEL: INFO     # E8: the default, made explicit - an ordinary release change (hypothesis I3)
 secretEnv:
   DATABASE_URL: {secret: db-catalog, key: url}

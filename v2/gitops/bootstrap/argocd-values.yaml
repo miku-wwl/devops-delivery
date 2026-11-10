@@ -13,6 +13,9 @@ configs:
     controller.operation.processors: 5
   cm:
     timeout.reconciliation: 60s    # poll Git every minute (production: a Git webhook)
+    # E8 (chapter 9): Argo CD applies each project's changes as the project's own service account
+    # (AppProject destinationServiceAccounts), so Kubernetes RBAC checks them too
+    application.sync.impersonation.enabled: "true"
     # Health of child Applications, so that sync waves in the app-of-apps wait for each wave
     # to be Healthy (Argo CD stopped assessing Application health by default in v1.8).
     resource.customizations.health.argoproj.io_Application: |
@@ -64,3 +67,15 @@ redis:
   resources: {requests: {cpu: 10m, memory: 32Mi}, limits: {memory: 128Mi}}
 applicationSet:
   resources: {requests: {cpu: 10m, memory: 48Mi}, limits: {memory: 256Mi}}
+# E8: the account of the project "platform" (operators, CRDs, everything cluster-wide). Part of this
+# release, not of Git: the root application is a platform application; with impersonation on it can
+# only sync once this account holds its rights - rights it would otherwise have to sync itself.
+extraObjects:
+  - apiVersion: v1
+    kind: ServiceAccount
+    metadata: {name: argocd-platform, namespace: argocd}
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata: {name: argocd-platform}
+    subjects: [{kind: ServiceAccount, name: argocd-platform, namespace: argocd}]
+    roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: cluster-admin}

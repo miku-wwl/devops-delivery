@@ -38,5 +38,7 @@ spec:
         namespace: '{{ if eq (index .path.segments 1) "prod" }}storefront{{ else }}storefront-{{ index .path.segments 1 }}{{ end }}'
       syncPolicy:
         automated: {prune: true, selfHeal: true}
-        syncOptions: [CreateNamespace=true]
+        # E8 (chapter 9): no CreateNamespace=true - the namespaces are the platform's (platform/manifests/
+        # namespaces, tenants); with sync impersonation the option would read the namespace with the
+        # team's deployer account, which has no rights outside it (hypothesis I5)
         retry: {limit: 10, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}

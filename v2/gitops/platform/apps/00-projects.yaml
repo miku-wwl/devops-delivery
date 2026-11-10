@@ -25,6 +25,10 @@ spec:
     - https://vmware-tanzu.github.io/helm-charts # E7: Velero
   destinations:
     - {server: https://kubernetes.default.svc, namespace: "*"}
+  # E8 (chapter 9): with sync impersonation on, Argo CD applies this project's changes as this
+  # account (created by the Argo CD release itself: gitops/bootstrap/argocd-values.yaml extraObjects)
+  destinationServiceAccounts:
+    - {server: https://kubernetes.default.svc, namespace: "*", defaultServiceAccount: "argocd:argocd-platform"}
   clusterResourceWhitelist:
     - {group: "*", kind: "*"}
 ---
@@ -40,8 +44,10 @@ spec:
     - http://gitlab:8929/root/platform-gitops.git
   destinations:
     - {server: https://kubernetes.default.svc, namespace: "storefront*"}
-  clusterResourceWhitelist:
-    - {group: "", kind: Namespace}
+  # E8: applied as storefront's own deployer account (platform/manifests/tenants/argocd-deployers.yaml)
+  destinationServiceAccounts:
+    - {server: https://kubernetes.default.svc, namespace: "storefront*", defaultServiceAccount: argocd-storefront}
+  clusterResourceWhitelist: []   # E8: no namespaces either - they are the platform's (no CreateNamespace)
   namespaceResourceWhitelist:
     - {group: "", kind: "*"}
     - {group: apps, kind: "*"}
@@ -66,6 +72,9 @@ spec:
     - http://gitlab:8929/root/platform-gitops.git
   destinations:
     - {server: https://kubernetes.default.svc, namespace: insight}
+  # E8: applied as insight's own deployer account
+  destinationServiceAccounts:
+    - {server: https://kubernetes.default.svc, namespace: insight, defaultServiceAccount: argocd-insight}
   clusterResourceWhitelist: []
   namespaceResourceWhitelist:
     - {group: "", kind: Service}

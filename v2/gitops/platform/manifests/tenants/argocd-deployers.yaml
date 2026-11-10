@@ -1,0 +1,67 @@
+# E8 (chapter 9): the accounts Argo CD impersonates when it syncs a team's applications
+# (AppProject destinationServiceAccounts; argocd-cm application.sync.impersonation.enabled). Without
+# them Argo CD applies everything with its own cluster-wide rights, and a project's boundary is
+# enforced by Argo CD alone (chapter 6). With them Kubernetes RBAC checks every change as well:
+# these Roles allow the kinds the teams' releases consist of - no Secrets, no Pods, no RBAC.
+apiVersion: v1
+kind: ServiceAccount
+metadata: {name: argocd-storefront, namespace: storefront}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata: {name: argocd-deployer, namespace: storefront}
+rules:
+  - apiGroups: [""]
+    resources: [services, serviceaccounts, configmaps]
+    verbs: [get, list, watch, create, update, patch, delete]
+  - apiGroups: [apps]
+    resources: [deployments]
+    verbs: [get, list, watch, create, update, patch, delete]
+  - apiGroups: [policy]
+    resources: [poddisruptionbudgets]
+    verbs: [get, list, watch, create, update, patch, delete]
+  - apiGroups: [autoscaling]
+    resources: [horizontalpodautoscalers]
+    verbs: [get, list, watch, create, update, patch, delete]
+  - apiGroups: [keda.sh]
+    resources: [scaledobjects]
+    verbs: [get, list, watch, create, update, patch, delete]
+  - apiGroups: [monitoring.coreos.com]
+    resources: [servicemonitors]
+    verbs: [get, list, watch, create, update, patch, delete]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: {name: argocd-deployer, namespace: storefront}
+subjects: [{kind: ServiceAccount, name: argocd-storefront, namespace: storefront}]
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: argocd-deployer}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata: {name: argocd-insight, namespace: insight}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata: {name: argocd-deployer, namespace: insight}
+rules:
+  - apiGroups: [""]
+    resources: [services, configmaps]
+    verbs: [get, list, watch, create, update, patch, delete]
+  - apiGroups: [apps]
+    resources: [deployments]
+    verbs: [get, list, watch, create, update, patch, delete]
+  - apiGroups: [policy]
+    resources: [poddisruptionbudgets]
+    verbs: [get, list, watch, create, update, patch, delete]
+  - apiGroups: [autoscaling]
+    resources: [horizontalpodautoscalers]
+    verbs: [get, list, watch, create, update, patch, delete]
+  - apiGroups: [external-secrets.io]
+    resources: [externalsecrets]
+    verbs: [get, list, watch, create, update, patch, delete]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: {name: argocd-deployer, namespace: insight}
+subjects: [{kind: ServiceAccount, name: argocd-insight, namespace: insight}]
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: argocd-deployer}
