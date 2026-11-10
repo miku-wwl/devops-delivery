@@ -1,0 +1,10 @@
+time="2026-11-10T13:37:21+13:00" level=warning msg="Insufficient VUs, reached 600 active VUs and cannot initialize more" executor=ramping-arrival-rate scenario=shop
+stages=30,170,30 it/s, 120,300,420 s (ramp 10 s, warm-up 30 s) iterations=56166 dropped=13483
+requests=94986 (106.7/s) failed=51.97%
+browse: p50=15.0 p95=9209.4 p99=13517.5 max=16701.1 ms
+order:  p50=129.2 p95=9552.8 p99=13995.1 max=16531.4 ms
+checks: 48.03% passed
+stage 1-30: achieved 30.0 it/s, requests=6073 failed=0.00% | browse p50=11.6 p95=18.6 p99=25.3 max=69.7 ms | order p50=114.1 p95=229.3 p99=300.9 max=575.0 ms
+stage 170: achieved 170.0 it/s, requests=86297 failed=57.20% | browse p50=16.9 p95=9583.6 p99=13641.6 max=16701.1 ms | order p50=134.1 p95=10011.8 p99=14131.2 max=16531.4 ms
+stage 3-30: achieved 0.0 it/s, requests=0 failed=0.00% | browse p50=0.0 p95=0.0 p99=0.0 max=0.0 ms | order p50=0.0 p95=0.0 p99=0.0 max=0.0 ms
+time="2026-11-10T13:49:21+13:00" level=error msg="thresholds on metrics 'http_req_duration{kind:browse}, http_req_duration{kind:order}, http_req_failed{kind:browse}' have been crossed"

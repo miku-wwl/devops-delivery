@@ -23,3 +23,15 @@ spec:
     matchLabels: {gateway.istio.io/managed: istio.io-mesh-controller}
   podMetricsEndpoints:
     - {targetPort: 15020, path: /stats/prometheus, interval: 15s}
+---
+# E8 (chapter 9): the storefront's layer-7 entrance (Gateway storefront-ingress): istio_requests_total
+# and the Envoy counters selected in its proxy config (retries, timeouts, overflows)
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata: {name: storefront-ingress, namespace: istio-system}
+spec:
+  namespaceSelector: {matchNames: [storefront]}
+  selector:
+    matchLabels: {gateway.networking.k8s.io/gateway-name: storefront-ingress}
+  podMetricsEndpoints:
+    - {port: metrics, path: /stats/prometheus, interval: 15s}

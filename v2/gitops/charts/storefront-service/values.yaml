@@ -1,5 +1,7 @@
 # Values for one storefront service. Environment files (envs/<env>/storefront/) override them.
 service: ""                    # gateway | catalog | inventory | payments | orders | notifier
+app: ""                        # E8: the code to run (storefront.<app>); empty = service. A canary release
+                               # "gateway-canary" runs app "gateway" (chapter 9)
 image:
   repository: localhost:5001/storefront
   tag: ""                      # required; the git commit of v2/apps/storefront that was built

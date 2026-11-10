@@ -30,6 +30,13 @@ data:
     spec:
       replicas: 2
       template:
+        metadata:
+          annotations:
+            # E8: Envoy's per-upstream request, retry and timeout counters (Istio exposes only a small
+            # default set) - the first layer-7 step test could not count the entrance's retries
+            proxy.istio.io/config: |
+              proxyStatsMatcher:
+                inclusionRegexps: [".*upstream_rq_retry.*", ".*upstream_rq_total.*", ".*upstream_rq_5xx.*", ".*upstream_rq_timeout.*", ".*upstream_rq_pending_overflow.*"]
         spec:
           topologySpreadConstraints:
             - maxSkew: 1

@@ -2,6 +2,10 @@
 {{- required "values.service is required" .Values.service -}}
 {{- end -}}
 
+{{- define "svc.app" -}}
+{{- default (include "svc.name" .) .Values.app -}}
+{{- end -}}
+
 {{- define "svc.labels" -}}
 app.kubernetes.io/name: {{ include "svc.name" . }}
 app.kubernetes.io/part-of: storefront

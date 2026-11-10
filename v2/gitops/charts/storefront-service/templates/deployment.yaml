@@ -37,7 +37,7 @@ spec:
         - name: migrate
           image: {{ include "svc.image" . }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["python", "-m", "storefront.common.db", "migrate", {{ include "svc.name" . | quote }}]
+          command: ["python", "-m", "storefront.common.db", "migrate", {{ include "svc.app" . | quote }}]
           env: {{- include "svc.env" . | nindent 12 }}
           securityContext: {{- include "svc.securityContext" . | nindent 12 }}
           resources:
@@ -48,7 +48,7 @@ spec:
         - name: app
           image: {{ include "svc.image" . }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["uvicorn", "storefront.{{ include "svc.name" . }}.main:app", "--host", "0.0.0.0", "--port", "8080"]
+          command: ["uvicorn", "storefront.{{ include "svc.app" . }}.main:app", "--host", "0.0.0.0", "--port", "8080"]
           args: {{- toYaml .Values.uvicornArgs | nindent 12 }}
           ports:
             - {name: http, containerPort: 8080}
