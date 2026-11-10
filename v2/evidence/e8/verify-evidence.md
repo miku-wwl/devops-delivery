@@ -7,7 +7,7 @@
 | 3 run IDs | 0 | 0 |
 | 4 digests | 0 | 0 |
 | 5 internal links | 0 | 0 |
-| 6 secrets | 680 | 0 |
+| 6 secrets | 681 | 0 |
 | 7 exercises | 63 | 0 |
 | 8 spot checks | 403 | 0 |
 
