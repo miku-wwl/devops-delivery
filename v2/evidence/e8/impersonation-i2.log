@@ -1,0 +1,202 @@
+== 2026-11-10T03:56:15Z (since 2026-11-10T03:53:29Z)
+-- argocd-cm application.sync.impersonation.enabled: 'true'
+-- the projects' accounts (destinationServiceAccounts)
+  PROJECT      NAMESPACES    ACCOUNT
+  default      <none>        <none>
+  insight      insight       argocd-insight
+  platform     *             argocd:argocd-platform
+  storefront   storefront*   argocd-storefront
+-- what the accounts may do (kubectl auth can-i)
+  argocd:argocd-application-controller     create secrets -n storefront   yes
+  argocd:argocd-application-controller     patch deployments -n storefront yes
+  argocd:argocd-application-controller     patch deployments -n insight   yes
+  argocd:argocd-application-controller     get namespaces                 Warning: resource 'namespaces' is not namespace scoped
+
+yes
+  argocd:argocd-platform                   create secrets -n storefront   yes
+  argocd:argocd-platform                   patch deployments -n storefront yes
+  argocd:argocd-platform                   patch deployments -n insight   yes
+  argocd:argocd-platform                   get namespaces                 Warning: resource 'namespaces' is not namespace scoped
+
+yes
+  storefront:argocd-storefront             create secrets -n storefront   no
+  storefront:argocd-storefront             patch deployments -n storefront yes
+  storefront:argocd-storefront             patch deployments -n insight   no
+  storefront:argocd-storefront             get namespaces                 Warning: resource 'namespaces' is not namespace scoped
+
+no
+  insight:argocd-insight                   create secrets -n storefront   no
+  insight:argocd-insight                   patch deployments -n storefront no
+  insight:argocd-insight                   patch deployments -n insight   yes
+  insight:argocd-insight                   get namespaces                 Warning: resource 'namespaces' is not namespace scoped
+
+no
+  argocd-application-controller impersonate serviceaccounts -n storefront: yes
+-- applications whose last sync finished since 2026-11-10T03:53:29Z (name, sync, health, phase, finished, message)
+  e8-probe OutOfSync Healthy Running 2026-11-10T03:56:11Z one or more objects failed to apply (dry run). Retrying attempt #1 at 2026-11-10T03:56:16Z.
+  e8-probe-ns OutOfSync Healthy Running 2026-11-10T03:56:06Z one or more synchronization tasks are not valid: resource :Namespace is not permitted in project storefront. Retrying attempt #2 at 2026-11-10T03:56:16Z.
+  storefront-orders-prod Synced Healthy Succeeded 2026-11-10T03:55:25Z successfully synced (all tasks run)
+-- all applications (sync/health: count)
+        2 OutOfSync/Healthy
+       35 Synced/Healthy
+-- the probe objects
+  secret e8-probe: created 2026-11-10T03:49:28Z, written-by: 'an application of the project storefront'
+  configmap e8-probe-ns: created 2026-11-10T03:49:28Z, write: '1'
+-- audit log
+  requests on e8-probe e8-probe-ns since 2026-11-10T03:53:29Z:
+    2026-11-10T03:54:07.146 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:54:07.151 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:54:10.948 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:54:10.957 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:54:16.143 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:54:16.150 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:54:21.358 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:54:21.367 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:54:21.641 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe-ns 200
+    2026-11-10T03:54:26.549 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:54:26.558 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:54:31.738 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe 200
+    2026-11-10T03:54:31.750 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:54:31.758 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:54:36.933 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:54:36.939 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:54:40.705 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:54:40.711 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:54:45.878 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:54:45.885 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:54:51.053 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:54:51.059 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:54:56.227 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:54:56.241 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:55:01.419 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:55:01.426 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:55:06.598 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:55:06.606 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:55:10.373 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:55:10.380 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:55:15.567 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:55:15.572 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:55:20.747 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:55:20.754 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:55:25.958 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:55:25.964 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:55:31.159 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:55:31.187 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:55:36.380 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:55:36.388 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:55:40.161 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:55:40.169 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:55:45.384 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:55:45.395 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:55:50.602 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:55:50.613 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:55:55.795 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:55:55.802 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:55:56.436 system:serviceaccount:argocd:argocd-application-controller as=- update applications argocd/e8-probe-ns 200
+    2026-11-10T03:55:56.465 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe-ns 200
+    2026-11-10T03:55:56.477 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe-ns 200
+    2026-11-10T03:55:56.536 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe-ns 200
+    2026-11-10T03:56:00.967 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:56:00.973 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:56:06.007 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe-ns 200
+    2026-11-10T03:56:06.060 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe-ns 200
+    2026-11-10T03:56:06.133 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:56:06.140 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:56:11.328 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:56:11.335 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:56:11.062 system:serviceaccount:argocd:argocd-application-controller as=- update applications argocd/e8-probe 200
+    2026-11-10T03:56:11.087 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe 200
+    2026-11-10T03:56:11.094 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe 200
+    2026-11-10T03:56:11.228 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe 200
+    2026-11-10T03:56:15.028 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:56:15.034 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:56:18.686 kubernetes-admin as=- get secrets storefront/e8-probe 200
+    2026-11-10T03:56:18.842 kubernetes-admin as=- get secrets storefront/e8-probe 200
+    2026-11-10T03:56:19.006 kubernetes-admin as=- get configmaps storefront/e8-probe-ns 200
+    2026-11-10T03:56:19.139 kubernetes-admin as=- get configmaps storefront/e8-probe-ns 200
+  writes with impersonation since 2026-11-10T03:53:29Z (impersonated user, verb, resource, namespace, code, applied/dry-run: count):
+    system:serviceaccount:argocd:argocd-platform patch alertmanagers monitoring 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch apiservices - 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch backupstoragelocations velero 200 dry-run: 2
+    system:serviceaccount:argocd:argocd-platform patch certificates cnpg-system 200 dry-run: 2
+    system:serviceaccount:argocd:argocd-platform patch clusterrolebindings - 200 dry-run: 29
+    system:serviceaccount:argocd:argocd-platform patch clusterroles - 200 dry-run: 42
+    system:serviceaccount:argocd:argocd-platform patch configmaps cnpg-system 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch configmaps kyverno 200 dry-run: 2
+    system:serviceaccount:argocd:argocd-platform patch configmaps monitoring 200 dry-run: 32
+    system:serviceaccount:argocd:argocd-platform patch configmaps velero 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch customresourcedefinitions - 200 dry-run: 96
+    system:serviceaccount:argocd:argocd-platform patch daemonsets monitoring 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch daemonsets velero 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch deployments cert-manager 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch deployments cnpg-system 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch deployments external-secrets 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch deployments keda 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch deployments kyverno 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch deployments monitoring 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch deployments velero 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch issuers cnpg-system 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch mutatingwebhookconfigurations - 200 dry-run: 2
+    system:serviceaccount:argocd:argocd-platform patch poddisruptionbudgets kyverno 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch prometheuses monitoring 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch prometheusrules monitoring 200 dry-run: 35
+    system:serviceaccount:argocd:argocd-platform patch rolebindings cert-manager 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch rolebindings cnpg-system 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch rolebindings external-secrets 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch rolebindings keda 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch rolebindings kube-system 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch rolebindings kyverno 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch rolebindings velero 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch roles cert-manager 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch roles cnpg-system 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch roles external-secrets 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch roles keda 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch roles kube-system 200 dry-run: 2
+    system:serviceaccount:argocd:argocd-platform patch roles kyverno 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch roles velero 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch schedules velero 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch secrets external-secrets 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch secrets monitoring 200 dry-run: 2
+    system:serviceaccount:argocd:argocd-platform patch serviceaccounts cert-manager 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch serviceaccounts cnpg-system 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch serviceaccounts external-secrets 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch serviceaccounts keda 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch serviceaccounts kyverno 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch serviceaccounts monitoring 200 dry-run: 6
+    system:serviceaccount:argocd:argocd-platform patch serviceaccounts velero 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch servicemonitors keda 200 dry-run: 2
+    system:serviceaccount:argocd:argocd-platform patch servicemonitors kyverno 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch servicemonitors monitoring 200 dry-run: 13
+    system:serviceaccount:argocd:argocd-platform patch servicemonitors velero 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch services cert-manager 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch services cnpg-system 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch services external-secrets 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch services keda 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch services kube-system 200 dry-run: 5
+    system:serviceaccount:argocd:argocd-platform patch services kyverno 200 dry-run: 4
+    system:serviceaccount:argocd:argocd-platform patch services monitoring 200 dry-run: 6
+    system:serviceaccount:argocd:argocd-platform patch services velero 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch validatingadmissionpolicies - 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch validatingadmissionpolicybindings - 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch validatingwebhookconfigurations - 200 dry-run: 5
+    system:serviceaccount:storefront:argocd-storefront patch deployments storefront 200 applied: 1
+    system:serviceaccount:storefront:argocd-storefront patch poddisruptionbudgets storefront 200 applied: 1
+-- the probes' last sync, per resource (operationState.syncResult) and conditions
+  e8-probe: Running retryCount=4 | Secret/e8-probe SyncFailed: error when retrieving current configuration of: Resource: "/v1, Resource=secrets", GroupVersionKind: "/v1, Kind=Secret" Name: "e8-probe", Namespace: "storefront" from server for: "/dev/shm/4211001034": secrets "e8-probe" is forbidden: User "system:serviceaccount:storefront:argocd-storefront" cannot get resource "secrets" in API group "" in the namespace "storefront"; 
+  e8-probe-ns: Running retryCount=4 | Namespace/storefront SyncFailed: resource :Namespace is not permitted in project storefront; 
+-- application controller log, e8-probe-ns, sync 03:55:56 (status-update lines omitted)
+  time="2026-11-10T03:55:56Z" level=info msg="Already attempted sync: comparing synced revisions to [3ed39f24c73b16a1ad32bc23237af9065731c60c]" app-namespace=argocd application=e8-probe-ns project=storefront
+  time="2026-11-10T03:55:56Z" level=info msg="Initiated automated sync to '3ed39f24c73b16a1ad32bc23237af9065731c60c'" application=e8-probe-ns dest-namespace=storefront dest-server="https://kubernetes.default.svc" reason=OperationStarted type=Normal
+  time="2026-11-10T03:55:56Z" level=info msg="Initiated automated sync to '3ed39f24c73b16a1ad32bc23237af9065731c60c'" app-namespace=argocd application=e8-probe-ns project=storefront
+  time="2026-11-10T03:55:56Z" level=info msg="Updated sync status: Synced -> OutOfSync" application=e8-probe-ns dest-namespace=storefront dest-server="https://kubernetes.default.svc" reason=ResourceUpdated type=Normal
+  time="2026-11-10T03:55:56Z" level=info msg="updated 'argocd/e8-probe-ns' operation (phase: Running)" app-namespace=argocd application=e8-probe-ns project=storefront
+  time="2026-11-10T03:55:56Z" level=info msg="Initialized new operation: {&SyncOperation{Revision:3ed39f24c73b16a1ad32bc23237af9065731c60c,Prune:true,DryRun:false,SyncStrategy:nil,Resources:[]SyncOperationResource{},Source:&ApplicationSource{RepoURL:http://gitlab:8929/root/platform-gitops.git,Path:e8-probe-ns,TargetRevision:main,Helm:nil,Kustomize:nil,Directory:nil,Plugin:nil,Chart:,Ref:,Name:,TagPrefix:,},Manifests:[],SyncOptions:[CreateNamespace=true],Sources:[]ApplicationSource{},Revisions:[],SelfHealAttemptsCount:0,} { true} [] {5 nil false}}" app-namespace=argocd application=e8-probe-ns project=storefront
+  time="2026-11-10T03:55:56Z" level=info msg=Syncing app-namespace=argocd application=e8-probe-ns impersonationEnabled=true project=storefront serviceAccount="system:serviceaccount:storefront:argocd-storefront" skipHooks=false started=false syncId=00002-ZYbJT
+  time="2026-11-10T03:55:56Z" level=info msg="Adding resource result, status: 'SyncFailed', phase: 'Error', message: 'namespace auto creation failed: namespaces \"storefront\" is forbidden: User \"system:serviceaccount:storefront:argocd-storefront\" cannot get resource \"namespaces\" in API group \"\" in the namespace \"storefront\"'" app-namespace=argocd application=e8-probe-ns impersonationEnabled=true kind=Namespace name=storefront namespace= phase=PreSync project=storefront serviceAccount="system:serviceaccount:storefront:argocd-storefront" syncId=00002-ZYbJT
+  time="2026-11-10T03:55:56Z" level=info msg="Updating resource result, status: 'SyncFailed' -> 'SyncFailed', phase 'Error' -> '', message 'namespace auto creation failed: namespaces \"storefront\" is forbidden: User \"system:serviceaccount:storefront:argocd-storefront\" cannot get resource \"namespaces\" in API group \"\" in the namespace \"storefront\"' -> 'resource :Namespace is not permitted in project storefront'" app-namespace=argocd application=e8-probe-ns impersonationEnabled=true kind=Namespace name=storefront namespace= phase=PreSync project=storefront serviceAccount="system:serviceaccount:storefront:argocd-storefront" syncId=00002-ZYbJT
+  time="2026-11-10T03:55:56Z" level=info msg="Updating operation state. phase: Running -> Failed, message: '' -> 'one or more synchronization tasks are not valid: resource :Namespace is not permitted in project storefront'" app-namespace=argocd application=e8-probe-ns impersonationEnabled=true project=storefront serviceAccount="system:serviceaccount:storefront:argocd-storefront" syncId=00002-ZYbJT
+  time="2026-11-10T03:55:56Z" level=info msg="sync/terminate complete" app-namespace=argocd application=e8-probe-ns duration=26.792462ms impersonationEnabled=true project=storefront serviceAccount="system:serviceaccount:storefront:argocd-storefront" syncId=00002-ZYbJT
+  time="2026-11-10T03:55:56Z" level=info msg="updated 'argocd/e8-probe-ns' operation (phase: Running)" app-namespace=argocd application=e8-probe-ns project=storefront
+  time="2026-11-10T03:55:56Z" level=info msg="Finished processing requested app operation" app-namespace=argocd application=e8-probe-ns final_set_operation_state_ms=16 finishedAt=1794282956 initial_operation_stage_ms=21 phase=Running project=storefront request_app_refresh_ms=0 retryCount=1 revisions="[3ed39f24c73b16a1ad32bc23237af9065731c60c]" startedAt=1794282956 sync_app_state_ms=49 time_ms=87
+  time="2026-11-10T03:55:56Z" level=info msg="Skipping retrying in-progress operation. Attempting again at: 2026-11-10T03:56:06Z" app-namespace=argocd application=e8-probe-ns project=storefront
+  time="2026-11-10T03:55:56Z" level=info msg="Skipping retrying in-progress operation. Attempting again at: 2026-11-10T03:56:06Z" app-namespace=argocd application=e8-probe-ns project=storefront

@@ -2,6 +2,7 @@ service: orders
 replicas: 2
 migrations: true
 env:
+  LOG_LEVEL: INFO     # E8: the default, made explicit - an ordinary release change under sync impersonation (I3)
   CATALOG_URL: http://catalog:8080
   INVENTORY_URL: http://inventory:8080
   PAYMENTS_URL: http://payments:8080

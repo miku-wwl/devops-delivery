@@ -1,0 +1,84 @@
+== 2026-11-10T03:49:32Z (since 2026-11-10T03:48:13Z)
+-- argocd-cm application.sync.impersonation.enabled: 'false'
+-- the projects' accounts (destinationServiceAccounts)
+  PROJECT      NAMESPACES    ACCOUNT
+  default      <none>        <none>
+  insight      insight       argocd-insight
+  platform     *             argocd:argocd-platform
+  storefront   storefront*   argocd-storefront
+-- what the accounts may do (kubectl auth can-i)
+  argocd:argocd-application-controller     create secrets -n storefront   yes
+  argocd:argocd-application-controller     patch deployments -n storefront yes
+  argocd:argocd-application-controller     patch deployments -n insight   yes
+  argocd:argocd-application-controller     get namespaces                 Warning: resource 'namespaces' is not namespace scoped
+
+yes
+  argocd:argocd-platform                   create secrets -n storefront   no
+  argocd:argocd-platform                   patch deployments -n storefront no
+  argocd:argocd-platform                   patch deployments -n insight   no
+  argocd:argocd-platform                   get namespaces                 Warning: resource 'namespaces' is not namespace scoped
+
+no
+  storefront:argocd-storefront             create secrets -n storefront   no
+  storefront:argocd-storefront             patch deployments -n storefront no
+  storefront:argocd-storefront             patch deployments -n insight   no
+  storefront:argocd-storefront             get namespaces                 Warning: resource 'namespaces' is not namespace scoped
+
+no
+  insight:argocd-insight                   create secrets -n storefront   no
+  insight:argocd-insight                   patch deployments -n storefront no
+  insight:argocd-insight                   patch deployments -n insight   no
+  insight:argocd-insight                   get namespaces                 Warning: resource 'namespaces' is not namespace scoped
+
+no
+  argocd-application-controller impersonate serviceaccounts -n storefront: yes
+-- applications whose last sync finished since 2026-11-10T03:48:13Z (name, sync, health, phase, finished, message)
+  e8-probe Synced Healthy Succeeded 2026-11-10T03:49:28Z successfully synced (all tasks run)
+  e8-probe-ns Synced Healthy Succeeded 2026-11-10T03:49:28Z successfully synced (all tasks run)
+  platform-root Synced Healthy Succeeded 2026-11-10T03:49:33Z successfully synced (all tasks run)
+  storefront-catalog-prod Synced Healthy Succeeded 2026-11-10T03:49:12Z successfully synced (all tasks run)
+-- all applications (sync/health: count)
+       37 Synced/Healthy
+-- the probe objects
+  secret e8-probe: created 2026-11-10T03:49:28Z, written-by: 'an application of the project storefront'
+  configmap e8-probe-ns: created 2026-11-10T03:49:28Z, write: '1'
+-- audit log
+  requests on e8-probe e8-probe-ns since 2026-11-10T03:48:13Z:
+    2026-11-10T03:48:57.522 kubernetes-admin as=- get applications argocd/e8-probe 404
+    2026-11-10T03:48:57.532 kubernetes-admin as=- get applications argocd/e8-probe-ns 404
+    2026-11-10T03:49:02.822 kubernetes-admin as=- get applications argocd/e8-probe 404
+    2026-11-10T03:49:02.834 kubernetes-admin as=- get applications argocd/e8-probe-ns 404
+    2026-11-10T03:49:07.996 kubernetes-admin as=- get applications argocd/e8-probe 404
+    2026-11-10T03:49:08.005 kubernetes-admin as=- get applications argocd/e8-probe-ns 404
+    2026-11-10T03:49:13.246 kubernetes-admin as=- get applications argocd/e8-probe 404
+    2026-11-10T03:49:13.265 kubernetes-admin as=- get applications argocd/e8-probe-ns 404
+    2026-11-10T03:49:18.459 kubernetes-admin as=- get applications argocd/e8-probe 404
+    2026-11-10T03:49:18.473 kubernetes-admin as=- get applications argocd/e8-probe-ns 404
+    2026-11-10T03:49:23.660 kubernetes-admin as=- get applications argocd/e8-probe 404
+    2026-11-10T03:49:23.666 kubernetes-admin as=- get applications argocd/e8-probe-ns 404
+    2026-11-10T03:49:27.044 system:serviceaccount:argocd:argocd-application-controller as=- create applications argocd/e8-probe 201
+    2026-11-10T03:49:27.044 system:serviceaccount:argocd:argocd-application-controller as=- create applications argocd/e8-probe-ns 201
+    2026-11-10T03:49:27.536 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:49:27.543 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:49:27.546 system:serviceaccount:argocd:argocd-application-controller as=- update applications argocd/e8-probe-ns 200
+    2026-11-10T03:49:27.553 system:serviceaccount:argocd:argocd-application-controller as=- update applications argocd/e8-probe 200
+    2026-11-10T03:49:27.574 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe-ns 200
+    2026-11-10T03:49:27.601 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe 200
+    2026-11-10T03:49:27.611 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe-ns 200
+    2026-11-10T03:49:27.611 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe 200
+    2026-11-10T03:49:28.060 system:serviceaccount:argocd:argocd-application-controller as=- create secrets storefront/e8-probe 201
+    2026-11-10T03:49:28.084 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe 200
+    2026-11-10T03:49:28.110 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe 200
+    2026-11-10T03:49:28.135 system:serviceaccount:argocd:argocd-application-controller as=- create configmaps storefront/e8-probe-ns 201
+    2026-11-10T03:49:28.151 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe-ns 200
+    2026-11-10T03:49:28.173 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe-ns 200
+    2026-11-10T03:49:28.208 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe 200
+    2026-11-10T03:49:28.268 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe-ns 200
+    2026-11-10T03:49:28.279 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe 200
+    2026-11-10T03:49:32.706 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:49:32.712 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:49:36.404 kubernetes-admin as=- get secrets storefront/e8-probe 200
+    2026-11-10T03:49:36.554 kubernetes-admin as=- get secrets storefront/e8-probe 200
+    2026-11-10T03:49:36.707 kubernetes-admin as=- get configmaps storefront/e8-probe-ns 200
+    2026-11-10T03:49:36.854 kubernetes-admin as=- get configmaps storefront/e8-probe-ns 200
+  writes with impersonation since 2026-11-10T03:48:13Z (impersonated user, verb, resource, namespace, code: count):

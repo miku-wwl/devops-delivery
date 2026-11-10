@@ -1,12 +1,33 @@
 # The only manifest applied by hand. It points Argo CD at platform/apps, which declares every
 # other component (app-of-apps). Rebuilding the platform = install Argo CD + apply this file.
+# E8 (chapter 9): the root application has a project of its own - it creates the other projects, so it
+# cannot be in one of them - which allows nothing but Argo CD's own objects in argocd and names the
+# account Argo CD impersonates for it (argocd-root, from the Argo CD release: argocd-values.yaml).
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: root
+  namespace: argocd
+spec:
+  description: The root application (app-of-apps) only
+  sourceRepos: [http://gitlab:8929/root/platform-gitops.git]
+  destinations:
+    - {server: https://kubernetes.default.svc, namespace: argocd}
+  destinationServiceAccounts:
+    - {server: https://kubernetes.default.svc, namespace: argocd, defaultServiceAccount: "argocd:argocd-root"}
+  clusterResourceWhitelist: []
+  namespaceResourceWhitelist:
+    - {group: argoproj.io, kind: Application}
+    - {group: argoproj.io, kind: ApplicationSet}
+    - {group: argoproj.io, kind: AppProject}
+---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: platform-root
   namespace: argocd
 spec:
-  project: default
+  project: root
   source:
     repoURL: http://gitlab:8929/root/platform-gitops.git
     targetRevision: main

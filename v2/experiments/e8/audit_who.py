@@ -6,7 +6,8 @@
 1. every logged request on an object with one of the given names: time, user, impersonated user, verb,
    resource, namespace/name, HTTP code (and whether it was a dry run);
 2. every logged write made with impersonation since <since>, counted by impersonated user, verb,
-   resource, namespace and HTTP code.
+   resource, namespace, HTTP code and whether it was applied or only a dry run (Argo CD's server-side
+   diff sends dry runs).
 The audit policy (platform/cluster/audit-policy.yaml) does not log reads of service accounts: a refused
 read appears only in the client's own error message, not here.
 """
@@ -38,11 +39,11 @@ def main() -> None:
         if ref.get("name") in names:
             hits.append(f"{ts[:23]} {user} as={as_user or '-'} {e['verb']} {res} {ns}/{ref['name']} {code}{dry}")
         if as_user and e["verb"] in WRITES:
-            imp[(as_user, e["verb"], res, ns, code)] += 1
+            imp[(as_user, e["verb"], res, ns, code, "dry-run" if dry else "applied")] += 1
     print(f"requests on {' '.join(sorted(names)) or '(no names)'} since {since}:")
     for h in hits:
         print("  " + h)
-    print(f"writes with impersonation since {since} (impersonated user, verb, resource, namespace, code: count):")
+    print(f"writes with impersonation since {since} (impersonated user, verb, resource, namespace, code, applied/dry-run: count):")
     for k, n in sorted(imp.items()):
         print("  " + " ".join(map(str, k)) + f": {n}")
 

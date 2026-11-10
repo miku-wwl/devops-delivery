@@ -1,5 +1,0 @@
-# E8 (chapter 9), temporary: hypothesis I5 (platform/apps/e8-probe.yaml).
-apiVersion: v1
-kind: ConfigMap
-metadata: {name: e8-probe-ns, namespace: storefront}
-data: {write: "1"}
