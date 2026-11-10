@@ -79,13 +79,17 @@ state)
   L=${3:?label}
   echo "== $(now) $L"
   echo "  etcd db size MiB: $(pq 'max(etcd_mvcc_db_total_size_in_bytes) / 1048576') (in use $(pq 'max(etcd_mvcc_db_total_size_in_use_in_bytes) / 1048576'))"
-  echo "  objects: $(pq 'sum by (resource) (apiserver_storage_objects{resource=~"pods|nodes|leases.coordination.k8s.io|events"})')"
+  echo "  objects: $(pq 'sum by (resource) (apiserver_resource_objects{resource=~"pods|nodes|leases|events"} or apiserver_storage_objects{resource=~"pods|nodes|leases.coordination.k8s.io|events"})')"
   echo "  resident memory MiB by component: $(pq 'sum by (job) (process_resident_memory_bytes) / 1048576')"
   docker stats --no-stream --format '{{.Name}} {{.MemUsage}} {{.CPUPerc}}' | grep "kwok-$NAME" | sed 's/^/  docker: /'
   echo "  WSL available MiB: $(free -m | awk '/^Mem:/ {print $7}')" ;;
 lists)
   echo "== $(now) LIST of all pods, 5 times each (wall time, bytes), served from where"
-  b0c=$(pq 'sum(apiserver_cache_list_total{resource_prefix="/pods"})'); b0s=$(pq 'sum(apiserver_storage_list_total{resource="pods"})')
+  # where a LIST is served from (Kubernetes 1.37): apiserver_storage_list_total counts every LIST at the
+  # storage layer, the watch cache's included; etcd sees a LIST only in etcd_request_duration_seconds
+  m() { $K get --raw /metrics | grep -E "^$1" | awk '{s += $2} END {print s + 0}'; }
+  e0=$(m 'etcd_request_duration_seconds_count[{]group="",operation="list",resource="pods"[}]')
+  c0=$(m 'apiserver_watch_cache_consistent_read_total[{]fallback="false",group="",resource="pods"')
   for q in "resourceVersion=0" "" "limit=500"; do
     for i in 1 2 3 4 5; do
       s=$(date +%s.%N)
@@ -95,8 +99,7 @@ lists)
       echo "  ${q:-resourceVersion unset (consistent)} #$i: $(python3 -c "print(round($(date +%s.%N) - $s, 3))") s, $((bytes / 1048576)) MiB"
     done
   done
-  sleep 35
-  echo "  served from the watch cache: +$(python3 -c "print(round(float('$(pq 'sum(apiserver_cache_list_total{resource_prefix="/pods"})')') - float('$b0c')))") lists; from etcd: +$(python3 -c "print(round(float('$(pq 'sum(apiserver_storage_list_total{resource="pods"})')') - float('$b0s')))") lists" ;;
+  echo "  LISTs of pods sent to etcd: +$(( $(m 'etcd_request_duration_seconds_count[{]group="",operation="list",resource="pods"[}]') - e0 )); consistent reads served by the watch cache: +$(( $(m 'apiserver_watch_cache_consistent_read_total[{]fallback="false",group="",resource="pods"') - c0 ))" ;;
 apf)
   bash "$HERE/apf.sh" "$KC" "$OUT" ;;
 clean)

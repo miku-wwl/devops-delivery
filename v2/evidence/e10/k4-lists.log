@@ -1,0 +1,25 @@
+== 09:47:05 LIST of all pods, 5 times each (wall time, bytes), served from where
+  resourceVersion=0 #1: 1.228 s, 33 MiB
+  resourceVersion=0 #2: 0.939 s, 33 MiB
+  resourceVersion=0 #3: 0.945 s, 33 MiB
+  resourceVersion=0 #4: 0.958 s, 33 MiB
+  resourceVersion=0 #5: 0.987 s, 33 MiB
+  resourceVersion unset (consistent) #1: 0.88 s, 33 MiB
+  resourceVersion unset (consistent) #2: 1.056 s, 33 MiB
+  resourceVersion unset (consistent) #3: 1.052 s, 33 MiB
+  resourceVersion unset (consistent) #4: 0.934 s, 33 MiB
+  resourceVersion unset (consistent) #5: 0.928 s, 33 MiB
+  limit=500 #1: 5.579 s, 33 MiB
+  limit=500 #2: 5.823 s, 33 MiB
+  limit=500 #3: 5.719 s, 33 MiB
+  limit=500 #4: 5.795 s, 33 MiB
+  limit=500 #5: 7.09 s, 33 MiB
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ValueError: could not convert string to float: '-'
+  served from the watch cache: + lists; from etcd: +110 lists
+== 09:49:22 attribution (apiserver /metrics, read before and after each request)
+  since the API server started: LISTs of pods sent to etcd 2, consistent pod reads served by the watch cache 1043
+  one LIST, resourceVersion=0: etcd +0, watch cache consistent reads +0
+  one LIST, resourceVersion unset: etcd +0, watch cache consistent reads +1
+  one paginated walk (20 pages of 500): etcd +0, watch cache consistent reads +1

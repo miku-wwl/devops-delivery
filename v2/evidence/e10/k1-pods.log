@@ -1,0 +1,4 @@
+== 09:42:56 creating 10000 pods with 8 parallel kubectl create - available MiB 3203
+  created all 10000 after 51.3 s
+  scheduled: first 3.1 s, all 10000 at 193.0 s -> 53 pods/s on average, best 10-s window 68 pods/s; all Running at 193.0 s
+  scheduler (Prometheus): attempts by result 10000

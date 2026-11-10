@@ -120,24 +120,35 @@ def on_heartbeat() -> None:
 
 
 def deadman_loop() -> None:
+    # E9/E10: every iteration on its own - the first version died with its first exception: after the lab
+    # restarted (E10, incident E10-1) it tried to open an incident while GitLab was still starting, the
+    # HTTP call raised, and the thread was gone; the switch was off and nothing said so
     while True:
         time.sleep(10)
-        with lock:
-            state = load()
-            last = state.get("last_heartbeat")
-            if last is None or state.get("deadman_iid"):
-                continue
-            silent = time.time() - last
-            if silent > DEADMAN:
-                issue = gitlab("POST", "/issues", {
-                    "title": f"Dead man's switch: no Watchdog from the cluster's Alertmanager for {silent:.0f} s",
-                    "description": ("The cluster's alerting pipeline (Prometheus -> Alertmanager -> this bridge) has "
-                                    f"gone silent. Last heartbeat: {datetime.fromtimestamp(last, timezone.utc).isoformat()}. "
-                                    "Every other alert of the cluster is blind until it is back."),
-                    "labels": "alert,kind::incident,severity::critical,team::platform,deadman", "issue_type": "incident"})
-                state["deadman_iid"] = issue["iid"]
-                save(state)
-                log("deadman_opened", iid=issue["iid"], silent_seconds=round(silent, 1))
+        try:
+            deadman_check()
+        except Exception as e:  # noqa: BLE001 - log, retry in 10 s
+            log("deadman_error", error=str(e))
+
+
+def deadman_check() -> None:
+    with lock:
+        state = load()
+        last = state.get("last_heartbeat")
+        if last is None or state.get("deadman_iid"):
+            return
+        silent = time.time() - last
+        if silent <= DEADMAN:
+            return
+        issue = gitlab("POST", "/issues", {
+            "title": f"Dead man's switch: no Watchdog from the cluster's Alertmanager for {silent:.0f} s",
+            "description": ("The cluster's alerting pipeline (Prometheus -> Alertmanager -> this bridge) has "
+                            f"gone silent. Last heartbeat: {datetime.fromtimestamp(last, timezone.utc).isoformat()}. "
+                            "Every other alert of the cluster is blind until it is back."),
+            "labels": "alert,kind::incident,severity::critical,team::platform,deadman", "issue_type": "incident"})
+        state["deadman_iid"] = issue["iid"]
+        save(state)
+        log("deadman_opened", iid=issue["iid"], silent_seconds=round(silent, 1))
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -169,8 +180,10 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:
         if self.path == "/state":
-            return self._reply(200, load())
-        self._reply(200 if self.path == "/healthz" else 404, {"ok": self.path == "/healthz"})
+            return self._reply(200, {**load(), "deadman_thread_alive": deadman.is_alive()})
+        if self.path == "/healthz":  # unhealthy when the dead man's switch no longer runs
+            return self._reply(200 if deadman.is_alive() else 500, {"ok": deadman.is_alive()})
+        self._reply(404, {"ok": False})
 
     def log_message(self, *args) -> None:  # requests are logged as events instead
         pass
@@ -179,5 +192,6 @@ class Handler(BaseHTTPRequestHandler):
 if __name__ == "__main__":
     os.makedirs(STATE_DIR, exist_ok=True)
     log("start", project=urllib.parse.unquote(PROJECT), deadman_seconds=DEADMAN)
-    threading.Thread(target=deadman_loop, daemon=True).start()
+    deadman = threading.Thread(target=deadman_loop, daemon=True, name="deadman")
+    deadman.start()
     ThreadingHTTPServer(("0.0.0.0", 9095), Handler).serve_forever()
