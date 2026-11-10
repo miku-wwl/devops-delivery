@@ -11,3 +11,22 @@
 == 22:50:23 result: 3 passed, 5 failed -> FAIL
   exit code 1
   alert bridge events since 2026-11-10T22:50:02Z: 0 (opened or notified)
+== 22:50:53 the candidate: the rule through a merge request
+  MR !46 (mr/20261110-225054-root, by root) pipeline 90: success after 38 s; diff: platform/values/monitoring.yaml
+  merge !46 as root (Maintainer): HTTP 200 merged
+  platform-gitops: merged !46 (E12/P1: inhibit the symptoms of a sealed OpenBao)
+  22:52:14 application monitoring: Synced/Healthy; the running Alertmanager has the rule after 38 s
+== 22:52:15 P1 after the change
+== 22:52:15 P1 grade
+  PASS  main of platform-gitops: an inhibit rule with the source OpenBaoSealed
+  PASS  main is protected: changes arrive only through a merge request with a successful pipeline
+  PASS  the running Alertmanager has the rule
+  PASS  inhibited: KubeJobFailed in secrets
+  PASS  inhibited: KubeContainerWaiting in secrets
+  PASS  inhibited: ArgoCDAppDegraded of backup-jobs
+  PASS  not inhibited: KubeJobFailed in storefront (control)
+  PASS  not inhibited: ArgoCDAppDegraded of storefront-gateway (control)
+== 22:52:36 result: 8 passed, 0 failed -> PASS
+  exit code 0
+  alert bridge events since 2026-11-10T22:52:15Z: 0 (opened or notified)
+  applications:  39 Synced/Healthy;
