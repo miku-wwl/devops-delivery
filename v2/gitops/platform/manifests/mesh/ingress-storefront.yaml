@@ -63,5 +63,12 @@ spec:
   parentRefs:
     - {name: storefront-ingress, sectionName: http}
   rules:
+    # E8: preview - a request with this header reaches the canary whatever the weights say
+    - matches:
+        - headers: [{name: x-storefront-preview, value: canary}]
+      backendRefs:
+        - {name: gateway-canary, port: 8080}
+    # the canary's share of everything else (merge requests change these weights)
     - backendRefs:
-        - {name: gateway, port: 8080}
+        - {name: gateway, port: 8080, weight: 100}
+        - {name: gateway-canary, port: 8080, weight: 0}
