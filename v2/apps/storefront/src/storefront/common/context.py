@@ -14,6 +14,7 @@ from contextvars import ContextVar
 
 REQUEST_ID_HEADER = "X-Request-ID"
 DEADLINE_HEADER = "X-Deadline-Ms"
+VERSION_HEADER = "X-Storefront-Version"  # E8: on every response, the version that answered
 _SAFE_REQUEST_ID = re.compile(r"[A-Za-z0-9._-]{1,64}")
 
 _request_id: ContextVar[str | None] = ContextVar("request_id", default=None)

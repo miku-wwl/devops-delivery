@@ -123,6 +123,18 @@ ORDER = {
 }
 
 
+async def test_every_response_names_the_version_that_answered():
+    # E8 (chapter 9): a canary is told apart from the stable release by this header - on business,
+    # operational and injected-fault responses alike
+    app = build_catalog(Settings(service="catalog", version="v-test"), store=FakeProducts(), cache=MemoryCache())
+    async with running(app) as c:
+        assert (await c.get("/products/sku-001")).headers["X-Storefront-Version"] == "v-test"
+        assert (await c.get("/healthz")).headers["X-Storefront-Version"] == "v-test"
+        assert (await c.put("/admin/faults", json={"error_rate": 1})).status_code == 200
+        r = await c.get("/products/sku-001")
+        assert r.status_code == 500 and r.headers["X-Storefront-Version"] == "v-test"
+
+
 async def test_operational_endpoints_and_injected_faults():
     app = build_catalog(Settings(service="catalog"), store=FakeProducts(), cache=MemoryCache())
     async with running(app) as c:

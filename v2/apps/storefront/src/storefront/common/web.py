@@ -76,11 +76,13 @@ class Observe:
     A plain ASGI middleware. It was an @app.middleware("http") function until E3: Starlette runs
     such a middleware's downstream app in an extra task with in-memory streams, which cost about
     6 % of the gateway's CPU in the profile (chapter 4). Behaviour is unchanged: operational
-    paths are neither counted nor faulted, and every response carries the request ID.
+    paths are neither counted nor faulted, and every response carries the request ID - and,
+    since E8 (chapter 9), the version that answered, which tells a canary from the stable release.
     """
 
     def __init__(self, app: ASGIApp, *, owner: FastAPI, settings: Settings, metrics: Metrics) -> None:
         self.app, self.owner, self.settings, self.metrics = app, owner, settings, metrics
+        self.version_header = (context.VERSION_HEADER.lower().encode("latin-1"), settings.version.encode("latin-1"))
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http":
@@ -96,7 +98,7 @@ class Observe:
             nonlocal status
             if message["type"] == "http.response.start":
                 status = message["status"]
-                message["headers"] = [*message.get("headers", ()), rid_header]
+                message["headers"] = [*message.get("headers", ()), rid_header, self.version_header]
             await send(message)
 
         # operational requests are not counted: a scrape of /metrics would otherwise always see
