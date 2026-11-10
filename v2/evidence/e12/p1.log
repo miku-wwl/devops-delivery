@@ -1,0 +1,13 @@
+== 22:50:02 P1 before the change (expected FAIL)
+== 22:50:02 P1 grade
+  FAIL  main of platform-gitops: an inhibit rule with the source OpenBaoSealed
+  PASS  main is protected: changes arrive only through a merge request with a successful pipeline
+  FAIL  the running Alertmanager has the rule
+  FAIL  inhibited: KubeJobFailed in secrets
+  FAIL  inhibited: KubeContainerWaiting in secrets
+  FAIL  inhibited: ArgoCDAppDegraded of backup-jobs
+  PASS  not inhibited: KubeJobFailed in storefront (control)
+  PASS  not inhibited: ArgoCDAppDegraded of storefront-gateway (control)
+== 22:50:23 result: 3 passed, 5 failed -> FAIL
+  exit code 1
+  alert bridge events since 2026-11-10T22:50:02Z: 0 (opened or notified)

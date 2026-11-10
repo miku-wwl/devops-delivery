@@ -1,0 +1,25 @@
+== 22:47:34 baseline:  39 Synced/Healthy;
+22:47:43 T1 injected - candidate: "a change merged ten minutes ago has not reached the cluster"
+  22:47:43 applications with a ComparisonError: 37
+== 22:47:43 grade right after the injection (NOWAIT, expected FAIL)
+== 22:47:43 T1 grade
+  FAIL  the repository secret holds the valid read token (compared by hash)
+  FAIL  no application reports a ComparisonError
+  FAIL  all applications Synced and Healthy
+== 22:47:53 result: 0 passed, 3 failed -> FAIL
+  exit code 1
+== 22:47:53 the candidate: symptom -> evidence
+  sync/health: 1 Synced/Healthy
+  sync/health: 1 Unknown/Degraded
+  sync/health: 37 Unknown/Healthy
+  condition ComparisonError: Failed to load target state: failed to generate manifest for source 1 of 1: rpc error: code = Unknown desc = failed to list refs: authentication required: HTTP Basic: Access denied. If a password was 
+  repository secret repo-platform-gitops -> http://gitlab:8929/root/platform-gitops.git
+  GitLab: the read token itself still valid? HTTP 200
+== 22:47:54 the candidate: repair - the secret gets the token from the lab secrets through stdin
+== 22:47:54 grade after the repair
+== 22:47:54 T1 grade
+  PASS  the repository secret holds the valid read token (compared by hash)
+  PASS  no application reports a ComparisonError
+  PASS  all applications Synced and Healthy
+== 22:48:19 result: 3 passed, 0 failed -> PASS
+  exit code 0

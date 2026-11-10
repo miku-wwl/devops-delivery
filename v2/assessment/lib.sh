@@ -11,8 +11,10 @@ check() {   # "description" command... - the command decides
   if "$@" >/dev/null 2>&1; then echo "  PASS  $d"; pass=$((pass + 1)); else echo "  FAIL  $d"; fail=$((fail + 1)); fi
 }
 verdict() { echo "== $(now) result: $pass passed, $fail failed -> $([ "$fail" = 0 ] && echo PASS || echo FAIL)"; [ "$fail" = 0 ]; }
-wait_for() {   # seconds command... - true as soon as the command succeeds
+wait_for() {   # seconds command... - true as soon as the command succeeds; NOWAIT=1: do not wait (a run
+               # that is expected to fail right after an injection)
   local s=$1; shift; local t0; t0=$(date +%s)
+  [ -n "${NOWAIT:-}" ] && s=0
   until "$@" >/dev/null 2>&1; do [ $(( $(date +%s) - t0 )) -ge "$s" ] && return 1; sleep 5; done
 }
 apps_healthy() { [ "$(kubectl -n argocd get applications --no-headers | grep -vc 'Synced *Healthy')" = 0 ]; }

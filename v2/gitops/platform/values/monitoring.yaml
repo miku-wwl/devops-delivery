@@ -48,6 +48,12 @@ alertmanager:
       - source_matchers: ['alertname = "PostgresPrimaryMissingReplicas"']   # the cause of the next one
         target_matchers: ['alertname = "PostgresReplicaNotStreaming"']
         equal: [namespace]
+      # E12/P1, incident E11-1 action item 5: a sealed OpenBao is the cause, these are its symptoms (54
+      # incidents in 9 hours). OpenBaoSealed has no namespace label (max() drops it) - hence no "equal".
+      - source_matchers: ['alertname = "OpenBaoSealed"']
+        target_matchers: ['namespace = "secrets"', 'alertname =~ "KubeJobFailed|KubeContainerWaiting"']
+      - source_matchers: ['alertname = "OpenBaoSealed"']
+        target_matchers: ['alertname = "ArgoCDAppDegraded"', 'name =~ "backup-jobs|insight|tenants|platform-root"']
     receivers:
       - name: "null"
       - name: deadman
