@@ -6,6 +6,8 @@ DevOps Delivery Engineering is an evidence-driven engineering portfolio focused 
 
 > **Status (2026-11-07):** phases P0–P12 executed in a local lab (Windows 11 + WSL2 + Kind) and GitHub Actions. Ten modules are **VALIDATED** by recorded evidence; the Datadog learning module is **PARTIAL** and the Datadog Synthetic variant is **NOT_RUN** (see the table below and [STATUS](docs/STATUS.md)). No vendor certificate or course completion is claimed. Owner actions that remain open are listed under [Open items](#open-items).
 
+> **Volume 2 (2026-11-11, tag `v2.0.0`, branch `v2/enterprise`):** an enterprise-grade simulation, phases E0–E12 (multi-service system, service mesh, capacity, elasticity, multi-tenancy, chaos, disaster recovery, release governance, observability, control plane at scale, IaC, assessment) - see [v2/README.md](v2/README.md), the Chinese handbook [v2/manual/dist/Enterprise-Platform-SRE-Simulation-Vol2.pdf](v2/manual/dist/Enterprise-Platform-SRE-Simulation-Vol2.pdf) and the [acceptance report](v2/docs/acceptance-report.md). Volume 1 below is unchanged.
+
 ## Why this repository exists
 
 Unlike [KPCP](https://github.com/miku-wwl/kube-platform-control-plane), which explores Kubernetes infrastructure reconciliation and Terraform-controlled resource lifecycles, this repository focuses on the software delivery path:

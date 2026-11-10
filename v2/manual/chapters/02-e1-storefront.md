@@ -136,7 +136,7 @@ HTTP 调用的链路由 OpenTelemetry 自动传递：客户端在请求头中写
 ### 服务与数据
 
 ```mermaid
-flowchart LR
+flowchart TB
   K["k6（主机）"] -->|HTTP| LB["LoadBalancer<br/>（envoy，集群外）"]
   LB --> GW[gateway]
   GW --> CA[catalog]

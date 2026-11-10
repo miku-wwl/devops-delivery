@@ -3521,6 +3521,160 @@
   "p50 70.5 ms, p99 193.8 ms"
  ],
  [
+  "E12 T1 37 applications ComparisonError",
+  "13-e12-assessment.md",
+  "0/3：37 个应用报告 `authentication required: HTTP Basic: Access denied`",
+  "evidence/e12/t1.log",
+  "applications with a ComparisonError: 37"
+ ],
+ [
+  "E12 T1 error message",
+  "13-e12-assessment.md",
+  "`authentication required: HTTP Basic: Access denied`",
+  "evidence/e12/t1.log",
+  "authentication required: HTTP Basic: Access denied"
+ ],
+ [
+  "E12 T1 grade before 0/3",
+  "13-e12-assessment.md",
+  "0/3：37 个应用",
+  "evidence/e12/t1.log",
+  "result: 0 passed, 3 failed -> FAIL"
+ ],
+ [
+  "E12 T1 token valid at GitLab",
+  "13-e12-assessment.md",
+  "先确认令牌本身在 GitLab 上有效（HTTP 200）",
+  "evidence/e12/t1.log",
+  "GitLab: the read token itself still valid? HTTP 200"
+ ],
+ [
+  "E12 T1 grade after 3/3 in 25 s",
+  "13-e12-assessment.md",
+  "3/3，25 秒后",
+  "evidence/e12/t1.log",
+  "== 22:48:19 result: 3 passed, 0 failed -> PASS"
+ ],
+ [
+  "E12 T2 grade before 2/3, sync check passed",
+  "13-e12-assessment.md",
+  "2/3：OpenBao 已密封，但密钥同步一项仍通过（状态滞后）",
+  "evidence/e12/t2.log",
+  "result: 2 passed, 1 failed -> FAIL"
+ ],
+ [
+  "E12 T2 sealed",
+  "13-e12-assessment.md",
+  "OpenBao 已密封",
+  "evidence/e12/t2.log",
+  "OpenBao answers: sealed=true"
+ ],
+ [
+  "E12 T2 unsealed with the fixed script",
+  "13-e12-assessment.md",
+  "用修复后的 `openbao-init.sh` 解封，5 秒",
+  "evidence/e12/t2.log",
+  "status: {\"initialized\":true,\"sealed\":false"
+ ],
+ [
+  "E12 T2 grade after 3/3, keys intact",
+  "13-e12-assessment.md",
+  "3/3，密钥文件不变",
+  "evidence/e12/t2.log",
+  "PASS  the unseal key files unchanged and read-only (no new key, no lost key)"
+ ],
+ [
+  "E12 T3 grade before 2/4",
+  "13-e12-assessment.md",
+  "2/4：存在 Git 之外的策略",
+  "evidence/e12/t3.log",
+  "result: 2 passed, 2 failed -> FAIL"
+ ],
+ [
+  "E12 T3 Argo CD 39 healthy during the fault",
+  "13-e12-assessment.md",
+  "Argo CD 始终显示 39 个应用正常",
+  "evidence/e12/t3.log",
+  "applications  39 Synced/Healthy;"
+ ],
+ [
+  "E12 T3 orders 503",
+  "13-e12-assessment.md",
+  "orders 的访问日志全是 503",
+  "evidence/e12/t3.log",
+  "\"msg\": \"POST /orders 503\""
+ ],
+ [
+  "E12 T3 ztunnel RBAC update",
+  "13-e12-assessment.md",
+  "`handling RBAC update e12-quarantine`",
+  "evidence/e12/t3.log",
+  "handling RBAC update e12-quarantine"
+ ],
+ [
+  "E12 T3 field manager kubectl",
+  "13-e12-assessment.md",
+  "这条策略的字段管理者是 `kubectl-client-side-apply`",
+  "evidence/e12/t3.log",
+  "managers istio-ambient-ztunnel-policy kubectl-client-side-apply"
+ ],
+ [
+  "E12 T3 grade after 4/4 in 7 s",
+  "13-e12-assessment.md",
+  "4/4，7 秒后",
+  "evidence/e12/t3.log",
+  "== 22:49:38 result: 4 passed, 0 failed -> PASS"
+ ],
+ [
+  "E12 P1 before 3/8",
+  "13-e12-assessment.md",
+  "| 判分 | 3/8 | 8/8 |",
+  "evidence/e12/p1.log",
+  "result: 3 passed, 5 failed -> FAIL"
+ ],
+ [
+  "E12 P1 after 8/8",
+  "13-e12-assessment.md",
+  "| 判分 | 3/8 | 8/8 |",
+  "evidence/e12/p1.log",
+  "result: 8 passed, 0 failed -> PASS"
+ ],
+ [
+  "E12 P1 MR 46",
+  "13-e12-assessment.md",
+  "规则经合并请求 !46 部署后",
+  "evidence/e12/p1.log",
+  "MR !46 (mr/20261110-225054-root, by root) pipeline 90: success after 38 s"
+ ],
+ [
+  "E12 P1 live after 38 s",
+  "13-e12-assessment.md",
+  "PASS（合并后 38 秒）",
+  "evidence/e12/p1.log",
+  "the running Alertmanager has the rule after 38 s"
+ ],
+ [
+  "E12 P1 no notification",
+  "13-e12-assessment.md",
+  "告警桥收到的通知都是 0 条",
+  "evidence/e12/p1.log",
+  ": 0 (opened or notified)"
+ ],
+ [
+  "E12 P1 OpenBaoSealed without namespace",
+  "13-e12-assessment.md",
+  "但 `OpenBaoSealed` 是用 `max(...)` 计算的",
+  "gitops/platform/manifests/alerts/platform-alerts.yaml",
+  "expr: max(vault_core_unsealed{namespace=\"secrets\"}) == 0"
+ ],
+ [
+  "E12 54 incidents",
+  "13-e12-assessment.md",
+  "一个原因开了 54 个事故",
+  "evidence/e11/incident-1.md",
+  "54 GitLab incidents from this one cause"
+ ],
+ [
   "E11 GitLab provider 19.5.0",
   "12-e11-iac.md",
   "GitLab 提供者 19.5.0",
@@ -3759,9 +3913,9 @@
   "type: RuntimeDefault"
  ],
  [
-  "E11 I4 MR 45 pipeline 88 31 s",
+  "E11 I4 MR 45 pipeline 31 s",
   "12-e11-iac.md",
-  "流水线 88：渲染 chart 10.17.1 + values，31 秒，通过",
+  "流水线：渲染新 chart（31 秒）",
   "evidence/e11/i4/upgrade.log",
   "MR !45 (mr/20261110-140726-root, by root) pipeline 88: success after 31 s"
  ],
@@ -3848,159 +4002,5 @@
   "EKS Capabilities 的托管 Argo CD（2025-11-30 正式可用）",
   "docs/cloud-migration.md",
   "2025-11-30 正式可用"
- ],
- [
-  "E12 T1 37 applications ComparisonError",
-  "13-e12-assessment.md",
-  "0/3：37 个应用报告 `authentication required: HTTP Basic: Access denied`",
-  "evidence/e12/t1.log",
-  "applications with a ComparisonError: 37"
- ],
- [
-  "E12 T1 error message",
-  "13-e12-assessment.md",
-  "`authentication required: HTTP Basic: Access denied`",
-  "evidence/e12/t1.log",
-  "authentication required: HTTP Basic: Access denied"
- ],
- [
-  "E12 T1 grade before 0/3",
-  "13-e12-assessment.md",
-  "0/3：37 个应用",
-  "evidence/e12/t1.log",
-  "result: 0 passed, 3 failed -> FAIL"
- ],
- [
-  "E12 T1 token valid at GitLab",
-  "13-e12-assessment.md",
-  "先确认令牌本身在 GitLab 上有效（HTTP 200）",
-  "evidence/e12/t1.log",
-  "GitLab: the read token itself still valid? HTTP 200"
- ],
- [
-  "E12 T1 grade after 3/3 in 25 s",
-  "13-e12-assessment.md",
-  "3/3，25 秒后",
-  "evidence/e12/t1.log",
-  "== 22:48:19 result: 3 passed, 0 failed -> PASS"
- ],
- [
-  "E12 T2 grade before 2/3, sync check passed",
-  "13-e12-assessment.md",
-  "2/3：OpenBao 已密封，但密钥同步一项仍通过（状态滞后）",
-  "evidence/e12/t2.log",
-  "result: 2 passed, 1 failed -> FAIL"
- ],
- [
-  "E12 T2 sealed",
-  "13-e12-assessment.md",
-  "OpenBao 已密封",
-  "evidence/e12/t2.log",
-  "OpenBao answers: sealed=true"
- ],
- [
-  "E12 T2 unsealed with the fixed script",
-  "13-e12-assessment.md",
-  "用修复后的 `openbao-init.sh` 解封，5 秒",
-  "evidence/e12/t2.log",
-  "status: {\"initialized\":true,\"sealed\":false"
- ],
- [
-  "E12 T2 grade after 3/3, keys intact",
-  "13-e12-assessment.md",
-  "3/3，密钥文件不变",
-  "evidence/e12/t2.log",
-  "PASS  the unseal key files unchanged and read-only (no new key, no lost key)"
- ],
- [
-  "E12 T3 grade before 2/4",
-  "13-e12-assessment.md",
-  "2/4：存在 Git 之外的策略",
-  "evidence/e12/t3.log",
-  "result: 2 passed, 2 failed -> FAIL"
- ],
- [
-  "E12 T3 Argo CD 39 healthy during the fault",
-  "13-e12-assessment.md",
-  "Argo CD 始终显示 39 个应用正常",
-  "evidence/e12/t3.log",
-  "applications  39 Synced/Healthy;"
- ],
- [
-  "E12 T3 orders 503",
-  "13-e12-assessment.md",
-  "orders 的访问日志全是 503",
-  "evidence/e12/t3.log",
-  "\"msg\": \"POST /orders 503\""
- ],
- [
-  "E12 T3 ztunnel RBAC update",
-  "13-e12-assessment.md",
-  "`handling RBAC update e12-quarantine`",
-  "evidence/e12/t3.log",
-  "handling RBAC update e12-quarantine"
- ],
- [
-  "E12 T3 field manager kubectl",
-  "13-e12-assessment.md",
-  "这条策略的字段管理者是 `kubectl-client-side-apply`",
-  "evidence/e12/t3.log",
-  "managers istio-ambient-ztunnel-policy kubectl-client-side-apply"
- ],
- [
-  "E12 T3 grade after 4/4 in 7 s",
-  "13-e12-assessment.md",
-  "4/4，7 秒后",
-  "evidence/e12/t3.log",
-  "== 22:49:38 result: 4 passed, 0 failed -> PASS"
- ],
- [
-  "E12 P1 before 3/8",
-  "13-e12-assessment.md",
-  "| 判分 | 3/8 | 8/8 |",
-  "evidence/e12/p1.log",
-  "result: 3 passed, 5 failed -> FAIL"
- ],
- [
-  "E12 P1 after 8/8",
-  "13-e12-assessment.md",
-  "| 判分 | 3/8 | 8/8 |",
-  "evidence/e12/p1.log",
-  "result: 8 passed, 0 failed -> PASS"
- ],
- [
-  "E12 P1 MR 46",
-  "13-e12-assessment.md",
-  "规则经合并请求 !46 部署后",
-  "evidence/e12/p1.log",
-  "MR !46 (mr/20261110-225054-root, by root) pipeline 90: success after 38 s"
- ],
- [
-  "E12 P1 live after 38 s",
-  "13-e12-assessment.md",
-  "PASS（合并后 38 秒）",
-  "evidence/e12/p1.log",
-  "the running Alertmanager has the rule after 38 s"
- ],
- [
-  "E12 P1 no notification",
-  "13-e12-assessment.md",
-  "告警桥收到的通知都是 0 条",
-  "evidence/e12/p1.log",
-  ": 0 (opened or notified)"
- ],
- [
-  "E12 P1 OpenBaoSealed without namespace",
-  "13-e12-assessment.md",
-  "但 `OpenBaoSealed` 是用 `max(...)` 计算的",
-  "gitops/platform/manifests/alerts/platform-alerts.yaml",
-  "expr: max(vault_core_unsealed{namespace=\"secrets\"}) == 0"
- ],
- [
-  "E12 54 incidents",
-  "13-e12-assessment.md",
-  "一个原因开了 54 个事故",
-  "evidence/e11/incident-1.md",
-  "54 GitLab incidents from this one cause"
  ]
 ]

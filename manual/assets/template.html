@@ -13,7 +13,7 @@ $highlighting-css$
   <div class="cover-band"></div>
   <div class="cover-kicker">$subtitle$</div>
   <div class="cover-title">$if(cover-title)$$cover-title$$else$$title$$endif$</div>
-  <div class="cover-flow">Commit → CI → Scan → Sign → GitOps → Canary → Observe → Promote / Abort → RCA</div>
+  <div class="cover-flow">$if(cover-flow)$$cover-flow$$else$Commit → CI → Scan → Sign → GitOps → Canary → Observe → Promote / Abort → RCA$endif$</div>
   <div class="cover-meta">
 $for(cover-lines)$
     <div>$cover-lines$</div>

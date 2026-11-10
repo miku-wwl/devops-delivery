@@ -212,7 +212,7 @@ OpenBao 2.7.2 和 External Secrets Operator 2.14.0 经 GitOps 安装。OpenBao �
 - **两个团队是模拟的。**insight 的服务只是一个最小的 HTTP 服务；没有测试团队之间真实的数据依赖。
 - **只测了 kindnet。**策略对已有连接、对节点流量的处理方式取决于 CNI；Calico、Cilium 的行为可能不同，结论不能直接搬过去。
 - **Argo CD 的同步冒用没有启用**，项目边界只由 Argo CD 执行（实验 6）。
-- **OpenBao 只有一个节点、一份解封密钥**；没有测试高可用和自动解封。网格中的服务间授权（Istio AuthorizationPolicy）没有在本章实施。
+- **OpenBao 只有一个节点、一份解封密钥**；没有测试高可用和自动解封。网格中的服务间授权（Istio AuthorizationPolicy）没有在本章实施。这份唯一的密钥后来在第 12 章的事故 E11-1 中丢失。
 - **准入恢复时间的差异**（新 Pod 就绪后 4 秒与 20 秒）没有分析。
 - **Kyverno 的策略格式已被标为弃用。**本章的策略是 `kyverno.io/v1` 的 ClusterPolicy；Kyverno 1.19 在读取时提示它“is deprecated and will be removed in a future release”，要迁移到基于 CEL 的 ValidatingPolicy、GeneratingPolicy 等新类型（`evidence/e5/cleanup.log`）。
 - **审计策略不记录服务账号对 Secret 的读取。**排除服务账号和节点读操作的规则排在 Secret 规则之前（`platform/cluster/audit-policy.yaml`），一个被盗用的服务账号令牌读取 Secret 不会留下记录。修改审计策略需要重启 API 服务器，本章没有修改，列为待办（练习 5）。
