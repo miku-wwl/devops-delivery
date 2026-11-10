@@ -1,0 +1,7 @@
+== 09:41:01 kwokctl create cluster (v1.37.0, Prometheus on 19090)  - available MiB 3730
+{"time":"2026-11-10T22:42:25.391094737+13:00","level":"INFO","source":{"function":"sigs.k8s.io/kwok/pkg/kwokctl/cmd/create/cluster.runE","file":"/home/runner/work/kwok/kwok/pkg/kwokctl/cmd/create/cluster/cluster.go","line":433},"msg":"Cluster is started","cluster":"scale","elapsed":{"nanosecond":4884811624,"human":"4.884811624s"}}
+{"time":"2026-11-10T22:42:25.391211962+13:00","level":"INFO","source":{"function":"sigs.k8s.io/kwok/pkg/kwokctl/cmd/create/cluster.runE","file":"/home/runner/work/kwok/kwok/pkg/kwokctl/cmd/create/cluster/cluster.go","line":449},"msg":"Waiting for cluster to be ready","cluster":"scale"}
+{"time":"2026-11-10T22:42:28.642025482+13:00","level":"INFO","source":{"function":"sigs.k8s.io/kwok/pkg/kwokctl/cmd/create/cluster.runE","file":"/home/runner/work/kwok/kwok/pkg/kwokctl/cmd/create/cluster/cluster.go","line":457},"msg":"Cluster is ready","cluster":"scale","elapsed":{"nanosecond":3250801851,"human":"3.250801851s"}}
+  09:42:28 server: v1.37.0; lab context unchanged: kind-ent
+  09:42:44 1000 virtual nodes created in 15.1 s, Ready: 1000; available MiB 3304
+  example node: node-000000 {"cpu":"32","memory":"256Gi","pods":"110"} taints=

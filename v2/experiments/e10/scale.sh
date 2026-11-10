@@ -27,7 +27,7 @@ up)
   shift 2
   mkdir -p "$HOME/.kwok"
   echo "== $(now) kwokctl create cluster (v1.37.0, Prometheus on 19090) $* - available MiB $(guard)"
-  kwokctl create cluster --name $NAME --runtime docker --kube-version v1.37.0 --kubeconfig "$KC" \
+  KWOK_KUBE_VERSION=v1.37.0 kwokctl create cluster --name $NAME --runtime docker --kubeconfig "$KC" \
     --prometheus-port 19090 --wait 10m "$@" 2>&1 | tail -3
   echo "  $(now) server: $($K version -o json | python3 -c 'import json,sys; print(json.load(sys.stdin)["serverVersion"]["gitVersion"])'); lab context unchanged: $(kubectl config current-context)"
   t0=$(date +%s.%N); kwokctl scale node --name $NAME --replicas 1000 >/dev/null 2>&1; t1=$(date +%s.%N)
