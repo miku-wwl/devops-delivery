@@ -19,6 +19,18 @@ config:
     jaeger: null
     zipkin: null
     prometheus: null
+  processors:
+    # E9 (chapter 10): tail sampling - the decision waits until a trace is complete (10 s) and keeps
+    # every trace with an error, every trace slower than 1 s, and 10 % of the rest. One replica: all
+    # spans of a trace must reach the same collector (more replicas need routing by trace ID).
+    tail_sampling:
+      decision_wait: 10s
+      num_traces: 20000
+      expected_new_traces_per_sec: 100
+      policies:
+        - {name: errors, type: status_code, status_code: {status_codes: [ERROR]}}
+        - {name: slow, type: latency, latency: {threshold_ms: 1000}}
+        - {name: baseline, type: probabilistic, probabilistic: {sampling_percentage: 10}}
   exporters:
     otlp/tempo:
       endpoint: tempo.observability:4317
@@ -29,7 +41,7 @@ config:
     pipelines:
       traces:
         receivers: [otlp]
-        processors: [memory_limiter, k8sattributes, batch]
+        processors: [memory_limiter, k8sattributes, tail_sampling, batch]
         exporters: [otlp/tempo]
       logs:
         receivers: [otlp]

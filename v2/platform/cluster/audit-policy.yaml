@@ -22,6 +22,14 @@ rules:
         resources: ["tokenreviews"]
       - group: "authorization.k8s.io"
         resources: ["subjectaccessreviews", "selfsubjectaccessreviews", "selfsubjectrulesreviews", "localsubjectaccessreviews"]
+  # E9 (chapter 10): which service account read which Secret. Reads of Secrets by service accounts
+  # are recorded (Metadata: who, which object - never the value); their other reads are still dropped.
+  - level: Metadata
+    verbs: ["get", "list", "watch"]
+    userGroups: ["system:serviceaccounts"]
+    resources:
+      - group: ""
+        resources: ["secrets"]
   - level: None
     verbs: ["get", "list", "watch"]
     userGroups: ["system:serviceaccounts", "system:nodes"]

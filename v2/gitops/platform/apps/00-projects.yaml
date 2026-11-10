@@ -23,6 +23,7 @@ spec:
     - https://charts.external-secrets.io
     - https://charts.jetstack.io                 # E7: cert-manager
     - https://vmware-tanzu.github.io/helm-charts # E7: Velero
+    - https://fluent.github.io/helm-charts       # E9: Fluent Bit (node-level logs)
   destinations:
     - {server: https://kubernetes.default.svc, namespace: "*"}
   # E8 (chapter 9): with sync impersonation on, Argo CD applies this project's changes as this

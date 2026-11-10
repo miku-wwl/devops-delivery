@@ -74,3 +74,24 @@ spec:
   destination: {server: "https://kubernetes.default.svc", namespace: monitoring}
   syncPolicy:
     automated: {prune: true, selfHeal: true}
+---
+# E9 (chapter 10): node-level logs (values/node-logs.yaml)
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: node-logs
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-2"}
+spec:
+  project: platform
+  sources:
+    - repoURL: https://fluent.github.io/helm-charts
+      chart: fluent-bit
+      targetRevision: 0.58.3
+      helm: {releaseName: node-logs, valueFiles: [$values/platform/values/node-logs.yaml]}
+    - {repoURL: "http://gitlab:8929/root/platform-gitops.git", targetRevision: main, ref: values}
+  destination: {server: "https://kubernetes.default.svc", namespace: observability}
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    syncOptions: [CreateNamespace=true]
+    retry: {limit: 10, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}
