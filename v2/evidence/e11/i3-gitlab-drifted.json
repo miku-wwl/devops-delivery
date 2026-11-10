@@ -1,0 +1,38 @@
+{
+  "members": [
+    {
+      "access_level": 40,
+      "username": "alice"
+    },
+    {
+      "access_level": 30,
+      "username": "project_3_bot_86188e75767c170b2b4f4136197e5115"
+    },
+    {
+      "access_level": 20,
+      "username": "project_3_bot_bd69a15218aedff2e1f1a2e8e0a56cbe"
+    },
+    {
+      "access_level": 50,
+      "username": "root"
+    }
+  ],
+  "project": {
+    "allow_merge_on_skipped_pipeline": false,
+    "default_branch": "main",
+    "id": 3,
+    "only_allow_merge_if_pipeline_succeeds": true,
+    "path_with_namespace": "root/platform-gitops",
+    "remove_source_branch_after_merge": true,
+    "visibility": "private"
+  },
+  "protected_main": {
+    "allow_force_push": true,
+    "merge": [
+      40
+    ],
+    "push": [
+      30
+    ]
+  }
+}

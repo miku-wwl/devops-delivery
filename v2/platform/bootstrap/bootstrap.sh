@@ -52,9 +52,11 @@ if [ ! -s "$SECRETS/platform-gitops-read-token" ]; then
   echo "created project access token argocd-ent-read (read_repository, Reporter, 30 days)"
 fi
 
-echo "==> 4. Argo CD (helm chart argo-cd 10.14.0)"
+# E11: the chart version has one home - the application through which Argo CD manages itself
+ARGOCD_CHART=$(awk '/chart: argo-cd/ {f = 1} f && /targetRevision:/ {print $2; exit}' "$V2/gitops/platform/apps/argocd.yaml")
+echo "==> 4. Argo CD (helm chart argo-cd $ARGOCD_CHART)"
 helm repo add argo https://argoproj.github.io/argo-helm --force-update >/dev/null
-helm upgrade --install argocd argo/argo-cd --version 10.14.0 -n argocd \
+helm upgrade --install argocd argo/argo-cd --version "$ARGOCD_CHART" -n argocd \
   -f "$V2/gitops/bootstrap/argocd-values.yaml" --wait --timeout 10m >/dev/null
 bash "$V2/platform/gitops/deploy-events.sh"   # E8: GitLab credential of the deployment events
 kubectl -n argocd apply -f - >/dev/null <<EOF

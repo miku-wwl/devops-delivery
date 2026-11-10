@@ -14,6 +14,13 @@ for envdir in envs/*/storefront; do
   done
   echo "$env: $(ls "rendered/$env" | wc -l) releases rendered"
 done
+# E11: Argo CD's own chart, at the version of platform/apps/argocd.yaml, with its values - a chart
+# upgrade that rejects our values fails here, before the merge
+V=$(awk '/chart: argo-cd/ {f = 1} f && /targetRevision:/ {print $2; exit}' platform/apps/argocd.yaml)
+mkdir -p rendered/platform
+helm template argocd argo-cd --repo https://argoproj.github.io/argo-helm --version "$V" -n argocd \
+  -f bootstrap/argocd-values.yaml > rendered/platform/argocd.yaml
+echo "argo-cd $V: $(grep -c '^kind:' rendered/platform/argocd.yaml) objects rendered"
 mkdir -p rendered/tenants
 for d in tenants/*/; do cp "$d"*.yaml rendered/tenants/; done
 echo "tenants: $(ls rendered/tenants | wc -l) manifests"

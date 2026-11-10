@@ -24,6 +24,7 @@ spec:
     - https://charts.jetstack.io                 # E7: cert-manager
     - https://vmware-tanzu.github.io/helm-charts # E7: Velero
     - https://fluent.github.io/helm-charts       # E9: Fluent Bit (node-level logs)
+    - https://argoproj.github.io/argo-helm       # E11: Argo CD manages itself (apps/argocd.yaml)
   destinations:
     - {server: https://kubernetes.default.svc, namespace: "*"}
   # E8 (chapter 9): with sync impersonation on, Argo CD applies this project's changes as this

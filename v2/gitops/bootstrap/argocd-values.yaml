@@ -1,5 +1,6 @@
-# argo-cd chart 10.14.0 (Argo CD v3.6.1). Installed once with helm by bootstrap.sh; after that
-# everything else comes from Git through the root application (root.yaml).
+# Values of the argo-cd chart (version: platform/apps/argocd.yaml). Installed once with helm by
+# bootstrap.sh; after that everything comes from Git through the root application (root.yaml) - Argo CD
+# itself too (E11: the application argocd).
 global:
   domain: argocd.ent.local
 dex: {enabled: false}
