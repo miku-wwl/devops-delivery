@@ -139,4 +139,22 @@ Run 4 (k6, as run 3 plus `GOMEMLIMIT=1300MiB` through kwokctl's `componentsPatch
 - victim: quiet p50 12.4 ms, p99 19.4 ms; during the flood 80 GETs, 35 x 200 (p50 105.9 ms, p99 1799.5
   ms), 42 x 000, 3 x 403.
 
-RUN5
+Hypothesis K5c (added before run 5): half the objects, the same limit - the API server survives.
+
+Run 5 (k7, as run 3 with 5000 pods; `k7-*.log`, `k7/`): **K5c refuted**. The API server rested at 662
+MiB of anonymous memory and was killed 8 times. The per-second samples of its cgroup
+(`k7/apf-apiserver-mem.txt`) show how: 662 MiB until the flood, then 825, 1172, 1523 MiB in the next
+three seconds - killed; after each restart it climbed past 1.2 GiB again within about 8 s. All 4033
+429s carried APF's plain-text message "Too many requests, please try again later." (the watch cache of
+5000 pods fills too quickly to refuse anything). Victim: quiet p99 15.6 ms; during the flood 46 x 200
+(p50 99.8 ms, p99 1386.7 ms), 33 x 000, 6 x 403. A rise of about 200 MiB/s cannot come from one LIST at
+a time.
+
+The flaw in the experiment's design (`apf-explain.log`, `kubectl explain` against the v1.37 server):
+e10-low was given `lendablePercent: 0` - it lends nothing - but no `borrowingLimitPercent`, and "when
+this field is left nil, the limit is effectively infinite". None of the suggested priority levels sets
+it, and they lend: workload-low 90 % of its 244 seats, workload-high 50 %, global-default 50 %, system
+33 %, node-high 25 %. Under demand, the "3-seat" level could borrow a few hundred idle seats - and run
+dozens of 33 MiB LISTs at once.
+
+RUN6

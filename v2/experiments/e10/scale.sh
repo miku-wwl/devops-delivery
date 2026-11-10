@@ -41,7 +41,8 @@ up)
   echo "  kube-apiserver environment: $(docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' kwok-$NAME-kube-apiserver | grep -E '^GO' | tr '\n' ' ')"
   # incident E10-1: hard memory limits (swap = memory) from K1's measured use with headroom - an
   # overload then kills one container inside its own cgroup instead of freezing the shared VM
-  for c in kube-apiserver:1536m etcd:512m kube-controller-manager:512m kube-scheduler:768m kwok-controller:256m prometheus:384m; do
+  # K5 run 7: APISERVER_MEM overrides the API server's limit (default 1536m)
+  for c in kube-apiserver:${APISERVER_MEM:-1536m} etcd:512m kube-controller-manager:512m kube-scheduler:768m kwok-controller:256m prometheus:384m; do
     docker update --memory "${c#*:}" --memory-swap "${c#*:}" "kwok-$NAME-${c%%:*}" >/dev/null && echo "  memory limit ${c#*:} on kwok-$NAME-${c%%:*}"
   done
   t0=$(date +%s.%N); kwokctl scale node --name $NAME --replicas 1000 >/dev/null 2>&1; t1=$(date +%s.%N)
@@ -119,7 +120,9 @@ apf)
   # the kernel kills inside the cgroup (incident E10-1, action item 2); Docker's OOMKilled flag only
   # describes the current run, so the restart count and the cgroup's peak are the evidence
   A=kwok-$NAME-kube-apiserver; id=$(docker inspect -f '{{.Id}}' $A)
-  echo "  $A: restarts $(docker inspect -f '{{.RestartCount}}' $A), memory peak since its last start $(( $(cat /sys/fs/cgroup/system.slice/docker-$id.scope/memory.peak) / 1048576 )) MiB of $(( $(docker inspect -f '{{.HostConfig.Memory}}' $A) / 1048576 )) MiB"
+  sleep 5  # run 6: right after a kill the cgroup is gone until Docker restarts the container
+  pk=$(cat /sys/fs/cgroup/system.slice/docker-$id.scope/memory.peak 2>/dev/null || echo 0)
+  echo "  $A: restarts $(docker inspect -f '{{.RestartCount}}' $A), memory peak since its last start $(( pk / 1048576 )) MiB of $(( $(docker inspect -f '{{.HostConfig.Memory}}' $A) / 1048576 )) MiB"
   echo "  OOM kills of this container in the kernel log: $(dmesg | grep -c "oom-kill:constraint=CONSTRAINT_MEMCG.*docker-$id")" ;;
 clean)
   echo "== $(now) delete all pods"

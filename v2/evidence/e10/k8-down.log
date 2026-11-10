@@ -1,0 +1,2 @@
+{"time":"2026-11-11T00:31:43.997425176+13:00","level":"INFO","source":{"function":"sigs.k8s.io/kwok/pkg/kwokctl/cmd/delete/cluster.deleteCluster","file":"/home/runner/work/kwok/kwok/pkg/kwokctl/cmd/delete/cluster/cluster.go","line":161},"msg":"Cluster is deleted","cluster":"scale","elapsed":{"nanosecond":1251199390,"human":"1.25119939s"}}
+  WSL available MiB after deleting the cluster: 5140

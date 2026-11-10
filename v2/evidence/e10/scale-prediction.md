@@ -61,3 +61,17 @@ levels lend.
 | | Hypothesis | Measured by |
 |---|---|---|
 | K5d | with `borrowingLimitPercent: 0` on e10-low and everything else as run 3 (10 000 pods, defaults, APF on, 1536 MiB, no GOMEMLIMIT, 40 workers, 60 s): e10-low's current limit stays at 3 seats, the API server is not killed, the victim's GETs keep p99 within 2x of the quiet value. Then, on the same cluster, the same flood with the borrowing limit removed (as in runs 1-5): e10-low's current limit rises above 3 seats and the API server's memory climbs as in runs 3-5 | `apiserver_flowcontrol_current_limit_seats` and executing seats every 2 s, the API server's cgroup memory every second, kernel log, restarts, victim latencies |
+
+## Added 2026-11-10 11:40 UTC, after K5 run 6 and before run 7
+
+Run 6: K5d partly confirmed, partly refuted. With `borrowingLimitPercent: 0` e10-low stayed at 3 seats
+(sampled: limit 3, 3 executing, 5 queued) - and the API server was still killed 5 times: from 938 MiB
+of anonymous memory to 1487 MiB within about 4 s of three concurrent LISTs, roughly 180 MiB per LIST
+of 10 000 pods (33 MiB of JSON). Without the borrowing limit e10-low borrowed up to 7 seats and the API
+server was killed 8 times. APF limits what it is told to; three seats of full LISTs did not fit into
+the memory left. K5's own question - does APF keep another client's latency - needs a run in which the
+API server stays up.
+
+| | Hypothesis | Measured by |
+|---|---|---|
+| K5e | with the API server limited to 2560 MiB instead of 1536 MiB and everything else as run 6a (10 000 pods, APF on, e10-low 3 seats with `borrowingLimitPercent: 0`, 40 workers, 60 s): its anonymous memory peaks below about 1.8 GiB (about 1 GiB at rest + 3 x 0.2 GiB), it is not killed, the flood's 429s are APF's, and the victim's GETs keep p99 within 2x of the quiet value | the API server's cgroup memory every second, kernel log, restarts, 429 messages, victim latencies |
