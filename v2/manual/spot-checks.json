@@ -3519,5 +3519,334 @@
   "p99 从 20 毫秒变成 194 毫秒",
   "evidence/e10/k9-apf.log",
   "p50 70.5 ms, p99 193.8 ms"
+ ],
+ [
+  "E11 GitLab provider 19.5.0",
+  "12-e11-iac.md",
+  "GitLab 提供者 19.5.0",
+  "evidence/e11/i1-init.log",
+  "Installed gitlabhq/gitlab v19.5.0 (signed"
+ ],
+ [
+  "E11 OpenTofu 1.13.9 wrote the state",
+  "12-e11-iac.md",
+  "OpenTofu 1.13.9",
+  "evidence/e11/i2-consistency.log",
+  "\"terraform_version\":\"1.13.9\""
+ ],
+ [
+  "E11 I1 first plan: 3 to import",
+  "12-e11-iac.md",
+  "`3 to import, 0 to add, 0 to change, 0 to destroy`",
+  "evidence/e11/i1-plan-1.log",
+  "Plan: 3 to import, 0 to add, 0 to change, 0 to destroy."
+ ],
+ [
+  "E11 I1 GitLab unchanged by the adoption",
+  "12-e11-iac.md",
+  "接管前后 GitLab 门禁的快照完全相同",
+  "evidence/e11/i1-apply.log",
+  "GitLab unchanged by the adoption"
+ ],
+ [
+  "E11 I1 plan after adoption: no changes",
+  "12-e11-iac.md",
+  "下一次计划没有差异（退出码 0）",
+  "evidence/e11/i1-apply.log",
+  "No changes. Your infrastructure matches the configuration."
+ ],
+ [
+  "E11 I2 stored object only encrypted fields",
+  "12-e11-iac.md",
+  "只有 `encrypted_data`、`encryption_version`、`lineage`、`meta`、`serial` 这几个字段",
+  "evidence/e11/i2-state.log",
+  "top-level keys: ['encrypted_data', 'encryption_version', 'lineage', 'meta', 'serial']"
+ ],
+ [
+  "E11 I2 0 plain-text markers",
+  "12-e11-iac.md",
+  "在密文中各出现 0 次，解密后各出现 1 次",
+  "evidence/e11/i2-state.log",
+  "plain-text markers in the stored object: 'platform-gitops' 0, 'runners_token' 0, 'only_allow_merge' 0"
+ ],
+ [
+  "E11 I2 markers after decryption",
+  "12-e11-iac.md",
+  "在密文中各出现 0 次，解密后各出现 1 次",
+  "evidence/e11/i2-state.log",
+  "the same markers after decryption (tofu state pull): 'platform-gitops' 1, 'runners_token' 1, 'only_allow_merge' 1"
+ ],
+ [
+  "E11 I2 Garage ignores If-None-Match",
+  "12-e11-iac.md",
+  "同一个键第二次带条件写入，仍然返回 200 而不是 412",
+  "evidence/e11/i2-state.log",
+  "PUT the same key again, If-None-Match: *   -> HTTP 200"
+ ],
+ [
+  "E11 I2 tofu ran past the foreign lock",
+  "12-e11-iac.md",
+  "`tofu plan` 照常运行",
+  "evidence/e11/i2-state.log",
+  "tofu plan exit code 0:"
+ ],
+ [
+  "E11 I2 the foreign lock deleted",
+  "12-e11-iac.md",
+  "结束时把那个锁删掉了",
+  "evidence/e11/i2-state.log",
+  "lock object after the plan: HTTP 404"
+ ],
+ [
+  "E11 I2 GitLab second lock 409",
+  "12-e11-iac.md",
+  "第二次加锁请求得到 409",
+  "evidence/e11/i2-lock-gitlab.log",
+  "the same lock once more -> HTTP 409"
+ ],
+ [
+  "E11 I2 tofu refused by GitLab's lock",
+  "12-e11-iac.md",
+  "Error acquiring the state lock",
+  "evidence/e11/i2-lock-gitlab.log",
+  "Error: Error acquiring the state lock"
+ ],
+ [
+  "E11 I2 two concurrent plans",
+  "12-e11-iac.md",
+  "两个同时开始的计划，一个成功，一个被锁挡住",
+  "evidence/e11/i2-lock-gitlab.log",
+  "plan 2: exit code 1, Error: Error acquiring the state lock"
+ ],
+ [
+  "E11 I2 state complete after the interruption",
+  "12-e11-iac.md",
+  "目标中的状态完整（serial 1，3 个资源和 1 个数据源）",
+  "evidence/e11/i2-consistency.log",
+  "\"serial\":1,\"lineage\":\"9d7788b3-47c9-a0ef-4c66-e2c103abcbb0\",\"terraform_version\":\"1.13.9\",\"resources\":4"
+ ],
+ [
+  "E11 I2 no lock left after the interruption",
+  "12-e11-iac.md",
+  "没有残留的锁",
+  "evidence/e11/i2-consistency.log",
+  "\"lockedAt\":null"
+ ],
+ [
+  "E11 I2 interrupted plan re-run: no changes",
+  "12-e11-iac.md",
+  "重新运行被打断的计划，没有差异",
+  "evidence/e11/i2-consistency.log",
+  "No changes. Your infrastructure matches the configuration."
+ ],
+ [
+  "E11 I3 plan: 1 add, 1 change, 1 destroy",
+  "12-e11-iac.md",
+  "`1 to add, 1 to change, 1 to destroy`",
+  "evidence/e11/i3-drift.log",
+  "Plan: 1 to add, 1 to change, 1 to destroy."
+ ],
+ [
+  "E11 I3 exit code 2",
+  "12-e11-iac.md",
+  "让 `plan -detailed-exitcode` 以 2 退出",
+  "evidence/e11/i3-drift.log",
+  "exit code 2 (0 = no changes, 1 = error, 2 = changes)"
+ ],
+ [
+  "E11 I3 push_access_level forces replacement",
+  "12-e11-iac.md",
+  "提供者认为 `push_access_level` 的改变需要替换整个分支保护",
+  "evidence/e11/i3-drift.log",
+  "\"developer\" -> \"no one\" # forces replacement"
+ ],
+ [
+  "E11 I3 protection destroyed for 1 s",
+  "12-e11-iac.md",
+  "应用时先删除了保护（1 秒），再重新创建",
+  "evidence/e11/i3-drift.log",
+  "gitlab_branch_protection.main: Destruction complete after 1s"
+ ],
+ [
+  "E11 I3 GitLab restored",
+  "12-e11-iac.md",
+  "GitLab 回到接管后的状态",
+  "evidence/e11/i3-drift.log",
+  "GitLab is back to the state after the adoption"
+ ],
+ [
+  "E11 I4 first look: 56 of 59 OutOfSync",
+  "12-e11-iac.md",
+  "Argo CD 报告 59 个资源中有 56 个 OutOfSync",
+  "evidence/e11/i4/adopt.log",
+  "resources: 59, out of sync: 56"
+ ],
+ [
+  "E11 I4 dry run: the redis hook job",
+  "12-e11-iac.md",
+  "helm 安装后已删除的钩子任务 `argocd-redis-secret-init`",
+  "evidence/e11/i4/adopt-dryrun-diff.txt",
+  "argocd-redis-secret-init"
+ ],
+ [
+  "E11 I4 automated sync 22 s",
+  "12-e11-iac.md",
+  "同步用了 22 秒",
+  "evidence/e11/i4/adopt.log",
+  "started 2026-11-10T14:04:15Z, finished 2026-11-10T14:04:37Z"
+ ],
+ [
+  "E11 I4 60 resources in sync",
+  "12-e11-iac.md",
+  "60 个资源全部一致",
+  "evidence/e11/i4/adopt.log",
+  "resources: 60, out of sync: 0"
+ ],
+ [
+  "E11 I4 controller not restarted",
+  "12-e11-iac.md",
+  "Argo CD 没有一个 Pod 重启",
+  "evidence/e11/i4/adopt.log",
+  "argocd-application-controller-0 started 2026-11-10T05:53:58Z restarts 2"
+ ],
+ [
+  "E11 I4 helm refused: field ownership",
+  "12-e11-iac.md",
+  "API server 报告冲突（例如 `.spec.replicas`）",
+  "evidence/e11/i4/out-of-band.log",
+  "conflict with \"argocd-controller\": .spec.replicas"
+ ],
+ [
+  "E11 I4 forced helm undone by selfHeal",
+  "12-e11-iac.md",
+  "selfHeal 在几秒内把副本数改回 1",
+  "evidence/e11/i4/out-of-band.log",
+  "last operation: Succeeded started 2026-11-10T14:05:59Z by true"
+ ],
+ [
+  "E11 I4 helm history revision 4",
+  "12-e11-iac.md",
+  "“第 4 版，chart 10.14.0，2 个副本，已部署”",
+  "evidence/e11/i4/out-of-band.log",
+  "{\"revision\":4,\"status\":\"deployed\",\"chart\":\"argo-cd-10.14.0\"}"
+ ],
+ [
+  "E11 I4 helm values say 2 replicas",
+  "12-e11-iac.md",
+  "“第 4 版，chart 10.14.0，2 个副本，已部署”",
+  "evidence/e11/i4/out-of-band.log",
+  "server.replicas = 2"
+ ],
+ [
+  "E11 I4 cluster: 1 replica, chart 10.17.1",
+  "12-e11-iac.md",
+  "升级之后的集群是 chart 10.17.1、1 个副本",
+  "evidence/e11/i4/out-of-band.log",
+  "cluster: argocd-server replicas 1, chart label argo-cd-10.17.1"
+ ],
+ [
+  "E11 I4 upgrade preview: 7 objects",
+  "12-e11-iac.md",
+  "7 个对象改变",
+  "evidence/e11/i4/upgrade-preview.txt",
+  "changed objects: 7"
+ ],
+ [
+  "E11 I4 upgrade preview: seccompProfile",
+  "12-e11-iac.md",
+  "`seccompProfile: RuntimeDefault`",
+  "evidence/e11/i4/upgrade-preview.txt",
+  "type: RuntimeDefault"
+ ],
+ [
+  "E11 I4 MR 45 pipeline 88 31 s",
+  "12-e11-iac.md",
+  "流水线 88：渲染 chart 10.17.1 + values，31 秒，通过",
+  "evidence/e11/i4/upgrade.log",
+  "MR !45 (mr/20261110-140726-root, by root) pipeline 88: success after 31 s"
+ ],
+ [
+  "E11 I4 new revision seen after 244 s",
+  "12-e11-iac.md",
+  "244 秒后才看到新版本",
+  "evidence/e11/i4/upgrade.log",
+  "+244 s 14:12:04: chart 10.17.1 OutOfSync Healthy Running"
+ ],
+ [
+  "E11 I4 sync 24 s",
+  "12-e11-iac.md",
+  "同步本身 24 秒",
+  "evidence/e11/i4/upgrade.log",
+  "started 2026-11-10T14:12:03Z, finished 2026-11-10T14:12:27Z"
+ ],
+ [
+  "E11 I4 Synced/Healthy at +315 s",
+  "12-e11-iac.md",
+  "315 秒时回到 Synced 和 Healthy",
+  "evidence/e11/i4/upgrade.log",
+  "+315 s 14:13:15: chart 10.17.1 Synced Healthy Succeeded"
+ ],
+ [
+  "E11 I4 controller replaced after its sync",
+  "12-e11-iac.md",
+  "应用控制器在自己的同步完成之后才被替换",
+  "evidence/e11/i4/upgrade.log",
+  "argocd-application-controller-0 started 2026-11-10T14:12:29Z restarts 0"
+ ],
+ [
+  "E11 I4 other applications unchanged",
+  "12-e11-iac.md",
+  "35 个 Healthy，以及 4 个 Degraded",
+  "evidence/e11/i4/upgrade.log",
+  "4 Synced/Degraded; 35 Synced/Healthy;"
+ ],
+ [
+  "E11-1 key file emptied 13:44:03",
+  "12-e11-iac.md",
+  "| 13:44:03 |",
+  "evidence/e11/incident-1.md",
+  "| 13:44:03 |"
+ ],
+ [
+  "E11-1 OpenBaoSealed paged 13:47:39",
+  "12-e11-iac.md",
+  "| 13:47:39 | 告警 OpenBaoSealed",
+  "evidence/e11/incident-1.md",
+  "opened incident #14"
+ ],
+ [
+  "E11 S3 Object Lock compliance: root included",
+  "12-e11-iac.md",
+  "包括 AWS 账户的 root 用户",
+  "docs/cloud-migration.md",
+  "包括 AWS 账户的 root 用户"
+ ],
+ [
+  "E11 App Mesh end of support",
+  "12-e11-iac.md",
+  "AWS App Mesh 已于 2026-09-30 停止支持",
+  "docs/cloud-migration.md",
+  "AWS App Mesh 已于 2026-09-30 停止支持"
+ ],
+ [
+  "E11 AKS Istio add-on without ambient",
+  "12-e11-iac.md",
+  "AKS 的 Istio 插件尚不支持 ambient 模式",
+  "docs/cloud-migration.md",
+  "尚不支持无 sidecar 的 Ambient 模式"
+ ],
+ [
+  "E11 S3 conditional writes since 2024-08-20",
+  "12-e11-iac.md",
+  "条件写入从 2024 年 8 月起可用",
+  "docs/cloud-migration.md",
+  "S3 自 2024-08-20 起支持 `If-None-Match` 条件写入"
+ ],
+ [
+  "E11 EKS Capabilities managed Argo CD GA",
+  "12-e11-iac.md",
+  "EKS Capabilities 的托管 Argo CD（2025-11-30 正式可用）",
+  "docs/cloud-migration.md",
+  "2025-11-30 正式可用"
  ]
 ]

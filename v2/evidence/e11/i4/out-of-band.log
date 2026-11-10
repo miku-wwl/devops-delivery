@@ -14,3 +14,7 @@
   +2 s: argocd-server replicas 1, application Synced
   14:06:07 last operation: Succeeded started 2026-11-10T14:05:59Z by true
   field manager of .spec.replicas now: argocd-controller
+== 14:27:50 afterwards: what helm records versus the cluster
+  helm history: [{"revision":3,"status":"failed","chart":"argo-cd-10.14.0"},{"revision":4,"status":"deployed","chart":"argo-cd-10.14.0"}]
+  helm values of the deployed revision: server.replicas = 2
+  cluster: argocd-server replicas 1, chart label argo-cd-10.17.1
