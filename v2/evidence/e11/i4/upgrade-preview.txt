@@ -1,0 +1,45 @@
+== argo-cd 10.14.0 -> 10.17.1 with gitops/bootstrap/argocd-values.yaml (helm template, label helm.sh/chart ignored)
+objects: 59 -> 59; only in 10.14.0: []; only in 10.17.1: []
+changed objects: 7
+  Deployment/argocd-applicationset-controller: 4 lines
+  Deployment/argocd-notifications-controller: 4 lines
+  Deployment/argocd-redis: 1 lines
+  Deployment/argocd-repo-server: 4 lines
+  Deployment/argocd-server: 4 lines
+  Job/argocd-redis-secret-init: 5 lines
+  StatefulSet/argocd-application-controller: 4 lines
+images 10.14.0: ['ecr-public.aws.com/docker/library/redis:8.6.4-alpine', 'quay.io/argoproj/argocd:v3.6.1']
+images 10.17.1: ['ecr-public.aws.com/docker/library/redis:8.6.4-alpine', 'quay.io/argoproj/argocd:v3.6.1']
+--- Deployment/argocd-applicationset-controller
+    -        helm.sh/chart: argo-cd-10.14.0
+    +      securityContext:
+    +        seccompProfile:
+    +          type: RuntimeDefault
+--- Deployment/argocd-notifications-controller
+    -        helm.sh/chart: argo-cd-10.14.0
+    +      securityContext:
+    +        seccompProfile:
+    +          type: RuntimeDefault
+--- Deployment/argocd-redis
+    -        helm.sh/chart: argo-cd-10.14.0
+--- Deployment/argocd-repo-server
+    -        helm.sh/chart: argo-cd-10.14.0
+    +      securityContext:
+    +        seccompProfile:
+    +          type: RuntimeDefault
+--- Deployment/argocd-server
+    -        helm.sh/chart: argo-cd-10.14.0
+    +      securityContext:
+    +        seccompProfile:
+    +          type: RuntimeDefault
+--- Job/argocd-redis-secret-init
+    -        helm.sh/chart: argo-cd-10.14.0
+    +        helm.sh/chart: argo-cd-10.17.1
+    +      securityContext:
+    +        seccompProfile:
+    +          type: RuntimeDefault
+--- StatefulSet/argocd-application-controller
+    -        helm.sh/chart: argo-cd-10.14.0
+    +      securityContext:
+    +        seccompProfile:
+    +          type: RuntimeDefault

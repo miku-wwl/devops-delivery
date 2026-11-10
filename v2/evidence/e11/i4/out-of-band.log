@@ -1,0 +1,16 @@
+== 14:05:05 helm v4.3.1+gc0d08d0; argocd-server replicas: 1
+== 14:05:05 [注入] out of band, the E8 way: helm upgrade with server.replicas=2
+  level=WARN msg="upgrade failed" name=argocd error="conflict occurred while applying object argocd/argocd-application-controller networking.k8s.io/v1, Kind=NetworkPolicy: Apply failed with 1 conflict: conflict with \"argocd-controller\": .spec.ingress && conflict occurred while applying object argocd/argocd-notifications-controller networking.k8s.io/v1, Kind=NetworkPolicy: Apply failed with 1 conflict: conflict with \"argocd-controller\": .spec.ingress && conflict occurred while applying object argocd/argocd-repo-server networking.k8s.io/v1, Kind=NetworkPolicy: Apply failed with 1 conflict: conflict with \"argocd-controller\": .spec.ingress && conflict occurred while applying object argocd/argocd-applicationset-controller apps/v1, Kind=Deployment: Apply failed with 1 conflict: conflict with \"argocd-controller\": .spec.template.spec.containers[name=\"applicationset-controller\"].env[name=\"NAMESPACE\"].valueFrom.fieldRef && conflict occurred while applying object argocd/argocd-server apps/v1, Kind=Deployment: Apply failed with 1 conflict: conflict with \"argocd-controller\": .spec.replicas"
+  Error: UPGRADE FAILED: conflict occurred while applying object argocd/argocd-application-controller networking.k8s.io/v1, Kind=NetworkPolicy: Apply failed with 1 conflict: conflict with "argocd-controller": .spec.ingress && conflict occurred while applying object argocd/argocd-notifications-controller networking.k8s.io/v1, Kind=NetworkPolicy: Apply failed with 1 conflict: conflict with "argocd-controller": .spec.ingress && conflict occurred while applying object argocd/argocd-repo-server networking.k8s.io/v1, Kind=NetworkPolicy: Apply failed with 1 conflict: conflict with "argocd-controller": .spec.ingress && conflict occurred while applying object argocd/argocd-applicationset-controller apps/v1, Kind=Deployment: Apply failed with 1 conflict: conflict with "argocd-controller": .spec.template.spec.containers[name="applicationset-controller"].env[name="NAMESPACE"].valueFrom.fieldRef && conflict occurred while applying object argocd/argocd-server apps/v1, Kind=Deployment: Apply failed with 1 conflict: conflict with "argocd-controller": .spec.replicas
+  helm exit code 1
+  +0 s: replicas 1, application Synced
+  14:05:26 last operation: Succeeded 2026-11-10T14:04:15Z ["10.14.0","6767ba01c849448a5e7e459a2be11c49b41be0ba"]
+  helm history: [{"revision":1,"status":"superseded","chart":"argo-cd-10.14.0"},{"revision":2,"status":"deployed","chart":"argo-cd-10.14.0"},{"revision":3,"status":"failed","chart":"argo-cd-10.14.0"}]
+== 14:05:45 [注入] the same, conflicts forced: helm upgrade --force-conflicts, server.replicas=2
+  
+  (You should delete the initial secret afterwards as suggested by the Getting Started Guide: https://argo-cd.readthedocs.io/en/stable/getting_started/#4-login-using-the-cli)
+  helm exit code 0
+  +0 s: argocd-server replicas 1, application OutOfSync
+  +2 s: argocd-server replicas 1, application Synced
+  14:06:07 last operation: Succeeded started 2026-11-10T14:05:59Z by true
+  field manager of .spec.replicas now: argocd-controller

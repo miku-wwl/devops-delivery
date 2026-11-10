@@ -58,3 +58,26 @@
     OutOfSync RoleBinding/argocd-root
     OutOfSync RoleBinding/argocd-server
 
+== 13:57:24 Argo CD pods before automating
+    argocd-application-controller-0 started 2026-11-10T05:53:58Z restarts 2
+    argocd-applicationset-controller-9bb847c8f-k5ktb started 2026-11-10T05:53:58Z restarts 2
+    argocd-notifications-controller-5465ff58db-gg6qm started 2026-11-10T05:53:58Z restarts 2
+    argocd-redis-86fb5c84d-xk7b8 started 2026-11-10T05:53:58Z restarts 2
+    argocd-repo-server-5ff856bd55-7n5vk started 2026-11-10T05:53:58Z restarts 5
+    argocd-server-687f6bdc58-95r9h started 2026-11-10T05:53:58Z restarts 5
+== 13:57:24 publish: automated sync
+MR !44 (mr/20261110-135726-root, by root) pipeline 86: success after 35 s; diff: platform/apps/argocd.yaml
+merge !44 as root (Maintainer): HTTP 200 merged
+platform-gitops: merged !44 (E11: application argocd automated (selfHeal, no prune))
+  14:04:42 application argocd: Synced/Healthy/Succeeded after 397 s
+  operation: successfully synced (all tasks run); started 2026-11-10T14:04:15Z, finished 2026-11-10T14:04:37Z
+  resources: 60, out of sync: 0
+== 14:04:42 Argo CD pods after
+    argocd-application-controller-0 started 2026-11-10T05:53:58Z restarts 2
+    argocd-applicationset-controller-9bb847c8f-k5ktb started 2026-11-10T05:53:58Z restarts 2
+    argocd-notifications-controller-5465ff58db-gg6qm started 2026-11-10T05:53:58Z restarts 2
+    argocd-redis-86fb5c84d-xk7b8 started 2026-11-10T05:53:58Z restarts 2
+    argocd-redis-secret-init-9mcws started 2026-11-10T14:04:23Z restarts 0
+    argocd-repo-server-5ff856bd55-7n5vk started 2026-11-10T05:53:58Z restarts 5
+    argocd-server-687f6bdc58-95r9h started 2026-11-10T05:53:58Z restarts 5
+  applications:  4 Synced/Degraded; 35 Synced/Healthy;

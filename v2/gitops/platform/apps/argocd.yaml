@@ -16,7 +16,7 @@ spec:
   sources:
     - repoURL: https://argoproj.github.io/argo-helm
       chart: argo-cd
-      targetRevision: 10.14.0
+      targetRevision: 10.17.1   # E11: upgraded from 10.14.0 through a merge request (Argo CD v3.6.1 both)
       helm:
         releaseName: argocd
         valueFiles: [$values/bootstrap/argocd-values.yaml]
