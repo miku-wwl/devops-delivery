@@ -18,7 +18,9 @@ mark() { echo "$(date -u +%FT%T.%3NZ) $1" | tee -a "$TL"; }
 enc() { python3 -c 'import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))' "$1"; }
 val() { kubectl get --raw "$P/query?query=$(enc "$1")" | python3 -c 'import json,sys; r=json.load(sys.stdin)["data"]["result"]; print(round(float(r[0]["value"][1]), 4) if r else "-")'; }
 alert() { kubectl get --raw "$P/alerts" | python3 -c 'import json,sys; print(next((a["state"] for a in json.load(sys.stdin)["data"]["alerts"] if a["labels"]["alertname"] == sys.argv[1]), "inactive"))' "$1"; }
-incident_iid() { docker logs alert-bridge 2>&1 | grep '"event": "opened"' | grep SLOBurnCheckout | tail -1 | grep -o '"iid": [0-9]*' | grep -o '[0-9]*'; }
+# the page opened after the change was merged (an earlier ticket of the same SLO must not count)
+since() { grep " change: .* merged" "$TL" | tail -1 | cut -d' ' -f1; }
+incident_iid() { docker logs --since "$(since)" alert-bridge 2>&1 | grep '"event": "opened"' | grep SLOBurnCheckoutAvailabilityPage | tail -1 | grep -o '"iid": [0-9]*' | grep -o '[0-9]*'; }
 status() { echo "checkout 5m $(val 'slo:error_ratio:5m{slo="checkout-availability"}') 1h $(val 'slo:error_ratio:1h{slo="checkout-availability"}') | browse 5m $(val 'slo:error_ratio:5m{slo="browse-availability"}') | page $(alert SLOBurnCheckoutAvailabilityPage) ticket $(alert SLOBurnCheckoutAvailabilityTicket)"; }
 case ${1:?baseline|break|watch|respond|recover|report} in
 baseline)
@@ -59,11 +61,11 @@ respond)
   mark "mitigation: revert merged (publish of v2/gitops, which never had the line)"
   kubectl -n argocd annotate app storefront-payments-prod argocd.argoproj.io/refresh=normal --overwrite >/dev/null ;;
 recover)
-  for i in $(seq 1 80); do
+  for i in $(seq 1 200); do
     s=$(status); echo "$(date -u +%T) $s" >> "$OUT/watch.log"
     r=$(val 'slo:error_ratio:5m{slo="checkout-availability"}')
-    python3 -c "import sys; sys.exit(0 if '$r' != '-' and float('$r') < 0.01 else 1)" && { grep -q "recovered" "$TL" || mark "recovery: checkout 5-minute error ratio below 1 % ($r)"; }
-    if docker logs alert-bridge 2>&1 | grep '"event": "closed"' | grep -q SLOBurnCheckout; then mark "resolution: the bridge closed the incident (alert resolved)"; break; fi
+    python3 -c "import sys; sys.exit(0 if '$r' != '-' and float('$r') < 0.01 else 1)" && { grep -q " recovery:" "$TL" || mark "recovery: checkout 5-minute error ratio below 1 % ($r)"; }
+    if docker logs --since "$(since)" alert-bridge 2>&1 | grep '"event": "closed"' | grep -q SLOBurnCheckoutAvailabilityPage; then mark "resolution: the bridge closed the incident (alert resolved)"; break; fi
     sleep 15
   done ;;
 report)
