@@ -1,0 +1,20 @@
+# transcript: E8 C0: canary at weight 0, preview by header
+# recorded: 2026-11-10T01:14:50Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# E8 C0: the canary release through the gate, weight 0; only the preview header reaches it
+$ bash v2/platform/bootstrap/publish-gitops.sh fd38028 "e8: canary release gateway-canary (8ef5584) at weight 0, preview by header"
+MR !10 (mr/20261110-011451-root, by root) pipeline 18: success after 33 s; diff: envs/prod/storefront/services/gateway-canary.yaml platform/manifests/mesh/ingress-storefront.yaml
+merge !10 as root (Maintainer): HTTP 200 merged
+platform-gitops: merged !10 (e8: canary release gateway-canary (8ef5584) at weight 0, preview by header)
+
+$ kubectl -n argocd annotate app mesh argocd.argoproj.io/refresh=normal --overwrite >/dev/null; for i in $(seq 1 40); do n=$(kubectl -n storefront get deploy gateway-canary -o jsonpath='{.status.readyReplicas}' 2>/dev/null); [ "$n" = 2 ] && break; sleep 5; done; kubectl -n storefront get deploy gateway gateway-canary -o custom-columns=NAME:.metadata.name,READY:.status.readyReplicas,IMAGE:.spec.template.spec.containers[0].image
+NAME             READY   IMAGE
+gateway          2       localhost:5001/storefront:fd38028
+gateway-canary   2       localhost:5001/storefront:8ef5584
+
+$ IP=$(kubectl -n storefront get gateway storefront-ingress -o jsonpath='{.status.addresses[0].value}'); timeout 60 python3 v2/experiments/e8/probe.py http://$IP:8080 15 0.05 > /tmp/c0-plain.log; awk '{n[$3]++} END {for (v in n) print "  without the header:", v, n[v]}' /tmp/c0-plain.log
+  without the header: - 300
+
+$ timeout 60 python3 v2/experiments/e8/probe.py http://$IP:8080 15 0.05 x-storefront-preview:canary > /tmp/c0-preview.log; awk '{n[$3 " status " $2]++} END {for (v in n) print "  with x-storefront-preview: canary:", v, n[v]}' /tmp/c0-preview.log
+  with x-storefront-preview: canary: 8ef5584 status 200 300
+

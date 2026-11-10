@@ -1,0 +1,22 @@
+# transcript: E8 C1: 5 % canary
+# recorded: 2026-11-10T01:17:53Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# E8 C1: weights 95/5 through the gate, then 20 000 requests at 100/s through the layer-7 entrance
+$ bash v2/platform/bootstrap/publish-gitops.sh fd38028 "e8: canary weight 5 %"
+MR !11 (mr/20261110-011754-root, by root) pipeline 20: success after 32 s; diff: platform/manifests/mesh/ingress-storefront.yaml
+merge !11 as root (Maintainer): HTTP 200 merged
+platform-gitops: merged !11 (e8: canary weight 5 %)
+
+$ kubectl -n argocd annotate app mesh argocd.argoproj.io/refresh=normal --overwrite >/dev/null; for i in $(seq 1 30); do w=$(kubectl -n storefront get httproute storefront -o jsonpath='{.spec.rules[1].backendRefs[1].weight}'); [ "$w" = 5 ] && break; sleep 3; done; echo "route weights: $(kubectl -n storefront get httproute storefront -o jsonpath='{.spec.rules[1].backendRefs[*].weight}')"; sleep 10
+route weights: 95 5
+
+$ IP=$(kubectl -n storefront get gateway storefront-ingress -o jsonpath='{.status.addresses[0].value}'); T1=$(date +%s); BASE_URL=http://$IP:8080 STABLE=none CANARY=8ef5584 RATE=100 DURATION=200s k6 run --quiet v2/experiments/e8/canary.js 2>&1 | grep -E '^\{'; T2=$(date +%s); echo "window $(date -u -d @$T1 +%T)-$(date -u -d @$T2 +%T)"; echo "$T1 $T2" > /tmp/c1-window
+{"requests":20001,"stable":19015,"canary":986,"none":19015,"stable_5xx":2,"canary_5xx":0,"none_5xx":2}
+window 01:18:44-01:22:04
+
+$ T1=$(cut -d' ' -f1 /tmp/c1-window); T2=$(cut -d' ' -f2 /tmp/c1-window); W=$((T2 - T1 + 15))s; for q in 'sum(increase(http_server_requests_total{namespace="storefront",service="gateway",route="/api/products",pod=~"gateway-canary-.*"}[WIN]))' 'sum(increase(http_server_requests_total{namespace="storefront",service="gateway",route="/api/products",pod!~"gateway-canary-.*"}[WIN]))'; do echo "prometheus ${q:62:40}: $(bash v2/experiments/e4/promq.sh $((T2 + 15)) "${q//WIN/$W}")"; done
+prometheus ,service="gateway",route="/api/products": 
+prometheus ,service="gateway",route="/api/products":    19432.376
+
+prometheus, service gateway, GET /api/products in the k6 window (200s):    19012.308
+prometheus, service gateway-canary, GET /api/products in the k6 window (200s):    1006.675

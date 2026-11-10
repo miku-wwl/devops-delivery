@@ -70,5 +70,5 @@ spec:
         - {name: gateway-canary, port: 8080}
     # the canary's share of everything else (merge requests change these weights)
     - backendRefs:
-        - {name: gateway, port: 8080, weight: 100}
-        - {name: gateway-canary, port: 8080, weight: 0}
+        - {name: gateway, port: 8080, weight: 95}
+        - {name: gateway-canary, port: 8080, weight: 5}
