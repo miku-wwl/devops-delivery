@@ -1,7 +1,6 @@
 service: gateway
-# E8 (chapter 9): promoted after its canary (evidence/e8/canary-*) - the gateway runs 8ef5584,
-# the other services the image of common.yaml
-image: {tag: "8ef5584"}
+# E8 (chapter 9): 8ef5584 was promoted here after its canary (evidence/e8/canary-*); since E9 every
+# service runs the image of common.yaml again
 replicas: 2
 # E4 (chapter 5): the request is what a pod really uses at the planned load, and the HPA keeps the
 # average at 0.5 cores per pod - inside the range where latency stayed flat in E3 (busiest pod
