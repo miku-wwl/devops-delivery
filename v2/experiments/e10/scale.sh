@@ -30,6 +30,11 @@ up)
   KWOK_KUBE_VERSION=v1.37.0 kwokctl create cluster --name $NAME --runtime docker --kubeconfig "$KC" \
     --prometheus-port 19090 --wait 10m "$@" 2>&1 | tail -3
   echo "  $(now) server: $($K version -o json | python3 -c 'import json,sys; print(json.load(sys.stdin)["serverVersion"]["gitVersion"])'); lab context unchanged: $(kubectl config current-context)"
+  # incident E10-1: hard memory limits (swap = memory) from K1's measured use with headroom - an
+  # overload then kills one container inside its own cgroup instead of freezing the shared VM
+  for c in kube-apiserver:1536m etcd:512m kube-controller-manager:512m kube-scheduler:768m kwok-controller:256m prometheus:384m; do
+    docker update --memory "${c#*:}" --memory-swap "${c#*:}" "kwok-$NAME-${c%%:*}" >/dev/null && echo "  memory limit ${c#*:} on kwok-$NAME-${c%%:*}"
+  done
   t0=$(date +%s.%N); kwokctl scale node --name $NAME --replicas 1000 >/dev/null 2>&1; t1=$(date +%s.%N)
   for i in $(seq 1 60); do r=$($K get nodes --no-headers 2>/dev/null | grep -c " Ready"); [ "$r" -ge 1000 ] && break; sleep 2; done
   echo "  $(now) 1000 virtual nodes created in $(python3 -c "print(round($t1 - $t0, 1))") s, Ready: $r; available MiB $(guard)"

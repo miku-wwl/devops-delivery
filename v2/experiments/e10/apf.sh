@@ -71,15 +71,28 @@ victim() {  # $1 seconds -> "<http code> <seconds>" per line
 echo "== $(now) K5: victim alone for 30 s"
 victim 30 > "$OUT/apf-victim-quiet.txt"
 r0=$(metric e10-low); w0=$(metric workload-low)
-echo "== $(now) flood: 40 workers LIST all pods for 60 s; the victim keeps going"
+echo "== $(now) flood: ${WORKERS:-40} workers LIST all pods for 60 s; the victim keeps going"
 END=$(( $(date +%s) + 60 ))
-for w in $(seq 1 40); do
+pids=()
+for w in $(seq 1 ${WORKERS:-40}); do
   ( while [ "$(date +%s)" -lt "$END" ]; do
-      curl -sk -o /dev/null -w '%{http_code} %{time_total}\n' -H @"$tmp/flood.hdr" "$SERVER/api/v1/pods?resourceVersion=0"
+      curl -sk -m 90 -o /dev/null -w '%{http_code} %{time_total}\n' -H @"$tmp/flood.hdr" "$SERVER/api/v1/pods?resourceVersion=0"
     done > "$tmp/flood-$w.txt" ) &
+  pids+=($!)
 done
+# incident E10-1: the flood stops itself when the VM runs short of memory
+( while [ "$(date +%s)" -lt "$END" ]; do
+    a=$(free -m | awk '/^Mem:/ {print $7}')
+    if [ "$a" -lt 1200 ]; then
+      echo "$(now) memory guard: $a MiB available - flood stopped" | tee "$OUT/apf-guard.txt"
+      for p in "${pids[@]}"; do pkill -P "$p" 2>/dev/null; kill "$p" 2>/dev/null; done
+      break
+    fi
+    sleep 2
+  done ) &
+guard=$!
 victim 60 > "$OUT/apf-victim-flood.txt"
-wait
+wait "${pids[@]}" 2>/dev/null; kill "$guard" 2>/dev/null; wait "$guard" 2>/dev/null
 cat "$tmp"/flood-*.txt > "$OUT/apf-flood.txt"
 echo "== $(now) rejected by APF (apiserver_flowcontrol_rejected_requests_total): e10-low +$(( $(metric e10-low) - r0 )), workload-low +$(( $(metric workload-low) - w0 ))"
 python3 - "$OUT" <<'PY'
