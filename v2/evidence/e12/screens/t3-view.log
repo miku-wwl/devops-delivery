@@ -1,0 +1,27 @@
+22:49:09 T3 injected - candidate: "checkout fails, browsing works, Git and Argo CD say everything is in order"
+  22:49:28 checkout answers 200 200 200; browsing answers 200; applications  39 Synced/Healthy;
+== 22:49:29 grade right after the injection (NOWAIT, expected FAIL)
+== 22:49:29 T3 grade
+  FAIL  no object in storefront outside Git (untracked AuthorizationPolicy or NetworkPolicy)
+  FAIL  5 checkouts in a row answered 2xx or 402
+  PASS  browsing answers 200
+  PASS  all applications Synced and Healthy
+== 22:49:30 result: 2 passed, 2 failed -> FAIL
+  exit code 1
+== 22:49:30 the candidate: evidence
+  orders: 22:49:28.812 POST /orders 503  (JSON log, shortened)
+  orders: 22:49:29.013 POST /orders 503  (JSON log, shortened)
+  orders: 22:49:30.361 POST /orders 503  (JSON log, shortened)
+  ztunnel: 2026-11-10T22:49:09.180458Z	info	xds:xds{id=24}	handling RBAC update e12-quarantine	
+  objects in storefront that Argo CD does not track: AuthorizationPolicy [e12-quarantine ] NetworkPolicy []
+  e12-quarantine: action DENY, selector {"app.kubernetes.io/name":"payments"}, created 2026-11-10T22:49:08Z, managers istio-ambient-ztunnel-policy kubectl-client-side-apply
+== 22:49:31 the candidate: repair - remove the object that is not in Git
+  authorizationpolicy.security.istio.io "e12-quarantine" deleted from storefront namespace
+== 22:49:31 grade after the repair
+== 22:49:31 T3 grade
+  PASS  no object in storefront outside Git (untracked AuthorizationPolicy or NetworkPolicy)
+  PASS  5 checkouts in a row answered 2xx or 402
+  PASS  browsing answers 200
+  PASS  all applications Synced and Healthy
+== 22:49:38 result: 4 passed, 0 failed -> PASS
+  exit code 0
