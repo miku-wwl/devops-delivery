@@ -2,7 +2,7 @@
 
   /healthz   liveness: the process can answer (never checks dependencies)
   /readyz    readiness: startup finished, not draining, own readiness checks pass
-  /metrics   Prometheus text format
+  /metrics   Prometheus text format, or OpenMetrics with exemplars when asked for (E9)
   /admin/faults  GET/PUT the injected fault ([注入]: latency, error rate, status code)
 Middleware (plain ASGI): request ID and deadline, RED metrics by route template, sampled access
 log, fault injection. UpstreamError and pool timeouts become 502/503/504 with a JSON body.
@@ -20,7 +20,10 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import JSONResponse
+from opentelemetry import trace
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
+from prometheus_client.openmetrics.exposition import CONTENT_TYPE_LATEST as OPENMETRICS_CONTENT_TYPE
+from prometheus_client.openmetrics.exposition import generate_latest as generate_openmetrics
 from pydantic import BaseModel, Field
 from starlette.datastructures import Headers
 from starlette.routing import Match
@@ -36,6 +39,17 @@ from .telemetry import configure_telemetry
 from .upstream import UpstreamError
 
 log = logging.getLogger("storefront.access")
+# E9 (chapter 10): an observation of the duration histogram carries its trace ID as an exemplar only
+# when the collector's tail sampling always keeps that trace (an error, or slower than 1 s) - an
+# exemplar must never point at a trace that was dropped
+EXEMPLAR_SLOW_S = 1.0
+
+
+def current_trace_id() -> str | None:
+    ctx = trace.get_current_span().get_span_context()
+    return format(ctx.trace_id, "032x") if ctx.is_valid else None
+
+
 OPERATIONAL = ("/healthz", "/readyz", "/metrics", "/admin/")
 STATUS_FOR_KIND = {
     "circuit_open": 503,
@@ -82,7 +96,10 @@ class Observe:
 
     def __init__(self, app: ASGIApp, *, owner: FastAPI, settings: Settings, metrics: Metrics) -> None:
         self.app, self.owner, self.settings, self.metrics = app, owner, settings, metrics
-        self.version_header = (context.VERSION_HEADER.lower().encode("latin-1"), settings.version.encode("latin-1"))
+        self.version_header = (
+            context.VERSION_HEADER.lower().encode("latin-1"),
+            settings.version.encode("latin-1"),
+        )
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http":
@@ -93,11 +110,13 @@ class Observe:
         context.set_request(rid, context.deadline_from(headers.get(context.DEADLINE_HEADER)))
         rid_header = (context.REQUEST_ID_HEADER.lower().encode("latin-1"), rid.encode("latin-1"))
         status: int | None = None
+        trace_id: str | None = None
 
         async def send_with_id(message: Message) -> None:
-            nonlocal status
+            nonlocal status, trace_id
             if message["type"] == "http.response.start":
                 status = message["status"]
+                trace_id = current_trace_id()  # the request's span is current while it answers
                 message["headers"] = [*message.get("headers", ()), rid_header, self.version_header]
             await send(message)
 
@@ -123,12 +142,14 @@ class Observe:
         finally:
             metrics.inflight.dec()
             if status is not None:
-                self._record(scope, status, time.perf_counter() - started)
+                self._record(scope, status, time.perf_counter() - started, trace_id)
 
-    def _record(self, scope: Scope, status: int, elapsed: float) -> None:
+    def _record(self, scope: Scope, status: int, elapsed: float, trace_id: str | None = None) -> None:
         method, template = scope["method"], route_template(self.owner, scope)
         self.metrics.requests.labels(method, template, str(status)).inc()
-        self.metrics.duration.labels(method, template).observe(elapsed)
+        keep = trace_id is not None and (status >= 500 or elapsed >= EXEMPLAR_SLOW_S)
+        exemplar = {"trace_id": trace_id} if keep else None
+        self.metrics.duration.labels(method, template).observe(elapsed, exemplar=exemplar)
         sampled = random.random() < self.settings.access_log_sample  # noqa: S311 - not security
         if status >= 500 or elapsed * 1000 >= self.settings.slow_request_ms or sampled:
             log.info(
@@ -215,7 +236,10 @@ def create_app(
         return JSONResponse({"ready": ok}, status_code=200 if ok else 503)
 
     @app.get("/metrics", include_in_schema=False)
-    async def prometheus() -> Response:
+    async def prometheus(request: Request) -> Response:
+        # E9: exemplars exist only in the OpenMetrics format, which Prometheus asks for
+        if "application/openmetrics-text" in request.headers.get("accept", ""):
+            return Response(generate_openmetrics(metrics.registry), media_type=OPENMETRICS_CONTENT_TYPE)
         return Response(generate_latest(metrics.registry), media_type=CONTENT_TYPE_LATEST)
 
     @app.get("/admin/faults", include_in_schema=False)

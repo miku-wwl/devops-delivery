@@ -14,7 +14,11 @@ from prometheus_client import (
     Histogram,
     PlatformCollector,
     ProcessCollector,
+    disable_created_metrics,
 )
+
+# E9: no *_created series - OpenMetrics would otherwise add one per counter and histogram child
+disable_created_metrics()
 
 # Bucket boundaries decide how precise a percentile estimate can be: histogram_quantile
 # interpolates linearly inside a bucket. E1 showed both failure modes: a p95 of exactly

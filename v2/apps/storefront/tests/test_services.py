@@ -126,7 +126,8 @@ ORDER = {
 async def test_every_response_names_the_version_that_answered():
     # E8 (chapter 9): a canary is told apart from the stable release by this header - on business,
     # operational and injected-fault responses alike
-    app = build_catalog(Settings(service="catalog", version="v-test"), store=FakeProducts(), cache=MemoryCache())
+    settings = Settings(service="catalog", version="v-test")
+    app = build_catalog(settings, store=FakeProducts(), cache=MemoryCache())
     async with running(app) as c:
         assert (await c.get("/products/sku-001")).headers["X-Storefront-Version"] == "v-test"
         assert (await c.get("/healthz")).headers["X-Storefront-Version"] == "v-test"
@@ -159,6 +160,29 @@ async def test_operational_endpoints_and_injected_faults():
         labels = {"method": "GET", "route": "/products/{product_id}", "code": "500"}
         assert metric(app, "http_server_requests_total", labels) == 1
         assert metric(app, "http_server_requests_total", {**labels, "route": "/healthz"}) == 0
+
+
+async def test_only_errors_and_slow_requests_carry_an_exemplar_in_openmetrics():
+    # E9 (chapter 10): an exemplar links a latency observation to its trace - only for errors and
+    # requests slower than 1 s, the traces the collector's tail sampling always keeps
+    from opentelemetry.sdk.trace import TracerProvider
+
+    tracer = TracerProvider().get_tracer("test")
+    app = build_catalog(Settings(service="catalog"), store=FakeProducts(), cache=MemoryCache())
+    async with running(app) as c:
+        with tracer.start_as_current_span("fast and fine") as ok:
+            assert (await c.get("/products/sku-001")).status_code == 200
+        assert (await c.put("/admin/faults", json={"error_rate": 1, "status": 503})).status_code == 200
+        with tracer.start_as_current_span("fails") as failing:
+            assert (await c.get("/products/sku-001")).status_code == 503
+        om = await c.get("/metrics", headers={"Accept": "application/openmetrics-text; version=1.0.0"})
+        plain = (await c.get("/metrics")).text
+    text = om.text
+    assert om.headers["content-type"].startswith("application/openmetrics-text")
+    assert text.rstrip().endswith("# EOF")
+    assert f'trace_id="{format(failing.get_span_context().trace_id, "032x")}"' in text
+    assert f'trace_id="{format(ok.get_span_context().trace_id, "032x")}"' not in text
+    assert "trace_id" not in plain and "_created" not in plain
 
 
 async def test_an_unhandled_error_is_counted_as_500_and_keeps_the_request_id():
