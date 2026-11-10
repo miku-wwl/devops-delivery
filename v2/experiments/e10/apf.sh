@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+# K5 (E10, chapter 11): API Priority and Fairness against one flooding client, in the kwok cluster.
+#   bash v2/experiments/e10/apf.sh <kubeconfig> <out-dir>      (called by scale.sh apf)
+# e10-flood: FlowSchema -> priority level e10-low (1 concurrency share, nothing lent, one queue of 5),
+#            40 workers LIST all pods (resourceVersion=0) for 60 s.
+# e10-victim: default flow schemas (service accounts -> workload-low), GETs one pod every 0.5 s - 30 s
+#            alone, then during the flood.
+# Tokens are short-lived (1 h, a throwaway cluster) and go to curl through a header file, not argv.
+set -uo pipefail
+KC=$1; OUT=$2; K="kubectl --kubeconfig $KC"
+SERVER=$($K config view --minify -o jsonpath='{.clusters[0].cluster.server}')
+now() { date -u +%T; }
+$K apply -f - >/dev/null <<'EOF'
+apiVersion: v1
+kind: ServiceAccount
+metadata: {name: e10-flood, namespace: default}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata: {name: e10-victim, namespace: default}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata: {name: e10-read-pods}
+rules: [{apiGroups: [""], resources: [pods], verbs: [get, list]}]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata: {name: e10-read-pods}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: e10-read-pods}
+subjects:
+  - {kind: ServiceAccount, name: e10-flood, namespace: default}
+  - {kind: ServiceAccount, name: e10-victim, namespace: default}
+---
+apiVersion: flowcontrol.apiserver.k8s.io/v1
+kind: PriorityLevelConfiguration
+metadata: {name: e10-low}
+spec:
+  type: Limited
+  limited:
+    nominalConcurrencyShares: 1
+    lendablePercent: 0
+    limitResponse:
+      type: Queue
+      queuing: {queues: 1, handSize: 1, queueLengthLimit: 5}
+---
+apiVersion: flowcontrol.apiserver.k8s.io/v1
+kind: FlowSchema
+metadata: {name: e10-flood}
+spec:
+  priorityLevelConfiguration: {name: e10-low}
+  matchingPrecedence: 500
+  distinguisherMethod: {type: ByUser}
+  rules:
+    - subjects: [{kind: ServiceAccount, serviceAccount: {name: e10-flood, namespace: default}}]
+      resourceRules: [{verbs: ["*"], apiGroups: ["*"], resources: ["*"], namespaces: ["*"], clusterScope: true}]
+EOF
+tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
+( umask 077
+  printf 'Authorization: Bearer %s\n' "$($K create token e10-flood -n default --duration 1h)" > "$tmp/flood.hdr"
+  printf 'Authorization: Bearer %s\n' "$($K create token e10-victim -n default --duration 1h)" > "$tmp/victim.hdr" )
+POD=$($K get pods -o jsonpath='{.items[0].metadata.name}')
+metric() { $K get --raw /metrics | grep -E "^apiserver_flowcontrol_rejected_requests_total\{.*priority_level=\"$1\"" | awk '{s += $2} END {print s + 0}'; }
+victim() {  # $1 seconds -> "<http code> <seconds>" per line
+  local end=$(( $(date +%s) + $1 ))
+  while [ "$(date +%s)" -lt "$end" ]; do
+    curl -sk -o /dev/null -w '%{http_code} %{time_total}\n' -H @"$tmp/victim.hdr" "$SERVER/api/v1/namespaces/default/pods/$POD"
+    sleep 0.5
+  done
+}
+echo "== $(now) K5: victim alone for 30 s"
+victim 30 > "$OUT/apf-victim-quiet.txt"
+r0=$(metric e10-low); w0=$(metric workload-low)
+echo "== $(now) flood: 40 workers LIST all pods for 60 s; the victim keeps going"
+END=$(( $(date +%s) + 60 ))
+for w in $(seq 1 40); do
+  ( while [ "$(date +%s)" -lt "$END" ]; do
+      curl -sk -o /dev/null -w '%{http_code} %{time_total}\n' -H @"$tmp/flood.hdr" "$SERVER/api/v1/pods?resourceVersion=0"
+    done > "$tmp/flood-$w.txt" ) &
+done
+victim 60 > "$OUT/apf-victim-flood.txt"
+wait
+cat "$tmp"/flood-*.txt > "$OUT/apf-flood.txt"
+echo "== $(now) rejected by APF (apiserver_flowcontrol_rejected_requests_total): e10-low +$(( $(metric e10-low) - r0 )), workload-low +$(( $(metric workload-low) - w0 ))"
+python3 - "$OUT" <<'PY'
+import collections, statistics, sys
+d = sys.argv[1]
+def load(name):
+    return [(c, float(t)) for c, t in (l.split() for l in open(f"{d}/{name}") if l.strip())]
+def pct(xs, q):
+    xs = sorted(xs); return xs[min(len(xs) - 1, int(q * len(xs)))] if xs else float("nan")
+flood = load("apf-flood.txt")
+codes = collections.Counter(c for c, _ in flood)
+ok = [t for c, t in flood if c == "200"]
+print(f"  flood: {len(flood)} requests, codes {dict(codes)}; LIST p50 {pct(ok, .5):.2f} s, p99 {pct(ok, .99):.2f} s (200 only)")
+for name in ("apf-victim-quiet.txt", "apf-victim-flood.txt"):
+    v = load(name); ts = [t * 1000 for c, t in v if c == "200"]
+    print(f"  victim {name[11:-4]:5}: {len(v)} GETs, codes {dict(collections.Counter(c for c, _ in v))}; p50 {pct(ts, .5):.1f} ms, p99 {pct(ts, .99):.1f} ms")
+PY

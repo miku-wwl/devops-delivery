@@ -1,0 +1,25 @@
+# E10 control plane at scale: hypotheses (written before the runs)
+
+What is real and what is not. `[真实]`: the control plane - etcd, kube-apiserver, kube-controller-manager
+and kube-scheduler of Kubernetes v1.37.0, started by kwokctl v0.8.0 as Docker containers next to the lab
+cluster, plus a Prometheus that scrapes them. `[虚拟]`: every node and every pod - the kwok controller
+writes their status (Ready, Running) and renews the node leases; no kubelet runs, no container is ever
+started, nothing is scheduled onto CPU or memory that exists. The numbers below therefore describe the
+control plane's work for N nodes and pods, not a cluster that could run them; they come from one
+machine (16 threads, a WSL VM of 15.3 GiB shared with the lab cluster `ent`).
+
+Load: 1000 virtual nodes; 10 000 pods (100m CPU and 128Mi requested each, tolerating every taint),
+created by 8 parallel `kubectl create` processes so that creation outruns scheduling.
+
+| | Hypothesis | Measured by |
+|---|---|---|
+| K1 | with the scheduler's default client limits (50 requests/s, burst 100) scheduling is bounded by them: one binding per pod, so at most about 50 pods/s - 10 000 pods take at least 3.3 minutes | scheduler metrics (scheduled attempts over time), timeline |
+| K2 | with `--disable-qps-limits` the same 10 000 pods are scheduled at least 5 times faster; the bound moves to the scheduler's CPU and the API server's write latency | the same, second cluster |
+| K3 | etcd grows linearly with the objects, a few KB per pod (the object and its events); deleting the pods does not shrink the database file until a defragmentation | `etcd_mvcc_db_total_size_in_bytes`, `apiserver_storage_objects` |
+| K4 | Kubernetes 1.37 serves a consistent LIST of all pods (resourceVersion unset) from the watch cache (ConsistentListFromCache): its latency is close to resourceVersion=0 and etcd is not read for it; the response for 10 000 pods is tens of MB | wall time of the requests, `apiserver_cache_list_total` vs `apiserver_storage_list_total` |
+| K5 | a client flooding LISTs of all pods, put by a FlowSchema into a priority level with one concurrency share and a short queue, receives 429 (Too Many Requests) for most of its requests, while another client's small GETs in a different priority level keep their latency (p99 within 2x of the quiet value) | client status codes and latencies, `apiserver_flowcontrol_rejected_requests_total` |
+
+Limits stated before measuring: one run per configuration; the control plane shares the host with
+`ent`, so absolute numbers depend on what `ent` does meanwhile; real kubelets would add their own load
+(pod status updates, node heartbeats come from kwok here), and real nodes would add image pulls,
+container starts and network setup that are absent here.
