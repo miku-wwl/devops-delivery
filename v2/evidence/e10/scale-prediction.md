@@ -23,3 +23,15 @@ Limits stated before measuring: one run per configuration; the control plane sha
 `ent`, so absolute numbers depend on what `ent` does meanwhile; real kubelets would add their own load
 (pod status updates, node heartbeats come from kwok here), and real nodes would add image pulls,
 container starts and network setup that are absent here.
+
+## Added 2026-11-10 11:15 UTC, after K5 run 3 and before run 4
+
+Run 3 (defaults, APF on, kube-apiserver limited to 1536 MiB): APF classified the flood correctly
+(flow schema e10-flood, priority level e10-low, 3 nominal seats), and still the API server was killed 6
+times by the kernel at its cgroup limit. Before the flood it held 976 MiB. Go's garbage collector lets
+the heap grow to about twice the live heap before collecting (GOGC=100) and does not know the
+container's limit unless GOMEMLIMIT is set; the containers of kwokctl do not set it.
+
+| | Hypothesis | Measured by |
+|---|---|---|
+| K5b | with `GOMEMLIMIT=1300MiB` (85 % of the container's 1536 MiB) the API server is not killed during the same flood (40 workers, 60 s): 0 OOM kills, 0 restarts; the flood's 429 carry APF's message ("Too many requests"), not the watch cache's; the victim's GETs keep p99 within 2x of the quiet value | kernel log, restart count, 429 messages, victim latencies (`scale.sh apf`) |

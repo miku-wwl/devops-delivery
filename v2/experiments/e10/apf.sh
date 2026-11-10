@@ -68,15 +68,33 @@ victim() {  # $1 seconds -> "<http code> <seconds>" per line
     sleep 0.5
   done
 }
+# which flow schema and priority level a response went through (APF sets these headers on every response)
+pf() {  # $1 header file -> "<status> flow schema <name>, priority level <name>"
+  local fs pl; fs=$(grep -i '^X-Kubernetes-PF-FlowSchema-UID' "$1" | tr -d '\r' | awk '{print $2}')
+  pl=$(grep -i '^X-Kubernetes-PF-PriorityLevel-UID' "$1" | tr -d '\r' | awk '{print $2}')
+  echo "$(head -1 "$1" | tr -d '\r'): flow schema $($K get flowschemas -o jsonpath="{.items[?(@.metadata.uid=='$fs')].metadata.name}"), priority level $($K get prioritylevelconfigurations -o jsonpath="{.items[?(@.metadata.uid=='$pl')].metadata.name}")"
+}
+# incident E10-1 re-run: the cluster of K2 (--disable-qps-limits) runs without APF - check, do not assume
+echo "  API server flags: $(docker inspect kwok-scale-kube-apiserver --format '{{json .Args}}' | tr ',' '\n' | grep -E 'inflight|priority-and-fairness' | tr -d '"[]' | tr '\n' ' ')"
 echo "== $(now) K5: victim alone for 30 s"
+curl -sk -o /dev/null -D "$tmp/v.hdr" -H @"$tmp/victim.hdr" "$SERVER/api/v1/namespaces/default/pods/$POD"
+echo "  victim's GET: $(pf "$tmp/v.hdr")"
 victim 30 > "$OUT/apf-victim-quiet.txt"
+echo "  nominal seats: $($K get --raw /metrics | grep -E '^apiserver_flowcontrol_nominal_limit_seats[{]priority_level="(e10-low|workload-low)"' | sed -E 's/.*priority_level="([^"]+)"[}] /\1=/' | tr '\n' ' ')"
 r0=$(metric e10-low); w0=$(metric workload-low)
+( sleep 20; curl -sk -m 90 -D "$tmp/probe.hdr" -o "$tmp/probe.body" -H @"$tmp/flood.hdr" "$SERVER/api/v1/pods?resourceVersion=0"
+  echo "  $(now) a flood request 20 s in: $(pf "$tmp/probe.hdr")"
+  [ "$(stat -c %s "$tmp/probe.body")" -lt 4096 ] && echo "    body: $(cat "$tmp/probe.body")" ) &
+probe=$!
 echo "== $(now) flood: ${WORKERS:-40} workers LIST all pods for 60 s; the victim keeps going"
 END=$(( $(date +%s) + 60 ))
 pids=()
 for w in $(seq 1 ${WORKERS:-40}); do
   ( while [ "$(date +%s)" -lt "$END" ]; do
-      curl -sk -m 90 -o /dev/null -w '%{http_code} %{time_total}\n' -H @"$tmp/flood.hdr" "$SERVER/api/v1/pods?resourceVersion=0"
+      r=$(curl -sk -m 90 -o "$tmp/body-$w" -w '%{http_code} %{time_total}' -H @"$tmp/flood.hdr" "$SERVER/api/v1/pods?resourceVersion=0")
+      # K5 run 3: a 429 says who refused - APF ("Too many requests...") or the watch cache ("storage is
+      # (re)initializing" after a restart); keep the message, spaces as _
+      case $r in 429*) echo "$r $(grep -o '"message": *"[^"]*"' "$tmp/body-$w" | head -1 | sed 's/"message": *//; s/[" ]/_/g')" ;; *) echo "$r" ;; esac
     done > "$tmp/flood-$w.txt" ) &
   pids+=($!)
 done
@@ -92,21 +110,26 @@ done
   done ) &
 guard=$!
 victim 60 > "$OUT/apf-victim-flood.txt"
-wait "${pids[@]}" 2>/dev/null; kill "$guard" 2>/dev/null; wait "$guard" 2>/dev/null
+wait "${pids[@]}" 2>/dev/null; kill "$guard" 2>/dev/null; wait "$guard" 2>/dev/null; wait "$probe" 2>/dev/null
 cat "$tmp"/flood-*.txt > "$OUT/apf-flood.txt"
 echo "== $(now) rejected by APF (apiserver_flowcontrol_rejected_requests_total): e10-low +$(( $(metric e10-low) - r0 )), workload-low +$(( $(metric workload-low) - w0 ))"
+$K get --raw /metrics | grep -E '^apiserver_flowcontrol_rejected_requests_total[{].*priority_level="(e10-low|workload-low)"' | sed 's/^/  /'
 python3 - "$OUT" <<'PY'
 import collections, statistics, sys
 d = sys.argv[1]
-def load(name):
-    return [(c, float(t)) for c, t in (l.split() for l in open(f"{d}/{name}") if l.strip())]
+def load(name):  # "<code> <seconds> [<message of a 429>]"
+    rows = [l.split() for l in open(f"{d}/{name}") if l.strip()]
+    return [(p[0], float(p[1]), p[2] if len(p) > 2 else "") for p in rows if len(p) >= 2]
 def pct(xs, q):
     xs = sorted(xs); return xs[min(len(xs) - 1, int(q * len(xs)))] if xs else float("nan")
 flood = load("apf-flood.txt")
-codes = collections.Counter(c for c, _ in flood)
-ok = [t for c, t in flood if c == "200"]
+codes = collections.Counter(c for c, _, _ in flood)
+ok = [t for c, t, _ in flood if c == "200"]
 print(f"  flood: {len(flood)} requests, codes {dict(codes)}; LIST p50 {pct(ok, .5):.2f} s, p99 {pct(ok, .99):.2f} s (200 only)")
+why = collections.Counter(m for c, _, m in flood if c == "429")
+if any(why):
+    print(f"  429 by message: {dict(why)}")
 for name in ("apf-victim-quiet.txt", "apf-victim-flood.txt"):
-    v = load(name); ts = [t * 1000 for c, t in v if c == "200"]
-    print(f"  victim {name[11:-4]:5}: {len(v)} GETs, codes {dict(collections.Counter(c for c, _ in v))}; p50 {pct(ts, .5):.1f} ms, p99 {pct(ts, .99):.1f} ms")
+    v = load(name); ts = [t * 1000 for c, t, _ in v if c == "200"]
+    print(f"  victim {name[11:-4]:5}: {len(v)} GETs, codes {dict(collections.Counter(c for c, _, _ in v))}; p50 {pct(ts, .5):.1f} ms, p99 {pct(ts, .99):.1f} ms")
 PY

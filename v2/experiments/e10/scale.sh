@@ -26,10 +26,19 @@ case $CMD in
 up)
   shift 2
   mkdir -p "$HOME/.kwok"
-  echo "== $(now) kwokctl create cluster (v1.37.0, Prometheus on 19090) $* - available MiB $(guard)"
+  # K5 run 4: APISERVER_GOMEMLIMIT=<n>MiB gives the API server's Go runtime a soft memory limit
+  # (kwokctl configuration, componentsPatches.extraEnvs) - without it the garbage collector does not
+  # know about the container's limit
+  cfg=()
+  if [ -n "${APISERVER_GOMEMLIMIT:-}" ]; then
+    printf 'apiVersion: config.kwok.x-k8s.io/v1alpha1\nkind: KwokctlConfiguration\ncomponentsPatches:\n- name: kube-apiserver\n  extraEnvs:\n  - name: GOMEMLIMIT\n    value: "%s"\n' "$APISERVER_GOMEMLIMIT" > "$HOME/.kwok/scale-config.yaml"
+    cfg=(--config "$HOME/.kwok/scale-config.yaml")
+  fi
+  echo "== $(now) kwokctl create cluster (v1.37.0, Prometheus on 19090) ${cfg[*]} $* - available MiB $(guard)"
   KWOK_KUBE_VERSION=v1.37.0 kwokctl create cluster --name $NAME --runtime docker --kubeconfig "$KC" \
-    --prometheus-port 19090 --wait 10m "$@" 2>&1 | tail -3
+    --prometheus-port 19090 --wait 10m "${cfg[@]}" "$@" 2>&1 | tail -3
   echo "  $(now) server: $($K version -o json | python3 -c 'import json,sys; print(json.load(sys.stdin)["serverVersion"]["gitVersion"])'); lab context unchanged: $(kubectl config current-context)"
+  echo "  kube-apiserver environment: $(docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' kwok-$NAME-kube-apiserver | grep -E '^GO' | tr '\n' ' ')"
   # incident E10-1: hard memory limits (swap = memory) from K1's measured use with headroom - an
   # overload then kills one container inside its own cgroup instead of freezing the shared VM
   for c in kube-apiserver:1536m etcd:512m kube-controller-manager:512m kube-scheduler:768m kwok-controller:256m prometheus:384m; do
@@ -106,7 +115,12 @@ lists)
   done
   echo "  LISTs of pods sent to etcd: +$(( $(m 'etcd_request_duration_seconds_count[{]group="",operation="list",resource="pods"[}]') - e0 )); consistent reads served by the watch cache: +$(( $(m 'apiserver_watch_cache_consistent_read_total[{]fallback="false",group="",resource="pods"') - c0 ))" ;;
 apf)
-  bash "$HERE/apf.sh" "$KC" "$OUT" ;;
+  bash "$HERE/apf.sh" "$KC" "$OUT"
+  # the kernel kills inside the cgroup (incident E10-1, action item 2); Docker's OOMKilled flag only
+  # describes the current run, so the restart count and the cgroup's peak are the evidence
+  A=kwok-$NAME-kube-apiserver; id=$(docker inspect -f '{{.Id}}' $A)
+  echo "  $A: restarts $(docker inspect -f '{{.RestartCount}}' $A), memory peak since its last start $(( $(cat /sys/fs/cgroup/system.slice/docker-$id.scope/memory.peak) / 1048576 )) MiB of $(( $(docker inspect -f '{{.HostConfig.Memory}}' $A) / 1048576 )) MiB"
+  echo "  OOM kills of this container in the kernel log: $(dmesg | grep -c "oom-kill:constraint=CONSTRAINT_MEMCG.*docker-$id")" ;;
 clean)
   echo "== $(now) delete all pods"
   T0=$(date +%s); $K delete pods --all --wait=false >/dev/null 2>&1
@@ -114,7 +128,7 @@ clean)
   echo "  0 pods after $(( $(date +%s) - T0 )) s"
   sleep 35; bash "$0" state "$RUN" "after deleting the pods"
   E=$(docker ps --format '{{.Names}}' | grep "kwok-$NAME-etcd")
-  echo "  $(now) defragmentation: $(docker exec "$E" etcdctl --endpoints=127.0.0.1:2379 defrag 2>&1 | tail -1)"
+  echo "  $(now) defragmentation: $(docker exec "$E" etcdctl --endpoints=127.0.0.1:2379 --command-timeout=120s defrag 2>&1 | tail -1)"
   sleep 35; echo "  etcd db size MiB after defrag: $(pq 'max(etcd_mvcc_db_total_size_in_bytes) / 1048576')" ;;
 down)
   kwokctl delete cluster --name $NAME 2>&1 | tail -1; rm -f "$KC" ;;
