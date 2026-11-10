@@ -13,8 +13,8 @@ slos:
   - name: checkout-availability
     description: placing an order - POST /api/orders through the gateway - does not answer 5xx
     objective: 99.0
-    errors: sum(rate(http_server_requests_total{namespace="storefront", service="gateway", route="/api/orders", code=~"5.."}[{{w}}]))
-    total: sum(rate(http_server_requests_total{namespace="storefront", service="gateway", route="/api/orders"}[{{w}}]))
+    errors: sum(rate(http_server_requests_total{namespace="storefront", service="gateway", route="/api/orders", method="POST", code=~"5.."}[{{w}}]))
+    total: sum(rate(http_server_requests_total{namespace="storefront", service="gateway", route="/api/orders", method="POST"}[{{w}}]))
   - name: browse-latency
     description: browsing answers within 500 ms (gateway histogram, bucket le=0.5)
     objective: 99.0

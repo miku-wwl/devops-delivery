@@ -28,6 +28,11 @@ alertmanager:
           receiver: "null"
         - matchers: ['severity = "critical"']
           receiver: incident
+        # E9, action item 3: an SLO ticket waits 5 minutes, so that the page of the same SLO - often a
+        # minute behind it - inhibits it before it is sent (in the drill the ticket went out first)
+        - matchers: ['slo_severity = "ticket"']
+          receiver: ticket
+          group_wait: 5m
         - matchers: ['severity = "warning"']
           receiver: ticket
     inhibit_rules:

@@ -15,3 +15,5 @@
 2026-11-10T08:28:04.617Z mitigation: revert merged (publish of v2/gitops, which never had the line)
 2026-11-10T08:33:56.234Z recovery: checkout 5-minute error ratio below 1 % (0.0)
 2026-11-10T08:48:55.584Z report: from the merge to the resolution (-77020 s): orders at the gateway , 5xx ; browse 5xx    <- invalid: run before the resolution (the recover loop stopped after 20 min, the page was still firing); recomputed below
+2026-11-10T08:57:18.955Z resolution: the bridge closed the incident (alert resolved)
+2026-11-10T08:57:19.536Z report: from the merge to the resolution (2018 s): orders at the gateway 5365.2162, 5xx 670.252; browse 5xx 0.0

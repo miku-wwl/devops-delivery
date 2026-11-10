@@ -74,38 +74,38 @@ spec:
   - name: slo.checkout-availability
     rules:
     - record: slo:error_ratio:5m
-      expr: ((sum(rate(http_server_requests_total{namespace="storefront", service="gateway", route="/api/orders", code=~"5.."}[5m]))) or vector(0)) / (sum(rate(http_server_requests_total{namespace="storefront",
-        service="gateway", route="/api/orders"}[5m])))
+      expr: ((sum(rate(http_server_requests_total{namespace="storefront", service="gateway", route="/api/orders", method="POST", code=~"5.."}[5m]))) or vector(0)) / (sum(rate(http_server_requests_total{namespace="storefront",
+        service="gateway", route="/api/orders", method="POST"}[5m])))
       labels:
         slo: checkout-availability
     - record: slo:error_ratio:30m
-      expr: ((sum(rate(http_server_requests_total{namespace="storefront", service="gateway", route="/api/orders", code=~"5.."}[30m]))) or vector(0)) / (sum(rate(http_server_requests_total{namespace="storefront",
-        service="gateway", route="/api/orders"}[30m])))
+      expr: ((sum(rate(http_server_requests_total{namespace="storefront", service="gateway", route="/api/orders", method="POST", code=~"5.."}[30m]))) or vector(0)) / (sum(rate(http_server_requests_total{namespace="storefront",
+        service="gateway", route="/api/orders", method="POST"}[30m])))
       labels:
         slo: checkout-availability
     - record: slo:error_ratio:1h
-      expr: ((sum(rate(http_server_requests_total{namespace="storefront", service="gateway", route="/api/orders", code=~"5.."}[1h]))) or vector(0)) / (sum(rate(http_server_requests_total{namespace="storefront",
-        service="gateway", route="/api/orders"}[1h])))
+      expr: ((sum(rate(http_server_requests_total{namespace="storefront", service="gateway", route="/api/orders", method="POST", code=~"5.."}[1h]))) or vector(0)) / (sum(rate(http_server_requests_total{namespace="storefront",
+        service="gateway", route="/api/orders", method="POST"}[1h])))
       labels:
         slo: checkout-availability
     - record: slo:error_ratio:2h
-      expr: ((sum(rate(http_server_requests_total{namespace="storefront", service="gateway", route="/api/orders", code=~"5.."}[2h]))) or vector(0)) / (sum(rate(http_server_requests_total{namespace="storefront",
-        service="gateway", route="/api/orders"}[2h])))
+      expr: ((sum(rate(http_server_requests_total{namespace="storefront", service="gateway", route="/api/orders", method="POST", code=~"5.."}[2h]))) or vector(0)) / (sum(rate(http_server_requests_total{namespace="storefront",
+        service="gateway", route="/api/orders", method="POST"}[2h])))
       labels:
         slo: checkout-availability
     - record: slo:error_ratio:6h
-      expr: ((sum(rate(http_server_requests_total{namespace="storefront", service="gateway", route="/api/orders", code=~"5.."}[6h]))) or vector(0)) / (sum(rate(http_server_requests_total{namespace="storefront",
-        service="gateway", route="/api/orders"}[6h])))
+      expr: ((sum(rate(http_server_requests_total{namespace="storefront", service="gateway", route="/api/orders", method="POST", code=~"5.."}[6h]))) or vector(0)) / (sum(rate(http_server_requests_total{namespace="storefront",
+        service="gateway", route="/api/orders", method="POST"}[6h])))
       labels:
         slo: checkout-availability
     - record: slo:error_ratio:1d
-      expr: ((sum(rate(http_server_requests_total{namespace="storefront", service="gateway", route="/api/orders", code=~"5.."}[1d]))) or vector(0)) / (sum(rate(http_server_requests_total{namespace="storefront",
-        service="gateway", route="/api/orders"}[1d])))
+      expr: ((sum(rate(http_server_requests_total{namespace="storefront", service="gateway", route="/api/orders", method="POST", code=~"5.."}[1d]))) or vector(0)) / (sum(rate(http_server_requests_total{namespace="storefront",
+        service="gateway", route="/api/orders", method="POST"}[1d])))
       labels:
         slo: checkout-availability
     - record: slo:error_ratio:3d
-      expr: ((sum(rate(http_server_requests_total{namespace="storefront", service="gateway", route="/api/orders", code=~"5.."}[3d]))) or vector(0)) / (sum(rate(http_server_requests_total{namespace="storefront",
-        service="gateway", route="/api/orders"}[3d])))
+      expr: ((sum(rate(http_server_requests_total{namespace="storefront", service="gateway", route="/api/orders", method="POST", code=~"5.."}[3d]))) or vector(0)) / (sum(rate(http_server_requests_total{namespace="storefront",
+        service="gateway", route="/api/orders", method="POST"}[3d])))
       labels:
         slo: checkout-availability
     - alert: SLOBurnCheckoutAvailabilityPage

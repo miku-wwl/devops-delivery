@@ -42,6 +42,10 @@ OpenBao 已密封：External Secrets 无法读取或刷新任何密钥，已经�
 
 告警桥 3 分钟没有收到 Alertmanager 的 Watchdog：集群的告警链路（Prometheus → Alertmanager → 告警桥）断了，其他所有告警此刻都看不见。检查承载 Prometheus 和 Alertmanager 的节点是否还在（`kubectl get nodes`，`docker ps`），以及 Alertmanager 能否访问 `alert-bridge:9095`。
 
+## checkout-failing
+
+超过一半的下单请求在 2 分钟内失败：不论错误预算还剩多少，立即止血。先看 GitLab 部署记录中最近的发布（`root/platform-gitops` 的 Deployments，环境 `prod/<服务>`），撤回可疑的合并请求；没有发布时看依赖（payments、数据库）和网关断路器的状态（第 7 章）。E9 的事故演练就是这样一次失败：一个测试用的支付参数进入了生产配置。
+
 ## slo-burn
 
 storefront 的某个 SLO 在消耗错误预算。page（快速燃烧）意味着按当前速度几小时到一两天内耗尽 30 天的预算：立即止血，最常见的手段是撤回最近的发布（合并请求）。ticket（慢速燃烧）在工作时间处理。规则由 `platform/slo/gen.py` 从 `platform/slo/slos.yaml` 生成。
