@@ -376,6 +376,45 @@ data:
          "legendFormat": "burn rate 1 h"
         }
        ]
+      },
+      {
+       "type": "timeseries",
+       "title": "Gateway request duration p95 by route - dots: exemplars (errors, > 1 s), each opens its trace",
+       "description": "",
+       "gridPos": {
+        "x": 0,
+        "y": 32,
+        "w": 24,
+        "h": 8
+       },
+       "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+       },
+       "fieldConfig": {
+        "defaults": {
+         "unit": "s"
+        },
+        "overrides": []
+       },
+       "options": {
+        "legend": {
+         "displayMode": "table",
+         "placement": "right",
+         "calcs": [
+          "lastNotNull",
+          "max"
+         ]
+        }
+       },
+       "targets": [
+        {
+         "refId": "A",
+         "expr": "histogram_quantile(0.95, sum by (le, route) (rate(http_server_request_duration_seconds_bucket{namespace=~\"storefront.*\",service=\"gateway\"}[1m])))",
+         "legendFormat": "{{route}}",
+         "exemplar": true
+        }
+       ]
       }
      ]
     }

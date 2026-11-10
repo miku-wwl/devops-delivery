@@ -205,6 +205,11 @@ def slo() -> dict:
             "percentunit", 0, y, w=16))
         p.append(panel(f"{s['name']}: burn rate over 1 h (1 = the budget lasts exactly 30 days)", [
             (f'slo:error_ratio:1h{{slo="{s["name"]}"}} / {budget}', "burn rate 1 h")], "none", 16, y, w=8))
+    lat = panel("Gateway request duration p95 by route - dots: exemplars (errors, > 1 s), each opens its trace", [
+        (f"histogram_quantile(0.95, sum by (le, route) (rate(http_server_request_duration_seconds_bucket"
+         f'{{{NS},service="gateway"}}[1m])))', "{{route}}")], "s", 0, 8 + 8 * len(spec["slos"]), w=24)
+    lat["targets"][0]["exemplar"] = True   # E9: needs the exemplar storage of Prometheus and OpenMetrics
+    p.append(lat)
     return {"uid": "storefront-slo", "title": "Storefront: SLOs and error budget burn",
             "tags": ["storefront", "v2", "slo"], "timezone": "utc", "schemaVersion": 39,
             "time": {"from": "now-2h", "to": "now"}, "panels": p}

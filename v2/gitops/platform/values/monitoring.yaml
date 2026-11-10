@@ -106,6 +106,9 @@ grafana:
   sidecar:
     resources: {requests: {cpu: 5m, memory: 96Mi}, limits: {memory: 192Mi}}     # E1: 77-80 MiB each
     dashboards: {enabled: true, searchNamespace: ALL}
+    # E9 (chapter 10): an exemplar's trace_id opens the trace in Tempo
+    datasources:
+      exemplarTraceIdDestinations: {datasourceUid: tempo, traceIdLabelName: trace_id}
   additionalDataSources:
     - name: Tempo
       type: tempo
