@@ -46,8 +46,10 @@ EXEMPLAR_SLOW_S = 1.0
 
 
 def current_trace_id() -> str | None:
+    # only a sampled trace is recorded: a request that head sampling skipped still has a trace ID,
+    # but none of its spans reach the collector - its exemplar would lead nowhere (E9, X2)
     ctx = trace.get_current_span().get_span_context()
-    return format(ctx.trace_id, "032x") if ctx.is_valid else None
+    return format(ctx.trace_id, "032x") if ctx.is_valid and ctx.trace_flags.sampled else None
 
 
 OPERATIONAL = ("/healthz", "/readyz", "/metrics", "/admin/")

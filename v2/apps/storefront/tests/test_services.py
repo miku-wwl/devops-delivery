@@ -166,14 +166,18 @@ async def test_only_errors_and_slow_requests_carry_an_exemplar_in_openmetrics():
     # E9 (chapter 10): an exemplar links a latency observation to its trace - only for errors and
     # requests slower than 1 s, the traces the collector's tail sampling always keeps
     from opentelemetry.sdk.trace import TracerProvider
+    from opentelemetry.sdk.trace.sampling import ALWAYS_OFF
 
     tracer = TracerProvider().get_tracer("test")
+    unsampled = TracerProvider(sampler=ALWAYS_OFF).get_tracer("test")
     app = build_catalog(Settings(service="catalog"), store=FakeProducts(), cache=MemoryCache())
     async with running(app) as c:
         with tracer.start_as_current_span("fast and fine") as ok:
             assert (await c.get("/products/sku-001")).status_code == 200
         assert (await c.put("/admin/faults", json={"error_rate": 1, "status": 503})).status_code == 200
         with tracer.start_as_current_span("fails") as failing:
+            assert (await c.get("/products/sku-001")).status_code == 503
+        with unsampled.start_as_current_span("fails, not recorded") as skipped:
             assert (await c.get("/products/sku-001")).status_code == 503
         om = await c.get("/metrics", headers={"Accept": "application/openmetrics-text; version=1.0.0"})
         plain = (await c.get("/metrics")).text
@@ -182,6 +186,7 @@ async def test_only_errors_and_slow_requests_carry_an_exemplar_in_openmetrics():
     assert text.rstrip().endswith("# EOF")
     assert f'trace_id="{format(failing.get_span_context().trace_id, "032x")}"' in text
     assert f'trace_id="{format(ok.get_span_context().trace_id, "032x")}"' not in text
+    assert f'trace_id="{format(skipped.get_span_context().trace_id, "032x")}"' not in text
     assert "trace_id" not in plain and "_created" not in plain
 
 
