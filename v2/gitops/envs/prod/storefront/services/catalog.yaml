@@ -3,7 +3,7 @@ replicas: 2
 migrations: true
 env:
   VALKEY_URL: redis://valkey.data.svc:6379/0
-  DB_POOL_MAX: "12"   # E8: merge request !8 by alice (team shop), taken over from the configuration repository
+  DB_POOL_MAX: "14"   # E8: !8 by alice (12), +2 in the freeze drill (the emergency change)
   LOG_LEVEL: INFO     # E8: the default, made explicit - an ordinary release change (hypothesis I3)
 secretEnv:
   DATABASE_URL: {secret: db-catalog, key: url}

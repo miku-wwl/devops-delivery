@@ -1,0 +1,50 @@
+== 04:23:12 drill window 04:28:00 - 04:42:00 UTC (cron '28 4 * * *', 14m)
+== 04:23:12 1. the deny window and the job freeze, through the gate
+  MR !18 (mr/20261110-042314-root, by root) pipeline 34: success after 31 s; diff: platform/apps/00-projects.yaml .gitlab-ci.yml
+  merge !18 as root (Maintainer): HTTP 200 merged
+  platform-gitops: merged !18 (e8: change freeze - deny window for the drill, job freeze)
+== 04:23:50 GitLab freeze period 1: {"freeze_start":"28 4 * * *","freeze_end":"42 4 * * *","cron_timezone":"UTC"}
+== 04:23:54 project storefront, sync windows in the cluster: 28 4 * * * 0 0 24 12 *
+== 04:28:10 2. F1: alice's ordinary change inside the freeze
+  MR !19 (mr/20261110-042811-alice, by alice) pipeline 37: failed after 17 s; diff: envs/prod/storefront/services/catalog.yaml
+    failed job 82:
+      2026-11-10T04:28:30.138826Z 00O [31;1mERROR: Job failed: exit code 1[0;m
+  job freeze: failed
+  log: 2026-11-10T04:28:27.654111Z 01O deploy freeze active - only emergency changes ([emergency] in the commit message) may merge
+  merge !19 as root (Maintainer): HTTP 405 405 Method Not Allowed
+  MR !19: closed
+== 04:28:32 3. F2: the emergency change
+    DB_POOL_MAX: "12"   # E8 freeze drill: the emergency change
+    DB_POOL_MAX: "14"   # E8: !8 by alice (12), +2 in the freeze drill (the emergency change)
+  MR !20 (mr/20261110-042834-root, by root) pipeline 39: success after 23 s; diff: envs/prod/storefront/services/catalog.yaml envs/prod/storefront/services/orders.yaml
+  merge !20 as root (Maintainer): HTTP 200 merged
+  platform-gitops: merged !20 ([emergency] orders, catalog: DB_POOL_MAX +2 (pool exhaustion))
+== 04:29:00 merged
+  log (!20): 2026-11-10T04:28:53.039645Z 01O deploy freeze active - emergency change, allowed: [emergency] orders, catalog: DB_POOL_MAX +2 (pool exhaustion)
+== 04:29:01 4. F3: Argo CD inside the deny window
+  +30s catalog: OutOfSync Healthy op=Succeeded started=2026-11-10T03:49:11Z finished=2026-11-10T03:49:12Z rev=3783f5247d77b79b2e76c31a7c5821300a312f24
+  +30s orders:  OutOfSync Healthy op=Succeeded started=2026-11-10T03:55:23Z finished=2026-11-10T03:55:25Z rev=3783f5247d77b79b2e76c31a7c5821300a312f24
+  +60s catalog: OutOfSync Healthy op=Succeeded started=2026-11-10T03:49:11Z finished=2026-11-10T03:49:12Z rev=3783f5247d77b79b2e76c31a7c5821300a312f24
+  +60s orders:  OutOfSync Healthy op=Succeeded started=2026-11-10T03:55:23Z finished=2026-11-10T03:55:25Z rev=3783f5247d77b79b2e76c31a7c5821300a312f24
+  +90s catalog: OutOfSync Healthy op=Succeeded started=2026-11-10T03:49:11Z finished=2026-11-10T03:49:12Z rev=3783f5247d77b79b2e76c31a7c5821300a312f24
+  +90s orders:  OutOfSync Healthy op=Succeeded started=2026-11-10T03:55:23Z finished=2026-11-10T03:55:25Z rev=3783f5247d77b79b2e76c31a7c5821300a312f24
+  +120s catalog: OutOfSync Healthy op=Succeeded started=2026-11-10T03:49:11Z finished=2026-11-10T03:49:12Z rev=3783f5247d77b79b2e76c31a7c5821300a312f24
+  +120s orders:  OutOfSync Healthy op=Succeeded started=2026-11-10T03:55:23Z finished=2026-11-10T03:55:25Z rev=3783f5247d77b79b2e76c31a7c5821300a312f24
+  log: time="2026-11-10T04:29:03Z" level=info msg="Sync prevented by sync window" app-namespace=argocd application=storefront-orders-prod comparison-level=3 dedup_ms=0 dest-name= dest-namespace=storefront dest-server="https://kubernetes.default.svc" diff_ms=68 git_ms=1123 health_ms=2 live_ms=2 project=stor
+  log: time="2026-11-10T04:30:36Z" level=info msg="Sync prevented by sync window" app-namespace=argocd application=storefront-orders-prod comparison-level=2 dedup_ms=0 dest-name= dest-namespace=storefront dest-server="https://kubernetes.default.svc" diff_ms=19 git_ms=12 health_ms=0 live_ms=2 project=storef
+== 04:30:59 the operator syncs catalog by hand (revision 3783f5247d77)
+== 04:31:23 catalog: Synced Healthy op=Succeeded started=2026-11-10T04:31:00Z finished=2026-11-10T04:31:01Z rev=3783f5247d77b79b2e76c31a7c5821300a312f24
+  orders: OutOfSync Healthy op=Succeeded started=2026-11-10T03:55:23Z finished=2026-11-10T03:55:25Z rev=3783f5247d77b79b2e76c31a7c5821300a312f24
+== 04:31:23 5. F4: waiting for the end of the window (04:42:00)
+== 04:43:16 orders: Synced Healthy op=Succeeded started=2026-11-10T04:42:56Z finished=2026-11-10T04:42:57Z rev=3783f5247d77b79b2e76c31a7c5821300a312f24 (76 s after the end of the window)
+== 04:43:16 6. D1/D2: the GitLab deployments since 2026-11-10T04:23:12Z
+  #11 prod/catalog success 3783f5247d77 created 2026-11-10T04:31:22.980Z by project_3_bo
+  #12 prod/orders success 3783f5247d77 created 2026-11-10T04:43:15.254Z by project_3_bo
+  deployment #11 merge requests: !20 !18
+  deployment #12 merge requests: !20 !18
+== 04:43:17 7. cleanup
+== 04:43:18 freeze period 1 deleted
+  MR !21 (mr/20261110-044319-root, by root) pipeline 41: success after 32 s; diff: platform/apps/00-projects.yaml
+  merge !21 as root (Maintainer): HTTP 200 merged
+  platform-gitops: merged !21 (e8: change freeze - drill window removed, year-end freeze stays)
+== 04:43:55 done

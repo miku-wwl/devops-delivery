@@ -8,6 +8,6 @@ env:
   PAYMENTS_URL: http://payments:8080
   NATS_URL: nats://nats.data.svc:4222
   NATS_STREAM_REPLICAS: "3"
-  DB_POOL_MAX: "10"
+  DB_POOL_MAX: "12"   # E8 freeze drill: the emergency change
 secretEnv:
   DATABASE_URL: {secret: db-orders, key: url}
