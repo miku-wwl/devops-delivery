@@ -1,0 +1,87 @@
+== 06:50:50 A5: Velero backup e9-warnings (namespace data, file-system backup)
+  backup.velero.io/e9-warnings created
+== 06:50:50 A3: probe application e9-probe (a Secret in storefront) through the gate
+  platform-gitops: merged !28 (e9: alert test A3 - a probe whose sync fails)
+  06:51:48 backup: InProgress warnings= errors= | e9-probe:  | VeleroBackupWarnings=inactive ArgoCDSyncFailing=inactive
+  06:52:03 backup: InProgress warnings= errors= | e9-probe: Running retry=1 | VeleroBackupWarnings=inactive ArgoCDSyncFailing=inactive
+  06:52:19 backup: InProgress warnings= errors= | e9-probe: Running retry=2 | VeleroBackupWarnings=inactive ArgoCDSyncFailing=inactive
+  06:52:34 backup: Completed warnings=7 errors= | e9-probe: Running retry=3 | VeleroBackupWarnings=inactive ArgoCDSyncFailing=inactive
+  06:52:49 backup: Completed warnings=7 errors= | e9-probe: Running retry=3 | VeleroBackupWarnings=inactive ArgoCDSyncFailing=inactive
+  06:53:05 backup: Completed warnings=7 errors= | e9-probe: Running retry=3 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  06:53:20 backup: Completed warnings=7 errors= | e9-probe: Running retry=4 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  06:53:36 backup: Completed warnings=7 errors= | e9-probe: Running retry=4 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  06:53:51 backup: Completed warnings=7 errors= | e9-probe: Running retry=4 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  06:54:07 backup: Completed warnings=7 errors= | e9-probe: Running retry=4 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  06:54:22 backup: Completed warnings=7 errors= | e9-probe: Running retry=4 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  06:54:37 backup: Completed warnings=7 errors= | e9-probe: Running retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  06:54:53 backup: Completed warnings=7 errors= | e9-probe: Running retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  06:55:08 backup: Completed warnings=7 errors= | e9-probe: Running retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  06:55:23 backup: Completed warnings=7 errors= | e9-probe: Running retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  06:55:39 backup: Completed warnings=7 errors= | e9-probe: Running retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  06:55:55 backup: Completed warnings=7 errors= | e9-probe: Running retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  06:56:10 backup: Completed warnings=7 errors= | e9-probe: Running retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  06:56:25 backup: Completed warnings=7 errors= | e9-probe: Running retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  06:56:41 backup: Completed warnings=7 errors= | e9-probe: Running retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  06:56:56 backup: Completed warnings=7 errors= | e9-probe: Running retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  06:57:11 backup: Completed warnings=7 errors= | e9-probe: Running retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  06:57:26 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  06:57:42 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  06:57:57 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  06:58:13 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  06:58:28 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  06:58:43 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  06:58:59 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  06:59:14 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  06:59:29 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  06:59:44 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:00:00 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:00:15 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:00:31 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:00:46 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:01:01 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:01:16 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:01:32 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:01:47 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:02:02 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:02:17 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:02:32 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:02:48 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:03:02 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:03:18 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:03:33 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:03:48 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:04:03 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:04:19 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:04:33 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:04:49 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:05:04 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:05:19 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:05:34 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:05:50 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:06:05 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:06:20 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:06:35 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:06:50 backup: Completed warnings=7 errors= | e9-probe: Failed retry=5 | VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+== 07:06:51 tickets opened:
+  "event": "opened", "kind": "ticket", "alertname": "VeleroBackupWarnings", "iid": 3
+== 07:06:51 A3: the probe removed through the gate
+  platform-gitops: merged !29 (e9: alert test A3 done - probe removed)
+  07:08:26 VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:09:25 VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:10:24 VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:11:23 VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:12:22 VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:13:21 VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:14:20 VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+  07:15:18 VeleroBackupWarnings=firing ArgoCDSyncFailing=inactive
+== 07:15:33 bridge events since 2026-11-10T06:50:50Z:
+  "event": "opened", "kind": "ticket", "alertname": "VeleroBackupWarnings", "iid": 3
+  "event": "opened", "kind": "ticket", "alertname": "ArgoCDAppOutOfSync", "iid": 4
+  "event": "opened", "kind": "incident", "alertname": "ArgoCDRootNotSynced", "iid": 5
+  "event": "closed", "kind": "ticket", "alertname": "ArgoCDAppOutOfSync", "iid": 4
+  "event": "closed", "kind": "incident", "alertname": "ArgoCDRootNotSynced", "iid": 5
+  {"ts": "2026-11-10T06:53:31.693Z", "event": "opened", "kind": "ticket", "alertname": "VeleroBackupWarnings", "iid": 3, "fingerprint": "4e204a24cdb7047d", "startsAt": "2026-11-10T06:52:57.355Z", "label
+  {"ts": "2026-11-10T07:08:08.402Z", "event": "opened", "kind": "ticket", "alertname": "ArgoCDAppOutOfSync", "iid": 4, "fingerprint": "db5d62c600463d2b", "startsAt": "2026-11-10T07:07:35.511Z", "labels"
+  {"ts": "2026-11-10T07:13:30.091Z", "event": "opened", "kind": "incident", "alertname": "ArgoCDRootNotSynced", "iid": 5, "fingerprint": "2ec85478e6fff974", "startsAt": "2026-11-10T07:12:50.511Z", "labe
+  {"ts": "2026-11-10T07:13:59.171Z", "event": "closed", "kind": "ticket", "alertname": "ArgoCDAppOutOfSync", "iid": 4, "fingerprint": "db5d62c600463d2b", "endsAt": "2026-11-10T07:13:35.511Z"}
+  {"ts": "2026-11-10T07:15:27.720Z", "event": "closed", "kind": "incident", "alertname": "ArgoCDRootNotSynced", "iid": 5, "fingerprint": "2ec85478e6fff974", "endsAt": "2026-11-10T07:14:05.511Z"}

@@ -20,8 +20,13 @@ spec:
             runbook_url: https://github.com/miku-wwl/devops-delivery/blob/v2/enterprise/v2/docs/runbooks.md#alertmanager-restarting
     - name: platform.argocd
       rules:
+        # E9 (A3): the counter of a phase is born at 1 with the first failure - increase() never sees
+        # it. The second half catches series that did not exist 10 minutes ago (evidence/e9/a3-backtest.log).
         - alert: ArgoCDSyncFailing
-          expr: sum by (name, project) (increase(argocd_app_sync_total{phase=~"Error|Failed"}[10m])) > 0
+          expr: |
+            (sum by (name, project) (increase(argocd_app_sync_total{phase=~"Error|Failed"}[10m])) > 0)
+            or
+            (sum by (name, project) (argocd_app_sync_total{phase=~"Error|Failed"} unless argocd_app_sync_total{phase=~"Error|Failed"} offset 10m) > 0)
           labels: {severity: warning, team: platform}
           annotations:
             summary: "Argo CD: sync of {{ $labels.name }} (project {{ $labels.project }}) failed in the last 10 minutes"
