@@ -44,28 +44,6 @@ for i in $(seq 1 60); do
 done
 T_APPLIED=$(date +%s.%N)
 sleep "$AFTER"
-kill $probe 2>/dev/null; probe=; wait 2>/dev/null
+kill $probe 2>/dev/null; wait $probe 2>/dev/null; probe=   # not a bare wait: it would also wait for the tee of exec
 faults '{}'
-python3 - "$OUT/probe.log" "$T_DECIDE" "$T_MERGED" "$T_APPLIED" <<'PY'
-import sys
-log, decide, merged, applied = sys.argv[1], *map(float, sys.argv[2:5])
-rows = [l.split() for l in open(log) if l.strip()]
-rows = [(float(t), int(s), v) for t, s, v in rows]
-def stats(sel, label):
-    n = len(sel)
-    if not n:
-        print(f"{label}: no requests"); return
-    can = [r for r in sel if r[2] == "8ef5584"]
-    bad = [r for r in sel if r[1] >= 500 or r[1] == 0]
-    bad_can = [r for r in can if r[1] >= 500]
-    bad_stable = [r for r in sel if r[2] == "-" and (r[1] >= 500 or r[1] == 0)]
-    print(f"{label}: {n} requests, canary answered {len(can)} ({100*len(can)/n:.2f} %), failed {len(bad)} ({100*len(bad)/n:.2f} %) - "
-          f"canary {len(bad_can)} of {len(can)}, stable {len(bad_stable)}")
-stats([r for r in rows if r[0] < decide], "before the decision (faulty canary at 5 %)")
-stats([r for r in rows if decide <= r[0] < merged], "decision -> merged")
-stats([r for r in rows if r[0] >= merged], "after the merge")
-last = max((r[0] for r in rows if r[2] == "8ef5584"), default=None)
-if last:
-    print(f"last canary answer {last - merged:+.1f} s after the merge, {last - decide:+.1f} s after the decision "
-          f"(route weight 0 in the cluster {applied - merged:+.1f} s after the merge)")
-PY
+python3 "$HERE/abort_report.py" "$OUT/probe.log" "$T_DECIDE" "$T_MERGED" "$T_APPLIED" | tee "$OUT/report.txt"

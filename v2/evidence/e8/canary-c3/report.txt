@@ -1,0 +1,5 @@
+# report computed after the drill: the script hung at a bare wait after the probe had ended (fixed); times from run.txt
+before the decision (faulty canary, weight 5) (90 s): 3596 requests, canary answered 178 (4.95 %), failed 88 (2.45 %): 88 of the canary's 178 answers, 0 others
+from the decision to the merge (43 s): 1731 requests, canary answered 85 (4.91 %), failed 39 (2.25 %): 39 of the canary's 85 answers, 0 others
+after the merge (154 s): 6153 requests, canary answered 1 (0.02 %), failed 0 (0.00 %): 0 of the canary's 1 answers, 0 others
+last canary answer: +2.8 s after the merge, +46.1 s after the decision; the route had weight 0 in the cluster +3.8 s after the merge
