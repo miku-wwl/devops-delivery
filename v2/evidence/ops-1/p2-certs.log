@@ -1,0 +1,22 @@
+== 23:53:58 before (certificate notAfter)
+  alice: Nov 17 05:53:36 2026 GMT
+  bob: Nov 17 05:53:37 2026 GMT
+  carol: Nov 17 05:53:38 2026 GMT
+  carol-breakglass: Nov  9 10:49:02 2026 GMT
+  dave: Nov 17 05:53:39 2026 GMT
+== 23:53:58 re-issue the four standing users (users.sh; carol-breakglass is a 1-hour certificate by design and is not renewed)
+  == client certificates from the cluster CA (kubeconfigs in ~/.lab-secrets/v2/users/)
+    alice             /O=team-shop/CN=alice                until 2026-11-17T23:48:59Z  sha256 4433A68851A3EEE8
+    bob               /O=team-insight/CN=bob               until 2026-11-17T23:49:00Z  sha256 98FF75C50BE001F9
+    carol             /O=platform-sre/CN=carol             until 2026-11-17T23:49:01Z  sha256 E4504EC78CDCDAF3
+    dave              /O=auditors/CN=dave                  until 2026-11-17T23:49:02Z  sha256 904AF148CAEFE581
+== 23:54:02 after
+  alice: Nov 17 23:48:59 2026 GMT
+  bob: Nov 17 23:49:00 2026 GMT
+  carol: Nov 17 23:49:01 2026 GMT
+  carol-breakglass: Nov  9 10:49:02 2026 GMT
+  dave: Nov 17 23:49:02 2026 GMT
+== 23:54:03 use: who the API server sees, and one allowed and one denied action
+  alice: alice ["team-shop","system:authenticated"]
+  dave: dave ["auditors","system:authenticated"]
+  alice may list pods in shop-dev: yes; alice may read secrets in storefront: no

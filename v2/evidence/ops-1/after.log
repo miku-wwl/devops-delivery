@@ -1,0 +1,26 @@
+== 2026-11-10T23:56:08Z lab
+  context kind-ent; nodes Ready 4/4
+  applications:  39 Synced/Healthy;
+  pods not Running/Completed: 0
+== P0 OpenBao and its key
+  status: {"initialized":true,"sealed":false,"version":"2.7.2"}
+  init.json: mode 400, owner devops, 393 bytes, key and token present: yes
+  init.json.copy: mode 400, owner devops, 393 bytes, key and token present: yes
+  init.json = init.json.copy: identical; directory mode 700
+  secret sync: store insight Valid, store shop-dev Valid, ExternalSecret insight-api-key SecretSynced
+  openbao-init.sh guards: waits for an answer 1, refuses with a key file 1, atomic write 3, read-only 1
+== P1 snapshot jobs
+  CronJob: schedule 17 * * * *, suspend false, last schedule 2026-11-10T23:17:00Z, last success 2026-11-10T23:17:06Z, failed history limit 2
+  job e11-snapshot-check: owner CronJob openbao-snapshot, active 0, succeeded 1, failed 0, started 2026-11-10T22:39:17Z
+  job openbao-snapshot-29905877: owner CronJob openbao-snapshot, active 0, succeeded 1, failed 0, started 2026-11-10T23:17:00Z
+== P2 certificates and tokens
+  root-admin: {"name":"lab-automation","active":true,"revoked":false,"expires_at":"2026-12-05","scopes":["api","read_repository","write_repository"],"last_used_at":"2026-11-10T23:51:01.161Z"}
+  alice: {"name":"e8-merge-requests","active":true,"revoked":false,"expires_at":"2026-12-10","scopes":["api","write_repository"],"last_used_at":"2026-11-10T23:51:01.334Z"}
+  argocd-repo-read: {"name":"argocd-ent-read","active":true,"revoked":false,"expires_at":"2026-12-07","scopes":["read_repository"],"last_used_at":"2026-11-10T23:51:53.459Z"}
+  argocd-deployments: {"name":"argocd-deployment-events","active":true,"revoked":false,"expires_at":"2027-01-09","scopes":["api"],"last_used_at":"2026-11-10T23:51:01.538Z"}
+  alert-bridge: {"name":"alert-bridge","active":true,"revoked":false,"expires_at":"2027-01-09","scopes":["api"],"last_used_at":"2026-11-10T23:51:01.663Z"}
+== P1 memory of the workers
+  ent-worker: requests 2610Mi (82%), limits 8032Mi (252%); usage 2228Mi (70%)
+  ent-worker2: requests 2730Mi (85%), limits 9Gi (289%); usage 2182Mi (68%)
+  ent-worker3: requests 3130Mi (98%), limits 7648Mi (240%); usage 2759Mi (86%)
+== alert bridge: open incidents/tickets: []; dead man thread alive: true
