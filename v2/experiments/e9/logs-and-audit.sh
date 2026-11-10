@@ -41,6 +41,6 @@ for l in sys.stdin:
     u = e["user"]["username"]
     if not u.startswith("system:serviceaccount:"): continue
     c[(u.split(":", 2)[2], e["verb"])] += 1
-    if o.get("name"): names[u.split(":", 2)[2]].add(f"{o.get(\"namespace\")}/{o[\"name\"]}")
+    if o.get("name"): names[u.split(":", 2)[2]].add(str(o.get("namespace")) + "/" + o["name"])
 for (u, v), n in sorted(c.items()): print(f"    {u:55} {v:5} {n}")
 for u, ns in sorted(names.items()): print(f"    {u} read by name: {sorted(ns)[:4]}")' "$T0"

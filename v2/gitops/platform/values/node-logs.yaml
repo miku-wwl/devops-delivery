@@ -15,6 +15,7 @@ config:
         Tag               kube.*
         Mem_Buf_Limit     5MB
         Skip_Long_Lines   On
+        Refresh_Interval  5   # E9 (L1): new files every 5 s, not 60 - a short-lived pod's file may be gone by then
   filters: |
     [FILTER]
         Name                kubernetes
