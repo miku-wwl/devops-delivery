@@ -184,6 +184,32 @@ def release() -> dict:
             "time": {"from": "now-1h", "to": "now"}, "panels": p}
 
 
+def slo() -> dict:
+    """SLOs (chapter 10), from platform/slo/slos.yaml: per SLO the error ratio over the alert windows
+    against the page threshold (14.4 x budget), and the burn rate over 1 h; on top the traffic and the
+    SLO alerts that fire."""
+    import yaml  # the specification is YAML; only this dashboard needs it
+    spec = yaml.safe_load((Path(__file__).resolve().parents[1] / "slo" / "slos.yaml").read_text(encoding="utf-8"))
+    p = [panel("Gateway requests per second: browse and checkout", [
+        (f'sum(rate(http_server_requests_total{{{NS},service="gateway",route=~"/api/products.*"}}[1m]))', "browse"),
+        (f'sum(rate(http_server_requests_total{{{NS},service="gateway",route="/api/orders"}}[1m]))', "checkout (POST /api/orders)")],
+        "reqps", 0, 0),
+         panel("SLO alerts firing (page = critical, ticket = warning)", [
+        ('sum by (alertname) (ALERTS{alertstate="firing", slo!=""})', "{{alertname}}")], "none", 12, 0)]
+    for i, s in enumerate(spec["slos"]):
+        budget = round(1 - s["objective"] / 100, 6)
+        y = 8 + i * 8
+        p.append(panel(f"{s['name']} ({s['objective']} %): error ratio by window; the flat line is the page threshold (14.4 x budget)", [
+            (f'slo:error_ratio:5m{{slo="{s["name"]}"}}', "5 m"), (f'slo:error_ratio:1h{{slo="{s["name"]}"}}', "1 h"),
+            (f'slo:error_ratio:6h{{slo="{s["name"]}"}}', "6 h"), (f"vector({14.4 * budget:g})", "page threshold")],
+            "percentunit", 0, y, w=16))
+        p.append(panel(f"{s['name']}: burn rate over 1 h (1 = the budget lasts exactly 30 days)", [
+            (f'slo:error_ratio:1h{{slo="{s["name"]}"}} / {budget}', "burn rate 1 h")], "none", 16, y, w=8))
+    return {"uid": "storefront-slo", "title": "Storefront: SLOs and error budget burn",
+            "tags": ["storefront", "v2", "slo"], "timezone": "utc", "schemaVersion": 39,
+            "time": {"from": "now-2h", "to": "now"}, "panels": p}
+
+
 def configmap(name: str, dashboard: dict) -> str:
     body = json.dumps(dashboard, indent=1)
     indented = "\n".join("    " + line for line in body.splitlines())
@@ -195,6 +221,6 @@ def configmap(name: str, dashboard: dict) -> str:
 if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)
     for name, build in (("storefront", storefront), ("storefront-traces", traces), ("storefront-balance", balance),
-                        ("storefront-capacity", capacity), ("storefront-release", release)):
+                        ("storefront-capacity", capacity), ("storefront-release", release), ("storefront-slo", slo)):
         (OUT / f"{name}.yaml").write_text(configmap(name, build()), encoding="utf-8", newline="\n")
         print(f"wrote {OUT / f'{name}.yaml'}")
