@@ -161,6 +161,29 @@ def capacity() -> dict:
             "time": {"from": "now-1h", "to": "now"}, "panels": p}
 
 
+def release() -> dict:
+    """Releases (chapter 9): a canary is a second release of the gateway (service gateway-canary)
+    behind the weighted route of the layer-7 entrance - its share of the requests, its errors and
+    its pods next to the stable release's."""
+    gw = f'{NS},service=~"gateway|gateway-canary"'
+    p = [panel("Gateway requests per second by release (stable: gateway, canary: gateway-canary)", [
+        (f"sum by (service) (rate(http_server_requests_total{{{gw}}}[1m]))", "{{service}}")], "reqps", 0, 0),
+         panel("Canary share of the gateway's requests", [
+        (f'100 * sum(rate(http_server_requests_total{{{NS},service="gateway-canary"}}[1m])) / '
+         f"sum(rate(http_server_requests_total{{{gw}}}[1m]))", "canary %")], "percent", 12, 0),
+         panel("5xx per second by release", [
+        (f'sum by (service) (rate(http_server_requests_total{{{gw},code=~"5.."}}[1m]))', "{{service}}")],
+        "reqps", 0, 8),
+         panel("Pods ready by release", [
+        ('max by (deployment) (kube_deployment_status_replicas_ready{namespace="storefront",'
+         'deployment=~"gateway|gateway-canary"})', "{{deployment}}")], "none", 12, 8),
+         panel("Requests per second per gateway pod, both releases", [
+        (f"sum by (pod) (rate(http_server_requests_total{{{gw}}}[1m]))", "{{pod}}")], "reqps", 0, 16, w=24)]
+    return {"uid": "storefront-release", "title": "Storefront: releases (canary and stable)",
+            "tags": ["storefront", "v2"], "timezone": "utc", "schemaVersion": 39,
+            "time": {"from": "now-1h", "to": "now"}, "panels": p}
+
+
 def configmap(name: str, dashboard: dict) -> str:
     body = json.dumps(dashboard, indent=1)
     indented = "\n".join("    " + line for line in body.splitlines())
@@ -172,6 +195,6 @@ def configmap(name: str, dashboard: dict) -> str:
 if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)
     for name, build in (("storefront", storefront), ("storefront-traces", traces), ("storefront-balance", balance),
-                        ("storefront-capacity", capacity)):
+                        ("storefront-capacity", capacity), ("storefront-release", release)):
         (OUT / f"{name}.yaml").write_text(configmap(name, build()), encoding="utf-8", newline="\n")
         print(f"wrote {OUT / f'{name}.yaml'}")

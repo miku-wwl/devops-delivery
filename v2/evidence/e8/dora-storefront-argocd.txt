@@ -1,0 +1,13 @@
+DORA - applications of project storefront, merge requests merged since 2026-11-01T00:00:00Z; deployments: argocd
+  MR author merged      lead  concerned -> deployed  title
+!8   alice  00:16:52    0.8m  catalog  G5 catalog: database pool 10 -> 12
+!9   root   00:54:11       -  catalog(no sync), gateway(no sync), inventory(no sync), notifier(no sync), orders(no sync), payments(no sync)  e8: chart value app (canary releases), retry counters and scraping for
+!13  root   01:35:22    1.4m  gateway  e8: promote the gateway to 8ef5584, remove the canary
+!14  root   03:48:56    0.9m  catalog  e8: sync impersonation step 1 - deployer accounts, project accounts, n
+!15  root   03:54:06    1.9m  orders  e8: sync impersonation step 2 - probes write again, orders LOG_LEVEL e
+!20  root   04:29:00   14.3m  catalog, orders  [emergency] orders, catalog: DB_POOL_MAX +2 (pool exhaustion)
+
+merge requests merged: 16; concerning these applications: 6; deployed within 6 h: 5
+deployment frequency: 12 service deployments in 5.3 h of records = 54 per day (5 merge requests = 23 per day)
+lead time for changes: median 1.4 min, max 14.3 min (n=5)
+change failure rate: 0 of 5 = 0 %

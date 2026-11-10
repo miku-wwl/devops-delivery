@@ -1,0 +1,8 @@
+$ manual/.venv/Scripts/python.exe manual/tools/webshot.py --url "http://127.0.0.1:3000/d/storefront-release/x?orgId=1&from=1794269850000&to=1794270720000&kiosk" --out v2/evidence/e8/screens/grafana-release-l4.png --width 1600 --height 1010 --wait-until load --wait-ms 5000
+v2\evidence\e8\screens\grafana-release-l4.png
+$ manual/.venv/Scripts/python.exe manual/tools/webshot.py --url "http://127.0.0.1:3000/d/storefront-release/x?orgId=1&from=1794270840000&to=1794271680000&kiosk" --out v2/evidence/e8/screens/grafana-release-l7.png --width 1600 --height 1010 --wait-until load --wait-ms 5000
+v2\evidence\e8\screens\grafana-release-l7.png
+$ manual/.venv/Scripts/python.exe manual/tools/webshot.py --url "http://127.0.0.1:3000/d/storefront-release/x?orgId=1&from=1794273420000&to=1794274140000&kiosk" --out v2/evidence/e8/screens/grafana-release-canary-c1-c3.png --width 1600 --height 1010 --wait-until load --wait-ms 5000
+v2\evidence\e8\screens\grafana-release-canary-c1-c3.png
+$ manual/.venv/Scripts/python.exe manual/tools/webshot.py --url "http://127.0.0.1:3000/d/storefront-release/x?orgId=1&from=1794274470000&to=1794274860000&kiosk" --out v2/evidence/e8/screens/grafana-release-canary-c4.png --width 1600 --height 1010 --wait-until load --wait-ms 5000
+v2\evidence\e8\screens\grafana-release-canary-c4.png
