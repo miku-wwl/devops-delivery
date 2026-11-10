@@ -1,0 +1,22 @@
+# E9 (chapter 10): the storefront's service level objectives - the specification the alert rules are
+# generated from (platform/slo/gen.py -> gitops/platform/manifests/alerts/slo-storefront.yaml). The
+# objectives are the ones chapter 7 measured against (browse 99.5 %, orders 99 %); the SLIs count the
+# gateway's own answers, i.e. what a customer gets. {{w}} is replaced by each rule window.
+team: shop
+period: 30d            # the error budget's period (Prometheus keeps 3 d here: no 30-day budget panel)
+slos:
+  - name: browse-availability
+    description: browsing the catalogue - GET /api/products and /api/products/{id} through the gateway - does not answer 5xx
+    objective: 99.5
+    errors: sum(rate(http_server_requests_total{namespace="storefront", service="gateway", route=~"/api/products.*", code=~"5.."}[{{w}}]))
+    total: sum(rate(http_server_requests_total{namespace="storefront", service="gateway", route=~"/api/products.*"}[{{w}}]))
+  - name: checkout-availability
+    description: placing an order - POST /api/orders through the gateway - does not answer 5xx
+    objective: 99.0
+    errors: sum(rate(http_server_requests_total{namespace="storefront", service="gateway", route="/api/orders", code=~"5.."}[{{w}}]))
+    total: sum(rate(http_server_requests_total{namespace="storefront", service="gateway", route="/api/orders"}[{{w}}]))
+  - name: browse-latency
+    description: browsing answers within 500 ms (gateway histogram, bucket le=0.5)
+    objective: 99.0
+    errors: (sum(rate(http_server_request_duration_seconds_count{namespace="storefront", service="gateway", route=~"/api/products.*"}[{{w}}])) - sum(rate(http_server_request_duration_seconds_bucket{namespace="storefront", service="gateway", route=~"/api/products.*", le="0.5"}[{{w}}])))
+    total: sum(rate(http_server_request_duration_seconds_count{namespace="storefront", service="gateway", route=~"/api/products.*"}[{{w}}]))

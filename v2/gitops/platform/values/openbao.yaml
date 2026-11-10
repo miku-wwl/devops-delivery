@@ -6,6 +6,12 @@
 # the namespace is in the ambient mesh (mTLS by ztunnel) and only the External Secrets namespace
 # may connect.
 injector: {enabled: false}
+# E9 (chapter 10): metrics for the alert "OpenBao is sealed" (platform/manifests/alerts/). Only the
+# metrics are unauthenticated; the NetworkPolicy allow-prometheus-metrics lets the namespace
+# monitoring reach port 8200. A config change needs a restart (the chart's update strategy is
+# OnDelete), and every restart seals the server.
+serverTelemetry:
+  serviceMonitor: {enabled: true, interval: 30s}
 ui: {enabled: false}
 server:
   priorityClassName: platform-critical   # E7: pinned to its volume (chapter 7, incident 2)
@@ -27,6 +33,13 @@ server:
         address = "[::]:8200"
         cluster_address = "[::]:8201"
         tls_disable = 1
+        telemetry {
+          unauthenticated_metrics_access = true   # E9: Prometheus reads /v1/sys/metrics without a token
+        }
+      }
+      telemetry {
+        prometheus_retention_time = "60s"
+        disable_hostname = true
       }
       storage "raft" {
         path = "/openbao/data"

@@ -6,6 +6,59 @@ crds:
 alertmanager:
   alertmanagerSpec:
     resources: {requests: {cpu: 10m, memory: 32Mi}, limits: {memory: 128Mi}}
+  # E9 (chapter 10): where alerts go. Everything leaves the cluster through the alert bridge
+  # (platform/alerting/bridge.py, a container next to GitLab): critical -> a GitLab incident (page),
+  # warning -> a GitLab issue (ticket), Watchdog -> the bridge's dead man's switch, which opens an
+  # incident of its own when the heartbeat stops (monitoring is not in the failure domain it watches).
+  config:
+    global: {resolve_timeout: 5m}
+    route:
+      receiver: "null"
+      group_by: [alertname, namespace, slo]
+      group_wait: 30s
+      group_interval: 2m
+      repeat_interval: 12h
+      routes:
+        - matchers: ['alertname = "Watchdog"']
+          receiver: deadman
+          group_wait: 0s
+          group_interval: 30s
+          repeat_interval: 30s
+        - matchers: ['alertname = "InfoInhibitor"']
+          receiver: "null"
+        - matchers: ['severity = "critical"']
+          receiver: incident
+        - matchers: ['severity = "warning"']
+          receiver: ticket
+    inhibit_rules:
+      - source_matchers: ['alertname = "InfoInhibitor"']   # the stack's own: info alerts are context
+        target_matchers: ['severity = "info"']
+        equal: [namespace]
+      - source_matchers: ['slo_severity = "page"']         # a page for an SLO makes its ticket redundant
+        target_matchers: ['slo_severity = "ticket"']
+        equal: [slo]
+      - source_matchers: ['severity = "critical"']         # the critical variant of an alert outranks the warning
+        target_matchers: ['severity = "warning"']
+        equal: [alertname, namespace]
+      - source_matchers: ['alertname = "PostgresPrimaryMissingReplicas"']   # the cause of the next one
+        target_matchers: ['alertname = "PostgresReplicaNotStreaming"']
+        equal: [namespace]
+    receivers:
+      - name: "null"
+      - name: deadman
+        webhook_configs: [{url: "http://alert-bridge:9095/watchdog", send_resolved: false}]
+      - name: incident
+        webhook_configs: [{url: "http://alert-bridge:9095/alertmanager?kind=incident", send_resolved: true}]
+      - name: ticket
+        webhook_configs: [{url: "http://alert-bridge:9095/alertmanager?kind=ticket", send_resolved: true}]
+# E9: AlertmanagerClusterCrashlooping counts changes(process_start_time_seconds); in this WSL VM the
+# kernel's boot time moves back by about 1 s every 27 s (the monotonic clock runs 3.7 % fast and the
+# wall clock is corrected), so the start time "changes" 13 times in 10 minutes without a restart and
+# the critical alert never stops (evidence/e9/clock-drift.log). Replaced by a rule on real restarts
+# (platform/manifests/alerts/platform-alerts.yaml).
+defaultRules:
+  disabled:
+    AlertmanagerClusterCrashlooping: true
 prometheus:
   prometheusSpec:
     retention: 3d

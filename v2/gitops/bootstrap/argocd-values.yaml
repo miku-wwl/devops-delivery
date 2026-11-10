@@ -95,6 +95,11 @@ controller:
   resources: {requests: {cpu: 100m, memory: 640Mi}, limits: {memory: 1Gi}}
   env:
     - {name: GOMEMLIMIT, value: "850MiB"}   # GC hard before the kernel limit, not after
+  # E9 (chapter 10): argocd_app_info and argocd_app_sync_total for the alerts on failing syncs and on
+  # a root application out of sync (platform/manifests/alerts/platform-alerts.yaml)
+  metrics:
+    enabled: true
+    serviceMonitor: {enabled: true}
 repoServer:
   resources: {requests: {cpu: 50m, memory: 128Mi}, limits: {memory: 512Mi}}
 server:
