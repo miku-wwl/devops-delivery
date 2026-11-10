@@ -1,0 +1,11 @@
+== 12:08:12 the state project
+project root/platform-iac created
+{"id":5,"path_with_namespace":"root/platform-iac","visibility":"private"}
+== 12:08:18 tofu init -migrate-state: s3 (Garage) -> http (GitLab)
+Initializing the backend...
+OpenTofu detected that the backend type changed from "s3" to "http".
+Successfully configured the backend "http"! OpenTofu will automatically
+use this backend unless the backend configuration changes.
+- Using previously-installed gitlabhq/gitlab v19.5.0
+OpenTofu has been successfully initialized!
+== 12:08:26 plan from the new backend

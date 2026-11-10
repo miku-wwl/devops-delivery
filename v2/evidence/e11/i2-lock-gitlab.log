@@ -1,0 +1,15 @@
+== 13:49:42 1. another run holds the lock
+  POST http://localhost:8929/api/v4/projects/5/terraform/state/gitlab/lock -> HTTP 200
+  the same lock once more -> HTTP 409 {"Operation":"OperationTypeApply","Info":"","Version":"1.13.9","Path":"","ID":"e11-test-0001","Who":"root","Created":"2026-11-10T13:49:42.803Z"}
+  tofu plan exit code 1:
+    Error: Error acquiring the state lock
+    Error message: HTTP remote state already locked: ID=e11-test-0001
+    Lock Info:
+      ID:        e11-test-0001
+      Operation: OperationTypePlan
+      Who:       root
+  release: DELETE http://localhost:8929/api/v4/projects/5/terraform/state/gitlab/lock -> HTTP 200
+  tofu plan without the foreign lock: exit code 0, No changes. Your infrastructure matches the configuration.
+== 13:49:50 2. two plans started at the same moment (each holds the lock for its refresh and plan)
+  plan 1: exit code 0, No changes. Your infrastructure matches the configuration.
+  plan 2: exit code 1, Error: Error acquiring the state lock

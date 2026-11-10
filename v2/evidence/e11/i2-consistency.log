@@ -1,0 +1,16 @@
+== 13:48:45 source: Garage tofu-state/gitlab/governance.tfstate
+  HTTP 200, 8741 bytes, serial 1 lineage d65c153e-1f14-fef1-0eff-d643f508ebe0 encrypted True
+  lock object: HTTP 404
+== target: GitLab root/platform-iac, state gitlab
+  project id 5; GET: HTTP 200, 8741 bytes, serial 1 lineage 9d7788b3-47c9-a0ef-4c66-e2c103abcbb0 encrypted True
+  {"name":"gitlab","lockedAt":null,"lockedBy":null,"serial":1,"created":"2026-11-10T12:08:23Z"}
+== the working directory and the resources in the state
+  backend in .terraform/terraform.tfstate: http
+  data.gitlab_user.alice
+  gitlab_branch_protection.main
+  gitlab_project.gitops
+  gitlab_project_membership.alice
+== 13:49:06 decrypted state (tofu state pull): {"serial":1,"lineage":"9d7788b3-47c9-a0ef-4c66-e2c103abcbb0","terraform_version":"1.13.9","resources":4}
+== 13:49:09 the plan the interruption cut off: from the GitLab backend
+No changes. Your infrastructure matches the configuration.
+  exit code 0

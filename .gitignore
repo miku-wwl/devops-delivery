@@ -31,3 +31,7 @@ Thumbs.db
 
 # Ansible collections are installed from ansible/collections/requirements.yml
 ansible/collections/ansible_collections/
+
+# OpenTofu working directories and plan files (the lock file .terraform.lock.hcl is committed)
+v2/iac/**/.terraform/
+v2/iac/**/*.tfplan

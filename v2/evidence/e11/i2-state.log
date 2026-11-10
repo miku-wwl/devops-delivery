@@ -1,0 +1,15 @@
+== 12:06:59 1. the state object as Garage stores it
+  GET gitlab/governance.tfstate: HTTP 200, 8741 bytes
+  top-level keys: ['encrypted_data', 'encryption_version', 'lineage', 'meta', 'serial']
+  plain-text markers in the stored object: 'platform-gitops' 0, 'runners_token' 0, 'only_allow_merge' 0
+  the same markers after decryption (tofu state pull): 'platform-gitops' 1, 'runners_token' 1, 'only_allow_merge' 1
+== 12:07:01 2. does Garage honour If-None-Match on PUT? (what use_lockfile relies on)
+  PUT a new object with If-None-Match: *     -> HTTP 200
+  PUT the same key again, If-None-Match: *   -> HTTP 200 
+== 12:07:01 3. another run holds the lock: a lock object placed by hand, then tofu plan
+  PUT gitlab/governance.tfstate.tflock (If-None-Match: *) -> HTTP 200
+  tofu plan exit code 0:
+    No changes. Your infrastructure matches the configuration.
+  lock object after the plan: HTTP 404 
+  DELETE the hand-made lock -> HTTP 204
+  tofu plan without the foreign lock: exit code 0, No changes. Your infrastructure matches the configuration.

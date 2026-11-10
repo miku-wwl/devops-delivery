@@ -13,13 +13,34 @@ set -euo pipefail
 S=$HOME/.lab-secrets/v2/openbao
 mkdir -p "$S"; chmod 700 "$S"
 ex() { kubectl -n secrets exec -i openbao-0 -- "$@"; }
-kubectl -n secrets wait --for=jsonpath='{.status.phase}'=Running pod/openbao-0 --timeout=300s >/dev/null
-st() { ex bao status -format=json 2>/dev/null || true; }   # exit code 2 = sealed
-if [ "$(st | jq -r .initialized)" != true ]; then
-  (umask 077; ex bao operator init -key-shares=1 -key-threshold=1 -format=json > "$S/init.json")
-  echo "initialised (one key share; key and root token in ~/.lab-secrets/v2/openbao/init.json)"
+# Incident E11-1 (evidence/e11/incident-1.md): the first version waited for the pod's phase - which
+# still said Running from before a restart while the container did not exist yet - and treated "no
+# answer" as "not initialised": it ran the initialisation with "> init.json", the shell emptied the
+# only copy of the unseal key, the exec failed. Now: wait until OpenBao itself answers, never
+# initialise while a key file exists, write a new key atomically and keep it read-only, twice.
+st() {   # the status as JSON - only if OpenBao answered (bao status: 0 unsealed, 2 sealed)
+  local out rc
+  out=$(ex bao status -format=json 2>/dev/null) && rc=0 || rc=$?
+  { [ "$rc" -eq 0 ] || [ "$rc" -eq 2 ]; } && jq -e 'has("initialized")' >/dev/null 2>&1 <<<"$out" && printf '%s' "$out"
+}
+s=""
+for i in $(seq 1 60); do s=$(st || true); [ -n "$s" ] && break; sleep 5; done
+[ -n "$s" ] || { echo "OpenBao does not answer after 300 s - nothing done" >&2; exit 1; }
+if [ "$(jq -r .initialized <<<"$s")" = false ]; then
+  if [ -s "$S/init.json" ]; then
+    echo "OpenBao says it is not initialised, but $S/init.json exists: refusing to replace a key." >&2
+    echo "A deliberate re-initialisation (storage wiped) moves the old file away first." >&2
+    exit 1
+  fi
+  (umask 077; ex bao operator init -key-shares=1 -key-threshold=1 -format=json > "$S/init.json.new")
+  jq -e '(.unseal_keys_b64[0] | length > 0) and (.root_token | length > 0)' "$S/init.json.new" >/dev/null
+  rm -f "$S/init.json"; mv "$S/init.json.new" "$S/init.json"
+  rm -f "$S/init.json.copy"; cp "$S/init.json" "$S/init.json.copy"
+  chmod 400 "$S/init.json" "$S/init.json.copy"   # a stray "> init.json" now fails instead of emptying it
+  echo "initialised (one key share; key and root token in ~/.lab-secrets/v2/openbao/init.json, read-only, and a copy)"
+  s=$(st)
 fi
-if [ "$(st | jq -r .sealed)" = true ]; then
+if [ "$(jq -r .sealed <<<"$s")" = true ]; then
   # "bao operator unseal -" takes the "-" literally; a field value "-" of "bao write" is read from stdin
   jq -r '.unseal_keys_b64[0]' "$S/init.json" | ex bao write -format=json sys/unseal key=- >/dev/null
   echo "unsealed"

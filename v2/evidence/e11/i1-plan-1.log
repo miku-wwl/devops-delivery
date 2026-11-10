@@ -1,0 +1,132 @@
+== 12:05:36 first plan after writing the configuration
+gitlab_project.gitops: Preparing import... [id=3]
+gitlab_project.gitops: Refreshing state... [id=3]
+data.gitlab_user.alice: Reading...
+data.gitlab_user.alice: Read complete after 1s [id=5]
+gitlab_project_membership.alice: Preparing import... [id=3:5]
+gitlab_branch_protection.main: Preparing import... [id=3:main]
+gitlab_project_membership.alice: Refreshing state... [id=3:5]
+gitlab_branch_protection.main: Refreshing state... [id=3:main]
+
+OpenTofu will perform the following actions:
+
+  # gitlab_branch_protection.main will be imported
+  # (imported from "3:main")
+    resource "gitlab_branch_protection" "main" {
+        allow_force_push             = false
+        branch                       = "main"
+        branch_protection_id         = 4
+        code_owner_approval_required = false
+        id                           = "3:main"
+        merge_access_level           = "maintainer"
+        project                      = "3"
+        push_access_level            = "no one"
+    }
+
+  # gitlab_project.gitops will be imported
+  # (imported from "3")
+    resource "gitlab_project" "gitops" {
+        allow_merge_on_skipped_pipeline                  = false
+        allow_pipeline_trigger_approve_deployment        = false
+        analytics_access_level                           = "enabled"
+        archived                                         = false
+        auto_cancel_pending_pipelines                    = "enabled"
+        auto_devops_deploy_strategy                      = "continuous"
+        auto_devops_enabled                              = true
+        auto_duo_code_review_enabled                     = false
+        autoclose_referenced_issues                      = true
+        automatic_rebase_enabled                         = false
+        build_git_strategy                               = "fetch"
+        build_timeout                                    = 3600
+        builds_access_level                              = "enabled"
+        ci_default_git_depth                             = 20
+        ci_delete_pipelines_in_seconds                   = 0
+        ci_display_pipeline_variables                    = false
+        ci_forward_deployment_enabled                    = true
+        ci_forward_deployment_rollback_allowed           = true
+        ci_id_token_sub_claim_components                 = [
+            "project_path",
+            "ref_type",
+            "ref",
+        ]
+        ci_pipeline_variables_minimum_override_role      = "developer"
+        ci_push_repository_for_job_token_allowed         = false
+        ci_separated_caches                              = true
+        container_registry_access_level                  = "enabled"
+        default_branch                                   = "main"
+        emails_enabled                                   = true
+        empty_repo                                       = false
+        environments_access_level                        = "enabled"
+        feature_flags_access_level                       = "enabled"
+        forked_from_project_id                           = 0
+        forking_access_level                             = "enabled"
+        group_runners_enabled                            = true
+        http_url_to_repo                                 = "http://localhost:8929/root/platform-gitops.git"
+        id                                               = "3"
+        infrastructure_access_level                      = "enabled"
+        issues_access_level                              = "enabled"
+        keep_latest_artifact                             = true
+        lfs_enabled                                      = true
+        max_artifacts_size                               = 0
+        merge_method                                     = "merge"
+        merge_pipelines_enabled                          = false
+        merge_requests_access_level                      = "enabled"
+        merge_trains_enabled                             = false
+        merge_trains_skip_train_allowed                  = false
+        model_experiments_access_level                   = "private"
+        model_registry_access_level                      = "private"
+        monitor_access_level                             = "enabled"
+        mr_default_target_self                           = false
+        name                                             = "platform-gitops"
+        namespace_id                                     = 1
+        only_allow_merge_if_all_discussions_are_resolved = false
+        only_allow_merge_if_pipeline_succeeds            = true
+        package_registry_access_level                    = "enabled"
+        packages_enabled                                 = true
+        pages_access_level                               = "private"
+        path                                             = "platform-gitops"
+        path_with_namespace                              = "root/platform-gitops"
+        pre_receive_secret_detection_enabled             = false
+        prevent_merge_without_jira_issue                 = false
+        printing_merge_request_link_enabled              = true
+        protect_merge_request_pipelines                  = true
+        public_jobs                                      = true
+        releases_access_level                            = "enabled"
+        remove_source_branch_after_merge                 = true
+        repository_access_level                          = "enabled"
+        repository_storage                               = "default"
+        request_access_enabled                           = true
+        resolve_outdated_diff_discussions                = false
+        resource_group_default_process_mode              = "unordered"
+        runners_token                                    = (sensitive value)
+        security_and_compliance_access_level             = "private"
+        shared_runners_enabled                           = true
+        snippets_access_level                            = "enabled"
+        squash_option                                    = "default_off"
+        ssh_url_to_repo                                  = "git@localhost:root/platform-gitops.git"
+        topics                                           = []
+        visibility_level                                 = "private"
+        web_url                                          = "http://localhost:8929/root/platform-gitops"
+        wiki_access_level                                = "enabled"
+
+        container_expiration_policy {
+            cadence           = "1d"
+            enabled           = false
+            keep_n            = 10
+            name_regex_delete = ".*"
+            next_run_at       = "2026-11-08T03:46:45Z"
+            older_than        = "90d"
+        }
+    }
+
+  # gitlab_project_membership.alice will be imported
+  # (imported from "3:5")
+    resource "gitlab_project_membership" "alice" {
+        access_level   = "developer"
+        id             = "3:5"
+        member_role_id = 0
+        project        = "3"
+        user_id        = 5
+    }
+
+Plan: 3 to import, 0 to add, 0 to change, 0 to destroy.

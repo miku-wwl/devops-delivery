@@ -1,0 +1,22 @@
+== 12:06:03 apply: the imports
+gitlab_project.gitops: Preparing import... [id=3]
+gitlab_branch_protection.main: Preparing import... [id=3:main]
+gitlab_project_membership.alice: Preparing import... [id=3:5]
+  # gitlab_branch_protection.main will be imported
+  # (imported from "3:main")
+  # gitlab_project.gitops will be imported
+  # (imported from "3")
+  # gitlab_project_membership.alice will be imported
+  # (imported from "3:5")
+Plan: 3 to import, 0 to add, 0 to change, 0 to destroy.
+gitlab_project.gitops: Importing... [id=3]
+gitlab_project.gitops: Import complete [id=3]
+gitlab_project_membership.alice: Importing... [id=3:5]
+gitlab_project_membership.alice: Import complete [id=3:5]
+gitlab_branch_protection.main: Importing... [id=3:main]
+gitlab_branch_protection.main: Import complete [id=3:main]
+Apply complete! Resources: 3 imported, 0 added, 0 changed, 0 destroyed.
+== 12:06:09 plan after the adoption
+No changes. Your infrastructure matches the configuration.
+  exit code: 0
+GitLab unchanged by the adoption

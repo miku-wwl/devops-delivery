@@ -16,9 +16,17 @@ NS=${1:-secrets}; POD=${2:-openbao-0}
 S=$HOME/.lab-secrets/v2/openbao
 [ -s "$S/init.json" ] || { echo "no $S/init.json: without the original unseal key a snapshot cannot be opened"; exit 1; }
 ex() { kubectl -n "$NS" exec -i "$POD" -- "$@"; }
-st() { ex bao status -format=json 2>/dev/null || true; }
-kubectl -n "$NS" wait --for=jsonpath='{.status.phase}'=Running "pod/$POD" --timeout=300s >/dev/null
-if [ "$(st | jq -r .initialized)" = true ]; then
+# incident E11-1: a status only counts when OpenBao answered (bao status: 0 unsealed, 2 sealed); a
+# pod's phase may still say Running from before a restart while its container does not exist
+st() {
+  local out rc
+  out=$(ex bao status -format=json 2>/dev/null) && rc=0 || rc=$?
+  { [ "$rc" -eq 0 ] || [ "$rc" -eq 2 ]; } && jq -e 'has("initialized")' >/dev/null 2>&1 <<<"$out" && printf '%s' "$out"
+}
+s=""
+for i in $(seq 1 60); do s=$(st || true); [ -n "$s" ] && break; sleep 5; done
+[ -n "$s" ] || { echo "$NS/$POD does not answer after 300 s - nothing done"; exit 1; }
+if [ "$(jq -r .initialized <<<"$s")" != false ]; then
   echo "$NS/$POD is initialised already - refusing to overwrite its data"; exit 1
 fi
 (umask 077; ex bao operator init -key-shares=1 -key-threshold=1 -format=json > "$S/init-throwaway.json")
