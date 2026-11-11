@@ -2,6 +2,21 @@
 
 <div class="lead">第二册的所有实验都运行在同一台笔记本上。要让这些实验有意义，第一步不是安装更多软件，而是先回答三个问题：这台机器到底有多少资源；“节点”和“可用区”在这里指什么；哪些数字是内核真正执行的限制，哪些只是调度器的记账。本章建立一个 1 个控制面、3 个工作节点的集群 `ent`，把每个工作节点做成一台“4 核 3 GiB 的小虚拟机”，并逐层测量它的资源占用。测量中有两个发现会贯穿全书：kubelet 看不到节点容器的真实大小；Kind 默认根本不做内存驱逐。</div>
 
+::: opener
+::: q
+**工程问题**
+
+一台 16 线程、虚拟机只分得 15.3 GiB 内存的笔记本，怎样当作“三个可用区、每个节点 4 核 3 GiB”的集群来做实验——并且让调度器、kubelet 和内核对“这个节点有多大”的看法一致？
+:::
+::: k
+**实测结论**
+
+- Kind 的节点是容器：不加修正时，kubelet 认为每个节点拥有整台虚拟机的 15642 MiB 内存，而且 Kind 默认关闭了内存驱逐。
+- 修正之后三条线对齐：调度器按 2666 MiB 放 Pod，kubelet 在 2922 MiB 开始驱逐，内核在 3072 MiB 才动用 OOM killer。
+- 集群创建用了 43 秒，脚本可以重复执行；CPU 用 cpuset 固定，而不是用配额限制，避免了周期性的限流。
+:::
+:::
+
 ## 本章目标与产出
 
 | 产出 | 位置（相对于 `v2/`） |
@@ -27,7 +42,7 @@
 
 第一册已经用过 Kind（第 2 章）：每个 Kubernetes 节点是一个 Docker 容器，容器里运行 systemd、containerd 和 kubelet，Pod 是这个容器里的又一层容器。第二册仍然这样做，但要把它当作一台台“机器”来对待，所以必须先看清楚这几层是怎样嵌套的：
 
-```mermaid
+```{.mermaid caption="本章的实验环境是四层嵌套：Windows、WSL2 虚拟机、作为“节点”的 Docker 容器、Pod。每一层的上限都约束它里面的所有进程；三个工作节点各自固定在 4 个 CPU 上，内存由内核限制在 3 GiB。"}
 flowchart TB
   subgraph WIN["Windows 11（31.3 GiB 内存，8 核 16 线程）"]
     subgraph VM["WSL2 虚拟机 devops-lab（15.28 GiB，16 个 vCPU）"]
@@ -63,6 +78,15 @@ flowchart TB
 
 问题在于，kubelet 并不知道自己被关在一个 3 GiB 的容器里。它通过 cAdvisor 读取 `/proc/meminfo` 和 `/proc/cpuinfo` 来确定节点的容量（capacity），而这两个文件在容器中**没有被隔离**，显示的是整个虚拟机的数值。于是每个工作节点都会声称自己有 16 个 CPU、15.28 GiB 内存，三个节点加起来就是 48 个 CPU、46 GiB 内存，而真实的机器只有三分之一。调度器只相信 kubelet 上报的数字，它会把 Pod 放到一个早已满了的节点上。
 
+```{.mermaid caption="问题的根源：kubelet 的“容量”来自整台虚拟机的 /proc/meminfo，真正执行的上限却在节点容器的 cgroup 上。不修正的话，调度器以为每个节点有 15 GiB，驱逐阈值永远不会触发，最先出手的只能是内核的 OOM killer。"}
+flowchart LR
+  M["/proc/meminfo<br/>MemTotal 15642 MiB<br/>整台虚拟机"]:::ghost --> CA["cAdvisor"] --> K["kubelet<br/>capacity = 15642 MiB"]
+  K --> AL["allocatable =<br/>capacity − 预留 − 驱逐阈值"]
+  AL --> S["调度器<br/>按 allocatable 放 Pod"]
+  CG["节点容器的 cgroup<br/>memory.max = 3072 MiB"]:::bad -. "kubelet 不读它" .-> K
+  CG --> OOM["内核 OOM killer<br/>在 3072 MiB 执行"]:::bad
+```
+
 kubelet 对外公布的是**可分配资源（allocatable）**，计算公式是：
 
 $$\text{allocatable} = \text{capacity} - \text{kube-reserved} - \text{system-reserved} - \text{驱逐阈值（eviction-hard）}$$
@@ -85,6 +109,8 @@ $$\text{memory.available} = \text{capacity} - \text{workingSet}$$
 $$\text{memory.available} < 15642 - 2922 = 12720\ \text{MiB}$$
 
   此时 allocatable 为 $15642 - 256 - 12720 = 2666$ MiB。
+
+![一个工作节点的三条内存线（MiB）。把预留和驱逐阈值设成“从虚拟机的 15642 MiB 倒推”的值之后，三个角色的判断依次发生：调度器不会把 requests 放过 2666 MiB；实际用量到 2922 MiB 时 kubelet 按顺序驱逐 Pod；只有驱逐来不及时，内核才在 3072 MiB 杀进程。](../figures/e0-memory-lines.svg)
 
 这样，三种“资源真相”第一次对齐了：内核在 3072 MiB 执行硬限制；kubelet 在 2922 MiB 开始有序驱逐；调度器最多把 2666 MiB 的 requests 放到这个节点上，剩下的 256 MiB 留给节点组件。`create.sh` 在执行时读取 `nproc` 和 `/proc/meminfo` 计算这些值，所以换一台机器也成立。
 
@@ -261,6 +287,7 @@ $ head -1 /proc/meminfo                  → MemTotal: 16017492 kB
 
 ## 局限：这个集群不是什么 {#e0-limits}
 
+::: prod
 | 方面 | 本环境 | 真实生产 |
 |---|---|---|
 | 节点 | Docker 容器，共享一个内核 | 独立的虚拟机或物理机，内核故障互不影响 |
@@ -269,6 +296,7 @@ $ head -1 /proc/meminfo                  → MemTotal: 16017492 kB
 | 磁盘 | 所有节点共用一块 NVMe，磁盘驱逐已关闭 | 每个节点有自己的磁盘与 IOPS 上限 |
 | 负载均衡 | 主机上的一个 envoy 容器 | 高可用的托管服务，有自己的扩缩容与配额 |
 | 噪声 | Windows、GitLab、Docker 与实验共享机器 | 专用的节点池，但会有邻居租户 |
+:::
 
 这些差异不会让本书的实验失去意义，但决定了结论的边界：调度、驱逐、控制器的行为是真实的 Kubernetes 行为；吞吐量、延迟这类绝对数字只属于这台机器。
 

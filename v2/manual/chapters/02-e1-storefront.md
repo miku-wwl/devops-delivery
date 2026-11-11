@@ -2,6 +2,22 @@
 
 <div class="lead">第一册只有一个服务。真实的系统由许多服务组成，它们通过网络同步调用，通过消息异步协作，各自拥有数据。本章搭建第二册的被测系统 storefront：六个服务、一个三实例 PostgreSQL 集群、一个 Valkey、一个三节点 NATS JetStream 集群，外加 Prometheus、Tempo、Loki 组成的可观测性平台，全部由 Argo CD 从 Git 部署。系统刻意做得“小而完整”：一笔订单要经过价格查询、库存预留、支付、确认和异步通知，涉及分布式系统中最常见的几个难题——部分失败、重复请求、双写、跨服务追踪。第一次部署就暴露了八个问题，本章把它们连同证据一起记录下来，这比一次顺利的部署更有教学价值。</div>
 
+::: opener
+::: q
+**工程问题**
+
+把一个服务拆成六个之后，一笔订单要跨三个数据库、一个缓存和一个消息队列。怎样让它在部分失败时不丢、不重、可追踪——并且整个平台能从 Git 重建？
+:::
+::: k
+**实测结论**
+
+- 平台从 Git 收敛用了 735 秒，其中等待 PostgreSQL 集群就占了 437 秒：同步波次把“谁依赖谁”变成了看得见的时间线。
+- 一笔订单的链路包含 6 个服务、65 个 span，从网关一直延续到通知服务消费消息——追踪上下文跨过了消息队列。
+- 两个副本并不意味着负载减半：长连接下 orders 的一个副本承担了 91.3% 的请求（第 3 章解决）。
+- 第一次部署暴露了 8 个问题，每一个都留下了证据和修复——它们比顺利的部分更有教学价值。
+:::
+:::
+
 ## 本章目标与产出
 
 | 产出 | 位置（相对于 `v2/`） |
@@ -45,7 +61,7 @@ storefront 两种都用。下单必须知道价格、库存和支付结果，所
 
 下单涉及三个服务的数据：库存（inventory）、支付（payments）、订单（orders）。没有一个事务能同时覆盖它们。**saga** 的做法是把流程拆成一串本地事务，每一步失败时，用**补偿动作**撤销已经完成的步骤。storefront 采用编排式（orchestration）saga，由 orders 服务按顺序指挥：
 
-```mermaid
+```{.mermaid caption="下单的 saga：orders 依次预留库存、扣款、确认订单；任何一步失败，都用补偿撤销已经完成的步骤。没有跨服务的事务，只有“每一步都可以重试、可以撤销”的约定。"}
 sequenceDiagram
   autonumber
   participant C as 顾客（k6）
@@ -102,6 +118,18 @@ COMMIT;   -- 订单和事件要么都在，要么都不在
 
 一个独立的中继（relay）读取 outbox 中未发布的行，发布到 NATS，再把它们标为已发布。中继可能在“发布成功”和“标记完成”之间崩溃，于是同一事件会再发一次：outbox 提供的是**至少一次**投递。重复由两层处理：消息携带 `Nats-Msg-Id`（等于事件 ID），JetStream 在 2 分钟的去重窗口内丢弃相同 ID 的消息；消费方再按事件 ID 去重。多个 orders 副本都运行中继，`SELECT ... FOR UPDATE SKIP LOCKED` 让它们各取不同的行，不会同时处理同一行。
 
+```{.mermaid caption="事务性 outbox 的三段：订单与事件在同一个事务里提交；中继把事件发布到 NATS，重复发布由消息 ID 去重；消费者自己再去重一次。任何一处崩溃，重来一遍都不会丢、也不会重。"}
+flowchart LR
+  subgraph TX["orders：一个数据库事务"]
+    U["UPDATE orders<br/>status = CONFIRMED"] --- I["INSERT INTO outbox<br/>事件 + trace 上下文"]
+  end
+  TX -->|"COMMIT：要么都在，要么都不在"| OB[("outbox 表")]:::store
+  OB -->|"中继每 200 ms 读取<br/>FOR UPDATE SKIP LOCKED"| R["中继 relay"]
+  R -->|"发布，Nats-Msg-Id = 事件 ID"| N[["NATS JetStream<br/>2 分钟去重窗口"]]:::store
+  R -. "发布成功后标记已发布<br/>（崩溃在两步之间：重发，被去重）" .-> OB
+  N --> C["notifier<br/>按事件 ID 再去重"]
+```
+
 ### 韧性原语：每一个回答一个问题
 
 服务 A 调用服务 B 时，B 可能慢、可能错、可能不在。共享库 `storefront.common` 为每次调用依次检查：
@@ -135,7 +163,7 @@ HTTP 调用的链路由 OpenTelemetry 自动传递：客户端在请求头中写
 
 ### 服务与数据
 
-```mermaid
+```{.mermaid caption="storefront 的服务与数据：同步调用（实线）在请求路径上，订单确认后的通知经事务性 outbox 与 NATS 异步送达（虚线）。每个服务只访问自己的数据。"}
 flowchart TB
   K["k6（主机）"] -->|HTTP| LB["LoadBalancer<br/>（envoy，集群外）"]
   LB --> GW[gateway]
@@ -179,6 +207,18 @@ Pod 的安全上下文全部加固：非 root（UID 10001）、只读根文件�
 ### 平台从 Git 引导
 
 第一册的配置仓库只放了一个服务的部署配置。第二册把整个平台都放进 Git（`gitops/`，发布到本地 GitLab 的 `root/platform-gitops`）：
+
+```{.mermaid caption="平台从 Git 引导（app-of-apps）：手工只做两件事——安装 Argo CD、应用根应用。根应用指向一个目录，目录里的每个文件是一个应用；同步波次决定先后，ApplicationSet 为每个服务生成一个应用。"}
+flowchart LR
+  B["bootstrap.sh<br/>安装 Argo CD<br/>应用 root.yaml"]:::dark --> ROOT["根应用<br/>platform-root"]
+  G[("GitLab<br/>platform-gitops")]:::store --> ROOT
+  ROOT --> W3["波次 −3<br/>监控栈"]
+  ROOT --> W2["波次 −2<br/>数据库运营商"]
+  ROOT --> W1["波次 −1<br/>Tempo · Loki · NATS · Valkey"]
+  ROOT --> W0["波次 0<br/>PostgreSQL 集群"]
+  ROOT --> AS["波次 1<br/>ApplicationSet"]
+  AS --> SV["6 个服务应用<br/>每个服务一个值文件"]
+```
 
 ```text
 gitops/
@@ -280,6 +320,8 @@ if p.status_code != 201:          # 409：同一个键的另一次尝试还在�
 | t+261 s | 波次 0：PostgreSQL 集群 pg-main |
 | t+698 s | pg-main 就绪；波次 1：ApplicationSet 生成 6 个服务应用 |
 | t+735 s | 15 个应用全部 Synced + Healthy |
+
+![第一次从 Git 收敛的时间线。每一条是一个同步波次从开始到下一波次开始的时间：整个 735 秒里，437 秒在等 PostgreSQL 集群就绪（第一个实例初始化，两个副本依次加入），而 6 个服务自己只用了 37 秒。](../figures/e1-convergence.svg)
 
 整个平台从 Git 到可用用了 735 秒，其中 PostgreSQL 集群就占了 437 秒（t+261 到 t+698）。第一个副本的初始化日志停在一行：`pg_basebackup: initiating base backup, waiting for checkpoint to complete`。主库自己的检查点日志给出了完整的答案（`evidence/e1/pg-checkpoints.log`）：
 
@@ -393,6 +435,17 @@ kube-proxy 的负载均衡发生在 TCP 连接建立的时候（第一册第 5 �
 - payments 是 `[模拟]` 的外部服务，延迟是按对数正态分布（中位数 40 ms、p99 250 ms）人为生成的，用来代表第三方的不可控延迟。
 - saga 没有实现对账；支付结果未知时，系统会把订单标为失败，这在第 7 章被有意利用。
 - 服务数量（6 个）远少于真实企业系统，但通信模式（同步扇出、异步事件、共享缓存、共享数据库集群）具有代表性。
+
+### 从实验环境到生产环境
+
+::: prod
+| 本章的做法 | 生产环境通常的做法 | 差别意味着什么 |
+|---|---|---|
+| 六个服务共用一个镜像和一套公共库 | 每个服务独立的代码库、镜像与发布节奏 | 这里一次构建更新全部服务；真实团队要面对版本并存与接口契约的兼容 |
+| payments 是自己写的模拟器，延迟人为生成 | 外部支付网关：限流、回调、对账文件 | “结果不明”在真实网关上更常见，对账是必需的流程，而不是可选的补充 |
+| 一个 PostgreSQL 集群上每服务一个库；Valkey 单实例三种用途 | 按数据的重要性分开实例，缓存与“记录”不共用 | 淘汰策略、故障域和备份要求不同的数据放在一起，迟早互相拖累 |
+| 中继每 200 ms 轮询 outbox | 变更数据捕获（读取 WAL）或 LISTEN/NOTIFY | 轮询简单、延迟固定；变更数据捕获延迟更低，但多一个要运维的系统 |
+:::
 
 ## 常见问题
 

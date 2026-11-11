@@ -1,68 +1,68 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 330" width="720" height="330" font-family="'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320" width="640" height="320" font-family="'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif">
 <rect width="100%" height="100%" fill="#ffffff"/>
 <text x="18.0" y="19.0" font-size="13" fill="#1b2430" text-anchor="start" font-weight="600">一万个虚拟 Pod 进入 Running：默认限速与放开限速</text>
-<line x1="62.0" y1="284.0" x2="696.0" y2="284.0" stroke="#e6ebf0" stroke-width="1.0"/>
-<text x="55.0" y="287.5" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">0</text>
-<line x1="62.0" y1="241.0" x2="696.0" y2="241.0" stroke="#e6ebf0" stroke-width="1.0"/>
-<text x="55.0" y="244.5" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">2000</text>
-<line x1="62.0" y1="198.1" x2="696.0" y2="198.1" stroke="#e6ebf0" stroke-width="1.0"/>
-<text x="55.0" y="201.6" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">4000</text>
-<line x1="62.0" y1="155.1" x2="696.0" y2="155.1" stroke="#e6ebf0" stroke-width="1.0"/>
-<text x="55.0" y="158.6" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">6000</text>
-<line x1="62.0" y1="112.1" x2="696.0" y2="112.1" stroke="#e6ebf0" stroke-width="1.0"/>
-<text x="55.0" y="115.6" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">8000</text>
-<line x1="62.0" y1="69.2" x2="696.0" y2="69.2" stroke="#e6ebf0" stroke-width="1.0"/>
-<text x="55.0" y="72.7" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">10 000</text>
-<line x1="62.0" y1="284.0" x2="696.0" y2="284.0" stroke="#9aa5b1" stroke-width="1.0"/>
-<text x="379.0" y="318.0" font-size="10.5" fill="#5b6776" text-anchor="middle" font-weight="normal">创建开始后的秒数</text>
-<text x="14.0" y="168.0" font-size="10.5" fill="#5b6776" text-anchor="middle" font-weight="normal" transform="rotate(-90 14.0 168.0)">Running 的 Pod</text>
-<line x1="62.0" y1="284.0" x2="62.0" y2="288.0" stroke="#9aa5b1" stroke-width="1.0"/>
-<text x="62.0" y="300.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">0</text>
-<line x1="141.2" y1="284.0" x2="141.2" y2="288.0" stroke="#9aa5b1" stroke-width="1.0"/>
-<text x="141.2" y="300.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">25</text>
-<line x1="220.5" y1="284.0" x2="220.5" y2="288.0" stroke="#9aa5b1" stroke-width="1.0"/>
-<text x="220.5" y="300.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">50</text>
-<line x1="299.8" y1="284.0" x2="299.8" y2="288.0" stroke="#9aa5b1" stroke-width="1.0"/>
-<text x="299.8" y="300.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">75</text>
-<line x1="379.0" y1="284.0" x2="379.0" y2="288.0" stroke="#9aa5b1" stroke-width="1.0"/>
-<text x="379.0" y="300.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">100</text>
-<line x1="458.2" y1="284.0" x2="458.2" y2="288.0" stroke="#9aa5b1" stroke-width="1.0"/>
-<text x="458.2" y="300.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">125</text>
-<line x1="537.5" y1="284.0" x2="537.5" y2="288.0" stroke="#9aa5b1" stroke-width="1.0"/>
-<text x="537.5" y="300.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">150</text>
-<line x1="616.8" y1="284.0" x2="616.8" y2="288.0" stroke="#9aa5b1" stroke-width="1.0"/>
-<text x="616.8" y="300.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">175</text>
-<line x1="696.0" y1="284.0" x2="696.0" y2="288.0" stroke="#9aa5b1" stroke-width="1.0"/>
-<text x="696.0" y="300.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">200</text>
-<line x1="224.6" y1="52.0" x2="224.6" y2="284.0" stroke="#1f6fb2" stroke-width="1.3" stroke-dasharray="4 3"/>
-<rect x="225.6" y="54.0" width="101.0" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
-<text x="228.6" y="63.0" font-size="10" fill="#1f6fb2" text-anchor="start" font-weight="normal">K1 创建完成 51.3 s</text>
-<polyline points="62.0,284.0 71.8,280.1 88.0,272.1 114.3,257.1 160.0,232.9 234.8,205.4 317.8,178.8 402.1,151.2 491.9,121.1 584.1,92.3 673.8,69.2" fill="none" stroke="#1f6fb2" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
-<circle cx="62.0" cy="284.0" r="3" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
-<circle cx="71.8" cy="280.1" r="3" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
-<circle cx="88.0" cy="272.1" r="3" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
-<circle cx="114.3" cy="257.1" r="3" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
-<circle cx="160.0" cy="232.9" r="3" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
-<circle cx="234.8" cy="205.4" r="3" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
-<circle cx="317.8" cy="178.8" r="3" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
-<circle cx="402.1" cy="151.2" r="3" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
-<circle cx="491.9" cy="121.1" r="3" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
-<circle cx="584.1" cy="92.3" r="3" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
-<circle cx="673.8" cy="69.2" r="3" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
-<polyline points="62.0,284.0 70.2,271.9 83.9,246.3 109.2,205.3 155.2,132.0 216.1,69.2 696.0,69.2" fill="none" stroke="#d9730d" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
-<polyline points="234.8,205.4 636.7,69.2" fill="none" stroke="#8a94a3" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 4"/>
-<line x1="442.4" y1="138.5" x2="458.4" y2="176.5" stroke="#1f6fb2" stroke-width="0.9"/>
-<circle cx="442.4" cy="138.5" r="2.6" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
-<rect x="459.4" y="171.5" width="165.5" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
-<text x="462.4" y="180.5" font-size="10" fill="#1f6fb2" text-anchor="start" font-weight="normal">直线：每秒 50.3 个 = 客户端限速</text>
-<line x1="216.1" y1="69.2" x2="238.1" y2="99.2" stroke="#d9730d" stroke-width="0.9"/>
-<circle cx="216.1" cy="69.2" r="2.6" fill="#d9730d" stroke="#fff" stroke-width="1.2"/>
-<rect x="239.1" y="94.2" width="233.5" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
-<text x="242.1" y="103.2" font-size="10" fill="#d9730d" text-anchor="start" font-weight="normal">K2 全部 Running 48.6 s（29.4 s 已全部调度）</text>
-<line x1="673.8" y1="69.2" x2="643.8" y2="103.2" stroke="#1f6fb2" stroke-width="0.9"/>
-<circle cx="673.8" cy="69.2" r="2.6" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
-<rect x="581.8" y="98.2" width="61.0" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
-<text x="639.8" y="107.2" font-size="10" fill="#1f6fb2" text-anchor="end" font-weight="normal">K1 193.0 s</text>
+<line x1="62.0" y1="274.0" x2="616.0" y2="274.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="277.5" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">0</text>
+<line x1="62.0" y1="232.9" x2="616.0" y2="232.9" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="236.4" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">2000</text>
+<line x1="62.0" y1="191.8" x2="616.0" y2="191.8" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="195.3" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">4000</text>
+<line x1="62.0" y1="150.7" x2="616.0" y2="150.7" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="154.2" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">6000</text>
+<line x1="62.0" y1="109.6" x2="616.0" y2="109.6" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="113.1" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">8000</text>
+<line x1="62.0" y1="68.4" x2="616.0" y2="68.4" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="71.9" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">10 000</text>
+<line x1="62.0" y1="274.0" x2="616.0" y2="274.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="339.0" y="308.0" font-size="10.5" fill="#5b6776" text-anchor="middle" font-weight="normal">创建开始后的秒数</text>
+<text x="14.0" y="163.0" font-size="10.5" fill="#5b6776" text-anchor="middle" font-weight="normal" transform="rotate(-90 14.0 163.0)">Running 的 Pod</text>
+<line x1="62.0" y1="274.0" x2="62.0" y2="278.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="62.0" y="290.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">0</text>
+<line x1="131.2" y1="274.0" x2="131.2" y2="278.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="131.2" y="290.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">25</text>
+<line x1="200.5" y1="274.0" x2="200.5" y2="278.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="200.5" y="290.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">50</text>
+<line x1="269.8" y1="274.0" x2="269.8" y2="278.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="269.8" y="290.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">75</text>
+<line x1="339.0" y1="274.0" x2="339.0" y2="278.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="339.0" y="290.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">100</text>
+<line x1="408.2" y1="274.0" x2="408.2" y2="278.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="408.2" y="290.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">125</text>
+<line x1="477.5" y1="274.0" x2="477.5" y2="278.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="477.5" y="290.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">150</text>
+<line x1="546.8" y1="274.0" x2="546.8" y2="278.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="546.8" y="290.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">175</text>
+<line x1="616.0" y1="274.0" x2="616.0" y2="278.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="616.0" y="290.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">200</text>
+<line x1="204.1" y1="52.0" x2="204.1" y2="274.0" stroke="#1f6fb2" stroke-width="1.3" stroke-dasharray="4 3"/>
+<rect x="205.1" y="54.0" width="101.0" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="208.1" y="63.0" font-size="10" fill="#1f6fb2" text-anchor="start" font-weight="normal">K1 创建完成 51.3 s</text>
+<polyline points="62.0,274.0 70.6,270.2 84.7,262.6 107.7,248.3 147.6,225.1 213.0,198.7 285.5,173.4 359.2,146.9 437.6,118.1 518.2,90.6 596.6,68.4" fill="none" stroke="#1f6fb2" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="62.0" cy="274.0" r="3" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
+<circle cx="70.6" cy="270.2" r="3" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
+<circle cx="84.7" cy="262.6" r="3" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
+<circle cx="107.7" cy="248.3" r="3" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
+<circle cx="147.6" cy="225.1" r="3" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
+<circle cx="213.0" cy="198.7" r="3" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
+<circle cx="285.5" cy="173.4" r="3" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
+<circle cx="359.2" cy="146.9" r="3" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
+<circle cx="437.6" cy="118.1" r="3" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
+<circle cx="518.2" cy="90.6" r="3" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
+<circle cx="596.6" cy="68.4" r="3" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
+<polyline points="62.0,274.0 69.2,262.4 81.1,237.9 103.3,198.7 143.4,128.6 196.6,68.4 616.0,68.4" fill="none" stroke="#d9730d" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="213.0,198.7 564.2,68.4" fill="none" stroke="#8a94a3" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 4"/>
+<line x1="394.4" y1="134.7" x2="410.4" y2="172.7" stroke="#1f6fb2" stroke-width="0.9"/>
+<circle cx="394.4" cy="134.7" r="2.6" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
+<rect x="411.4" y="167.7" width="165.5" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="414.4" y="176.7" font-size="10" fill="#1f6fb2" text-anchor="start" font-weight="normal">直线：每秒 50.3 个 = 客户端限速</text>
+<line x1="196.6" y1="68.4" x2="218.6" y2="98.4" stroke="#d9730d" stroke-width="0.9"/>
+<circle cx="196.6" cy="68.4" r="2.6" fill="#d9730d" stroke="#fff" stroke-width="1.2"/>
+<rect x="219.6" y="93.4" width="233.5" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="222.6" y="102.4" font-size="10" fill="#d9730d" text-anchor="start" font-weight="normal">K2 全部 Running 48.6 s（29.4 s 已全部调度）</text>
+<line x1="596.6" y1="68.4" x2="566.6" y2="102.4" stroke="#1f6fb2" stroke-width="0.9"/>
+<circle cx="596.6" cy="68.4" r="2.6" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
+<rect x="504.6" y="97.4" width="61.0" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="562.6" y="106.4" font-size="10" fill="#1f6fb2" text-anchor="end" font-weight="normal">K1 193.0 s</text>
 <line x1="62.0" y1="36.0" x2="80.0" y2="36.0" stroke="#1f6fb2" stroke-width="2.4"/>
 <text x="85.0" y="40.0" font-size="10.5" fill="#5b6776" text-anchor="start" font-weight="normal">K1 默认限速（调度器每秒 50 次请求）</text>
 <line x1="290.4" y1="36.0" x2="308.4" y2="36.0" stroke="#d9730d" stroke-width="2.4"/>

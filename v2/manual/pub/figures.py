@@ -41,6 +41,118 @@ def rows(rel: str, skip: int = 1) -> list[list[str]]:
     return [l.split() for l in ev(rel).read_text(encoding="utf-8").splitlines()[skip:] if l.strip()]
 
 
+# ---------------------------------------------------------------- chapter 1 (E0)
+@fig("e0-memory-lines", 1, ["evidence/e0/baseline.log"], check=("2666 MiB", "2922 MiB", "3072 MiB", "12720"))
+def _(out):
+    timeline(out, "一个工作节点的三条内存线（MiB）", [
+        ("节点内存", [(0, 2666, C["lblue"], "可分配 allocatable：Pod 的 requests 之和不能超过它"),
+                    (2666, 2922, C["lorange"], ""), (2922, 3072, C["lred"], "")]),
+    ], xlim=(0, 4300), xlabel="节点容器的内存（MiB）", lane_h=44, xticks=[0, 500, 1000, 1500, 2000, 2500, 3000],
+        events=[(2666, "2666 调度器的上限", C["blue"]), (2922, "2922 kubelet 开始驱逐", C["orange"]),
+                (3072, "3072 内核 OOM", C["red"])],
+        legend=[("可分配", C["lblue"]), ("kube-reserved 256", C["lorange"]), ("驱逐到 OOM 之间的 150", C["lred"])])
+
+
+# ---------------------------------------------------------------- chapter 2 (E1)
+@fig("e1-convergence", 2, ["evidence/e1/converge.log"], check=("t+161 s", "t+188 s", "t+261 s", "t+698 s", "t+735 s", "437 秒"))
+def _(out):
+    B = C["blue"]
+    timeline(out, "第一次从 Git 收敛：同步波次的时间线（秒）", [
+        ("波次 −3　监控栈", [(0, 161, B, "161 s")]),
+        ("波次 −2　数据库运营商", [(161, 188, B, "27 s")]),
+        ("波次 −1　Tempo · Loki · NATS · Valkey", [(188, 261, B, "73 s")]),
+        ("波次 0　PostgreSQL 集群", [(261, 698, C["orange"], "437 s：等三个实例依次就绪")]),
+        ("波次 1　六个服务", [(698, 735, C["teal"], "37 s")]),
+    ], xlim=(0, 780), xlabel="根应用开始同步之后的秒数", events=[(735, "735 s：15 个应用全部 Synced + Healthy", C["teal"])])
+
+
+# ---------------------------------------------------------------- chapter 3 (E2)
+@fig("e2-distribution", 3, ["evidence/e2/mode-none.log", "evidence/e2/mode-ambient-l4.log", "evidence/e2/mode-ambient-l7.log"],
+     check=("14.4% / 85.6%", "57.8% / 42.2%", "50.0% / 50.0%", "53.5% / 46.5%", "50.7% / 49.3%", "49.4% / 50.6%",
+            "87.4% / 12.6%", "11.2% / 88.8%", "46.9% / 53.1%", "97.1% / 2.9%", "97.2% / 2.8%", "49.7% / 50.3%",
+            "86.7% / 13.3%", "15.0% / 85.0%", "48.2% / 51.8%"))
+def _(out):
+    bar_chart(out, "较忙的那个副本承担的请求比例（%）：三种模式", ["catalog", "gateway", "orders", "inventory", "payments"], [
+        {"name": "无网格", "color": C["gray"], "vals": [85.6, 53.5, 87.4, 97.1, 86.7]},
+        {"name": "ambient L4（只有 ztunnel）", "color": C["orange"], "vals": [57.8, 50.7, 88.8, 97.2, 85.0]},
+        {"name": "ambient L7（经过 waypoint）", "color": C["teal"], "vals": [50.0, 50.6, 53.1, 50.3, 51.8]},
+    ], ylabel="%", ylim=(0, 112), yticks=[0, 25, 50, 75, 100], hlines=[(50, C["green"], "完全均匀 50%")], h=310)
+
+
+@fig("e2-ab", 3, ["evidence/e2/mode-none.log", "evidence/e2/mode-ambient-l4.log", "evidence/e2/ab-mesh.log"],
+     check=("| 浏览 p50 / p95 | 10.8 / 19.2 ms | 14.8 / 27.7 ms |", "| 下单 p50 / p95 | 106.0 / 225.0 ms | 138.4 / 253.4 ms |",
+            "| 1 | 无网格 | 12.8 | 23.0 | 122.4 | 249.5 |", "| 1 | ambient | 15.5 | 29.6 | 139.2 | 254.9 |",
+            "| 2 | 无网格 | 13.0 | 22.5 | 126.2 | 234.6 |", "| 2 | ambient | 15.4 | 29.9 | 131.6 | 258.4 |",
+            "| 3 | 无网格 | 12.4 | 22.6 | 124.0 | 230.1 |", "| 3 | ambient | 14.5 | 24.6 | 123.4 | 226.5 |"))
+def _(out):
+    none = [(10.8, 106.0), (12.8, 122.4), (13.0, 126.2), (12.4, 124.0)]
+    amb = [(14.8, 138.4), (15.5, 139.2), (15.4, 131.6), (14.5, 123.4)]
+    sign = lambda v: f"{v:+.1f}"
+    bar_chart(out, "ambient 相对无网格的 p50 差值（ms）：一次对比与三轮交替", ["第一次：各跑一次\n相隔 15 分钟", "交替 第 1 轮", "交替 第 2 轮", "交替 第 3 轮"], [
+        {"name": "浏览 p50 的差", "color": C["blue"], "vals": [round(a[0] - n[0], 1) for n, a in zip(none, amb)]},
+        {"name": "下单 p50 的差", "color": C["orange"], "vals": [round(a[1] - n[1], 1) for n, a in zip(none, amb)]},
+    ], ylabel="ms", ylim=(-6, 38), yticks=[0, 10, 20, 30], vfmt=sign, h=310)
+
+
+# ---------------------------------------------------------------- chapter 4 (E3)
+@fig("model-mm1", 4, [], kind="model")
+def _(out):
+    pts = [(u / 100, 1 / (1 - u / 100)) for u in range(0, 97)]
+    line_chart(out, "排队模型：响应时间 R = S / (1 − U)", [{"name": "", "color": C["purple"], "pts": pts}],
+               xlabel="利用率 U", ylabel="响应时间（服务时间 S 的倍数）", xlim=(0, 1), ylim=(0, 26), h=290,
+               xticks=[0, 0.25, 0.5, 0.75, 0.9, 1.0], xfmt=lambda v: f"{v * 100:.0f}%", yfmt=lambda v: f"{v:.0f}×",
+               notes=[(0.5, 2, "50%：2 倍", -20, -30, C["purple"]), (0.8, 5, "80%：5 倍", -40, -30, C["purple"]),
+                      (0.9, 10, "90%：10 倍", -52, -24, C["purple"]), (0.95, 20, "95%：20 倍", -60, -12, C["purple"])])
+
+
+@fig("e3-cpu-prediction", 4, ["evidence/e3/capacity-prediction.md", "evidence/e3/step-ramp-high.log"],
+     check=("0.289 / 0.33 核", "0.366 / 0.44 核", "0.480 / 0.55 核", "0.607 / 0.66 核", "0.583 / 0.77 核", "0.801 / 0.89 核",
+            "0.938 / 0.95 核", "0.533 核（熔断）", "172 迭代/秒"))
+def _(out):
+    x = [60, 80, 100, 120, 140, 160, 180]
+    line_chart(out, "最忙的网关 Pod 的 CPU：实验前的预测与实测", [
+        {"name": "预测（实验前提交）", "color": C["gray"], "pts": list(zip(x, [0.33, 0.44, 0.55, 0.66, 0.77, 0.89, 0.95])), "dash": "6 4"},
+        {"name": "实测", "color": C["blue"], "pts": list(zip(x + [200], [0.289, 0.366, 0.480, 0.607, 0.583, 0.801, 0.938, 0.533])), "marker": True},
+    ], xlabel="负载（迭代/秒）", ylabel="CPU（核）", xlim=(50, 210), ylim=(0, 1.12), yticks=[0, 0.25, 0.5, 0.75, 1.0], h=310,
+        xticks=[60, 80, 100, 120, 140, 160, 180, 200], hlines=[(1.0, C["red"], "单线程的上限：1 核")],
+        vlines=[(172, C["gray"], "预测的饱和点 172")],
+        notes=[(180, 0.938, "180：0.938 核，开始失败", -70, 46, C["blue"]), (200, 0.533, "200：熔断打开，CPU 反而下降", -110, 38, C["red"])])
+
+
+@fig("e3-latency-knee", 4, ["evidence/e3/step-ramp-high.log"],
+     check=("51.0 ms", "26.2 ms", "29.8 ms", "39.5 ms", "36.1 ms", "81.4 ms", "1.18 s", "1.66 s", "13.6%", "33.2%"))
+def _(out):
+    x = [60, 80, 100, 120, 140, 160, 180, 200]
+    line_chart(out, "同一次阶梯负载的浏览 p95：拐点", [
+        {"name": "浏览 p95（ms）", "color": C["orange"], "pts": list(zip(x, [51.0, 26.2, 29.8, 39.5, 36.1, 81.4, 1180, 1660])), "marker": True},
+    ], xlabel="负载（迭代/秒）", ylabel="ms", xlim=(50, 210), ylim=(0, 1900), h=280, xticks=x,
+        vlines=[(172, C["gray"], "预测的饱和点 172")],
+        notes=[(160, 81.4, "160 以内：26–81 ms", -60, -40, C["orange"]), (180, 1180, "180：1.18 s，失败率 13.6%", -150, -10, C["orange"]),
+               (200, 1660, "200：1.66 s，失败率 33.2%", -160, 8, C["red"])])
+
+
+@fig("e3-profile", 4, ["evidence/e3/profile-gil-60-summary.log"], check=("32.2%", "19.1%", "16.7%", "13.7%", "3.7%", "3.4%"))
+def _(out):
+    hbar_chart(out, "网关持有 GIL 的 CPU 时间花在哪里（%）", [
+        ("HTTP 客户端（httpx、httpcore、h11）", 32.2, C["blue"], "32.2%"),
+        ("Web 框架（FastAPI、Starlette、Pydantic）", 19.1, C["blue"], "19.1%"),
+        ("OpenTelemetry 插桩 + SDK", 16.7, C["blue"], "16.7%"),
+        ("HTTP 服务器（uvicorn）+ 事件循环", 13.7, C["blue"], "13.7%"),
+        ("我们自己的代码", 3.7, C["red"], "3.7%"),
+        ("失败的 import（后来修复）", 3.4, C["orange"], "3.4%"),
+    ], xlabel="占采样的比例（%）", xlim=(0, 36))
+
+
+@fig("e3-caller-queue", 4, ["evidence/e3/one-replica-2-analysis.log"],
+     check=("| 80 | 0.62 核 | 10.6 ms | 2.2 ms |", "| 100 | 0.76 核 | 13.2 ms | 2.3 ms |", "| 110 | 0.96 核 | 635 ms | 3.3 ms |",
+            "| 120 | 0.96 核 | 630 ms | 2.8 ms |"))
+def _(out):
+    bar_chart(out, "同一次 catalog 调用的两种耗时（ms）：调用方看到的与被调用方自己的", ["80 迭代/秒\n网关 0.62 核", "100\n0.76 核", "110\n0.96 核", "120\n0.96 核"], [
+        {"name": "网关看到的调用耗时", "color": C["orange"], "vals": [10.6, 13.2, 635, 630]},
+        {"name": "catalog 自己的处理时间", "color": C["teal"], "vals": [2.2, 2.3, 3.3, 2.8]},
+    ], ylabel="ms", ylim=(0, 720), h=300)
+
+
 # ---------------------------------------------------------------- chapter 11 (E10)
 @fig("e10-scheduling", 11, ["evidence/e10/k1/timeline.txt", "evidence/e10/k2/timeline.txt"], kind="parsed",
      check=("51.3 秒", "193.0 秒", "29.4 秒", "48.6 秒", "每秒 50.3 个"))
@@ -78,12 +190,12 @@ def _(out):
         {"name": "第 6a 次运行：上限 1536 MiB", "color": C["blue"], "pts": r6},
         {"name": "第 7 次运行：上限 2560 MiB", "color": C["red"], "pts": r7},
     ], xlabel="秒（洪水在第 10 秒左右开始）", ylabel="MiB", xlim=(0, 75), ylim=(0, 2800), h=350,
-        hlines=[(1536, C["blue"], "上限 1536 MiB"), (2560, C["red"], "上限 2560 MiB")],
+        hlines=[(1536, C["blue"], "上限 1536"), (2560, C["red"], "上限 2560")],
         bands=[(10, 75, "#fdf3e7", "")],
-        notes=[(13.8, 1487, "4 秒内 938 → 1487，被杀", 44, -30, C["blue"]),
-               (24, 2437, "3 个并发 LIST：停在 2437 MiB", 22, 44, C["red"]),
-               (29.5, 2552, "2552 MiB：被杀 1 次", 60, 40, C["red"]),
-               (60, 2004, "重启后同样的洪水下 1.6–2.0 GiB", -30, 66, C["red"])])
+        notes=[(13.8, 1487, "4 秒内 938 → 1487，被杀", -8, 150, C["blue"]),
+               (22, 2437, "3 个并发 LIST：2437 MiB", -30, -34, C["red"]),
+               (29.5, 2552, "2552：被杀 1 次", 26, -18, C["red"]),
+               (61.7, 2004, "重启后 1.6–2.0 GiB", -6, 120, C["red"])])
 
 
 @fig("e10-k5-runs", 11, ["evidence/e10/scale-results.md"],

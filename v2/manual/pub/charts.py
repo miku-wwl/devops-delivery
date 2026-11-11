@@ -119,7 +119,7 @@ def line_chart(path, title, series, xlabel="", ylabel="", xlim=None, ylim=None, 
                bands=(), notes=(), xticks=None, yticks=None, xfmt=fmt, yfmt=fmt):
     """series: dict(name, color, pts=[(x, y)], dash, step, marker, label)   hlines/vlines: (value, color, text)
     bands: (x_from, x_to, color, text)   notes: (x, y, text, dx, dy[, color])"""
-    ml, mr, mt, mb = 62, 24, 52, 46
+    ml, mr, mt, mb = 62, 24 + max((tw(t, 10) + 6 for _, _, t in hlines), default=0), 52, 46
     pw, ph = w - ml - mr, h - mt - mb
     xs = [x for sr in series for x, _ in sr["pts"]]
     ys = [y for sr in series for _, y in sr["pts"]]
@@ -138,7 +138,7 @@ def line_chart(path, title, series, xlabel="", ylabel="", xlim=None, ylim=None, 
         s.text(X(v), mt + ph + 16, xfmt(v), 10, C["muted"], "middle")
     for v, color, text in hlines:
         s.line(ml, Y(v), ml + pw, Y(v), color, 1.3, "6 4")
-        s.label(ml + pw - 4, Y(v) - 5, text, 10, color, "end")
+        s.text(ml + pw + 6, Y(v) + 3.5, text, 10, color, weight="600")
     for v, color, text in vlines:
         s.line(X(v), mt, X(v), mt + ph, color, 1.3, "4 3")
         s.label(X(v) + 4, mt + 11, text, 10, color)
@@ -166,7 +166,7 @@ def line_chart(path, title, series, xlabel="", ylabel="", xlim=None, ylim=None, 
 def bar_chart(path, title, cats, series, ylabel="", ylim=None, w=640, h=300, vfmt=fmt, hlines=(), yticks=None,
               stacked=False, notes=(), yfmt=fmt, labels=True):
     """Grouped (or stacked) vertical bars. series: dict(name, color, vals)   notes: (cat index, y, text)"""
-    ml, mr, mt, mb = 62, 20, 52, 40
+    ml, mr, mt, mb = 62, 20 + max((tw(t, 10) + 6 for _, _, t in hlines), default=0), 52, 40
     pw, ph = w - ml - mr, h - mt - mb
     tops = [sum(sr["vals"][i] or 0 for sr in series) for i in range(len(cats))] if stacked else \
         [v for sr in series for v in sr["vals"] if v is not None]
@@ -185,17 +185,18 @@ def bar_chart(path, title, cats, series, ylabel="", ylim=None, w=640, h=300, vfm
             if v is None:
                 continue
             x = cx - bw / 2 if stacked else cx - bw * k / 2 + j * bw
-            s.rect(x + 1, Y(base + v if stacked else v), bw - 2, Y(base if stacked else y0) - Y(base + v if stacked else v),
-                   sr["color"], rx=2)
+            zero = base if stacked else max(y0, 0)
+            top, bot = sorted((Y(base + v if stacked else v), Y(zero)))
+            s.rect(x + 1, top, bw - 2, bot - top, sr["color"], rx=2)
             if labels:
-                s.text(x + bw / 2, Y(base + v if stacked else v) - 4, vfmt(v), 9.5, C["ink"], "middle")
+                s.text(x + bw / 2, top - 4 if v >= 0 else bot + 11, vfmt(v), 9.5, C["ink"], "middle")
             if stacked:
                 base += v
         for n, part in enumerate(str(cat).split("\n")):
             s.text(cx, mt + ph + 15 + n * 12, part, 10, C["muted"], "middle")
     for v, color, text in hlines:
         s.line(ml, Y(v), ml + pw, Y(v), color, 1.3, "6 4")
-        s.label(ml + pw - 4, Y(v) - 5, text, 10, color, "end")
+        s.text(ml + pw + 6, Y(v) + 3.5, text, 10, color, weight="600")
     for i, y, text in notes:
         s.label(ml + gw * (i + 0.5), Y(y), text, 10, C["red"], "middle", "600")
     _legend(s, [(sr["name"], sr["color"], "bar") for sr in series if sr.get("name")], ml, 40)

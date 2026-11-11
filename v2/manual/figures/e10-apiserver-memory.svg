@@ -1,56 +1,54 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 350" width="720" height="350" font-family="'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 350" width="640" height="350" font-family="'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif">
 <rect width="100%" height="100%" fill="#ffffff"/>
-<rect x="146.5" y="52.0" width="549.5" height="252.0" fill="#fdf3e7" stroke="none" stroke-width="1" rx="0" opacity="0.5"/>
+<rect x="128.7" y="52.0" width="433.8" height="252.0" fill="#fdf3e7" stroke="none" stroke-width="1" rx="0" opacity="0.5"/>
 <text x="18.0" y="19.0" font-size="13" fill="#1b2430" text-anchor="start" font-weight="600">洪水期间 API server 的匿名内存（每秒采样）：3 个席位，两种内存上限</text>
-<line x1="62.0" y1="304.0" x2="696.0" y2="304.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<line x1="62.0" y1="304.0" x2="562.5" y2="304.0" stroke="#e6ebf0" stroke-width="1.0"/>
 <text x="55.0" y="307.5" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">0</text>
-<line x1="62.0" y1="214.0" x2="696.0" y2="214.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<line x1="62.0" y1="214.0" x2="562.5" y2="214.0" stroke="#e6ebf0" stroke-width="1.0"/>
 <text x="55.0" y="217.5" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">1000</text>
-<line x1="62.0" y1="124.0" x2="696.0" y2="124.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<line x1="62.0" y1="124.0" x2="562.5" y2="124.0" stroke="#e6ebf0" stroke-width="1.0"/>
 <text x="55.0" y="127.5" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">2000</text>
-<line x1="62.0" y1="304.0" x2="696.0" y2="304.0" stroke="#9aa5b1" stroke-width="1.0"/>
-<text x="379.0" y="338.0" font-size="10.5" fill="#5b6776" text-anchor="middle" font-weight="normal">秒（洪水在第 10 秒左右开始）</text>
+<line x1="62.0" y1="304.0" x2="562.5" y2="304.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="312.2" y="338.0" font-size="10.5" fill="#5b6776" text-anchor="middle" font-weight="normal">秒（洪水在第 10 秒左右开始）</text>
 <text x="14.0" y="178.0" font-size="10.5" fill="#5b6776" text-anchor="middle" font-weight="normal" transform="rotate(-90 14.0 178.0)">MiB</text>
 <line x1="62.0" y1="304.0" x2="62.0" y2="308.0" stroke="#9aa5b1" stroke-width="1.0"/>
 <text x="62.0" y="320.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">0</text>
-<line x1="146.5" y1="304.0" x2="146.5" y2="308.0" stroke="#9aa5b1" stroke-width="1.0"/>
-<text x="146.5" y="320.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">10</text>
-<line x1="231.1" y1="304.0" x2="231.1" y2="308.0" stroke="#9aa5b1" stroke-width="1.0"/>
-<text x="231.1" y="320.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">20</text>
-<line x1="315.6" y1="304.0" x2="315.6" y2="308.0" stroke="#9aa5b1" stroke-width="1.0"/>
-<text x="315.6" y="320.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">30</text>
-<line x1="400.1" y1="304.0" x2="400.1" y2="308.0" stroke="#9aa5b1" stroke-width="1.0"/>
-<text x="400.1" y="320.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">40</text>
-<line x1="484.7" y1="304.0" x2="484.7" y2="308.0" stroke="#9aa5b1" stroke-width="1.0"/>
-<text x="484.7" y="320.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">50</text>
-<line x1="569.2" y1="304.0" x2="569.2" y2="308.0" stroke="#9aa5b1" stroke-width="1.0"/>
-<text x="569.2" y="320.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">60</text>
-<line x1="653.7" y1="304.0" x2="653.7" y2="308.0" stroke="#9aa5b1" stroke-width="1.0"/>
-<text x="653.7" y="320.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">70</text>
-<line x1="62.0" y1="165.8" x2="696.0" y2="165.8" stroke="#1f6fb2" stroke-width="1.3" stroke-dasharray="6 4"/>
-<rect x="619.5" y="151.8" width="75.5" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
-<text x="692.0" y="160.8" font-size="10" fill="#1f6fb2" text-anchor="end" font-weight="normal">上限 1536 MiB</text>
-<line x1="62.0" y1="73.6" x2="696.0" y2="73.6" stroke="#c0392b" stroke-width="1.3" stroke-dasharray="6 4"/>
-<rect x="619.5" y="59.6" width="75.5" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
-<text x="692.0" y="68.6" font-size="10" fill="#c0392b" text-anchor="end" font-weight="normal">上限 2560 MiB</text>
-<polyline points="62.0,219.6 70.5,219.6 79.8,219.6 88.2,219.6 96.7,219.6 105.1,219.5 113.6,219.5 122.9,219.5 131.3,219.5 133.0,219.5 141.5,219.5 149.9,219.5 159.2,208.1 168.5,195.6 178.7,170.2 188.0,304.0 197.3,303.7 206.6,302.8 215.0,286.6 224.3,279.3 234.4,276.1 243.7,266.4 253.0,258.3 262.3,236.1 271.6,223.2 281.8,197.2 291.1,187.4 301.2,174.1 309.7,173.9 319.0,199.5 328.3,304.0 337.6,303.7 346.0,289.1 356.2,266.9 365.5,254.5 374.8,229.5 384.1,217.0 393.4,190.3 396.8,182.6 406.1,167.4 416.2,304.0 425.5,303.7 434.8,301.5 443.2,263.2 453.4,229.8 461.8,201.8 471.1,169.3 480.4,304.0 489.7,303.7 499.0,297.7 508.3,280.9 517.6,274.0 526.9,272.8 535.4,265.0 544.7,249.6 554.8,218.1 563.3,186.1 572.6,186.1 581.9,180.8 591.2,178.5 601.3,304.0 610.6,303.7 619.1,302.7 628.4,297.7 637.7,289.0 647.0,272.1 656.3,270.5 664.7,268.7 665.6,268.6 674.0,268.5 682.5,268.5 690.9,268.4" fill="none" stroke="#1f6fb2" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
-<polyline points="62.0,212.4 70.5,212.4 79.8,212.4 88.2,212.4 96.7,212.4 105.1,212.4 114.4,212.4 122.9,212.4 131.3,212.4 139.8,212.4 149.1,210.1 158.4,197.1 160.1,163.6 170.2,153.2 179.5,145.6 189.6,140.6 198.9,128.9 208.2,102.6 217.5,87.5 226.8,84.7 236.1,84.7 246.3,84.7 255.6,84.8 264.9,84.7 273.3,84.7 283.5,84.7 292.8,84.7 302.1,84.7 311.4,74.3 321.5,304.0 330.8,304.0 341.0,303.7 349.4,303.3 358.7,291.1 367.2,285.6 376.5,284.0 385.8,282.9 395.9,278.4 405.2,273.2 414.5,262.5 424.6,247.2 427.2,230.5 435.6,218.1 444.9,190.2 454.2,188.0 463.5,187.9 472.8,170.3 482.1,161.4 491.4,161.3 500.7,154.1 509.2,149.6 518.5,149.6 527.8,148.3 537.1,132.8 546.4,127.4 555.7,127.4 565.8,127.0 574.3,124.2 583.6,123.6 592.9,123.4 601.3,147.0 611.5,147.8 619.9,147.0 629.2,133.0 638.5,144.2 647.8,144.2 656.3,151.7 665.6,148.4 674.0,148.6 683.3,161.4" fill="none" stroke="#c0392b" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
-<line x1="178.7" y1="170.2" x2="222.7" y2="140.2" stroke="#1f6fb2" stroke-width="0.9"/>
-<circle cx="178.7" cy="170.2" r="2.6" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
-<rect x="223.7" y="135.2" width="127.5" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
-<text x="226.7" y="144.2" font-size="10" fill="#1f6fb2" text-anchor="start" font-weight="normal">4 秒内 938 → 1487，被杀</text>
-<line x1="264.9" y1="84.7" x2="286.9" y2="128.7" stroke="#c0392b" stroke-width="0.9"/>
-<circle cx="264.9" cy="84.7" r="2.6" fill="#c0392b" stroke="#fff" stroke-width="1.2"/>
-<rect x="287.9" y="123.7" width="154.0" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
-<text x="290.9" y="132.7" font-size="10" fill="#c0392b" text-anchor="start" font-weight="normal">3 个并发 LIST：停在 2437 MiB</text>
-<line x1="311.4" y1="74.3" x2="371.4" y2="114.3" stroke="#c0392b" stroke-width="0.9"/>
-<circle cx="311.4" cy="74.3" r="2.6" fill="#c0392b" stroke="#fff" stroke-width="1.2"/>
-<rect x="372.4" y="109.3" width="106.5" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
-<text x="375.4" y="118.3" font-size="10" fill="#c0392b" text-anchor="start" font-weight="normal">2552 MiB：被杀 1 次</text>
-<line x1="569.2" y1="123.6" x2="539.2" y2="189.6" stroke="#c0392b" stroke-width="0.9"/>
-<circle cx="569.2" cy="123.6" r="2.6" fill="#c0392b" stroke="#fff" stroke-width="1.2"/>
-<rect x="376.2" y="184.6" width="162.0" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
-<text x="535.2" y="193.6" font-size="10" fill="#c0392b" text-anchor="end" font-weight="normal">重启后同样的洪水下 1.6–2.0 GiB</text>
+<line x1="128.7" y1="304.0" x2="128.7" y2="308.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="128.7" y="320.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">10</text>
+<line x1="195.5" y1="304.0" x2="195.5" y2="308.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="195.5" y="320.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">20</text>
+<line x1="262.2" y1="304.0" x2="262.2" y2="308.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="262.2" y="320.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">30</text>
+<line x1="328.9" y1="304.0" x2="328.9" y2="308.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="328.9" y="320.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">40</text>
+<line x1="395.7" y1="304.0" x2="395.7" y2="308.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="395.7" y="320.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">50</text>
+<line x1="462.4" y1="304.0" x2="462.4" y2="308.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="462.4" y="320.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">60</text>
+<line x1="529.1" y1="304.0" x2="529.1" y2="308.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="529.1" y="320.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">70</text>
+<line x1="62.0" y1="165.8" x2="562.5" y2="165.8" stroke="#1f6fb2" stroke-width="1.3" stroke-dasharray="6 4"/>
+<text x="568.5" y="169.3" font-size="10" fill="#1f6fb2" text-anchor="start" font-weight="600">上限 1536</text>
+<line x1="62.0" y1="73.6" x2="562.5" y2="73.6" stroke="#c0392b" stroke-width="1.3" stroke-dasharray="6 4"/>
+<text x="568.5" y="77.1" font-size="10" fill="#c0392b" text-anchor="start" font-weight="600">上限 2560</text>
+<polyline points="62.0,219.6 68.7,219.6 76.0,219.6 82.7,219.6 89.4,219.6 96.0,219.5 102.7,219.5 110.0,219.5 116.7,219.5 118.1,219.5 124.7,219.5 131.4,219.5 138.7,208.1 146.1,195.6 154.1,170.2 161.4,304.0 168.8,303.7 176.1,302.8 182.8,286.6 190.1,279.3 198.1,276.1 205.5,266.4 212.8,258.3 220.2,236.1 227.5,223.2 235.5,197.2 242.8,187.4 250.9,174.1 257.5,173.9 264.9,199.5 272.2,304.0 279.6,303.7 286.2,289.1 294.2,266.9 301.6,254.5 308.9,229.5 316.3,217.0 323.6,190.3 326.3,182.6 333.6,167.4 341.6,304.0 349.0,303.7 356.3,301.5 363.0,263.2 371.0,229.8 377.6,201.8 385.0,169.3 392.3,304.0 399.7,303.7 407.0,297.7 414.4,280.9 421.7,274.0 429.0,272.8 435.7,265.0 443.0,249.6 451.1,218.1 457.7,186.1 465.1,186.1 472.4,180.8 479.8,178.5 487.8,304.0 495.1,303.7 501.8,302.7 509.1,297.7 516.5,289.0 523.8,272.1 531.1,270.5 537.8,268.7 538.5,268.6 545.1,268.5 551.8,268.5 558.5,268.4" fill="none" stroke="#1f6fb2" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="62.0,212.4 68.7,212.4 76.0,212.4 82.7,212.4 89.4,212.4 96.0,212.4 103.4,212.4 110.0,212.4 116.7,212.4 123.4,212.4 130.7,210.1 138.1,197.1 139.4,163.6 147.4,153.2 154.8,145.6 162.8,140.6 170.1,128.9 177.4,102.6 184.8,87.5 192.1,84.7 199.5,84.7 207.5,84.7 214.8,84.8 222.2,84.7 228.8,84.7 236.8,84.7 244.2,84.7 251.5,84.7 258.9,74.3 266.9,304.0 274.2,304.0 282.2,303.7 288.9,303.3 296.2,291.1 302.9,285.6 310.2,284.0 317.6,282.9 325.6,278.4 332.9,273.2 340.3,262.5 348.3,247.2 350.3,230.5 357.0,218.1 364.3,190.2 371.6,188.0 379.0,187.9 386.3,170.3 393.7,161.4 401.0,161.3 408.3,154.1 415.0,149.6 422.4,149.6 429.7,148.3 437.0,132.8 444.4,127.4 451.7,127.4 459.7,127.0 466.4,124.2 473.7,123.6 481.1,123.4 487.8,147.0 495.8,147.8 502.4,147.0 509.8,133.0 517.1,144.2 524.5,144.2 531.1,151.7 538.5,148.4 545.1,148.6 552.5,161.4" fill="none" stroke="#c0392b" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+<line x1="154.1" y1="170.2" x2="146.1" y2="320.2" stroke="#1f6fb2" stroke-width="0.9"/>
+<circle cx="154.1" cy="170.2" r="2.6" fill="#1f6fb2" stroke="#fff" stroke-width="1.2"/>
+<rect x="17.6" y="315.2" width="127.5" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="142.1" y="324.2" font-size="10" fill="#1f6fb2" text-anchor="end" font-weight="normal">4 秒内 938 → 1487，被杀</text>
+<line x1="208.8" y1="84.7" x2="178.8" y2="50.7" stroke="#c0392b" stroke-width="0.9"/>
+<circle cx="208.8" cy="84.7" r="2.6" fill="#c0392b" stroke="#fff" stroke-width="1.2"/>
+<rect x="49.3" y="45.7" width="128.5" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="174.8" y="54.7" font-size="10" fill="#c0392b" text-anchor="end" font-weight="normal">3 个并发 LIST：2437 MiB</text>
+<line x1="258.9" y1="74.3" x2="284.9" y2="56.3" stroke="#c0392b" stroke-width="0.9"/>
+<circle cx="258.9" cy="74.3" r="2.6" fill="#c0392b" stroke="#fff" stroke-width="1.2"/>
+<rect x="285.9" y="51.3" width="84.5" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="288.9" y="60.3" font-size="10" fill="#c0392b" text-anchor="start" font-weight="normal">2552：被杀 1 次</text>
+<line x1="473.7" y1="123.6" x2="467.7" y2="243.6" stroke="#c0392b" stroke-width="0.9"/>
+<circle cx="473.7" cy="123.6" r="2.6" fill="#c0392b" stroke="#fff" stroke-width="1.2"/>
+<rect x="364.7" y="238.6" width="102.0" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="463.7" y="247.6" font-size="10" fill="#c0392b" text-anchor="end" font-weight="normal">重启后 1.6–2.0 GiB</text>
 <line x1="62.0" y1="36.0" x2="80.0" y2="36.0" stroke="#1f6fb2" stroke-width="2.4"/>
 <text x="85.0" y="40.0" font-size="10.5" fill="#5b6776" text-anchor="start" font-weight="normal">第 6a 次运行：上限 1536 MiB</text>
 <line x1="251.6" y1="36.0" x2="269.6" y2="36.0" stroke="#c0392b" stroke-width="2.4"/>
