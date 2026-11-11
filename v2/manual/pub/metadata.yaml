@@ -1,0 +1,21 @@
+title: "企业级生产环境高保真仿真：平台工程与 SRE 实战"
+# Publication Edition of volume 2; built with v2/manual/pub/build_pub.py (template, style and Mermaid theme in v2/manual/pub)
+edition: "Publication Edition"
+cover-title: "企业级生产环境<br/>高保真仿真"
+subtitle: "Platform Engineering · DevOps · SRE 实战教材 —— 每一个结论都有执行记录"
+cover-flow: "工程问题 → 技术原理 → 架构方案 → 实现 → 实验验证 → 结果分析 → 局限与启示"
+cover-stats:
+  - n: "13 章"
+    t: "从平台基线到能力考核，E0–E12 完整的知识体系"
+  - n: "FIGCOUNT 幅图"
+    t: "机制示意图、实测数据图、真实截图与终端记录，分类标注"
+  - n: "CHECKCOUNT 处"
+    t: "正文陈述与原始证据逐条自动比对"
+  - n: "8 起"
+    t: "计划外的真实事故与事件，连同复盘写进正文"
+cover-lines:
+  - "实验仓库：github.com/miku-wwl/devops-delivery（分支 v2/publication，目录 v2/）"
+  - "实验环境：一台笔记本 · Windows 11 + WSL2 + Docker + Kind（Kubernetes v1.37，1 + 3 节点）"
+  - "编写方式：Claude Code 在本机逐阶段实际执行实验，按真实输出、指标与截图编写；实验环境的能力验证不等于真实企业的生产经验"
+  - "第二册 · Publication Edition · 2026-11"
+lang: zh-CN

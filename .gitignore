@@ -35,3 +35,6 @@ ansible/collections/ansible_collections/
 # OpenTofu working directories and plan files (the lock file .terraform.lock.hcl is committed)
 v2/iac/**/.terraform/
 v2/iac/**/*.tfplan
+
+# Publication Edition: derived chapter sources (v2/manual/pub/build_pub.py)
+v2/manual/.pubsrc/

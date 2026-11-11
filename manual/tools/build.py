@@ -66,12 +66,12 @@ def rebase_images(html: Path, chapter_dir: Path) -> int:
     return count
 
 
-def pandoc(chapters: list[Path], html_out: Path, metadata: Path, math: str = "plain") -> None:
+def pandoc(chapters: list[Path], html_out: Path, metadata: Path, math: str = "plain", template: Path | None = None) -> None:
     cmd = [
         "pandoc", *[str(c) for c in chapters],
         "--from", "markdown+east_asian_line_breaks",
         "--to", "html5", "--standalone",
-        "--template", str(MANUAL / "assets" / "template.html"),
+        "--template", str(template or MANUAL / "assets" / "template.html"),
         "--metadata-file", str(metadata),
         "--toc", "--toc-depth=3", "--number-sections",
         "--syntax-highlighting=tango",
@@ -110,6 +110,9 @@ def main() -> int:
                     help="pandoc metadata (title, cover); its title is also the footer and the PDF title")
     ap.add_argument("--math", choices=["plain", "mathml"], default="plain",
                     help="TeX math: pandoc's plain-text rendering (volume 1, no formulas) or MathML")
+    ap.add_argument("--template", default=None, help="pandoc HTML template (default: manual/assets/template.html)")
+    ap.add_argument("--subject", default=None, help="PDF subject (default: volume 1's)")
+    ap.add_argument("--keywords", default=None, help="PDF keywords (default: volume 1's)")
     ap.add_argument("--html-only", action="store_true")
     ap.add_argument("--allow-warnings", action="store_true",
                     help="exit 0 even if TOC page numbers may be wrong (headings missing from the outline, "
@@ -125,7 +128,7 @@ def main() -> int:
     t0 = time.time()
     metadata = Path(args.metadata).resolve()
     title = meta_title(metadata)
-    pandoc(chapters, html, metadata, args.math)
+    pandoc(chapters, html, metadata, args.math, Path(args.template).resolve() if args.template else None)
     rebased = rebase_images(html, chapters[0].parent)
     print(f"pandoc: {len(chapters)} chapter file(s) -> {html.relative_to(ROOT)}"
           + (f" ({rebased} image path(s) rebased from {chapters[0].parent.relative_to(ROOT)})" if rebased else ""))
@@ -201,8 +204,8 @@ def main() -> int:
     writer.add_metadata({
         "/Title": title,
         "/Author": "Weilai Wang (miku-wwl) · written with Claude Code",
-        "/Subject": "CI/CD, GitOps, DevSecOps, progressive delivery and observability - hands-on manual",
-        "/Keywords": "GitHub Actions, GitLab CI, Helm, Argo CD, Argo Rollouts, Trivy, Cosign, OpenTelemetry, Prometheus, Grafana",
+        "/Subject": args.subject or "CI/CD, GitOps, DevSecOps, progressive delivery and observability - hands-on manual",
+        "/Keywords": args.keywords or "GitHub Actions, GitLab CI, Helm, Argo CD, Argo Rollouts, Trivy, Cosign, OpenTelemetry, Prometheus, Grafana",
     })
     with open(out, "wb") as fh:
         writer.write(fh)

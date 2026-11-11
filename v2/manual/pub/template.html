@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>$title$</title>
+<style>
+$highlighting-css$
+</style>
+<link rel="stylesheet" href="../assets/manual.css">
+<link rel="stylesheet" href="../../v2/manual/pub/pub.css">
+</head>
+<body class="pub">
+<section class="cover">
+  <div class="cover-band"></div>
+  <div class="cover-edition">$edition$</div>
+  <div class="cover-kicker">$subtitle$</div>
+  <div class="cover-title">$cover-title$</div>
+  <div class="cover-flow">$cover-flow$</div>
+  <div class="cover-grid">
+$for(cover-stats)$
+    <div><b>$cover-stats.n$</b><span>$cover-stats.t$</span></div>
+$endfor$
+  </div>
+  <div class="cover-meta">
+$for(cover-lines)$
+    <div>$cover-lines$</div>
+$endfor$
+  </div>
+</section>
+<nav id="TOC" class="toc">
+  <div class="toc-title">目录</div>
+$table-of-contents$
+</nav>
+<main>
+$body$
+</main>
+<script src="../node_modules/mermaid/dist/mermaid.min.js"></script>
+<script src="../../v2/manual/pub/render.js"></script>
+</body>
+</html>
