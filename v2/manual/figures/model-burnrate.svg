@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 310" width="640" height="310" font-family="'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="18.0" y="19.0" font-size="13" fill="#1b2430" text-anchor="start" font-weight="600">下单的 SLO 为 99% 时：错误比例与呼叫之前要等的时间</text>
+<line x1="62.0" y1="264.0" x2="616.0" y2="264.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="267.5" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">0</text>
+<line x1="62.0" y1="208.2" x2="616.0" y2="208.2" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="211.7" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">100</text>
+<line x1="62.0" y1="152.4" x2="616.0" y2="152.4" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="155.9" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">200</text>
+<line x1="62.0" y1="96.6" x2="616.0" y2="96.6" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="100.1" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">300</text>
+<line x1="62.0" y1="264.0" x2="616.0" y2="264.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="339.0" y="298.0" font-size="10.5" fill="#5b6776" text-anchor="middle" font-weight="normal">失败的请求占比</text>
+<text x="14.0" y="158.0" font-size="10.5" fill="#5b6776" text-anchor="middle" font-weight="normal" transform="rotate(-90 14.0 158.0)">分钟</text>
+<line x1="95.2" y1="264.0" x2="95.2" y2="268.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="95.2" y="280.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">6%</text>
+<line x1="141.8" y1="264.0" x2="141.8" y2="268.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="141.8" y="280.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">14.4%</text>
+<line x1="200.5" y1="264.0" x2="200.5" y2="268.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="200.5" y="280.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">25%</text>
+<line x1="339.0" y1="264.0" x2="339.0" y2="268.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="339.0" y="280.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">50%</text>
+<line x1="477.5" y1="264.0" x2="477.5" y2="268.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="477.5" y="280.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">75%</text>
+<line x1="616.0" y1="264.0" x2="616.0" y2="268.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="616.0" y="280.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">100%</text>
+<polyline points="145.1,231.9 150.6,233.9 156.2,235.6 161.7,237.2 167.3,238.6 172.8,239.9 178.3,241.0 183.9,242.1 189.4,243.0 195.0,243.9 200.5,244.7 206.0,245.5 211.6,246.1 217.1,246.8 222.7,247.4 228.2,247.9 233.7,248.5 239.3,248.9 244.8,249.4 250.4,249.8 255.9,250.2 261.4,250.6 267.0,251.0 272.5,251.3 278.1,251.6 283.6,251.9 289.1,252.2 294.7,252.5 300.2,252.8 305.8,253.0 311.3,253.3 316.8,253.5 322.4,253.7 327.9,254.0 333.5,254.2 339.0,254.4 344.5,254.5 350.1,254.7 355.6,254.9 361.2,255.1 366.7,255.2 372.2,255.4 377.8,255.5 383.3,255.7 388.9,255.8 394.4,256.0 399.9,256.1 405.5,256.2 411.0,256.3 416.6,256.5 422.1,256.6 427.6,256.7 433.2,256.8 438.7,256.9 444.3,257.0 449.8,257.1 455.3,257.2 460.9,257.3 466.4,257.4 472.0,257.5 477.5,257.6 483.0,257.7 488.6,257.7 494.1,257.8 499.7,257.9 505.2,258.0 510.7,258.0 516.3,258.1 521.8,258.2 527.4,258.3 532.9,258.3 538.4,258.4 544.0,258.5 549.5,258.5 555.1,258.6 560.6,258.6 566.1,258.7 571.7,258.8 577.2,258.8 582.8,258.9 588.3,258.9 593.8,259.0 599.4,259.0 604.9,259.1 610.5,259.1 616.0,259.2" fill="none" stroke="#c0392b" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="95.2,63.2 100.8,91.8 106.3,113.4 111.9,130.1 117.4,143.5 122.9,154.4 128.5,163.6 134.0,171.3 139.6,177.9 145.1,183.7 150.6,188.7 156.2,193.1 161.7,197.1 167.3,200.6 172.8,203.7 178.3,206.6 183.9,209.2 189.4,211.6 195.0,213.8 200.5,215.8 206.0,217.7 211.6,219.4 217.1,221.0 222.7,222.4 228.2,223.8 233.7,225.1 239.3,226.3 244.8,227.5 250.4,228.6 255.9,229.6 261.4,230.5 267.0,231.4 272.5,232.3 278.1,233.1 283.6,233.9 289.1,234.6 294.7,235.3 300.2,236.0 305.8,236.6 311.3,237.2 316.8,237.8 322.4,238.4 327.9,238.9 333.5,239.4 339.0,239.9 344.5,240.4 350.1,240.8 355.6,241.3 361.2,241.7 366.7,242.1 372.2,242.5 377.8,242.9 383.3,243.2 388.9,243.6 394.4,243.9 399.9,244.2 405.5,244.6 411.0,244.9 416.6,245.2 422.1,245.5 427.6,245.7 433.2,246.0 438.7,246.3 444.3,246.5 449.8,246.8 455.3,247.0 460.9,247.3 466.4,247.5 472.0,247.7 477.5,247.9 483.0,248.1 488.6,248.3 494.1,248.6 499.7,248.7 505.2,248.9 510.7,249.1 516.3,249.3 521.8,249.5 527.4,249.7 532.9,249.8 538.4,250.0 544.0,250.1 549.5,250.3 555.1,250.5 560.6,250.6 566.1,250.8 571.7,250.9 577.2,251.0 582.8,251.2 588.3,251.3 593.8,251.4 599.4,251.6 604.9,251.7 610.5,251.8 616.0,251.9" fill="none" stroke="#7353ba" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+<line x1="616.0" y1="259.2" x2="496.0" y2="213.2" stroke="#c0392b" stroke-width="0.9"/>
+<circle cx="616.0" cy="259.2" r="2.6" fill="#c0392b" stroke="#fff" stroke-width="1.2"/>
+<rect x="397.0" y="208.2" width="98.0" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="492.0" y="217.2" font-size="10" fill="#c0392b" text-anchor="end" font-weight="normal">全部失败：8.6 分钟</text>
+<line x1="172.8" y1="239.9" x2="212.8" y2="209.9" stroke="#c0392b" stroke-width="0.9"/>
+<circle cx="172.8" cy="239.9" r="2.6" fill="#c0392b" stroke="#fff" stroke-width="1.2"/>
+<rect x="213.8" y="204.9" width="94.5" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="216.8" y="213.9" font-size="10" fill="#c0392b" text-anchor="start" font-weight="normal">20% 失败：43 分钟</text>
+<line x1="141.8" y1="230.5" x2="177.8" y2="156.5" stroke="#c0392b" stroke-width="0.9"/>
+<circle cx="141.8" cy="230.5" r="2.6" fill="#c0392b" stroke="#fff" stroke-width="1.2"/>
+<rect x="178.8" y="151.5" width="139.0" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="181.8" y="160.5" font-size="10" fill="#c0392b" text-anchor="start" font-weight="normal">低于 14.4%：这一组不会触发</text>
+<line x1="95.2" y1="63.2" x2="139.2" y2="73.2" stroke="#7353ba" stroke-width="0.9"/>
+<circle cx="95.2" cy="63.2" r="2.6" fill="#7353ba" stroke="#fff" stroke-width="1.2"/>
+<rect x="140.2" y="68.2" width="92.5" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="143.2" y="77.2" font-size="10" fill="#7353ba" text-anchor="start" font-weight="normal">低于 6%：只剩工单</text>
+<line x1="62.0" y1="36.0" x2="80.0" y2="36.0" stroke="#c0392b" stroke-width="2.4"/>
+<text x="85.0" y="40.0" font-size="10.5" fill="#5b6776" text-anchor="start" font-weight="normal">1 小时 / 5 分钟窗口，燃烧率 &gt; 14.4</text>
+<line x1="288.9" y1="36.0" x2="306.9" y2="36.0" stroke="#7353ba" stroke-width="2.4"/>
+<text x="311.9" y="40.0" font-size="10.5" fill="#5b6776" text-anchor="start" font-weight="normal">6 小时 / 30 分钟窗口，燃烧率 &gt; 6</text>
+</svg>

@@ -23,12 +23,12 @@
 <text x="93.7" y="128.0" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">R1 从 Git 收敛</text>
 <line x1="101.7" y1="139.0" x2="618.0" y2="139.0" stroke="#e6ebf0" stroke-width="1.0"/>
 <rect x="193.8" y="115.0" width="376.6" height="18.0" fill="#cfe3f6" stroke="none" stroke-width="1" rx="3"/>
-<text x="93.7" y="158.0" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">R1 卡住的地方</text>
+<text x="93.7" y="158.0" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">R1 卡住的两段</text>
 <line x1="101.7" y1="169.0" x2="618.0" y2="169.0" stroke="#e6ebf0" stroke-width="1.0"/>
 <rect x="249.8" y="145.0" width="70.0" height="18.0" fill="#c0392b" stroke="none" stroke-width="1" rx="3"/>
-<text x="324.8" y="157.5" font-size="9.5" fill="#1b2430" text-anchor="start" font-weight="normal">缺 PriorityClass</text>
+<text x="254.8" y="157.5" font-size="9.5" fill="#ffffff" text-anchor="start" font-weight="normal">①</text>
 <rect x="379.9" y="145.0" width="52.4" height="18.0" fill="#c0392b" stroke="none" stroke-width="1" rx="3"/>
-<text x="437.3" y="157.5" font-size="9.5" fill="#1b2430" text-anchor="start" font-weight="normal">OpenBao 未恢复</text>
+<text x="384.9" y="157.5" font-size="9.5" fill="#ffffff" text-anchor="start" font-weight="normal">②</text>
 <text x="93.7" y="188.0" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">R1 数据库</text>
 <line x1="101.7" y1="199.0" x2="618.0" y2="199.0" stroke="#e6ebf0" stroke-width="1.0"/>
 <rect x="451.1" y="175.0" width="88.1" height="18.0" fill="#d9730d" stroke="none" stroke-width="1" rx="3"/>

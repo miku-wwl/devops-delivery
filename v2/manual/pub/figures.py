@@ -271,6 +271,55 @@ def _(out):
         events=[(54, "集群已删除", C["gray"]), (1171, "1171 s 全部应用就绪", C["blue"]), (1205, "R1 第一笔订单 1205 s", C["teal"])])
 
 
+# ---------------------------------------------------------------- chapter 9 (E8)
+@fig("e8-canary", 9, ["evidence/e8/canary-results.md"], check=("20 001 个中 986 个 = 4.93%", "5.03%", "2.45%", "4.95%"))
+def _(out):
+    hbar_chart(out, "金丝雀权重 5%：设定值、两种测量，以及出故障时的影响面（占全部请求的 %）", [
+        ("设定的权重", 5.0, C["gray"], "5%"),
+        ("k6 统计：20 001 个请求中 986 个", 4.93, C["blue"], "4.93%"),
+        ("Prometheus 统计（同一窗口）", 5.03, C["blue"], "5.03%"),
+        ("金丝雀一半请求返回 503 时受影响的请求", 2.45, C["red"], "2.45% ≈ 权重 × 失败率"),
+    ], xlabel="占全部公共请求的比例（%）", xlim=(0, 6.4))
+
+
+# ---------------------------------------------------------------- chapter 10 (E9)
+@fig("model-burnrate", 10, [], kind="model")
+def _(out):
+    b = 0.01   # checkout: 99 % -> 1 % budget
+    fast = [(e / 100, 14.4 * b * 60 / (e / 100)) for e in range(15, 101)]
+    slow = [(e / 100, 6 * b * 360 / (e / 100)) for e in range(6, 101)]
+    line_chart(out, "下单的 SLO 为 99% 时：错误比例与呼叫之前要等的时间", [
+        {"name": "1 小时 / 5 分钟窗口，燃烧率 > 14.4", "color": C["red"], "pts": fast},
+        {"name": "6 小时 / 30 分钟窗口，燃烧率 > 6", "color": C["purple"], "pts": slow},
+    ], xlabel="失败的请求占比", ylabel="分钟", xlim=(0, 1.0), ylim=(0, 380), h=310,
+        xticks=[0.06, 0.144, 0.25, 0.5, 0.75, 1.0], xfmt=lambda v: f"{v * 100:g}%",
+        notes=[(1.0, 8.64, "全部失败：8.6 分钟", -120, -46, C["red"]), (0.2, 43.2, "20% 失败：43 分钟", 40, -30, C["red"]),
+               (0.144, 60, "低于 14.4%：这一组不会触发", 36, -74, C["red"]), (0.06, 360, "低于 6%：只剩工单", 44, 10, C["purple"])])
+
+
+@fig("e9-incident", 10, ["evidence/e9/incident/timeline.log"],
+     check=("08:23:40.7", "约 08:24:10", "08:26:18.5", "08:26:55.5", "08:28:04.6", "约 08:28:40", "+2 分 08 秒", "+37 秒",
+            "呼叫后 69 秒", "恢复后 28.5 分钟"))
+def _(out):
+    timeline(out, "事故演练的时间线（秒，从合并请求 !37 合并起算）", [
+        ("下单失败", [(29, 299, C["red"], "08:24:10 – 08:28:40：约 4.5 分钟")]),
+        ("检测", [(29, 158, C["orange"], "2 分 08 秒：燃烧率越过呼叫线")]),
+        ("升级", [(158, 195, C["purple"], "37 s 分组等待")]),
+        ("响应", [(195, 264, C["blue"], "69 s：确认、定位、撤回")]),
+        ("撤回生效", [(264, 299, C["teal"], "")]),
+        ("告警未解除", [(299, 330, C["lgray"], "直到 08:57：恢复之后 28.5 分钟")]),
+    ], xlim=(0, 330), xlabel="合并之后的秒数",
+        events=[(0, "合并 !37", C["gray"]), (158, "呼叫", C["red"]), (195, "事故 #12", C["purple"]), (264, "撤回合并", C["teal"])])
+
+
+@fig("e9-sampling", 10, ["evidence/e9/tracing-cost.log"], check=("28.9 个/秒", "291 个/秒", "3.4 个/秒", "29.9 个/秒（8.7 倍）", "0.393 核", "0.413 核"))
+def _(out):
+    bar_chart(out, "两种采样方式下的 span 流量（个/秒）", ["到达收集器", "写入 Tempo"], [
+        {"name": "头部采样 10%", "color": C["gray"], "vals": [28.9, 3.4]},
+        {"name": "100% 上报，由尾部采样决定", "color": C["teal"], "vals": [291, 29.9]},
+    ], ylabel="span/秒", ylim=(0, 330), h=280)
+
+
 # ---------------------------------------------------------------- chapter 11 (E10)
 @fig("e10-scheduling", 11, ["evidence/e10/k1/timeline.txt", "evidence/e10/k2/timeline.txt"], kind="parsed",
      check=("51.3 秒", "193.0 秒", "29.4 秒", "48.6 秒", "每秒 50.3 个"))
@@ -332,6 +381,31 @@ def _(out):
         ("7  3 个席位，2560 MiB · 被杀 1 次", 194, C["teal"], "194 ms（20.3 ms）"),
     ], xlabel="受害者 GET 的 p99，毫秒；假设 K5 的目标线是安静值的 2 倍（约 40 ms）", xlim=(10, 30000), log=True,
         vline=(40, C["green"], "目标：不超过安静值的 2 倍"))
+
+
+# ---------------------------------------------------------------- chapter 12 (E11)
+@fig("e11-alert-storm", 12, ["evidence/e11/incident-1.md", "evidence/e11/incident-1/recovery.log"],
+     check=("54 个事故", "16 个应用 Degraded", "10 个任务失败", "27 个容器等待",
+            "evidence/e11/incident-1/recovery.log::'OpenBaoSealed': 1, 'ArgoCDAppDegraded': 16, 'KubeJobFailed': 10",
+            "evidence/e11/incident-1/recovery.log::'KubeContainerWaiting': 27"))
+def _(out):
+    bar_chart(out, "OpenBao 密封的 9 小时里，告警桥在 GitLab 中开出的事故（个）",
+              ["OpenBaoSealed\n原因本身", "ArgoCDAppDegraded\n依赖它的应用", "KubeJobFailed\n每小时的快照任务", "KubeContainerWaiting\n任务的 Pod"], [
+                  {"name": "", "color": C["orange"], "vals": [1, 16, 10, 27]}], ylabel="事故数", ylim=(0, 31), h=290,
+              notes=[(0, 4.5, "1 个原因"), (2, 29.5, "53 个症状：每小时关闭一批，再打开一批")])
+
+
+# ---------------------------------------------------------------- chapter 13 (E12)
+@fig("e12-grading", 13, ["evidence/e12/t1.log", "evidence/e12/t2.log", "evidence/e12/t3.log", "evidence/e12/p1.log"],
+     check=("| T1 | 0/3", "| T2 | 2/3", "| T3 | 2/4", "3/3，25 秒后", "4/4，7 秒后", "| 判分 | 3/8 | 8/8 |",
+            "evidence/e12/t1.log::result: 0 passed, 3 failed -> FAIL", "evidence/e12/t2.log::result: 2 passed, 1 failed -> FAIL",
+            "evidence/e12/t3.log::result: 2 passed, 2 failed -> FAIL", "evidence/e12/p1.log::result: 3 passed, 5 failed -> FAIL",
+            "evidence/e12/p1.log::result: 8 passed, 0 failed -> PASS"))
+def _(out):
+    bar_chart(out, "四道题的判分：通过的检查项数", ["T1 仓库凭据\n共 3 项", "T2 OpenBao 密封\n共 3 项", "T3 Git 之外的策略\n共 4 项", "P1 告警抑制\n共 8 项"], [
+        {"name": "故障存在时（应当 FAIL）", "color": C["red"], "vals": [0, 2, 2, 3]},
+        {"name": "修复之后（应当 PASS）", "color": C["teal"], "vals": [3, 3, 4, 8]},
+    ], ylabel="通过的检查项", ylim=(0, 9), yticks=[0, 2, 4, 6, 8], h=280)
 
 
 # ---------------------------------------------------------------- build and check

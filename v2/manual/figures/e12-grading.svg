@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 280" width="640" height="280" font-family="'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="18.0" y="19.0" font-size="13" fill="#1b2430" text-anchor="start" font-weight="600">四道题的判分：通过的检查项数</text>
+<line x1="62.0" y1="240.0" x2="620.0" y2="240.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="243.5" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">0</text>
+<line x1="62.0" y1="198.2" x2="620.0" y2="198.2" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="201.7" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">2</text>
+<line x1="62.0" y1="156.4" x2="620.0" y2="156.4" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="159.9" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">4</text>
+<line x1="62.0" y1="114.7" x2="620.0" y2="114.7" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="118.2" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">6</text>
+<line x1="62.0" y1="72.9" x2="620.0" y2="72.9" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="76.4" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">8</text>
+<line x1="62.0" y1="240.0" x2="620.0" y2="240.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="14.0" y="146.0" font-size="10.5" fill="#5b6776" text-anchor="middle" font-weight="normal" transform="rotate(-90 14.0 146.0)">通过的检查项</text>
+<rect x="86.8" y="240.0" width="44.0" height="0.0" fill="#c0392b" stroke="none" stroke-width="1" rx="2"/>
+<text x="108.8" y="236.0" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">0</text>
+<rect x="132.8" y="177.3" width="44.0" height="62.7" fill="#0f8a7e" stroke="none" stroke-width="1" rx="2"/>
+<text x="154.8" y="173.3" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">3</text>
+<text x="131.8" y="255.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">T1 仓库凭据</text>
+<text x="131.8" y="267.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">共 3 项</text>
+<rect x="226.2" y="198.2" width="44.0" height="41.8" fill="#c0392b" stroke="none" stroke-width="1" rx="2"/>
+<text x="248.2" y="194.2" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">2</text>
+<rect x="272.2" y="177.3" width="44.0" height="62.7" fill="#0f8a7e" stroke="none" stroke-width="1" rx="2"/>
+<text x="294.2" y="173.3" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">3</text>
+<text x="271.2" y="255.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">T2 OpenBao 密封</text>
+<text x="271.2" y="267.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">共 3 项</text>
+<rect x="365.8" y="198.2" width="44.0" height="41.8" fill="#c0392b" stroke="none" stroke-width="1" rx="2"/>
+<text x="387.8" y="194.2" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">2</text>
+<rect x="411.8" y="156.4" width="44.0" height="83.6" fill="#0f8a7e" stroke="none" stroke-width="1" rx="2"/>
+<text x="433.8" y="152.4" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">4</text>
+<text x="410.8" y="255.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">T3 Git 之外的策略</text>
+<text x="410.8" y="267.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">共 4 项</text>
+<rect x="505.2" y="177.3" width="44.0" height="62.7" fill="#c0392b" stroke="none" stroke-width="1" rx="2"/>
+<text x="527.2" y="173.3" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">3</text>
+<rect x="551.2" y="72.9" width="44.0" height="167.1" fill="#0f8a7e" stroke="none" stroke-width="1" rx="2"/>
+<text x="573.2" y="68.9" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">8</text>
+<text x="550.2" y="255.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">P1 告警抑制</text>
+<text x="550.2" y="267.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">共 8 项</text>
+<rect x="62.0" y="31.0" width="12.0" height="10.0" fill="#c0392b" stroke="none" stroke-width="1" rx="2"/>
+<text x="78.0" y="40.0" font-size="10.5" fill="#5b6776" text-anchor="start" font-weight="normal">故障存在时（应当 FAIL）</text>
+<rect x="219.4" y="31.0" width="12.0" height="10.0" fill="#0f8a7e" stroke="none" stroke-width="1" rx="2"/>
+<text x="235.4" y="40.0" font-size="10.5" fill="#5b6776" text-anchor="start" font-weight="normal">修复之后（应当 PASS）</text>
+</svg>

@@ -169,7 +169,8 @@ def main() -> int:
         for h in headings:
             target = norm(h["text"])
             for i in range(cursor, len(outline)):
-                if norm(outline[i][0]) == target:
+                # Chromium writes some headings' text twice into the outline (seen with unnumbered h1); accept that
+                if norm(outline[i][0]) in (target, target + target):
                     if h["id"]:
                         pages[h["id"]] = outline[i][1]
                     cursor = i + 1

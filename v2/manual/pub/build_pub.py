@@ -139,6 +139,59 @@ def figures(text: str) -> str:
     return re.sub(r"^(```(?:mermaid|\{\.mermaid[^\n]*\})\n)(.*?)^```", mermaid, text, flags=re.M | re.S)
 
 
+def blocks_of(text: str) -> list[str]:
+    """Split Markdown into blocks at blank lines, keeping fenced blocks (code, divs) in one piece."""
+    out, cur, fence = [], [], None
+    for line in text.split("\n"):
+        if fence is None and (line.startswith("```") or (line.startswith(":::") and line.strip() != ":::")):
+            fence = line[:3]
+        elif fence is not None and line.strip() == fence:
+            if fence == ":::" and sum(1 for l in cur if l.startswith(":::") and l.strip() != ":::") > \
+                    sum(1 for l in cur if l.strip() == ":::") + 1:
+                cur.append(line)      # an inner div closed, the outer one is still open
+                continue
+            fence = None
+            cur.append(line)
+            continue
+        if fence is None and not line.strip():
+            if cur:
+                out.append("\n".join(cur))
+                cur = []
+            continue
+        cur.append(line)
+    if cur:
+        out.append("\n".join(cur))
+    return out
+
+
+def apply_layout(text: str, rules: list[tuple[str, int]], used: set[str]) -> str:
+    """Page make-up: a figure that does not fit under its paragraph leaves the rest of the page empty. Two rules:
+      text in the figure block => n        let the next n blocks of text come first, so they fill that space and the
+                                           figure opens the next page (never across a heading);
+      text in the figure block => max NN   cap the figure's height at NN mm (class hNN, pub.css) so that it fits."""
+    blocks = blocks_of(text)
+    moved = False
+    for key, n in rules:
+        hits = [i for i, b in enumerate(blocks) if key in b and (b.startswith("![") or b.startswith("```{.mermaid"))]
+        if len(hits) != 1:
+            continue
+        used.add(f"{key}=>{n}")
+        moved = True
+        i = hits[0]
+        if n < 0:      # max height: -NN
+            b = blocks[i]
+            if b.startswith("```{.mermaid"):
+                blocks[i] = b.replace("```{.mermaid", f"```{{.mermaid .h{-n}", 1)
+            else:
+                blocks[i] = re.sub(r"\)\{\.(\w+)\}$", rf"){{.\1 .h{-n}}}", b)
+            continue
+        j = i
+        while j - i < n and j + 1 < len(blocks) and not blocks[j + 1].startswith("#"):
+            j += 1
+        blocks.insert(j, blocks.pop(i))
+    return "\n\n".join(blocks) + "\n" if moved else text
+
+
 def unnumber(text: str) -> str:
     def fix(m: re.Match) -> str:
         attrs = m.group(3)
@@ -165,6 +218,13 @@ def main() -> int:
     OUT.mkdir(parents=True)
     write = lambda name, text: (OUT / name).write_bytes(text.encode("utf-8"))
     code_index, ev_index = [], []
+    rules, used = [], set()
+    if (PUB / "layout.txt").exists():
+        for line in (PUB / "layout.txt").read_text(encoding="utf-8").splitlines():
+            if "=>" in line and not line.startswith("#"):
+                key, n = line.rsplit("=>", 1)
+                n = n.strip()
+                rules.append((key.strip(), -int(n[3:]) if n.startswith("max") else int(n)))
     chapters = sorted(SRC.glob("*.md"))
     if not only:
         write("00-preface.md", figures((PUB / "front" / "preface.md").read_text(encoding="utf-8")))
@@ -175,6 +235,7 @@ def main() -> int:
         text = evidence_markers(text, n, index)
         text = chapter_head(text, f"第 {n} 章　{title}", code_index)
         text = figures(text)
+        text = apply_layout(text, rules, used)
         ev_index.append((n, title, index))
         if not only or n in only:
             write(path.name, text)
@@ -196,7 +257,9 @@ def main() -> int:
                 items = "\n".join(f'<p id="ev-{n}-{k}"><span class="n">[{k}]</span><code>{p}</code></p>' for p, k in index.items())
                 ev.append(f"**第 {n} 章　{title}**\n\n<div class=\"evlist\">\n{items}\n</div>\n")
         write("93-evidence.md", "\n".join(ev))
-    print(f"sources: {len(list(OUT.glob('*.md')))} file(s) in {OUT.relative_to(ROOT)}; evidence markers: "
+    if not only and len(used) != len(rules):
+        print(f"layout: rule(s) that matched no single figure: {[k for k, n in rules if f'{k}=>{n}' not in used]}", file=sys.stderr)
+    print(f"sources: {len(list(OUT.glob('*.md')))} file(s) in {OUT.relative_to(ROOT)}; layout rules applied: {len(used)}; evidence markers: "
           f"{sum(len(i) for _, _, i in ev_index)} file(s) in {sum(1 for _, _, i in ev_index if i)} chapter(s)")
 
     cmd = [sys.executable, str(ROOT / "manual" / "tools" / "build.py"), "--chapters", str(OUT / "*.md"),
@@ -206,7 +269,48 @@ def main() -> int:
                          "disaster recovery, release governance, SLO, observability, KWOK, API Priority and Fairness, OpenTofu"]
     if args.html_only:
         cmd.append("--html-only")
-    return subprocess.run(cmd, cwd=ROOT).returncode
+        return subprocess.run(cmd, cwd=ROOT).returncode
+    rc = subprocess.run(cmd, cwd=ROOT).returncode
+    if rc == 0:
+        print(f"bookmarks: {fix_outline(Path(args.out))} title(s) cleaned")
+    return rc
+
+
+def fix_outline(pdf: Path) -> int:
+    """The PDF's bookmarks: Chromium doubles the text of unnumbered headings and glues the chapter number to the
+    title. Rewrite them as "第 N 章　标题" and undo the doubling."""
+    from pypdf import PdfReader, PdfWriter
+    from pypdf.generic import TextStringObject
+
+    writer = PdfWriter(clone_from=str(pdf))
+    fixed = 0
+
+    def walk(node, top: bool) -> None:
+        nonlocal fixed
+        while node is not None:
+            node = node.get_object()
+            title = str(node.get("/Title", ""))
+            new = title
+            half = len(title) // 2
+            if len(title) >= 4 and len(title) % 2 == 0 and title[:half] == title[half:]:
+                new = title[:half]
+            m = re.match(r"^(\d+)\s*(\D.*)$", new)
+            if top and m:
+                new = f"第 {m.group(1)} 章　{m.group(2)}"
+            if new != title:
+                node[NameObject("/Title")] = TextStringObject(new)
+                fixed += 1
+            if "/First" in node:
+                walk(node["/First"], False)
+            node = node.get("/Next")
+
+    from pypdf.generic import NameObject
+    outlines = writer._root_object.get("/Outlines")
+    if outlines is not None and "/First" in outlines.get_object():
+        walk(outlines.get_object()["/First"], True)
+    with open(pdf, "wb") as fh:
+        writer.write(fh)
+    return fixed
 
 
 if __name__ == "__main__":
