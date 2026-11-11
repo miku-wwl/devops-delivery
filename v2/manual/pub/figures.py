@@ -153,6 +153,124 @@ def _(out):
     ], ylabel="ms", ylim=(0, 720), h=300)
 
 
+# ---------------------------------------------------------------- chapter 5 (E4)
+@fig("e4-hpa-timeline", 5, ["evidence/e4/hpa-timeline-collect.log"],
+     check=("01:57:17", "02:02:43", "02:02:51", "02:04:27", "02:08:28", "5 分 26 秒", "8 秒"))
+def _(out):
+    timeline(out, "台阶到 120 迭代/秒：HPA 的一次扩容与缩容（秒，从负载升高起算）", [
+        ("负载", [(0, 430, C["gray"], "120 迭代/秒（430 s）")]),
+        ("HPA 的判断", [(0, 326, C["lorange"], "利用率 102%–114%：在 10% 的容差之内，不动"), (326, 334, C["red"], "")]),
+        ("网关副本", [(0, 334, C["lblue"], "2 个"), (334, 671, C["blue"], "3 个"), (671, 720, C["lblue"], "2 个")]),
+    ], xlim=(0, 740), xlabel="秒", events=[(326, "326 s：决定扩到 3 个", C["red"]), (334, "8 s 后就绪", C["blue"]),
+                                          (671, "稳定窗口 300 s 后缩回", C["teal"])])
+
+
+@fig("e4-new-pods", 5, ["evidence/e4/hpa-2-pods.log"],
+     check=("| gateway-…-gm44w（原有） | 147 | 0.79 核 | 36.0 |", "| gateway-…-qhww7（原有） | 142 | 0.92 核 | 21.4 |",
+            "| gateway-…-j72rh（02:19 扩出） | 0 | 0.01 核 | — |", "| gateway-…-d5j6r（02:21 扩出） | 0 | 0.01 核 | — |"))
+def _(out):
+    bar_chart(out, "扩容之后一分钟，四个网关 Pod 各自收到的请求（每秒）", ["原有的 Pod 1\nCPU 0.79 核", "原有的 Pod 2\nCPU 0.92 核", "02:19 扩出\nCPU 0.01 核", "02:21 扩出\nCPU 0.01 核"], [
+        {"name": "请求/秒", "color": C["blue"], "vals": [147, 142, 0, 0]},
+        {"name": "其中 5xx/秒", "color": C["red"], "vals": [36.0, 21.4, 0, 0]},
+    ], ylabel="每秒", ylim=(0, 170), h=290)
+
+
+@fig("e4-keda-oscillation", 5, ["evidence/e4/keda-steady.log"],
+     check=("02:52:52", "02:53:11", "02:58:21", "02:58:36", "02:58:49", "03:03:45", "03:04:01", "03:04:15", "03:05:02"))
+def _(out):
+    pts = [(0, 1), (19, 3), (329, 1), (344, 3), (357, 5), (653, 1), (669, 2), (683, 4), (730, 4)]
+    line_chart(out, "只按积压扩缩：恒定负载下通知服务的副本数", [
+        {"name": "通知服务的副本数（只有积压触发器）", "color": C["orange"], "pts": pts, "step": True}],
+        xlabel="负载升到 90 迭代/秒之后的秒数", ylabel="副本", xlim=(0, 740), ylim=(0, 5.6), yticks=[0, 1, 2, 3, 4, 5], h=280,
+        hlines=[(3, C["teal"], "实际需要 3 个")],
+        notes=[(329, 1, "积压消化完 → 300 s 后缩到 1", 14, -92, C["red"]), (653, 1, "又一次缩到 1", -84, -58, C["red"])])
+
+
+@fig("e4-eviction", 5, ["evidence/e4/eviction-2/watch.txt"],
+     check=("07:48:52", "07:51:44", "07:51:52", "07:56:26", "08:01:32", "776 MiB", "933 MiB"))
+def _(out):
+    timeline(out, "节点内存压力下的两次驱逐（秒，从 07:48:52 起算）", [
+        ("burst-hog（Burstable，请求 64Mi）", [(0, 172, C["orange"], "每秒 +4 MiB，到 776 MiB")]),
+        ("be-hog（BestEffort）", [(0, 190, C["lgray"], "160 MiB"), (190, 454, C["gray"], "每秒 +3 MiB，到 933 MiB")]),
+        ("guaranteed（请求 = 限制）", [(0, 800, C["teal"], "80 MiB，始终运行")]),
+        ("节点状态", [(180, 760, C["lred"], "MemoryPressure：拒绝新的 BestEffort Pod（580 s）")]),
+    ], xlim=(0, 820), xlabel="秒", events=[(172, "驱逐 burst-hog", C["red"]), (454, "驱逐 be-hog", C["red"]), (760, "压力解除", C["teal"])])
+
+
+@fig("e4-neighbor", 5, ["evidence/e4/noisy.log"],
+     check=("| 没有消耗者 | 16.3 / 16.2 ms |", "| BestEffort 消耗者 | 17.6 / 16.6 ms |", "| Burstable 消耗者（请求 2 核） | 130.8 / 13.9 ms |"))
+def _(out):
+    bar_chart(out, "同一个节点上的 CPU 消耗者对网关 p50 的影响（ms）", ["没有消耗者", "BestEffort 的消耗者\n（没有 CPU 请求）", "Burstable 的消耗者\n（请求 2 核）"], [
+        {"name": "与消耗者同节点的网关", "color": C["orange"], "vals": [16.3, 17.6, 130.8]},
+        {"name": "其他节点上的网关", "color": C["teal"], "vals": [16.2, 16.6, 13.9]},
+    ], ylabel="ms", ylim=(0, 150), h=290)
+
+
+# ---------------------------------------------------------------- chapter 7 (E6)
+@fig("e6-amplification", 7, ["evidence/e6/slow-resilient.log", "evidence/e6/slow-naive.log", "evidence/e6/errors-naive.log", "evidence/e6/errors-resilient-2.log"],
+     check=("| 　每笔下单在 inventory 上的调用 | 0.05 | 1.04 |", "| 　每笔下单在 inventory 上的调用 | 0.07 | 5.56（inventory 每秒 44 个请求，稳态 7.9 个） |"))
+def _(out):
+    hbar_chart(out, "故障期间，每笔下单打到 inventory 的调用次数", [
+        ("inventory 慢 1.5 秒 · resilient", 0.05, C["teal"], "0.05：熔断器打开，几乎不再调用"),
+        ("inventory 慢 1.5 秒 · naive", 1.04, C["gray"], "1.04：每笔等到成功"),
+        ("inventory 90% 返回 503 · resilient", 0.07, C["teal"], "0.07：预算与熔断封顶"),
+        ("inventory 90% 返回 503 · naive", 5.56, C["red"], "5.56：重试风暴"),
+    ], xlabel="每笔下单的调用次数（正常时约 1 次）", xlim=(0, 6.6), vline=(1, C["green"], "正常：1 次"))
+
+
+@fig("e6-node-failure", 7, ["evidence/e6/node-1.log", "evidence/e6/node-2.log"],
+     check=("| 10–320 s |", "| 47 s |", "| 331 s |", "| 约 345 s |", "| 410 s |", "| 全部请求的失败率 | 54% | 8.2% |",
+            "约 55 秒（到端点移除为止）", "| 节点 NotReady | 47 s | 52 s |"))
+def _(out):
+    timeline(out, "冻结一个节点：两次实验中请求失败的时段（秒）", [
+        ("第一次：waypoint 只有一个副本", [(0, 10, C["lorange"], ""), (10, 320, C["red"], "100% 的请求失败（唯一的 waypoint 在被冻结的节点上）"),
+                                      (320, 345, C["lorange"], "")]),
+        ("第二次：waypoint 两个副本、跨区", [(0, 55, C["orange"], "约 55 秒：到端点被移除为止")]),
+        ("节点（两次相同）", [(0, 410, C["lgray"], "冻结"), (410, 440, C["lgreen"], "")]),
+    ], xlim=(0, 450), xlabel="冻结节点之后的秒数",
+        events=[(47, "47 s 节点 NotReady", C["gray"]), (331, "331 s 开始重建 Pod", C["blue"]), (410, "410 s 恢复 Ready", C["teal"])],
+        legend=[("第一次：全部请求的 54% 失败", C["red"]), ("第二次：8.2%", C["orange"])])
+
+
+# ---------------------------------------------------------------- chapter 8 (E7)
+@fig("concept-rpo-rto", 8, [], kind="concept")
+def _(out):
+    timeline(out, "RPO 与 RTO：一次故障在时间轴上的两段代价", [
+        ("数据", [(0, 150, C["lblue"], "已经在安全的地方：归档、备库"), (150, 200, C["red"], "RPO")]),
+        ("服务", [(0, 200, C["lgreen"], "正常"), (200, 430, C["orange"], "RTO：发现 → 决定 → 恢复 → 验证"), (430, 520, C["lgreen"], "恢复")]),
+    ], xlim=(0, 520), xlabel="时间 →", xfmt=lambda v: "", lane_h=40,
+        events=[(150, "最后一份安全的副本", C["blue"]), (200, "故障发生", C["red"]), (430, "服务恢复", C["teal"])])
+
+
+@fig("e7-failover", 8, ["evidence/e7/failover-results.md"],
+     check=("27.2 s", "10.7 s、11.7 s、8.0 s、14.4 s", "| F1 | 强制删除主库 Pod | 26.9 s | 0 |", "78.0 s", "冻结后 73.7 s", "137.9 s",
+            "**3017**", "直连旧主库的客户端 **7**"))
+def _(out):
+    T, R = C["teal"], C["red"]
+    hbar_chart(out, "六种故障下写入中断的时长（秒）与丢失的已确认写入", [
+        ("计划内切换（4 次）", 14.4, T, "8.0–14.4 s · 丢失 0"),
+        ("F0 滚动更新中原地重启主库", 27.2, T, "27.2 s · 丢失 0"),
+        ("F1 强制删除主库 Pod", 26.9, T, "26.9 s · 丢失 0"),
+        ("F2 冻结主库所在节点", 78.0, C["orange"], "78.0 s · 直连旧主库的客户端丢 7 次"),
+        ("F3 复制中断后失去主库（异步）", 73.7, R, "73.7 s · 丢失 3017 次"),
+        ("F4 同 F3（同步复制）", 137.9, T, "137.9 s · 丢失 0"),
+    ], xlabel="写入中断的秒数", xlim=(0, 150), legend=[("不丢数据", T), ("丢失已确认的写入", R)])
+
+
+@fig("e7-rebuild", 8, ["evidence/e7/r1/results.md", "evidence/e7/r2/results.md"],
+     check=("| 0–54 s | 集群被删除 |", "| 67–230 s |", "| 370 s |", "| 545 s |", "| 695–826 s |", "| 873–1093 s |", "| 1171 s |",
+            "| **1205 s** |", "20.1 分钟", "15.3 分钟"))
+def _(out):
+    timeline(out, "整个集群删除之后的重建：第一次（R1）的时间线与第二次（R2）的总时长（秒）", [
+        ("R1 基础", [(0, 54, C["gray"], ""), (67, 230, C["blue"], "新集群 + Argo CD")]),
+        ("R1 从 Git 收敛", [(230, 1171, C["lblue"], "")]),
+        ("R1 卡住的两段", [(370, 545, C["red"], "①"), (695, 826, C["red"], "②")]),
+        ("R1 数据库", [(873, 1093, C["orange"], "从归档恢复")]),
+        ("R2 修复之后", [(0, 918, C["teal"], "没有人工介入：15.3 分钟")]),
+    ], xlim=(0, 1290), xlabel="删除集群之后的秒数",
+        events=[(54, "集群已删除", C["gray"]), (1171, "1171 s 全部应用就绪", C["blue"]), (1205, "R1 第一笔订单 1205 s", C["teal"])])
+
+
 # ---------------------------------------------------------------- chapter 11 (E10)
 @fig("e10-scheduling", 11, ["evidence/e10/k1/timeline.txt", "evidence/e10/k2/timeline.txt"], kind="parsed",
      check=("51.3 秒", "193.0 秒", "29.4 秒", "48.6 秒", "每秒 50.3 个"))

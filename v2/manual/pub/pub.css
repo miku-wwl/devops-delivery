@@ -86,7 +86,7 @@ tbody tr:last-child td { border-bottom: none; }
 
 /* ---------- figures: one frame, a tag that says what kind of picture it is ---------- */
 figure {
-  margin: 6.5mm 0 6mm; padding: 4mm 4mm 2.6mm; border: 1px solid var(--rule); border-radius: 6px; background: #fdfefe;
+  margin: 5mm 0 6mm; padding: 8mm 4mm 2.6mm; border: 1px solid var(--rule); border-radius: 6px; background: #fdfefe;
   position: relative;
 }
 figure img { border: none; border-radius: 3px; max-height: 150mm; }
@@ -98,8 +98,10 @@ figcaption {
 }
 figcaption::before { color: var(--accent); }
 figure::before {
-  content: "示意图"; position: absolute; top: -2.5mm; left: 4mm; font-size: 7.3pt; font-weight: 700; letter-spacing: 1px;
-  padding: .2mm 2.6mm; border-radius: 3mm; background: #eaf1f8; color: #0b5cad; border: 1px solid #c5d6ea; line-height: 1.6;
+  /* a tab inside the frame: a tag hanging above the box can be left behind on the previous page */
+  content: "示意图"; position: absolute; top: 0; left: 0; font-size: 7.3pt; font-weight: 700; letter-spacing: 1px;
+  padding: .3mm 3mm; border-radius: 5px 0 5px 0; background: #eaf1f8; color: #0b5cad; border: 1px solid #c5d6ea;
+  border-top: none; border-left: none; line-height: 1.6;
 }
 figure.data::before, figure:has(img.data)::before { content: "实测数据"; background: #e4f3f0; color: #0b6b62; border-color: #b5dcd5; }
 figure:has(img.shot)::before { content: "真实截图"; background: #fff1dc; color: #8a4b08; border-color: #f0d3a6; }

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 290" width="640" height="290" font-family="'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="18.0" y="19.0" font-size="13" fill="#1b2430" text-anchor="start" font-weight="600">扩容之后一分钟，四个网关 Pod 各自收到的请求（每秒）</text>
+<line x1="62.0" y1="250.0" x2="620.0" y2="250.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="253.5" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">0</text>
+<line x1="62.0" y1="191.8" x2="620.0" y2="191.8" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="195.3" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">50</text>
+<line x1="62.0" y1="133.5" x2="620.0" y2="133.5" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="137.0" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">100</text>
+<line x1="62.0" y1="75.3" x2="620.0" y2="75.3" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="78.8" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">150</text>
+<line x1="62.0" y1="250.0" x2="620.0" y2="250.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="14.0" y="151.0" font-size="10.5" fill="#5b6776" text-anchor="middle" font-weight="normal" transform="rotate(-90 14.0 151.0)">每秒</text>
+<rect x="86.8" y="78.8" width="44.0" height="171.2" fill="#1f6fb2" stroke="none" stroke-width="1" rx="2"/>
+<text x="108.8" y="74.8" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">147</text>
+<rect x="132.8" y="208.1" width="44.0" height="41.9" fill="#c0392b" stroke="none" stroke-width="1" rx="2"/>
+<text x="154.8" y="204.1" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">36</text>
+<text x="131.8" y="265.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">原有的 Pod 1</text>
+<text x="131.8" y="277.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">CPU 0.79 核</text>
+<rect x="226.2" y="84.6" width="44.0" height="165.4" fill="#1f6fb2" stroke="none" stroke-width="1" rx="2"/>
+<text x="248.2" y="80.6" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">142</text>
+<rect x="272.2" y="225.1" width="44.0" height="24.9" fill="#c0392b" stroke="none" stroke-width="1" rx="2"/>
+<text x="294.2" y="221.1" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">21.4</text>
+<text x="271.2" y="265.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">原有的 Pod 2</text>
+<text x="271.2" y="277.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">CPU 0.92 核</text>
+<rect x="365.8" y="250.0" width="44.0" height="0.0" fill="#1f6fb2" stroke="none" stroke-width="1" rx="2"/>
+<text x="387.8" y="246.0" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">0</text>
+<rect x="411.8" y="250.0" width="44.0" height="0.0" fill="#c0392b" stroke="none" stroke-width="1" rx="2"/>
+<text x="433.8" y="246.0" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">0</text>
+<text x="410.8" y="265.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">02:19 扩出</text>
+<text x="410.8" y="277.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">CPU 0.01 核</text>
+<rect x="505.2" y="250.0" width="44.0" height="0.0" fill="#1f6fb2" stroke="none" stroke-width="1" rx="2"/>
+<text x="527.2" y="246.0" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">0</text>
+<rect x="551.2" y="250.0" width="44.0" height="0.0" fill="#c0392b" stroke="none" stroke-width="1" rx="2"/>
+<text x="573.2" y="246.0" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">0</text>
+<text x="550.2" y="265.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">02:21 扩出</text>
+<text x="550.2" y="277.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">CPU 0.01 核</text>
+<rect x="62.0" y="31.0" width="12.0" height="10.0" fill="#1f6fb2" stroke="none" stroke-width="1" rx="2"/>
+<text x="78.0" y="40.0" font-size="10.5" fill="#5b6776" text-anchor="start" font-weight="normal">请求/秒</text>
+<rect x="133.3" y="31.0" width="12.0" height="10.0" fill="#c0392b" stroke="none" stroke-width="1" rx="2"/>
+<text x="149.3" y="40.0" font-size="10.5" fill="#5b6776" text-anchor="start" font-weight="normal">其中 5xx/秒</text>
+</svg>

@@ -124,7 +124,8 @@ def figures(text: str) -> str:
             return m.group(0)
         name = path.rsplit("/", 1)[-1]
         kind = "shot" if name.startswith(("grafana", "tempo")) else \
-            ("model" if name.startswith("model-") else "data") if path.endswith(".svg") else "term"
+            ("model" if name.startswith("model-") else "concept" if name.startswith("concept-") else "data") \
+            if path.endswith(".svg") else "term"
         return f"{m.group(1)}({path}){{.{kind}}}"
 
     text = re.sub(r"^(!\[.*\])\(([^)\s]+)\)(\{[^}]*\})?$", image, text, flags=re.M)

@@ -33,7 +33,7 @@ manual/.venv/Scripts/python.exe manual/tools/verify_evidence.py --root v2  # 证
 
 - [x] P1 构建体系、版式、图表库；第 11 章的三幅 Mermaid 数据图改为从证据绘制
 - [x] P2 第 1–4 章：导读、示意图、数据图、对照表（脚本：`pub/tools/p2_ch01_03.py`、`p2_ch04.py`）
-- [ ] P3 第 5–8 章
+- [x] P3 第 5–8 章（脚本：`pub/tools/p3_ch05.py` … `p3_ch08.py`）
 - [ ] P4 第 9–13 章
 - [ ] P5 阅读指南、术语表；仓库文档（README、复现指南、Agent 说明、证据索引）
 - [ ] P6 全书构建、自动检查、逐页审查与修复（记录：`REVIEW.md`）
