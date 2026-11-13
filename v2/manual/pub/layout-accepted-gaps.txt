@@ -1,0 +1,5 @@
+# Publication Edition: pages (PDF page numbers, page 1 = the cover) that manual/tools/layout_check.py reports as gaps and
+# that a person reviewed and accepted. Re-check after every change that moves the page breaks.
+#   manual/.venv/Scripts/python.exe manual/tools/layout_check.py v2/manual/dist/Enterprise-Platform-SRE-Handbook-Vol2-Publication-Edition.pdf --accept-gaps-file v2/manual/pub/layout-accepted-gaps.txt
+# Review round 3 (docs/publication/REVIEW.md, finding F3-A1):
+21   # 2.2.2: the lead-in "由 orders 服务按顺序指挥：" closes the page; the saga sequence (figure 2-1, about 150 mm with frame and caption) cannot be split and must follow its lead-in

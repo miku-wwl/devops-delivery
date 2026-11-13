@@ -1,0 +1,198 @@
+ROUND 3 (final) page review - build after checkpoint 800c713 + alert-storm chart h=222 (cover + 216 numbered pages = 217 PDF pages)
+PDF page numbers (p1 = cover). Sheets: 6 pages per sheet, 666x943 px per page.
+Focus: the 87 tables with content-based column widths, pages whose break changed, open items of rounds 1-2.
+
+p1      cover: stats 13 章 / 78 幅图 / 572 处 / 8 起 (pubcheck verifies the first three) - OK
+p2-6    TOC 5 pages, page numbers filled, appendices listed - OK
+p7      reading guide, book map - OK
+p8      F3-01 table "图的五种标签": first column too narrow (my F2-09 fix: 9%) - the 4-character tags wrap onto two lines -> FIX: ~14%
+        realness table - OK; the reading guide now ends on p8 (round 2: two lines alone on an extra page) - OK
+p9      ch1 opener - OK
+p10     fig 1-1; table (13/41/46) - OK
+p11     fig 1-2 - OK
+p12     fig 1-3; budget table (4 columns) - OK
+p13     node/CPU table (5 columns, content widths) - OK
+p14-17  OK (code blocks, lists)
+p18     limits table, FAQ - OK
+p19     exercises, summary; chapter 1 ends at 38% - OK
+p20     ch2 opener - OK
+p21     sync/async table - OK; ACCEPTED GAP (55% used): the lead-in "由 orders 服务按顺序指挥：" is followed by the saga sequence
+        (fig 2-1, SVG 115 mm + caption) which needs about 150 mm with its frame; it cannot be split and must stay after its lead-in
+p22     fig 2-1 saga - OK
+p23     fig 2-2 outbox - OK
+p24     resilience primitives table (28/31/41) - OK
+p25     component table, fig 2-3 - OK
+p26-28  OK (directory tree, fig 2-4, code)
+p29     convergence table (15/85), fig 2-5 - OK
+p30     OK
+p31     fig 2-6 Tempo screenshot - OK
+p32     fig 2-7 Grafana screenshot - OK
+p33     troubleshooting table (5 columns 5/20/30/27/19): evidence file names break at '-' and '.', not inside words - OK
+p34     distribution table - OK
+p35     prod table - OK
+p36     FAQ, exercises, summary - OK
+p37     chapter 2 tail: the last four summary bullets (16% of the page) - ACCEPT (chapter tail, not an orphan line)
+p38     ch3 opener - OK
+p39     capability table - OK; ends at ~80% (fig 3-1 opens p40) - soft, OK
+p40-41  fig 3-1, fig 3-2 - OK
+p42     component table, capture table (5 columns) - OK
+p43-44  connection census, distribution table, fig 3-3 - OK
+p45     fig 3-4 screenshot, first-measurement table - OK
+p46     hop-cost table: "µs" of one value wraps to a second line - minor, OK
+p47     rounds table, fig 3-5 - OK
+p48     principle box, waypoint table, retry table S1-S3 - OK
+p49     retry table tail, fig 3-6, principle box - OK
+p50     STRICT table (4 columns), incident trace - OK
+p51     fig 3-7 Tempo screenshot - OK
+p52     improvement table, excluded-hypotheses table - OK
+p53     limits, prod table - OK
+p54     FAQ, exercises, summary start - OK
+p55     chapter 3 tail: summary bullets (30%) - chapter end, OK
+p56     ch4 opener, objectives, realness note - OK
+p57     principles, fig 4-1 model curve (full width) - OK
+p58-60  sampling-cost tables, Tempo heap - OK
+p61     step-load table (8 columns, content widths) - fits, OK
+p62-63  OK (log excerpt, per-node table)
+p64     CPU breakdown table, fig 4-2 - OK
+p65     A/A table, Little's-law table - OK
+p66     model table (6 columns) - OK
+p67     validation table (7 columns): the deviation "(−12%)" goes to a second line in one column - readable, OK; fig 4-3 - OK
+p68     fig 4-4 - OK
+p69     second-prediction table (8 columns) - OK
+p70     queueing table, fig 4-5 - OK
+p71     fig 4-6 Grafana screenshot - OK
+p72     headroom, limits - OK
+p73     prod table, FAQ, first exercise - OK
+p74     exercises, summary - OK
+p75     chapter 4 tail: two summary bullets (15%) - chapter end, OK
+p76     ch5 opener, objectives - OK
+p77     realness note, principles - OK
+p78     fig 5-1 HPA loop now on the page of its section (round 2: blank under 5.2.2) - OK
+p79     fig 5-2 eviction order - OK
+p80     HPA timeline table (15/85), fig 5-3 - OK
+p81     per-Pod table (52/16/16/15), fig 5-4 - OK
+p82     fig 5-5 Grafana screenshot - OK
+p83     KEDA table (27/73) - OK
+p84     backlog table, fig 5-6 - OK
+p85     trigger table, CPU-limit table - OK
+p86     noisy-neighbour table (6 columns) - OK
+p87     fig 5-7, QoS table - OK
+p88     eviction timeline table, fig 5-8 - OK
+p89     prediction table V1-V6 - OK
+p90     preemption log - OK
+p91     spread table - OK; first line of the paragraph after it is spread wide (justified CJK before a long English
+        quotation) -> ACCEPT (minor, inherent to justified mixed text; same class as rounds 1-2)
+p92     prod table, FAQ - OK
+p93     exercises, summary - OK
+p94     chapter 5 tail (30%) - OK
+p95     ch6 opener, objectives, realness - OK
+p96     fig 6-1 - OK
+p97     fig 6-2, tenant table - OK
+p98     permission-matrix table (4 columns) - OK
+p99     audit findings - OK
+p100    GitOps audit table - OK
+p101    network table, fig 6-3 - OK
+p102    the admission table starts with one row at the foot of the page; the header repeats on p103 -> ACCEPT (minor; a split
+        table with a repeated header is readable)
+p103    admission tables - OK
+p104    OK
+p105    fig 6-4, limits - OK
+p106    prod table, FAQ - OK
+p107    exercises, summary; chapter 6 ends at 95% - OK
+p108    ch7 opener, objectives, realness - OK
+p109    SLO table, fig 7-1 now on the page of 7.2.2 (round 2: one third of p110 empty) - OK (F2-02 fixed)
+p110    fault-phase table with its source line "原始记录 [4, 5, 6, 7]" right-aligned under it - OK
+p111    fig 7-2 (reference-line label above the rows), D1-D4 table - OK
+p112    node-failure timeline table - OK
+p113    comparison table, fig 7-3 - OK
+p114    fig 7-4, Q1-Q4 table with its source line "[17]" directly under it (round 2: alone at the top of the next page) - OK (F2-03 fixed)
+p115    incident-1 table and source line - OK
+p116    incident-2 table and source line, limits - OK
+p117    prod table, FAQ, exercises - OK
+p118    exercises, summary; chapter 7 ends at 70% - OK
+p119    ch8 opener, objectives, realness - OK
+p120    RTO/RPO definition -> fig 8-1 -> writer and its three results: lead-in no longer separated from its list - OK (F2-01 fixed)
+p121    fig 8-2 commit paths - OK
+p122    fig 8-3 WAL/PITR - OK
+p123    fig 8-4 now precedes its table, announced by the lead-in ("下面先用一张图概括，再逐项列出") - OK
+p124    failover table continues with a repeated header - OK
+p125    split-brain timeline table - OK
+p126    PITR table - OK
+p127    OK
+p128    R1 table - OK
+p129    R1 table continues (repeated header), fig 8-5 - OK
+p130    rebuild checklist table, limits - OK
+p131    prod table, FAQ - OK
+p132    exercises, summary: chapter 8 now ends on this page (round 2: three bullets on an extra page) - OK
+p133    ch9 opener, objectives - OK
+p134    realness, principles - OK
+p135    routing rules -> fig 9-1 -> lead-in -> formula (round 2: the figure separated the lead-in from its formula) - OK (F2-01 fixed)
+p136    fig 9-2, fig 9-3 - OK
+p137    gate table G1-G6 - OK
+p138    H1-H5 table, fig 9-4 - OK
+p139    C0-C4 table: verdict "符合（更快）" on one line (round 2: three short lines) - OK (F2-05 fixed)
+p140    fig 9-5 and fig 9-6 after the paragraph that reads them - OK
+p141    I1-I5 table - OK
+p142    fig 9-7 - OK
+p143    F1-D2 table, verdict "符合，另有 !18" on one line - OK
+p144    DORA table (5 columns) - OK
+p145    waves table - OK
+p146    W1-W5 table, fig 9-8 - OK
+p147    limits, prod table - OK
+p148    FAQ, exercises - OK
+p149    exercises tail, summary; chapter 9 ends at 45% - OK
+p150    ch10 opener, objectives, realness - OK
+p151    fig 10-1, burn-rate table - OK
+p152    fig 10-2 model curve - OK
+p153    10.3: AlertmanagerClusterCrashlooping now breaks at a camelCase hump, the first line is no longer stretched - OK (F2-06 fixed); A1-A2 table - OK
+p154    A3-A5 and L1 tables: verdicts "推翻（规则已修正）", "符合，有两个保留" on two short lines - OK
+p155    U1 table, incident timeline table - OK
+p156    timeline tail, fig 10-3, S1-S5 table - OK
+p157    S6 table, fig 10-4 screenshot, action-item table - OK
+p158    action items, fig 10-5 - OK
+p159    X1-X2 table, cost table, fig 10-6 - OK
+p160    fig 10-7 Tempo screenshot, limits - OK
+p161    prod table, FAQ, exercises - OK
+p162    exercises, summary: chapter 10 ends here at 75% (round 2: one summary line alone on an extra page) - OK (F2-07 fixed)
+p163    ch11 opener, objectives - OK
+p164    realness, fig 11-1 - OK
+p165    fig 11-2 - OK
+p166    fig 11-3 with its numbered legend - OK
+p167    fig 11-4, K1/K2 table - OK
+p168    fig 11-5 - OK
+p169    fig 11-6, etcd growth table - OK
+p170    LIST table - OK
+p171    K5 runs table, fig 11-7 (compact rows, target label above the rows) - OK
+p172    fig 11-8 terminal record - OK
+p173    OK
+p174    fig 11-9 (note inside the plot) - OK
+p175    scale-boundary table (7/93), limits - OK
+p176    prod table, FAQ - OK
+p177    exercises, summary; chapter 11 ends at 45% - OK
+p178    ch12 opener, objectives - OK
+p179    realness, fig 12-1 - OK
+p180    fig 12-2 state-lock sequence - OK
+p181    I1, I2, fig 12-3 terminal record - OK
+p182    fig 12-4 terminal record, I3 - OK
+p183    fig 12-5 terminal record, I4 - OK
+p184    fig 12-6 (measured times, tag "实测数据"), incident table with the header "经过" - OK
+p185    incident table; fig 12-7 now stands between the fact (54 incidents) and its analysis - OK
+p186    cloud-migration table (19/37/44), limits - OK
+p187    prod table, FAQ - OK
+p188    exercises, summary; chapter 12 ends at 35% - OK
+p189    ch13 opener, the four learning objectives, realness - OK
+p190    D1-D5 table, T1-T3 table - OK
+p191    grading table, fig 13-1; the lead-in "原因就出现了：" announces fig 13-2 on the next page - OK
+p192    fig 13-2 terminal record, 13.5 - OK
+p193    P1 grading table, limits, 13.7: names docs/acceptance-report.md (v2.0.0) and docs/publication/ACCEPTANCE.md
+        -> the book refers to ACCEPTANCE.md: it must exist in the release; chapter 13 ends at 50%
+p194-204 appendix A (answers, chapters 1-9): dense text, inline code breaks at separators, no overflow - OK
+p205-208 appendix A (answers, chapters 9-12) - OK
+p209    appendix B glossary now fits on one page (round 2: five entries alone on an extra page) - OK
+p210    appendix C: the first line of the intro paragraph is still spread a little (justified line ending in the repository
+        path) -> FIX F3-02: left-align that paragraph (no effect on the page breaks)
+p210-214 appendix C tables: paths break only at '/', '-', '.', never inside a word (round 2: "val|ues/", "storef|ront.js") - OK;
+        appendix C ends at 75% of p214 (round 2: three rows alone on an extra page) - OK
+p215-216 appendix D: "全书另有 572 处" is now computed from spot-checks.json - OK; two-column index - OK
+p217    appendix D tail (chapters 8-13); the book ends at 75% - OK
+ROUND 3 COMPLETE: all 217 pages viewed at 666x943 px per page. Two findings (F3-01 tag column, F3-02 appendix C intro), both minor.

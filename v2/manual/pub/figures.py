@@ -371,7 +371,7 @@ def _(out):
 def _(out):
     bar_chart(out, "OpenBao 密封的 9 小时里，告警桥在 GitLab 中开出的事故（个）",
               ["OpenBaoSealed\n原因本身", "ArgoCDAppDegraded\n依赖它的应用", "KubeJobFailed\n每小时的快照任务", "KubeContainerWaiting\n任务的 Pod"], [
-                  {"name": "", "color": C["orange"], "vals": [1, 16, 10, 27]}], ylabel="事故数", ylim=(0, 31), h=250,
+                  {"name": "", "color": C["orange"], "vals": [1, 16, 10, 27]}], ylabel="事故数", ylim=(0, 31), h=222,
               notes=[(0, 4.5, "1 个原因"), (2, 29.5, "53 个症状：每小时关闭一批，再打开一批")])
 
 

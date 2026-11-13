@@ -166,3 +166,7 @@ figure.diagram.h130 svg, figure img.h130 { max-height: 130mm; }
 /* the exercise box: its label must not be left alone at the foot of a page */
 div.exercise > :first-child { break-before: avoid; }
 div.exercise li:first-child { break-before: avoid; }
+
+/* appendix C: the intro paragraph ends in the repository path; left-aligned so that the line before it is not spread
+   (review round 3, F3-02) */
+h1#app-code + p { text-align: left; }
