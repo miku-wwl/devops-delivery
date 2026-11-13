@@ -59,21 +59,10 @@
 
 Istio 有两种数据面。**sidecar 模式**在每个 Pod 里注入一个 Envoy 容器，所有进出流量都经过它：每个 Pod 多一个进程，加入或升级网格都要重启 Pod。**ambient 模式**把网格拆成两层：
 
-```{.mermaid caption="ambient 模式的数据路径：Pod 里没有 sidecar，流量被重定向到本节点的 ztunnel，节点之间用 HBONE（mTLS 上的 HTTP/2 CONNECT，端口 15008）传输；需要第 7 层能力时，流量再经过一个 waypoint。"}
-flowchart LR
-  subgraph N1["节点 ent-worker"]
-    A["gateway Pod<br/>（应用进程，无 sidecar）"] -->|"Pod 内重定向"| Z1["ztunnel<br/>（节点代理，L4）"]
-  end
-  subgraph N2["节点 ent-worker2"]
-    Z2["ztunnel"] --> B["orders Pod"]
-  end
-  Z1 ==>|"HBONE：mTLS + HTTP/2 CONNECT<br/>端口 15008"| W["waypoint（Envoy，L7）<br/>可选，按命名空间或服务"]
-  W ==>|HBONE| Z2
-  Z1 -.->|"不用 waypoint 时直接相连"| Z2
-```
-
 - **ztunnel**（零信任隧道）是每个节点一个的 L4 代理，用 Rust 编写。istio-cni 节点代理在每个加入网格的 Pod 的网络命名空间里写入 iptables 规则，把出站流量重定向到 15001、入站流量重定向到 15006、DNS 重定向到 15053，再把 Pod 交给 ztunnel 接管。ztunnel 负责 mTLS、L4 授权和 TCP 指标，不解析 HTTP。
 - **waypoint** 是可选的 Envoy 代理，按命名空间或服务部署。只有需要 L7 能力（按请求的负载均衡、路由、重试、L7 授权、HTTP 指标）时，流量才经过它。
+
+![ambient 模式的数据路径：Pod 里没有 sidecar，流量被重定向到本节点的 ztunnel，节点之间用 HBONE（mTLS 上的 HTTP/2 CONNECT，端口 15008，图中的粗线）传输；需要第 7 层能力时，流量再经过一个 waypoint。](../figures/concept-ambient-path.svg)
 
 加入网格只需要给命名空间打标签 `istio.io/dataplane-mode=ambient`，**不重启任何 Pod**；需要 L7 时再部署 waypoint，并用 `istio.io/use-waypoint` 标签让流量经过它。
 
@@ -93,21 +82,7 @@ kube-proxy 和 ztunnel 都在**连接**建立时选择后端。一个调用方�
 
 waypoint 在**请求**层面做负载均衡：它终止客户端的 HTTP 连接，为每个请求重新选择后端（Istio 默认使用最少请求算法 `LEAST_REQUEST`），自己与每个后端维持连接池。代价是多一跳 Envoy，以及 HTTP 解析的开销。
 
-```{.mermaid caption="同一个调用方、两个副本，两种选择后端的时机。按连接选择时，少数几条长连接落在哪里，之后的所有请求就在哪里；按请求选择时，每个请求都重新分配。"}
-flowchart LR
-  subgraph L4["L4：kube-proxy / ztunnel，在连接建立时选一次"]
-    direction LR
-    C1["调用方<br/>2 条长连接"] ==>|"连接 1：之后的全部请求"| A1["副本 A<br/>约 97%"]:::bad
-    C1 ==>|"连接 2 也落在 A"| A1
-    C1 -.- B1["副本 B<br/>约 3%"]:::ghost
-  end
-  subgraph L7["L7：waypoint，为每个请求选一次"]
-    direction LR
-    C2["调用方"] ==> WP["waypoint<br/>终止 HTTP，最少请求算法"]
-    WP -->|"请求 1、3、5…"| A2["副本 A<br/>约 50%"]:::good
-    WP -->|"请求 2、4、6…"| B2["副本 B<br/>约 50%"]:::good
-  end
-```
+![同一个调用方、两个副本，两种选择后端的时机。按连接选择时，少数几条长连接落在哪里，之后的所有请求就在哪里；按请求选择时，每个请求都重新分配。图中的比例是本章实验 2 里 inventory 的实测值取整（97.1% / 2.9%，经过 waypoint 后 49.7% / 50.3%）。](../figures/concept-l4-l7.svg)
 
 另一种思路是让客户端定期关闭长连接（例如每 N 个请求或每 T 秒重建一次），用更多的连接建立换来更均匀的分布；gRPC 的客户端负载均衡则是在客户端为每个请求选择后端。这些都是不用网格时的替代方案。
 
@@ -193,9 +168,9 @@ gateway-5476f9c8fb-rh4wf       10.240.1.1                               11
 | inventory | 97.1% / 2.9% | 97.2% / 2.8% | 49.7% / 50.3% |
 | payments | 86.7% / 13.3% | 15.0% / 85.0% | 48.2% / 51.8% |
 
-结论很清楚：
-
 ![三种模式下，两个副本中较忙的那个承担的请求比例。50% 是完全均匀。只有 ztunnel（L4）时，不均的程度和没有网格时一样——只是换了一个副本“中签”；经过 waypoint（L7）之后，五个服务全部回到 50% 附近。gateway 的调用方是 k6 的大量连接，所以三种模式下都均匀。](../figures/e2-distribution.svg)
+
+结论很清楚：
 
 - **ztunnel 不改变分布。**它是 L4 代理，同样在连接建立时选择后端，L4 模式下的失衡与无网格时同一个量级，只是哪个副本“中签”不同。加密与身份认证并不附带负载均衡的改善。
 - **waypoint 让所有服务回到接近 50/50。**L7 模式下的连接普查显示，每个后端 Pod 的对端都只剩下 waypoint（每个后端 2–4 条连接）：客户端的长连接终止在 waypoint 上，waypoint 为每个请求重新选择后端。
@@ -293,11 +268,7 @@ waypoint 让浏览 p50 增加约 1.3 ms（一次 Envoy 转发），下单 p50 �
 | S3：同 S2，另加 HTTPRoute 重试 3 次 | 11（0.18） | 7 | 28 | **21（4 倍）** |
 | S4：只有 ztunnel（L4），返回 503 | 11（0.18） | 6 | 6 | 0 |
 
-```{.mermaid .data caption="场景 S3 中的重试叠加（数字为实测）：应用认为自己只发出了 7 次尝试，waypoint 上的路由为每一次又重试 3 次，payments 实际收到 28 次。每一层都只看得见自己的重试。"}
-flowchart LR
-  O["orders<br/>应用层：重试 + 重试预算"] -->|"7 次尝试"| W["waypoint<br/>HTTPRoute：重试 3 次"]:::sim
-  W ==>|"7 × (1 + 3) = 28 次调用"| P["payments<br/>正在返回 503"]:::bad
-```
+![场景 S3 中的重试叠加（数字为实测）：应用认为自己只发出了 7 次尝试，waypoint 上的路由为每一次又重试 3 次，payments 实际收到 28 次。每一层都只看得见自己的重试。](../figures/e2-retry-stack.svg)
 
 这张表回答了三个问题。
 

@@ -58,15 +58,7 @@ $$\text{期望副本数} = \left\lceil \text{当前副本数} \times \frac{\text
 
 比值与 1 的差在 10% 以内时不动（容差）。扩容默认立即执行（每 15 秒最多翻倍或加 4 个），缩容要求过去 300 秒内的期望值都更低（稳定窗口），以免来回抖动。从负载上升到新副本开始分担流量，要经过一串延迟：kubelet 采集容器 CPU，metrics-server 汇总（本环境每 15 秒），HPA 下一次计算，Deployment 创建 Pod，调度器选择节点，拉取镜像、启动容器，就绪探针通过，最后网格与负载均衡把新连接分给它。本章测量这条链上的每一段。
 
-```{.mermaid caption="HPA 的控制回路。从负载升高到新副本接到请求要走完整条链，每一段都有自己的周期；缩容还要再等一个稳定窗口。回路里没有任何一环“知道”请求是否真的分到了新 Pod。"}
-flowchart TB
-  P["Pod 的 CPU 用量<br/>kubelet / cAdvisor"] -->|"每 15 秒汇总"| MS["metrics-server"]
-  MS -->|"每 15 秒读取"| H["HPA 控制器<br/>期望副本 = 当前副本 × 当前指标 ÷ 目标<br/>与 1 相差 10% 以内：不动"]
-  H -->|"扩容：立即<br/>缩容：稳定窗口 300 秒"| D["Deployment<br/>改副本数"]
-  D --> S["调度 → 拉镜像 → 启动<br/>→ 就绪探针"]
-  S --> E["Service 端点<br/>负载均衡器开始转发"]
-  E -. "新 Pod 分担负载，利用率下降" .-> P
-```
+![HPA 的控制回路。从负载升高到新副本接到请求要走完整条链，每一段都有自己的周期；缩容还要再等一个稳定窗口。回路里没有任何一环“知道”请求是否真的分到了新 Pod。](../figures/concept-hpa-loop.svg)
 
 ### KEDA：按事件源扩缩容
 
@@ -79,13 +71,7 @@ CPU 不是所有服务的好指标。通知服务大部分时间在等待外部�
 - **抢占**：调度器为一个放不下的高优先级 Pod 寻找节点，在那里驱逐尽量少、优先级尽量低的 Pod。没有指定 PriorityClass 的 Pod 优先级为 0。
 - **拓扑分布约束**：把副本均匀地放在可用区之间；`ScheduleAnyway` 是建议，`DoNotSchedule` 是硬性要求，宁可不调度也不打破均匀。
 
-```{.mermaid caption="节点内存不足时 kubelet 的驱逐顺序（用实验 6 的三个 Pod 举例）。先看用量是否超出请求，再看优先级，最后看超出了多少——QoS 类别不是排序键。没有内存请求的 BestEffort Pod 只超出 160 MiB，排在超出 712 MiB 的 Burstable Pod 之后。"}
-flowchart LR
-  T["memory.available<br/>低于驱逐阈值"]:::bad --> Q{"用量超出<br/>内存请求了吗？"}
-  Q -->|"是：先驱逐这一组<br/>组内按优先级，再按超出量"| A["burst-hog<br/>请求 64Mi，用 776 MiB<br/>超出 712 MiB：第一个"]:::bad
-  A --> B["be-hog<br/>请求 0，用 160 MiB<br/>超出 160 MiB：第二个"]:::sim
-  Q -->|"否：最后才轮到"| G["guaranteed<br/>请求 128Mi，用 80 MiB"]:::good
-```
+![节点内存不足时 kubelet 的驱逐顺序（用实验 6 的三个 Pod 举例）。先看用量是否超出请求，再看优先级，最后看超出了多少——QoS 类别不是排序键。没有内存请求的 BestEffort Pod 只超出 160 MiB，排在超出 712 MiB 的 Burstable Pod 之后。](../figures/concept-eviction-order.svg)
 
 ## 实验 1：把副本数交给 HPA {#e4-handover}
 

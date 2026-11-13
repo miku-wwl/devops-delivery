@@ -58,16 +58,11 @@
 
 ### 金丝雀、预览与爆炸半径
 
-金丝雀是新版本的第二个发布（这里是 `gateway-canary`），与稳定版并存。HTTPRoute 的 `backendRefs` 按权重分流（95/5），每个请求独立抽签；带请求头 `x-storefront-preview: canary` 的请求则总是去金丝雀，测试人员可以在零权重时先行验证。一次失败的金丝雀伤及的请求比例约为：
+金丝雀是新版本的第二个发布（这里是 `gateway-canary`），与稳定版并存。HTTPRoute 的 `backendRefs` 按权重分流（95/5），每个请求独立抽签；带请求头 `x-storefront-preview: canary` 的请求则总是去金丝雀，测试人员可以在零权重时先行验证。
 
-```{.mermaid caption="金丝雀的两条路由规则。带预览头的请求全部去金丝雀——团队可以在放量之前自己验证；其余的公共请求按权重分流。新版本出问题时，受影响的比例大约是“权重 × 失败率”，这就是爆炸半径。"}
-flowchart LR
-  U["公共请求"] --> GW["入口 Gateway<br/>HTTPRoute"]
-  T["测试人员<br/>带预览请求头"]:::ghost --> GW
-  GW -->|"规则 1：带预览头 → 100%"| CN["金丝雀版本<br/>gateway-canary"]:::sim
-  GW -->|"规则 2：权重 95"| ST["稳定版本<br/>gateway"]:::good
-  GW -->|"规则 2：权重 5"| CN
-```
+![金丝雀的两条路由规则。带预览头的请求全部去金丝雀——团队可以在放量之前自己验证；其余的公共请求按权重分流。新版本出问题时，受影响的比例大约是“权重 × 失败率”，这就是爆炸半径。](../figures/concept-canary-routes.svg)
+
+一次失败的金丝雀伤及的请求比例约为：
 
 $$\text{受影响比例} \approx \text{金丝雀权重} \times \text{金丝雀的失败率}$$
 
@@ -83,36 +78,13 @@ $$\text{受影响比例} \approx \text{金丝雀权重} \times \text{金丝雀�
 
 在 GitOps 中，冻结需要两把钥匙。第一把在合并之前：冻结期内，普通的合并请求不能合并（GitLab 的部署冻结期让流水线带上 `CI_DEPLOY_FREEZE` 变量，冻结检查据此失败），只有标明 `[emergency]` 的紧急变更可以通过，而且这个标记永久留在历史里。第二把在 Argo CD：同步窗口（`syncWindows`）中的 deny 窗口期间不做自动同步，已经合并进 main 的改动也被挡住，只有操作员手动同步（`manualSync: true`）能放行。只有第二把钥匙时，冻结期间 main 会不断前进，窗口一结束，积压的改动同时生效；只有第一把钥匙时，绕过流水线进入 main 的改动（或者自愈）照样生效。
 
-```{.mermaid caption="变更冻结的两把钥匙。第一把在合并之前：冻结期间，流水线只放行标明紧急的改动。第二把在合并之后：即使改动已经进入 main，Argo CD 的同步窗口也不把它带进集群。只有两把钥匙都打开，改动才会生效。"}
-flowchart LR
-  MR["合并请求"] --> K1{"钥匙一：门禁中的冻结检查<br/>冻结期只放行 [emergency]"}
-  K1 -->|"通过"| M["main 分支"]
-  K1 -. "普通改动：流水线失败，不能合并" .-> X1["被拒绝"]:::bad
-  M --> K2{"钥匙二：Argo CD 的同步窗口<br/>deny 窗口内不自动同步"}
-  K2 -->|"窗口结束，或有权限的人手动同步"| C["集群"]:::good
-  K2 -. "窗口内：已合并，但不生效" .-> W["等待"]:::sim
-```
+![变更冻结的两把钥匙。第一把在合并之前：冻结期间，流水线只放行标明紧急的改动。第二把在合并之后：即使改动已经进入 main，Argo CD 的同步窗口也不把它带进集群。只有两把钥匙都打开，改动才会生效。](../figures/concept-freeze-keys.svg)
 
 ### DORA 指标从哪里来
 
 DORA 的四个指标衡量交付的速度与稳定性：部署频率、变更前置时间（从提交到在生产运行）、变更失败率（需要回滚或修复的部署所占比例）、恢复时间（失败的部署到恢复）。它们都可以从系统里已有的记录计算：合并请求给出“改了什么、何时提出、何时合并”，部署记录给出“何时在生产生效”。困难在于对应关系——一个合并请求影响哪些应用、哪一次部署包含它——以及不经过合并请求的改动：它们在这些记录里根本不存在。
 
-```{.mermaid caption="本章的发布路径：每个改动都是一个合并请求，每道关卡都留下记录"}
-flowchart TB
-  subgraph G["合并之前：GitLab"]
-    direction LR
-    dev["开发者 alice<br/>（Developer）"] -->|"合并请求"| ci["流水线：渲染、发布策略<br/>（Kyverno CLI）、冻结检查"]
-    ci -->|"失败：拒绝合并（405）"| keep["main 不变"]
-    ci -->|"通过：Maintainer 合并"| main["main（配置仓库）"]
-  end
-  subgraph C["合并之后：集群"]
-    direction LR
-    argo["Argo CD<br/>项目边界、同步窗口"] -->|"以项目的部署账号写入"| k8s["Kubernetes<br/>RBAC、准入策略"]
-    k8s --> notif["Argo CD 通知"]
-    notif -->|"Deployments API"| dep["GitLab 部署记录<br/>→ DORA 指标"]
-  end
-  G -->|"Argo CD 每 60 s 轮询 main"| C
-```
+![本章的发布路径：每个改动都是一个合并请求，每道关卡都留下记录](../figures/concept-release-path.svg)
 
 ## 实验 1：合并请求门禁 {#e8-gate}
 
@@ -156,7 +128,7 @@ H1 和 H2 说明第 7 层入口做到了第 5 章要求的事：新 Pod 立刻�
 金丝雀是网关的第二个 Helm 发布 `gateway-canary`：同一个 chart，用新增的 chart 值 `app: gateway` 运行网关程序，镜像为 `8ef5584`，这个版本在每个响应里加上 `X-Storefront-Version` 头（稳定版 `fd38028` 早于这个头，“没有这个头”就表示稳定版）。HTTPRoute 有两条规则：带 `x-storefront-preview: canary` 的请求去金丝雀，其余按权重分配。每一步都是一个经过门禁的合并请求（流水线 32–38 s）：!10 权重 0，!11 权重 5，!12 撤回，!13 提升。假设提交在 `evidence/e8/canary-prediction.md`：
 
 | | 假设 | 测量 | |
-|---|------------------------|------------------------------|-----|
+|---|----------------------|--------------------------|---------|
 | C0 | 金丝雀通过门禁；权重 0 时不收公共请求，只收预览请求 | !10 用 33 s 通过；15 s 探测：300 个不带头的请求全部由 fd38028 回答，300 个带预览头的全部由 8ef5584 回答 | 符合 |
 | C1 | 权重 95/5：20 000 个请求中 5.0% ± 0.3% 由金丝雀回答 | k6 每秒 100 个请求、持续 200 s：**20 001 个中 986 个 = 4.93%**（2 个失败，都由稳定版回答）；同一窗口 Prometheus：20 019 个中 1007 个 = **5.03%** | 符合 |
 | C2 | 在 95/5 的权重下，预览头仍然 100% 去金丝雀 | 400 个中 400 个 | 符合 |
@@ -189,15 +161,7 @@ C1 的两种测量互相印证：k6 按响应头计数，Prometheus 按服务端
 
 I4 的推翻揭示了根应用的特殊位置：它创建其他项目，所以不能属于其中任何一个，只能放在 Argo CD 自带的 `default` 项目里——而 `default` 没有部署账号。修复是给根应用一个专属项目 `root`（`gitops/bootstrap/root.yaml`，和根应用一样由人工应用一次），它只允许 `argocd` 命名空间里的 Application、ApplicationSet 和 AppProject，冒用的账号 `argocd-root` 也只拥有这三种对象的 Role。修复后根应用在 04:05:33 同步成功，并以 `argocd-root` 的身份删除了两个探针（`delete applications 200`，2 次）。`default` 保持没有账号：冒用打开之后，放在其中的任何应用都无法同步，这正好关上了一扇后门。
 
-```{.mermaid caption="同步冒用之后，Argo CD 以哪个账号写入集群"}
-flowchart LR
-  ctl["argocd-application-controller<br/>只负责冒用，<br/>自己只写 Argo CD 的对象"]
-  ctl -->|"项目 root"| r["argocd:argocd-root<br/>只能写 Application、ApplicationSet、AppProject"]
-  ctl -->|"项目 platform"| p["argocd:argocd-platform<br/>cluster-admin：Operator、CRD、集群级对象"]
-  ctl -->|"项目 storefront"| s["storefront:argocd-storefront<br/>只能写发布用到的 7 种对象"]
-  ctl -->|"项目 insight"| i["insight:argocd-insight<br/>只能写 3 种对象"]
-  ctl -.->|"项目 default"| d["没有账号：无法同步"]
-```
+![同步冒用之后，Argo CD 以哪个账号写入集群](../figures/concept-impersonation.svg)
 
 另外三个发现：
 
@@ -225,7 +189,7 @@ freeze:
 假设提交在 `evidence/e8/freeze-prediction.md`：
 
 | | 假设 | 测量 | |
-|---|------------------------|------------------------------|-----|
+|---|----------------------|--------------------------|---------|
 | F1 | 冻结期内，alice 的普通合并请求在冻结检查中失败，GitLab 拒绝合并 | !19（catalog 改为 `LOG_LEVEL: WARNING`）：流水线 17 s 失败于 `freeze`，日志 `deploy freeze active - only emergency changes ... may merge`；合并返回 HTTP 405；随后关闭 | 符合 |
 | F2 | 紧急合并请求通过，作业日志写明它是紧急变更，一分钟内合并 | !20 `[emergency] orders, catalog: DB_POOL_MAX +2 (pool exhaustion)`：流水线 23 s，`emergency change, allowed`；04:29:00 合并，距提出 28 s | 符合 |
 | F3 | deny 窗口挡住已合并的改动至少 120 s；操作员的手动同步在窗口内一分钟之内放行 catalog | 合并后 +30/60/90/120 s，两个应用都是 OutOfSync，最近一次同步仍是 03:49 和 03:55 那次；控制器日志 `Sync prevented by sync window`；04:30:59 手动同步，04:31:23 catalog 已同步且健康 | 符合 |
@@ -292,25 +256,7 @@ D2 暴露了 GitLab 关联方式的局限：它按环境上两次部署之间的
 | W4 | 部署事件记录下重建 | GitLab 部署记录 #19–#24，每个服务一条，成功 | 符合 |
 | W5 | 从删除到全部就绪不超过 13.5 min（R2：15.05 min） | **14.1 min**；R4 的步骤之间没有停顿，R2 约有 35 s | 推翻 |
 
-```{.mermaid .data caption="R2 与 R4：根应用第一次同步之后的时间线（秒）。R4 中 PostgreSQL 的恢复提前了 130 秒开始，但 Gateway API CRD 波次慢了 86 秒，恢复本身慢了 52 秒"}
-%%{init: {"gantt": {"barHeight": 30, "barGap": 6, "fontSize": 15, "sectionFontSize": 15, "leftPadding": 150, "topPadding": 40}}}%%
-gantt
-  dateFormat X
-  axisFormat %M:%S
-  section R2（11 个波次）
-  Istio 链           :r2a, 0, 68
-  Operator（-3 波）   :r2b, 68, 311
-  tenants、mesh、cnpg :r2c, 311, 345
-  数据与可观测（-1 波） :r2d, 345, 438
-  pg-main 恢复（0 波） :crit, r2e, 438, 616
-  storefront         :r2f, 616, 692
-  section R4（9 个波次）
-  Istio 链           :r4a, 10, 162
-  Operator 与 barman-cloud :r4b, 162, 308
-  pg-main 恢复（-2 波） :crit, r4c, 308, 538
-  其余的 -2 波        :r4d, 308, 543
-  storefront（-1 波） :r4e, 543, 636
-```
+![R2 与 R4：根应用第一次同步之后的时间线（秒）。R4 中 PostgreSQL 的恢复（橙色）提前了 130 秒开始，但 Istio 链里的 Gateway API CRD 慢了 86 秒，恢复本身慢了 52 秒；浅色是没有逐项标出的其余波次。](../figures/e8-waves.svg)
 
 新布局带来了它在结构上承诺的东西：barman-cloud 在 Operator 波次里就绪（277 秒，没有自己的波次），PostgreSQL 提前 130 秒开始恢复。但两个布局没有触及的组件合计比 R2 慢了 138 秒：Gateway API 的 CRD 应用用了 121 秒（R2 是 35 秒，R3 是 109 秒，原因没有查明），PostgreSQL 的恢复用了 230 秒（R2 是 178 秒）。同一个组件在三次重建中的耗时差异（CRD 35/109/121 秒、恢复 178/190/230 秒、external-secrets 238/200/约 146 秒）与重排的收益同一量级：每种布局只重建一次，分辨不出两分钟的改进。看得清的是结构上的变化，例如关键路径上少了一个波次；看不清的是总时间。
 

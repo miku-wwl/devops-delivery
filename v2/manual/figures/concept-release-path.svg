@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 238" width="640" height="238" font-family="'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="8.0" y="8.0" width="624.0" height="102.0" rx="7" fill="#f7f9fc" stroke="#b9c6d4" stroke-width="1"/>
+<text x="17.0" y="23.0" font-size="10" fill="#46525f" text-anchor="start" font-weight="600">合并之前：GitLab</text>
+<rect x="20.0" y="38.0" width="100.0" height="54.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="70.0" y="61.8" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">开发者 alice</text>
+<text x="70.0" y="75.4" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">Developer</text>
+<rect x="196.0" y="32.0" width="184.0" height="66.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="288.0" y="55.0" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">流水线</text>
+<text x="288.0" y="68.6" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">渲染 · 发布策略（Kyverno CLI）</text>
+<text x="288.0" y="82.2" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">冻结检查</text>
+<rect x="506.0" y="26.0" width="114.0" height="34.0" rx="5.0" fill="#e6f4ea" stroke="#2e8b57" stroke-width="1.2"/>
+<text x="563.0" y="46.6" font-size="10" fill="#1d5c38" text-anchor="middle" font-weight="normal">main（配置仓库）</text>
+<rect x="506.0" y="68.0" width="114.0" height="34.0" rx="5.0" fill="#fdecea" stroke="#c0392b" stroke-width="1.2"/>
+<text x="563.0" y="88.6" font-size="10" fill="#7a1f16" text-anchor="middle" font-weight="normal">main 不变</text>
+<polyline points="120.0,65.0 191.0,65.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="196.0,65.0 187.1,61.0 187.1,69.0" fill="#5b6776"/>
+<rect x="136.0" y="51.5" width="44.0" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="158.0" y="60.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">合并请求</text>
+<polyline points="380.0,43.0 501.0,43.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="506.0,43.0 497.1,39.0 497.1,47.0" fill="#5b6776"/>
+<rect x="387.5" y="29.5" width="111.0" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="443.0" y="38.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">通过：Maintainer 合并</text>
+<polyline points="380.0,85.0 501.0,85.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 4"/>
+<polygon points="506.0,85.0 497.1,81.0 497.1,89.0" fill="#5b6776"/>
+<rect x="389.4" y="71.5" width="107.2" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="443.0" y="80.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">失败：拒绝合并（405）</text>
+<rect x="8.0" y="142.0" width="624.0" height="88.0" rx="7" fill="#f7f9fc" stroke="#b9c6d4" stroke-width="1"/>
+<text x="17.0" y="157.0" font-size="10" fill="#46525f" text-anchor="start" font-weight="600">合并之后：集群</text>
+<rect x="20.0" y="168.0" width="132.0" height="52.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="86.0" y="190.8" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">Argo CD</text>
+<text x="86.0" y="204.4" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">项目边界 · 同步窗口</text>
+<rect x="262.0" y="168.0" width="120.0" height="52.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="322.0" y="190.8" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">Kubernetes</text>
+<text x="322.0" y="204.4" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">RBAC · 准入策略</text>
+<rect x="418.0" y="168.0" width="76.0" height="52.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="456.0" y="190.8" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">Argo CD</text>
+<text x="456.0" y="204.4" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">通知</text>
+<rect x="520.0" y="162.0" width="104.0" height="64.0" rx="5.0" fill="#e8f5f2" stroke="#0f8a7e" stroke-width="1.2"/>
+<text x="572.0" y="184.0" font-size="10" fill="#0b4f48" text-anchor="middle" font-weight="600">GitLab 部署记录</text>
+<text x="572.0" y="197.6" font-size="9.5" fill="#0b4f48" text-anchor="middle" font-weight="normal">Deployments API</text>
+<text x="572.0" y="211.2" font-size="9.5" fill="#0b4f48" text-anchor="middle" font-weight="normal">→ DORA 指标</text>
+<polyline points="124.0,110.0 124.3,163.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="124.3,168.0 128.3,159.1 120.2,159.1" fill="#5b6776"/>
+<rect x="127.1" y="133.5" width="132.8" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="130.1" y="142.0" font-size="9.5" fill="#5b6776" text-anchor="start" font-weight="normal">Argo CD 每 60 秒轮询 main</text>
+<polyline points="152.0,194.0 257.0,194.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="262.0,194.0 253.1,190.0 253.1,198.0" fill="#5b6776"/>
+<rect x="156.5" y="180.5" width="101.0" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="207.0" y="189.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">以项目的部署账号写入</text>
+<polyline points="382.0,194.0 413.0,194.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="418.0,194.0 409.1,190.0 409.1,198.0" fill="#5b6776"/>
+<polyline points="494.0,194.0 515.0,194.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="520.0,194.0 511.1,190.0 511.1,198.0" fill="#5b6776"/>
+</svg>

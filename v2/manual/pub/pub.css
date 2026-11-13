@@ -73,7 +73,19 @@ sup.ev a { color: inherit; }
 .evlist code { background: none; padding: 0; font-size: 7.2pt; }
 .evlist .n { display: inline-block; width: 7.5mm; text-indent: 0; color: var(--accent-2); font-weight: 700; }
 
+/* a paragraph that held only evidence files, under a table or a figure */
+p.evsrc { text-align: right; font-size: 7.6pt; color: var(--muted); margin: -2.4mm 0 3.2mm; line-height: 1.4; break-before: avoid; }
+p.evsrc sup.ev { font-size: 7.6pt; vertical-align: baseline; line-height: inherit; }
+figure + p.evsrc { margin-top: -4.4mm; }
+
 /* ---------- code ---------- */
+/* long inline code may break (codebreak.lua adds break points after separators; this is the fallback) */
+p code, li code, dd code { overflow-wrap: anywhere; }
+/* table cells: manual.css breaks code anywhere (break-all), which cut paths in the middle of a word although a
+   separator was a few characters away; here the break points of codebreak.lua come first */
+td code, th code { word-break: normal; overflow-wrap: anywhere; }
+/* a Mermaid diagram sits in a <pre>: do not inherit the code block's break-anywhere rule into its labels */
+figure.diagram pre.mermaid { word-break: normal; overflow-wrap: normal; }
 pre { background: var(--code-bg); border: 1px solid #e1e7ee; border-left: 3px solid #9db4cc; border-radius: 4px; font-size: 8.2pt; }
 pre.console, div.sourceCode pre.console { border-left-color: var(--mint); }
 code { background: #eef2f6; }
@@ -132,8 +144,12 @@ main h1.unnumbered { font-size: 22pt; }
 .small { font-size: 8.8pt; color: var(--muted); }
 dl.glossary dt { font-weight: 700; color: var(--navy); margin-top: 1.6mm; }
 dl.glossary dd { margin: 0 0 0 0; font-size: 9.4pt; }
-.glossary-cols { columns: 2; column-gap: 9mm; font-size: 9.2pt; line-height: 1.62; }
-.glossary-cols p { margin: 0 0 1.7mm; break-inside: avoid; text-align: left; }
+.glossary-cols { columns: 2; column-gap: 9mm; font-size: 8.8pt; line-height: 1.52; }
+.glossary-cols p { margin: 0 0 1.25mm; break-inside: avoid; text-align: left; }
+/* appendix C: thirteen short tables, set a little tighter than the chapters */
+div.codeindex h2 { margin: 6mm 0 2mm; font-size: 13pt; }
+div.codeindex table { margin: 2mm 0 2.6mm; }
+div.codeindex p { margin-bottom: 1.6mm; }
 .glossary-cols strong { color: var(--navy); }
 div.realness p { text-align: left; }
 

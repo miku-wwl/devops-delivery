@@ -42,18 +42,7 @@
 
 ## 原理 {#e5-principles}
 
-```{.mermaid caption="一个租户被五种机制围住，每一种回答一个不同的问题，互不替代：RBAC 管“谁能改什么”，准入管“什么样的对象能进来”，网络策略管“能和谁通信”，外部密钥管“秘密从哪里来”，Argo CD 的项目管“能往哪里部署”。审计日志不拦任何东西，它负责事后回答。"}
-flowchart TB
-  R["RBAC：谁能改什么<br/>实验 1–3"] --> NS
-  A["准入：什么样的对象能进来<br/>Pod Security · Kyverno · 配额<br/>实验 5"] --> NS
-  N["网络策略：能和谁通信<br/>默认拒绝，显式放行<br/>实验 4"] --> NS
-  subgraph NS["租户命名空间（shop-dev、insight）"]
-    P["团队的 Pod 与对象"]
-  end
-  S["外部密钥：秘密从哪里来<br/>OpenBao + External Secrets<br/>实验 7"] --> NS
-  G["Argo CD 项目：能往哪里部署<br/>实验 6"] --> NS
-  NS -.-> L["审计日志：谁、何时、做了什么<br/>实验 3"]:::note
-```
+![一个租户被五种机制围住，每一种回答一个不同的问题，互不替代：RBAC 管“谁能改什么”，准入管“什么样的对象能进来”，网络策略管“能和谁通信”，外部密钥管“秘密从哪里来”，Argo CD 的项目管“能往哪里部署”。审计日志不拦任何东西，它负责事后回答。](../figures/concept-tenant-fences.svg)
 
 ### 身份、认证与授权
 
@@ -68,17 +57,7 @@ Kubernetes 不保存用户。API 服务器只验证请求者出示的凭据：�
 
 通过授权的请求还要经过准入：先是修改型（例如 LimitRange 为没有声明资源的容器补上默认值），再是校验型。内置的 Pod Security Admission 按命名空间标签执行三个级别的安全基线；更细的规则由策略引擎实现，要么是外部的 webhook（Kyverno），要么是 API 服务器内置、用 CEL 表达式编写的 ValidatingAdmissionPolicy。webhook 是一个必须在线的外部服务：它不可用时，要么拒绝请求（Fail），要么放行（Ignore）。
 
-```{.mermaid caption="一个请求进入 API server 要过的四道关。认证回答“你是谁”，授权回答“这个动作允许吗”，准入回答“这个对象合规吗”；审计把每一步的结果记下来，包括被拒绝的请求。"}
-flowchart TB
-  U["请求<br/>kubectl · 控制器 · Argo CD"] --> AU["认证<br/>证书 · 服务账号令牌 · OIDC"]
-  AU --> AZ["授权（RBAC）<br/>只有“允许”，没有“拒绝”"]
-  AZ --> MA["修改型准入<br/>LimitRange 补默认值"]
-  MA --> VA["校验型准入<br/>Pod Security · Kyverno<br/>ValidatingAdmissionPolicy"]
-  VA --> E[("etcd")]:::store
-  AU -.-> LOG["审计日志"]:::note
-  AZ -.-> LOG
-  VA -.-> LOG
-```
+![一个请求进入 API server 要过的四道关。认证回答“你是谁”，授权回答“这个动作允许吗”，准入回答“这个对象合规吗”；审计把每一步的结果记下来，包括被拒绝的请求。](../figures/concept-api-request.svg)
 
 ### 网络
 
@@ -181,20 +160,7 @@ API 服务器的审计策略是第 1 章建集群时写好的（`platform/cluste
 2. **网格内的流量到达 15008。**只允许应用端口的“经典”规则会挡住网格内的流量；网格外的客户端则仍然到达应用端口。
 3. **有 waypoint 时，服务端看到的来源是 waypoint。**允许“客户端 → 服务端”没有用。
 
-```{.mermaid caption="网格中 NetworkPolicy 看到的流量。应用以为自己在访问 8080，线上走的是到 15008 端口的隧道；有 waypoint 时，到达服务端的连接来自 waypoint 而不是客户端。按“客户端 → 服务端:8080”写的经典规则，对网格内的流量不起作用，对网格外的客户端才生效。"}
-flowchart LR
-  subgraph NOWP["没有 waypoint"]
-    direction LR
-    C1["客户端 Pod"] --> Z1["ztunnel"]
-    Z1 ==>|"HBONE，目的端口 15008<br/>策略必须放行 15008"| S1["服务端 Pod<br/>应用端口 8080"]
-  end
-  subgraph WP["有 waypoint"]
-    direction LR
-    C2["客户端 Pod"] ==>|"15008"| W["waypoint"]
-    W ==>|"15008，来源是 waypoint"| S2["服务端 Pod"]
-  end
-  X["网格外的客户端"]:::ghost -->|"直接到 8080"| S1
-```
+![网格中 NetworkPolicy 看到的流量。应用以为自己在访问 8080，线上走的是到 15008 端口的隧道；有 waypoint 时，到达服务端的连接来自 waypoint 而不是客户端。按“客户端 → 服务端:8080”写的经典规则，对网格内的流量不起作用，对网格外的客户端才生效。](../figures/concept-netpol-mesh.svg)
 
 得到这些结论之前，探测本身错了两次，都按原样保留在记录中。第一次，探测用 HTTP/1.0，waypoint（Envoy）拒绝 HTTP/1.0 并自己回复 `426 Upgrade Required`（`evidence/e5/mesh-np-diag5.log`），探测把这个回复算作“可达”，于是 waypoint 后面的结果全部偏乐观。修正后的探测使用 HTTP/1.1，并且识别代理自己生成的回复：经过 Envoy 转发的回复带有 `x-envoy-upstream-service-time` 头（`evidence/e5/probe-headers.log`），Envoy 自己的回复（426、503、403）没有。所有受影响的实验都用修正后的探测重新做了一遍。
 
@@ -263,13 +229,7 @@ OpenBao 2.7.2 和 External Secrets Operator 2.14.0 经 GitOps 安装。OpenBao �
 - **轮换：**平台写入新值后，Secret 在 8 秒内更新；挂载在 Pod 中的文件在 61 秒后更新（kubelet 定期同步挂载的 Secret）；环境变量一直是旧值，只有重启 Pod 才会更新。需要轮换的凭据应当以文件挂载，并由应用重新读取。
 - **审计：**OpenBao 的审计日志按服务账号记录了每一次读取，包括被拒绝的读取；秘密的值以 HMAC 形式出现，不是明文（`openbao-facts.log`）。两次写入的身份是 root：生产环境中写入秘密的人应当用自己的身份登录，根令牌只在初始化时使用。
 
-```{.mermaid .data caption="一次密钥轮换的传播（时间为实测）。新值 8 秒内进入 Kubernetes Secret，挂载的文件 61 秒后跟上，环境变量永远不会——需要轮换的凭据应当以文件挂载，并由应用重新读取。"}
-flowchart LR
-  SA["服务账号 secrets-reader<br/>只能读本租户的路径"] -.->|"Kubernetes 认证"| OB
-  OB[("OpenBao<br/>写入新值")]:::store -->|"External Secrets<br/>每 30 秒刷新"| KS["Kubernetes Secret<br/>8 秒内更新"]
-  KS -->|"kubelet 定期同步"| F["挂载的文件<br/>61 秒后更新"]:::good
-  KS -. "只在容器启动时读取" .-> EV["环境变量<br/>旧值，直到 Pod 重启"]:::bad
-```
+![一次密钥轮换的传播（时间为实测）。新值 8 秒内进入 Kubernetes Secret，挂载的文件 61 秒后跟上，环境变量永远不会——需要轮换的凭据应当以文件挂载，并由应用重新读取。](../figures/e5-secret-rotation.svg)
 
 ## 局限 {#e5-limits}
 

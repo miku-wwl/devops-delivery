@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 170" width="640" height="170" font-family="'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="8.0" y="8.0" width="292.0" height="112.0" rx="7" fill="#f7f9fc" stroke="#b9c6d4" stroke-width="1"/>
+<text x="17.0" y="23.0" font-size="10" fill="#46525f" text-anchor="start" font-weight="600">集群（被监控的故障域）</text>
+<rect x="18.0" y="36.0" width="142.0" height="72.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="89.0" y="62.0" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">Prometheus</text>
+<text x="89.0" y="75.6" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">规则：平台告警、</text>
+<text x="89.0" y="89.2" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">SLO 燃烧率、症状</text>
+<rect x="182.0" y="36.0" width="108.0" height="72.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="236.0" y="68.8" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">Alertmanager</text>
+<text x="236.0" y="82.4" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">路由、分组、抑制</text>
+<polyline points="160.0,72.0 177.0,72.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="182.0,72.0 173.1,68.0 173.1,76.0" fill="#5b6776"/>
+<rect x="408.0" y="8.0" width="224.0" height="112.0" rx="7" fill="#f0f8f6" stroke="#a9d6cd" stroke-width="1"/>
+<text x="417.0" y="23.0" font-size="10" fill="#0b4f48" text-anchor="start" font-weight="600">集群之外</text>
+<rect x="418.0" y="36.0" width="92.0" height="72.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="464.0" y="62.0" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">告警桥</text>
+<text x="464.0" y="75.6" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">alert-bridge</text>
+<text x="464.0" y="89.2" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">（容器）</text>
+<rect x="528.0" y="36.0" width="96.0" height="72.0" rx="5.0" fill="#e8f5f2" stroke="#0f8a7e" stroke-width="1.2"/>
+<text x="576.0" y="55.4" font-size="10" fill="#0b4f48" text-anchor="middle" font-weight="600">GitLab</text>
+<text x="576.0" y="68.8" font-size="9.5" fill="#0b4f48" text-anchor="middle" font-weight="normal">root/incidents</text>
+<text x="576.0" y="82.3" font-size="9.5" fill="#0b4f48" text-anchor="middle" font-weight="normal">critical → 事故</text>
+<text x="576.0" y="95.8" font-size="9.5" fill="#0b4f48" text-anchor="middle" font-weight="normal">warning → 工单</text>
+<polyline points="510.0,72.0 523.0,72.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="528.0,72.0 519.1,68.0 519.1,76.0" fill="#5b6776"/>
+<polyline points="290.0,56.0 413.0,56.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="418.0,56.0 409.1,52.0 409.1,60.0" fill="#5b6776"/>
+<rect x="315.9" y="42.5" width="76.3" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="354.0" y="51.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">告警的 webhook</text>
+<polyline points="290.0,90.0 413.0,90.0" fill="none" stroke="#0f8a7e" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 4"/>
+<polygon points="418.0,90.0 409.1,86.0 409.1,94.0" fill="#0f8a7e"/>
+<text x="354.0" y="104.0" font-size="9.5" fill="#0b4f48" text-anchor="middle" font-weight="normal">Watchdog 心跳</text>
+<text x="354.0" y="117.0" font-size="9.5" fill="#0b4f48" text-anchor="middle" font-weight="normal">每 30 秒</text>
+<text x="632.0" y="142.0" font-size="9.5" fill="#5b6776" text-anchor="end" font-weight="normal">180 秒收不到心跳：告警桥自己开出一个事故（死人开关）</text>
+<text x="10.0" y="142.0" font-size="9.5" fill="#5b6776" text-anchor="start" font-weight="normal">这里的一切都可能和被监控的对象一起倒下</text>
+</svg>

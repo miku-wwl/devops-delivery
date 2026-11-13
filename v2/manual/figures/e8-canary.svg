@@ -17,15 +17,19 @@
 <text x="533.2" y="157.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">6</text>
 <text x="212.9" y="51.5" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">设定的权重</text>
 <rect x="220.9" y="39.0" width="260.3" height="17.0" fill="#8a94a3" stroke="none" stroke-width="1" rx="2"/>
-<text x="487.1" y="51.5" font-size="10" fill="#1b2430" text-anchor="start" font-weight="normal">5%</text>
 <text x="212.9" y="78.5" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">k6 统计：20 001 个请求中 986 个</text>
 <rect x="220.9" y="66.0" width="256.6" height="17.0" fill="#1f6fb2" stroke="none" stroke-width="1" rx="2"/>
-<text x="483.5" y="78.5" font-size="10" fill="#1b2430" text-anchor="start" font-weight="normal">4.93%</text>
 <text x="212.9" y="105.5" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">Prometheus 统计（同一窗口）</text>
 <rect x="220.9" y="93.0" width="261.8" height="17.0" fill="#1f6fb2" stroke="none" stroke-width="1" rx="2"/>
-<text x="488.7" y="105.5" font-size="10" fill="#1b2430" text-anchor="start" font-weight="normal">5.03%</text>
 <text x="212.9" y="132.5" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">金丝雀一半请求返回 503 时受影响的请求</text>
 <rect x="220.9" y="120.0" width="127.5" height="17.0" fill="#c0392b" stroke="none" stroke-width="1" rx="2"/>
+<rect x="484.1" y="42.5" width="17.0" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="487.1" y="51.5" font-size="10" fill="#1b2430" text-anchor="start" font-weight="normal">5%</text>
+<rect x="480.5" y="69.5" width="33.5" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="483.5" y="78.5" font-size="10" fill="#1b2430" text-anchor="start" font-weight="normal">4.93%</text>
+<rect x="485.7" y="96.5" width="33.5" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="488.7" y="105.5" font-size="10" fill="#1b2430" text-anchor="start" font-weight="normal">5.03%</text>
+<rect x="351.4" y="123.5" width="116.5" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
 <text x="354.4" y="132.5" font-size="10" fill="#1b2430" text-anchor="start" font-weight="normal">2.45% ≈ 权重 × 失败率</text>
 <line x1="220.9" y1="34.0" x2="220.9" y2="142.0" stroke="#9aa5b1" stroke-width="1.0"/>
 <text x="387.4" y="173.0" font-size="10.5" fill="#5b6776" text-anchor="middle" font-weight="normal">占全部公共请求的比例（%）</text>

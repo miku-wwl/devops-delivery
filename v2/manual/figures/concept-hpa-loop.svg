@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 232" width="640" height="232" font-family="'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="10.0" y="16.0" width="180.0" height="52.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="100.0" y="38.8" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">Pod 的 CPU 用量</text>
+<text x="100.0" y="52.4" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">kubelet / cAdvisor 采集</text>
+<rect x="262.0" y="16.0" width="106.0" height="52.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="315.0" y="45.8" font-size="10.5" fill="#1b2430" text-anchor="middle" font-weight="600">metrics-server</text>
+<rect x="440.0" y="8.0" width="190.0" height="68.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="535.0" y="25.4" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">HPA 控制器</text>
+<text x="535.0" y="38.9" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">期望副本 = 当前副本 ×</text>
+<text x="535.0" y="52.4" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">当前指标 ÷ 目标</text>
+<text x="535.0" y="65.8" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">比值与 1 相差 10% 以内：不动</text>
+<polyline points="190.0,42.0 257.0,42.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="262.0,42.0 253.1,38.0 253.1,46.0" fill="#5b6776"/>
+<rect x="193.6" y="28.5" width="64.9" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="226.0" y="37.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">每 15 秒汇总</text>
+<polyline points="368.0,42.0 435.0,42.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="440.0,42.0 431.1,38.0 431.1,46.0" fill="#5b6776"/>
+<rect x="371.6" y="28.5" width="64.9" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="404.0" y="37.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">每 15 秒读取</text>
+<rect x="460.0" y="168.0" width="150.0" height="52.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="535.0" y="190.8" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">Deployment</text>
+<text x="535.0" y="204.4" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">改副本数</text>
+<polyline points="535.0,76.0 535.0,163.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="535.0,168.0 539.0,159.1 531.0,159.1" fill="#5b6776"/>
+<rect x="476.5" y="103.5" width="53.5" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="527.0" y="112.0" font-size="9.5" fill="#5b6776" text-anchor="end" font-weight="normal">扩容：立即</text>
+<rect x="412.4" y="116.0" width="117.6" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="527.0" y="124.5" font-size="9.5" fill="#5b6776" text-anchor="end" font-weight="normal">缩容：等稳定窗口 300 秒</text>
+<rect x="244.0" y="168.0" width="160.0" height="52.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="324.0" y="190.8" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">新 Pod</text>
+<text x="324.0" y="204.4" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">调度 → 拉镜像 → 启动 → 就绪</text>
+<rect x="10.0" y="168.0" width="180.0" height="52.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="100.0" y="190.8" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">Service 端点</text>
+<text x="100.0" y="204.4" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">负载均衡器开始转发</text>
+<polyline points="460.0,194.0 409.0,194.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="404.0,194.0 412.9,198.0 412.9,190.0" fill="#5b6776"/>
+<polyline points="244.0,194.0 195.0,194.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="190.0,194.0 198.9,198.0 198.9,190.0" fill="#5b6776"/>
+<polyline points="100.0,168.0 100.0,73.0" fill="none" stroke="#0f8a7e" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 4"/>
+<polygon points="100.0,68.0 96.0,76.9 104.0,76.9" fill="#0f8a7e"/>
+<rect x="105.0" y="103.5" width="89.1" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="108.0" y="112.0" font-size="9.5" fill="#5b6776" text-anchor="start" font-weight="normal">新 Pod 分担负载，</text>
+<rect x="105.0" y="116.0" width="53.5" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="108.0" y="124.5" font-size="9.5" fill="#5b6776" text-anchor="start" font-weight="normal">利用率下降</text>
+<rect x="214.0" y="96.0" width="196.0" height="46.0" rx="5.0" fill="#fffbe6" stroke="#d4b106" stroke-width="1.2"/>
+<text x="312.0" y="115.8" font-size="10" fill="#5c4a00" text-anchor="middle" font-weight="normal">回路里没有一环知道：</text>
+<text x="312.0" y="129.4" font-size="10" fill="#5c4a00" text-anchor="middle" font-weight="normal">请求是否真的分到了新 Pod</text>
+</svg>

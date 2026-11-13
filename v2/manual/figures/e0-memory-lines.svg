@@ -17,10 +17,10 @@
 <text x="451.1" y="152.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">3000</text>
 <text x="58.0" y="119.0" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">节点内存</text>
 <line x1="66.0" y1="137.0" x2="618.0" y2="137.0" stroke="#e6ebf0" stroke-width="1.0"/>
-<rect x="66.0" y="99.0" width="342.2" height="32.0" fill="#cfe3f6" stroke="none" stroke-width="1" rx="3"/>
+<rect x="66.0" y="99.0" width="341.0" height="32.0" fill="#cfe3f6" stroke="none" stroke-width="1" rx="3"/>
 <text x="71.0" y="118.5" font-size="9.5" fill="#1b2430" text-anchor="start" font-weight="normal">可分配 allocatable：Pod 的 requests 之和不能超过它</text>
-<rect x="408.2" y="99.0" width="32.9" height="32.0" fill="#f9e1c4" stroke="none" stroke-width="1" rx="3"/>
-<rect x="441.1" y="99.0" width="19.3" height="32.0" fill="#f6d3cf" stroke="none" stroke-width="1" rx="3"/>
+<rect x="408.2" y="99.0" width="31.7" height="32.0" fill="#f9e1c4" stroke="none" stroke-width="1" rx="3"/>
+<rect x="441.1" y="99.0" width="18.1" height="32.0" fill="#f6d3cf" stroke="none" stroke-width="1" rx="3"/>
 <line x1="408.2" y1="90.0" x2="408.2" y2="137.0" stroke="#1f6fb2" stroke-width="1.1" stroke-dasharray="3 3"/>
 <rect x="409.2" y="78.0" width="93.5" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
 <text x="412.2" y="87.0" font-size="10" fill="#1f6fb2" text-anchor="start" font-weight="600">2666 调度器的上限</text>

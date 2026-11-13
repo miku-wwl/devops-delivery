@@ -1,51 +1,51 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 239" width="640" height="239" font-family="'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 219" width="640" height="219" font-family="'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif">
 <rect width="100%" height="100%" fill="#ffffff"/>
 <text x="12.0" y="19.0" font-size="13" fill="#1b2430" text-anchor="start" font-weight="600">节点内存压力下的两次驱逐（秒，从 07:48:52 起算）</text>
-<line x1="209.3" y1="79.0" x2="209.3" y2="199.0" stroke="#e6ebf0" stroke-width="1.0"/>
-<text x="209.3" y="214.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">0</text>
-<line x1="259.2" y1="79.0" x2="259.2" y2="199.0" stroke="#e6ebf0" stroke-width="1.0"/>
-<text x="259.2" y="214.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">100</text>
-<line x1="309.0" y1="79.0" x2="309.0" y2="199.0" stroke="#e6ebf0" stroke-width="1.0"/>
-<text x="309.0" y="214.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">200</text>
-<line x1="358.8" y1="79.0" x2="358.8" y2="199.0" stroke="#e6ebf0" stroke-width="1.0"/>
-<text x="358.8" y="214.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">300</text>
-<line x1="408.7" y1="79.0" x2="408.7" y2="199.0" stroke="#e6ebf0" stroke-width="1.0"/>
-<text x="408.7" y="214.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">400</text>
-<line x1="458.5" y1="79.0" x2="458.5" y2="199.0" stroke="#e6ebf0" stroke-width="1.0"/>
-<text x="458.5" y="214.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">500</text>
-<line x1="508.4" y1="79.0" x2="508.4" y2="199.0" stroke="#e6ebf0" stroke-width="1.0"/>
-<text x="508.4" y="214.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">600</text>
-<line x1="558.2" y1="79.0" x2="558.2" y2="199.0" stroke="#e6ebf0" stroke-width="1.0"/>
-<text x="558.2" y="214.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">700</text>
-<line x1="608.0" y1="79.0" x2="608.0" y2="199.0" stroke="#e6ebf0" stroke-width="1.0"/>
-<text x="608.0" y="214.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">800</text>
-<text x="201.3" y="98.0" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">burst-hog（Burstable，请求 64Mi）</text>
-<line x1="209.3" y1="109.0" x2="618.0" y2="109.0" stroke="#e6ebf0" stroke-width="1.0"/>
-<rect x="209.3" y="85.0" width="85.7" height="18.0" fill="#d9730d" stroke="none" stroke-width="1" rx="3"/>
-<text x="300.0" y="97.5" font-size="9.5" fill="#1b2430" text-anchor="start" font-weight="normal">每秒 +4 MiB，到 776 MiB</text>
-<text x="201.3" y="128.0" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">be-hog（BestEffort）</text>
-<line x1="209.3" y1="139.0" x2="618.0" y2="139.0" stroke="#e6ebf0" stroke-width="1.0"/>
-<rect x="209.3" y="115.0" width="94.7" height="18.0" fill="#e9edf2" stroke="none" stroke-width="1" rx="3"/>
-<text x="214.3" y="127.5" font-size="9.5" fill="#1b2430" text-anchor="start" font-weight="normal">160 MiB</text>
-<rect x="304.0" y="115.0" width="131.6" height="18.0" fill="#8a94a3" stroke="none" stroke-width="1" rx="3"/>
-<text x="309.0" y="127.5" font-size="9.5" fill="#ffffff" text-anchor="start" font-weight="normal">每秒 +3 MiB，到 933 MiB</text>
-<text x="201.3" y="158.0" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">guaranteed（请求 = 限制）</text>
-<line x1="209.3" y1="169.0" x2="618.0" y2="169.0" stroke="#e6ebf0" stroke-width="1.0"/>
-<rect x="209.3" y="145.0" width="398.7" height="18.0" fill="#0f8a7e" stroke="none" stroke-width="1" rx="3"/>
-<text x="214.3" y="157.5" font-size="9.5" fill="#ffffff" text-anchor="start" font-weight="normal">80 MiB，始终运行</text>
-<text x="201.3" y="188.0" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">节点状态</text>
-<line x1="209.3" y1="199.0" x2="618.0" y2="199.0" stroke="#e6ebf0" stroke-width="1.0"/>
-<rect x="299.0" y="175.0" width="289.1" height="18.0" fill="#f6d3cf" stroke="none" stroke-width="1" rx="3"/>
-<text x="304.0" y="187.5" font-size="9.5" fill="#1b2430" text-anchor="start" font-weight="normal">MemoryPressure：拒绝新的 BestEffort Pod（580 s）</text>
-<line x1="295.0" y1="76.0" x2="295.0" y2="199.0" stroke="#c0392b" stroke-width="1.1" stroke-dasharray="3 3"/>
+<line x1="209.3" y1="79.0" x2="209.3" y2="179.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="209.3" y="194.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">0</text>
+<line x1="259.2" y1="79.0" x2="259.2" y2="179.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="259.2" y="194.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">100</text>
+<line x1="309.0" y1="79.0" x2="309.0" y2="179.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="309.0" y="194.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">200</text>
+<line x1="358.8" y1="79.0" x2="358.8" y2="179.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="358.8" y="194.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">300</text>
+<line x1="408.7" y1="79.0" x2="408.7" y2="179.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="408.7" y="194.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">400</text>
+<line x1="458.5" y1="79.0" x2="458.5" y2="179.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="458.5" y="194.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">500</text>
+<line x1="508.4" y1="79.0" x2="508.4" y2="179.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="508.4" y="194.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">600</text>
+<line x1="558.2" y1="79.0" x2="558.2" y2="179.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="558.2" y="194.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">700</text>
+<line x1="608.0" y1="79.0" x2="608.0" y2="179.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="608.0" y="194.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">800</text>
+<text x="201.3" y="95.5" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">burst-hog（Burstable，请求 64Mi）</text>
+<line x1="209.3" y1="104.0" x2="618.0" y2="104.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<rect x="209.3" y="85.0" width="84.5" height="13.0" fill="#d9730d" stroke="none" stroke-width="1" rx="3"/>
+<text x="300.0" y="95.0" font-size="9.5" fill="#1b2430" text-anchor="start" font-weight="normal">每秒 +4 MiB，到 776 MiB</text>
+<text x="201.3" y="120.5" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">be-hog（BestEffort）</text>
+<line x1="209.3" y1="129.0" x2="618.0" y2="129.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<rect x="209.3" y="110.0" width="93.5" height="13.0" fill="#e9edf2" stroke="none" stroke-width="1" rx="3"/>
+<text x="214.3" y="120.0" font-size="9.5" fill="#1b2430" text-anchor="start" font-weight="normal">160 MiB</text>
+<rect x="304.0" y="110.0" width="130.4" height="13.0" fill="#8a94a3" stroke="none" stroke-width="1" rx="3"/>
+<text x="309.0" y="120.0" font-size="9.5" fill="#ffffff" text-anchor="start" font-weight="normal">每秒 +3 MiB，到 933 MiB</text>
+<text x="201.3" y="145.5" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">guaranteed（请求 = 限制）</text>
+<line x1="209.3" y1="154.0" x2="618.0" y2="154.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<rect x="209.3" y="135.0" width="397.5" height="13.0" fill="#0f8a7e" stroke="none" stroke-width="1" rx="3"/>
+<text x="214.3" y="145.0" font-size="9.5" fill="#ffffff" text-anchor="start" font-weight="normal">80 MiB，始终运行</text>
+<text x="201.3" y="170.5" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">节点状态</text>
+<line x1="209.3" y1="179.0" x2="618.0" y2="179.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<rect x="299.0" y="160.0" width="287.9" height="13.0" fill="#f6d3cf" stroke="none" stroke-width="1" rx="3"/>
+<text x="304.0" y="170.0" font-size="9.5" fill="#1b2430" text-anchor="start" font-weight="normal">MemoryPressure：拒绝新的 BestEffort Pod（580 s）</text>
+<line x1="295.0" y1="76.0" x2="295.0" y2="179.0" stroke="#c0392b" stroke-width="1.1" stroke-dasharray="3 3"/>
 <rect x="296.0" y="64.0" width="81.0" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
 <text x="299.0" y="73.0" font-size="10" fill="#c0392b" text-anchor="start" font-weight="600">驱逐 burst-hog</text>
-<line x1="435.6" y1="61.0" x2="435.6" y2="199.0" stroke="#c0392b" stroke-width="1.1" stroke-dasharray="3 3"/>
+<line x1="435.6" y1="61.0" x2="435.6" y2="179.0" stroke="#c0392b" stroke-width="1.1" stroke-dasharray="3 3"/>
 <rect x="436.6" y="49.0" width="64.5" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
 <text x="439.6" y="58.0" font-size="10" fill="#c0392b" text-anchor="start" font-weight="600">驱逐 be-hog</text>
-<line x1="588.1" y1="46.0" x2="588.1" y2="199.0" stroke="#0f8a7e" stroke-width="1.1" stroke-dasharray="3 3"/>
+<line x1="588.1" y1="46.0" x2="588.1" y2="179.0" stroke="#0f8a7e" stroke-width="1.1" stroke-dasharray="3 3"/>
 <rect x="589.1" y="34.0" width="46.0" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
 <text x="592.1" y="43.0" font-size="10" fill="#0f8a7e" text-anchor="start" font-weight="600">压力解除</text>
-<line x1="209.3" y1="199.0" x2="618.0" y2="199.0" stroke="#9aa5b1" stroke-width="1.0"/>
-<text x="413.7" y="230.0" font-size="10.5" fill="#5b6776" text-anchor="middle" font-weight="normal">秒</text>
+<line x1="209.3" y1="179.0" x2="618.0" y2="179.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="413.7" y="210.0" font-size="10.5" fill="#5b6776" text-anchor="middle" font-weight="normal">秒</text>
 </svg>

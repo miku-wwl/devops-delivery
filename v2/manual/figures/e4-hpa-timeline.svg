@@ -19,20 +19,20 @@
 <text x="588.8" y="184.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">700</text>
 <text x="70.6" y="98.0" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">负载</text>
 <line x1="78.6" y1="109.0" x2="618.0" y2="109.0" stroke="#e6ebf0" stroke-width="1.0"/>
-<rect x="78.6" y="85.0" width="313.4" height="18.0" fill="#8a94a3" stroke="none" stroke-width="1" rx="3"/>
+<rect x="78.6" y="85.0" width="312.2" height="18.0" fill="#8a94a3" stroke="none" stroke-width="1" rx="3"/>
 <text x="83.6" y="97.5" font-size="9.5" fill="#ffffff" text-anchor="start" font-weight="normal">120 迭代/秒（430 s）</text>
 <text x="70.6" y="128.0" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">HPA 的判断</text>
 <line x1="78.6" y1="139.0" x2="618.0" y2="139.0" stroke="#e6ebf0" stroke-width="1.0"/>
-<rect x="78.6" y="115.0" width="237.6" height="18.0" fill="#f9e1c4" stroke="none" stroke-width="1" rx="3"/>
+<rect x="78.6" y="115.0" width="236.4" height="18.0" fill="#f9e1c4" stroke="none" stroke-width="1" rx="3"/>
 <text x="83.6" y="127.5" font-size="9.5" fill="#1b2430" text-anchor="start" font-weight="normal">利用率 102%–114%：在 10% 的容差之内，不动</text>
-<rect x="316.2" y="115.0" width="5.8" height="18.0" fill="#c0392b" stroke="none" stroke-width="1" rx="3"/>
+<rect x="316.2" y="115.0" width="4.6" height="18.0" fill="#c0392b" stroke="none" stroke-width="1" rx="3"/>
 <text x="70.6" y="158.0" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">网关副本</text>
 <line x1="78.6" y1="169.0" x2="618.0" y2="169.0" stroke="#e6ebf0" stroke-width="1.0"/>
-<rect x="78.6" y="145.0" width="243.5" height="18.0" fill="#cfe3f6" stroke="none" stroke-width="1" rx="3"/>
+<rect x="78.6" y="145.0" width="242.3" height="18.0" fill="#cfe3f6" stroke="none" stroke-width="1" rx="3"/>
 <text x="83.6" y="157.5" font-size="9.5" fill="#1b2430" text-anchor="start" font-weight="normal">2 个</text>
-<rect x="322.1" y="145.0" width="245.6" height="18.0" fill="#1f6fb2" stroke="none" stroke-width="1" rx="3"/>
+<rect x="322.1" y="145.0" width="244.4" height="18.0" fill="#1f6fb2" stroke="none" stroke-width="1" rx="3"/>
 <text x="327.1" y="157.5" font-size="9.5" fill="#ffffff" text-anchor="start" font-weight="normal">3 个</text>
-<rect x="567.7" y="145.0" width="35.7" height="18.0" fill="#cfe3f6" stroke="none" stroke-width="1" rx="3"/>
+<rect x="567.7" y="145.0" width="34.5" height="18.0" fill="#cfe3f6" stroke="none" stroke-width="1" rx="3"/>
 <text x="572.7" y="157.5" font-size="9.5" fill="#1b2430" text-anchor="start" font-weight="normal">2 个</text>
 <line x1="316.2" y1="76.0" x2="316.2" y2="169.0" stroke="#c0392b" stroke-width="1.1" stroke-dasharray="3 3"/>
 <rect x="317.2" y="64.0" width="110.0" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>

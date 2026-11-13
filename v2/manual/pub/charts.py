@@ -77,11 +77,11 @@ class Svg:
         self.e.append(f'<text x="{x:.1f}" y="{y:.1f}" font-size="{size}" fill="{fill}" text-anchor="{anchor}" '
                       f'font-weight="{weight}"{r}>{esc(s)}</text>')
 
-    def label(self, x, y, s, size=10.5, fill=C["ink"], anchor="start", weight="normal"):
-        """Text on a white halo, readable on top of lines and bars."""
+    def label(self, x, y, s, size=10.5, fill=C["ink"], anchor="start", weight="normal", bg="#ffffff"):
+        """Text on a halo (white, or the colour of the area behind it), readable on top of lines and bars."""
         w = tw(s, size) + 6
         x0 = x - 3 if anchor == "start" else x - w + 3 if anchor == "end" else x - w / 2
-        self.rect(x0, y - size + 1, w, size + 4, "#ffffff", rx=2, opacity=0.86)
+        self.rect(x0, y - size + 1, w, size + 4, bg, rx=2, opacity=0.86)
         self.text(x, y, s, size, fill, anchor, weight)
 
     def save(self, path: Path) -> None:
@@ -207,7 +207,7 @@ def hbar_chart(path, title, rows, xlabel="", xlim=None, w=640, row_h=27, log=Fal
                legend=()):
     """Horizontal bars, one per row: (label, value, color, value text). log=True for values over decades."""
     lw = label_w or max(tw(r[0], 10.5) for r in rows) + 14
-    ml, mr, mt, mb = lw + 10, 86, 48 if legend else 34, 36
+    ml, mr, mt, mb = lw + 10, 86, (48 if legend else 34) + (15 if vline else 0), 36     # a reference line is named above the rows
     pw, ph = w - ml - mr, row_h * len(rows)
     h = mt + ph + mb
     vals = [r[1] for r in rows if r[1] is not None]
@@ -225,13 +225,17 @@ def hbar_chart(path, title, rows, xlabel="", xlim=None, w=640, row_h=27, log=Fal
         s.text(ml - 8, y + row_h / 2 + 4, label, 10.5, C["ink"], "end")
         if v is not None:
             s.rect(ml, y + 5, X(v) - ml, row_h - 10, color, rx=2)
-            s.text(X(v) + 6, y + row_h / 2 + 4, vt, 10, C["ink"])
+    if vline:           # over the bars, behind the value texts (their halo keeps the line from striking through them)
+        v, color, text = vline
+        s.line(X(v), mt - 11, X(v), mt + ph, color, 1.3, "5 3")
+        right = X(v) + 6 + tw(text, 10) < w - 6
+        s.text(X(v) + (5 if right else -5), mt - 5, text, 10, color, "start" if right else "end", "600")
+    for i, (label, v, color, vt) in enumerate(rows):
+        y = mt + i * row_h
+        if v is not None:
+            s.label(X(v) + 6, y + row_h / 2 + 4, vt, 10, C["ink"])
         else:
             s.text(ml + 6, y + row_h / 2 + 4, vt, 10, C["muted"])
-    if vline:
-        v, color, text = vline
-        s.line(X(v), mt - 4, X(v), mt + ph, color, 1.3, "5 3")
-        s.label(X(v) + 4, mt + 8, text, 10, color)
     s.line(ml, mt, ml, mt + ph, C["axis"])
     if xlabel:
         s.text(ml + pw / 2, mt + ph + 31, xlabel, 10.5, C["muted"], "middle")
@@ -263,7 +267,7 @@ def timeline(path, title, lanes, xlim, xlabel="", w=640, lane_h=30, events=(), x
         s.text(ml - 8, y + lane_h / 2 + 4, name, 10.5, C["ink"], "end")
         s.line(ml, y + lane_h, ml + pw, y + lane_h, C["grid"])
         for t0, t1, color, text in bars:
-            bwid = max(X(t1) - X(t0), 2)
+            bwid = max(X(t1) - X(t0) - 1.2, 2)      # a hairline gap separates adjacent phases
             s.rect(X(t0), y + 6, bwid, lane_h - 12, color, rx=3)
             if text:
                 inside = tw(text, 9.5) + 8 < bwid

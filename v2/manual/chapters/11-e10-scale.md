@@ -45,27 +45,7 @@
 
 KWOK（Kubernetes WithOut Kubelet）有两个部分。kwokctl 用真实的组件启动一个集群的控制面；kwok 控制器代替所有的 kubelet：它看到一个 Pod 被绑定到虚拟节点，就把 Pod 的状态写成 Running，并替每个虚拟节点续租表示心跳的 Lease。对 API server、调度器和各个控制器来说，这些节点和 Pod 与真的一样：同样的对象，同样的写入、监听和调度。
 
-```{.mermaid caption="本章的实验环境。同一个 WSL 虚拟机中，前十章的实验集群 ent 与 kwokctl 启动的集群 scale 并存。scale 的控制面组件是真实的 Kubernetes v1.37.0 容器，每个都有内存上限（事故 E10-1 之后加上）；它管理的 1000 个节点和 10 000 个 Pod 只是 etcd 里的对象。"}
-flowchart TB
-  CLI["实验客户端 [注入]<br/>kubectl 与 curl"]
-  ENT["实验集群 ent [真实]<br/>同一个虚拟机"]
-  subgraph SCALE["kwokctl 集群 scale：v1.37.0 的容器，各有内存上限 [真实]"]
-    SCH["kube-scheduler<br/>768 MiB"]
-    KCM["controller-manager<br/>512 MiB"]
-    KWOK["kwok 控制器<br/>代替 kubelet"]
-    PROM["Prometheus<br/>384 MiB"]
-    API["kube-apiserver<br/>1536 MiB"]
-    ETCD[("etcd<br/>512 MiB")]
-  end
-  OBJ["1000 个节点<br/>10 000 个 Pod<br/>[虚拟]"]
-  CLI --> API
-  SCH --> API
-  KCM --> API
-  KWOK --> API
-  PROM -.->|抓取| API
-  API --> ETCD
-  ETCD -.- OBJ
-```
+![本章的实验环境。同一个 WSL 虚拟机中，前十章的实验集群 ent 与 kwokctl 启动的集群 scale 并存。scale 的控制面组件是真实的 Kubernetes v1.37.0 容器，每个都有内存上限（事故 E10-1 之后加上）；它管理的 1000 个节点和 10 000 个 Pod 只是 etcd 里的对象。](../figures/concept-kwok-env.svg)
 
 所以 KWOK 能测的是控制面为 N 个对象所做的工作：调度的吞吐、etcd 的体量、LIST 与 WATCH 的代价、限流。它测不了节点一侧：真实的 kubelet 会不断更新 Pod 和节点的状态，节点要拉镜像、启动容器、配置网络和存储，工作负载要消耗 CPU 和内存——这些在这里都不存在。本章的数字说明的是“控制面在这么多对象下的行为”，而不是“这台电脑能运行一万个 Pod”。
 
@@ -81,26 +61,13 @@ etcd 是一个多版本（MVCC）的键值存储：每次创建、修改、删�
 
 文件的大小很重要：etcd 有一个空间配额（`--quota-backend-bytes`，默认 2 GiB）。超过配额时，etcd 触发 `NOSPACE` 告警，整个集群只接受读和删除——不能再创建任何对象，包括事件。恢复的步骤是压缩、碎片整理、解除告警，缺一不可。
 
-```{.mermaid caption="etcd 的空间去了哪里。每次写入都留下一个新版本；压缩只是把旧版本占的页面标记为空闲，文件并不变小；碎片整理才把空间还给文件系统。任由它增长，最终会撞上配额：整个集群只能读和删除，不能再创建任何对象。"}
-flowchart LR
-  W["每一次写入<br/>创建 · 修改 · 删除"] --> REV["一个新的修订版本<br/>旧版本仍留在文件里"]
-  REV -->|"压缩<br/>API server 每 5 分钟"| FREE["旧版本被清除<br/>页面标记为空闲<br/>文件大小不变"]:::sim
-  FREE -->|"碎片整理<br/>逐个成员执行"| SMALL["重写成新文件<br/>空间还给文件系统"]:::good
-  REV -. "不压缩、不整理" .-> QUOTA["超过配额（默认 2 GiB）<br/>NOSPACE：只接受读和删除"]:::bad
-```
+![etcd 的空间去了哪里。每次写入都留下一个新版本；压缩只是把旧版本占的页面标记为空闲，文件并不变小；碎片整理才把空间还给文件系统。任由它增长，最终会撞上配额：整个集群只能读和删除，不能再创建任何对象。](../figures/concept-etcd-space.svg)
 
 ### watch 缓存：LIST 由谁提供
 
 API server 为每种资源维护一个内存中的缓存，通过一个对 etcd 的 watch 保持更新。客户端的 WATCH 由它提供，带 `resourceVersion=0` 的 LIST 也由它提供（结果可能略旧）。不带 resourceVersion 的 LIST 要求“一致”——看到此刻 etcd 中的数据——过去必须从 etcd 读：一万个 Pod 就是几十 MB 的数据从 etcd 读出、解码、再编码。在大集群里，大量客户端同时重新 LIST（比如控制器重启之后）曾是 etcd 和 API server 过载的常见原因。从 Kubernetes 1.31 起，一致的 LIST 默认也由缓存提供（KEP-2340）：API server 只向 etcd 询问当前的修订版本，等缓存追上这个版本，再从内存返回结果。
 
-```{.mermaid caption="一次 LIST 的两条路。带 resourceVersion=0 的读一直由内存中的 watch 缓存提供；要求“一致”的读过去必须从 etcd 取回全部对象，从 Kubernetes 1.31 起改为只向 etcd 询问当前的修订版本，等缓存追上，再从内存返回。"}
-flowchart LR
-  C["客户端<br/>LIST 全部 Pod"] --> A["API server"]
-  A -->|"resourceVersion=0：可以略旧"| WC["watch 缓存<br/>内存中的对象"]:::good
-  A -->|"一致的读，1.31 之前<br/>取回全部对象"| E[("etcd")]:::store
-  A -. "一致的读，1.31 起<br/>只问当前的修订版本，等缓存追上" .-> WC
-  E -. "一个 watch 保持缓存更新" .-> WC
-```
+![一次 LIST 的三种走法。① 带 resourceVersion=0 的读一直由内存中的 watch 缓存提供；③ 要求“一致”的读过去必须从 etcd 取回全部对象；② 从 Kubernetes 1.31 起改为只向 etcd 询问当前的修订版本，等缓存追上，再从内存返回。](../figures/concept-list-paths.svg)
 
 ### APF：按优先级分配并发
 
@@ -110,17 +77,7 @@ API Priority and Fairness 用 FlowSchema（按用户、服务账号、动词、�
 
 APF 限制的是“同时处理多少个请求”。它不限制一个请求用多少内存：返回一万个 Pod 的 LIST，无论在哪个优先级执行，都要构造几十 MB 的响应。本章最后一个实验会反复碰到这一点。
 
-```{.mermaid caption="APF 处理一个请求的过程。FlowSchema 把请求分到一个优先级；优先级有自己的名义席位，没有空席位就排队，队列满了立即返回 429。繁忙的优先级还可以借用别的优先级空闲的席位——除非显式把借用上限设为 0。整个过程只数“同时执行多少个请求”，不看每个请求要用多少内存。"}
-flowchart LR
-  RQ["请求<br/>谁 · 什么动词 · 什么资源"] --> FS["FlowSchema<br/>按规则分类"]
-  FS --> PL["优先级<br/>名义席位 = 总并发 × 份额占比"]
-  PL --> Q{"有空席位吗？"}
-  Q -->|"有"| EX["执行"]:::good
-  Q -->|"没有"| QU["排队<br/>同一优先级内按“流”分队列"]
-  QU --> EX
-  QU -->|"队列已满"| R["429 Too Many Requests"]:::bad
-  OT["其他优先级的空闲席位"]:::ghost -. "借用：上限 borrowingLimitPercent，不设即没有上限" .-> PL
-```
+![APF 处理一个请求的过程。FlowSchema 把请求分到一个优先级；优先级有自己的名义席位，没有空席位就排队，队列满了立即返回 429。繁忙的优先级还可以借用别的优先级空闲的席位——除非显式把借用上限设为 0。整个过程只数“同时执行多少个请求”，不看每个请求要用多少内存。](../figures/concept-apf.svg)
 
 ## 实验 1：一万个虚拟 Pod 的调度（K1、K2） {#e10-scheduling}
 

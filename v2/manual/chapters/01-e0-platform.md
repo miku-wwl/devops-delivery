@@ -42,27 +42,7 @@
 
 第一册已经用过 Kind（第 2 章）：每个 Kubernetes 节点是一个 Docker 容器，容器里运行 systemd、containerd 和 kubelet，Pod 是这个容器里的又一层容器。第二册仍然这样做，但要把它当作一台台“机器”来对待，所以必须先看清楚这几层是怎样嵌套的：
 
-```{.mermaid caption="本章的实验环境是四层嵌套：Windows、WSL2 虚拟机、作为“节点”的 Docker 容器、Pod。每一层的上限都约束它里面的所有进程；三个工作节点各自固定在 4 个 CPU 上，内存由内核限制在 3 GiB。"}
-flowchart TB
-  subgraph WIN["Windows 11（31.3 GiB 内存，8 核 16 线程）"]
-    subgraph VM["WSL2 虚拟机 devops-lab（15.28 GiB，16 个 vCPU）"]
-      D["dockerd / containerd"]
-      subgraph CP["ent-control-plane（CPU 0-3，内存不限）"]
-        S["etcd · kube-apiserver · scheduler · controller-manager"]
-      end
-      subgraph W1["ent-worker · zone-a（CPU 4-7，3 GiB）"]
-        K1["kubelet · containerd"] --> P1["Pod"]
-      end
-      subgraph W2["ent-worker2 · zone-b（CPU 8-11，3 GiB）"]
-        K2["kubelet · containerd"] --> P2["Pod"]
-      end
-      subgraph W3["ent-worker3 · zone-c（CPU 12-15，3 GiB）"]
-        K3["kubelet · containerd"] --> P3["Pod"]
-      end
-      G["GitLab · 镜像缓存 · 负载均衡（envoy）"]
-    end
-  end
-```
+![本章的实验环境是四层嵌套：Windows、WSL2 虚拟机、作为“节点”的 Docker 容器、Pod。每一层的上限都约束它里面的所有进程；三个工作节点各自固定在 4 个 CPU 上，内存由内核限制在 3 GiB。](../figures/concept-env-nesting.svg)
 
 每一层都可以限制下一层的资源，但限制的手段不同：
 
@@ -78,14 +58,7 @@ flowchart TB
 
 问题在于，kubelet 并不知道自己被关在一个 3 GiB 的容器里。它通过 cAdvisor 读取 `/proc/meminfo` 和 `/proc/cpuinfo` 来确定节点的容量（capacity），而这两个文件在容器中**没有被隔离**，显示的是整个虚拟机的数值。于是每个工作节点都会声称自己有 16 个 CPU、15.28 GiB 内存，三个节点加起来就是 48 个 CPU、46 GiB 内存，而真实的机器只有三分之一。调度器只相信 kubelet 上报的数字，它会把 Pod 放到一个早已满了的节点上。
 
-```{.mermaid caption="问题的根源：kubelet 的“容量”来自整台虚拟机的 /proc/meminfo，真正执行的上限却在节点容器的 cgroup 上。不修正的话，调度器以为每个节点有 15 GiB，驱逐阈值永远不会触发，最先出手的只能是内核的 OOM killer。"}
-flowchart LR
-  M["/proc/meminfo<br/>MemTotal 15642 MiB<br/>整台虚拟机"]:::ghost --> CA["cAdvisor"] --> K["kubelet<br/>capacity = 15642 MiB"]
-  K --> AL["allocatable =<br/>capacity − 预留 − 驱逐阈值"]
-  AL --> S["调度器<br/>按 allocatable 放 Pod"]
-  CG["节点容器的 cgroup<br/>memory.max = 3072 MiB"]:::bad -. "kubelet 不读它" .-> K
-  CG --> OOM["内核 OOM killer<br/>在 3072 MiB 执行"]:::bad
-```
+![问题的根源：kubelet 的“容量”来自整台虚拟机的 /proc/meminfo，真正执行的上限却在节点容器的 cgroup 上。不修正的话，调度器以为每个节点有 15 GiB，驱逐阈值永远不会触发，最先出手的只能是内核的 OOM killer。](../figures/concept-kubelet-capacity.svg)
 
 kubelet 对外公布的是**可分配资源（allocatable）**，计算公式是：
 

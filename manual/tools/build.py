@@ -66,16 +66,18 @@ def rebase_images(html: Path, chapter_dir: Path) -> int:
     return count
 
 
-def pandoc(chapters: list[Path], html_out: Path, metadata: Path, math: str = "plain", template: Path | None = None) -> None:
+def pandoc(chapters: list[Path], html_out: Path, metadata: Path, math: str = "plain", template: Path | None = None,
+           toc_depth: int = 3, filters: tuple[str, ...] = ()) -> None:
     cmd = [
         "pandoc", *[str(c) for c in chapters],
         "--from", "markdown+east_asian_line_breaks",
         "--to", "html5", "--standalone",
         "--template", str(template or MANUAL / "assets" / "template.html"),
         "--metadata-file", str(metadata),
-        "--toc", "--toc-depth=3", "--number-sections",
+        "--toc", f"--toc-depth={toc_depth}", "--number-sections",
         "--syntax-highlighting=tango",
         "--lua-filter", str(MANUAL / "tools" / "mermaid.lua"),
+        *[a for f in filters for a in ("--lua-filter", str(Path(f).resolve()))],
         "--output", str(html_out),
         *(["--mathml"] if math == "mathml" else []),   # volume 2 has formulas; Edge renders MathML
     ]
@@ -113,6 +115,8 @@ def main() -> int:
     ap.add_argument("--template", default=None, help="pandoc HTML template (default: manual/assets/template.html)")
     ap.add_argument("--subject", default=None, help="PDF subject (default: volume 1's)")
     ap.add_argument("--keywords", default=None, help="PDF keywords (default: volume 1's)")
+    ap.add_argument("--toc-depth", type=int, default=3, help="heading levels in the table of contents (default 3)")
+    ap.add_argument("--lua-filter", action="append", default=[], help="additional pandoc Lua filter (repeatable)")
     ap.add_argument("--html-only", action="store_true")
     ap.add_argument("--allow-warnings", action="store_true",
                     help="exit 0 even if TOC page numbers may be wrong (headings missing from the outline, "
@@ -128,7 +132,8 @@ def main() -> int:
     t0 = time.time()
     metadata = Path(args.metadata).resolve()
     title = meta_title(metadata)
-    pandoc(chapters, html, metadata, args.math, Path(args.template).resolve() if args.template else None)
+    pandoc(chapters, html, metadata, args.math, Path(args.template).resolve() if args.template else None,
+           args.toc_depth, tuple(args.lua_filter))
     rebased = rebase_images(html, chapters[0].parent)
     print(f"pandoc: {len(chapters)} chapter file(s) -> {html.relative_to(ROOT)}"
           + (f" ({rebased} image path(s) rebased from {chapters[0].parent.relative_to(ROOT)})" if rebased else ""))

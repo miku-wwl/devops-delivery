@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 196" width="640" height="196" font-family="'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="140.0" y="16.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="600">平时：连续归档</text>
+<text x="500.0" y="16.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="600">恢复时：时间点恢复</text>
+<rect x="10.0" y="36.0" width="110.0" height="64.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="65.0" y="71.8" font-size="10.5" fill="#1b2430" text-anchor="middle" font-weight="600">主库 pg-main</text>
+<path d="M276.0,31.5 A68.0,5.5 0 0 1 412.0,31.5 V104.5 A68.0,5.5 0 0 1 276.0,104.5 Z" fill="#e8f5f2" stroke="#0f8a7e" stroke-width="1.2"/>
+<path d="M276.0,31.5 A68.0,5.5 0 0 0 412.0,31.5" fill="none" stroke="#0f8a7e" stroke-width="1.2"/>
+<text x="344.0" y="67.5" font-size="10" fill="#0b4f48" text-anchor="middle" font-weight="600">集群外的对象存储</text>
+<text x="344.0" y="81.1" font-size="9.5" fill="#0b4f48" text-anchor="middle" font-weight="normal">基础备份 + WAL 归档</text>
+<rect x="526.0" y="36.0" width="104.0" height="64.0" rx="5.0" fill="#e6f4ea" stroke="#2e8b57" stroke-width="1.2"/>
+<text x="578.0" y="64.7" font-size="10.5" fill="#1d5c38" text-anchor="middle" font-weight="normal">新的</text>
+<text x="578.0" y="78.8" font-size="10.5" fill="#1d5c38" text-anchor="middle" font-weight="normal">PostgreSQL 集群</text>
+<polyline points="120.0,55.0 271.0,55.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="276.0,55.0 267.1,51.0 267.1,59.0" fill="#5b6776"/>
+<rect x="147.3" y="29.0" width="101.5" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="198.0" y="37.5" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">WAL 段：写满 16 MiB</text>
+<rect x="158.7" y="41.5" width="78.7" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="198.0" y="50.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">或最迟每 5 分钟</text>
+<polyline points="120.0,84.0 271.0,84.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="276.0,84.0 267.1,80.0 267.1,88.0" fill="#5b6776"/>
+<text x="198.0" y="100.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">每晚一份基础备份</text>
+<polyline points="412.0,55.0 521.0,55.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="526.0,55.0 517.1,51.0 517.1,59.0" fill="#5b6776"/>
+<rect x="427.5" y="41.5" width="83.0" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="469.0" y="50.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">① 最近的基础备份</text>
+<polyline points="412.0,84.0 521.0,84.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="526.0,84.0 517.1,80.0 517.1,88.0" fill="#5b6776"/>
+<text x="469.0" y="100.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">② 重放 WAL 到目标时刻</text>
+<rect x="10.0" y="140.0" width="262.0" height="46.0" rx="5.0" fill="#fdecea" stroke="#c0392b" stroke-width="1.2"/>
+<text x="141.0" y="159.8" font-size="10" fill="#7a1f16" text-anchor="middle" font-weight="600">尚未归档的 WAL 尾部</text>
+<text x="141.0" y="173.4" font-size="9.5" fill="#7a1f16" text-anchor="middle" font-weight="normal">整个集群丢失时，丢掉的就是这一段（RPO）</text>
+<polyline points="65.0,100.0 65.0,135.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 4"/>
+<polygon points="65.0,140.0 69.1,131.1 61.0,131.1" fill="#5b6776"/>
+</svg>

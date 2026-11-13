@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 292" width="640" height="292" font-family="'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="8.0" y="52.0" width="48.0" height="40.0" rx="5.0" fill="#ffffff" stroke="#b9c6d4" stroke-width="1.2" stroke-dasharray="3 3"/>
+<text x="32.0" y="68.8" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="600">k6</text>
+<text x="32.0" y="82.4" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">主机</text>
+<rect x="70.0" y="52.0" width="86.0" height="40.0" rx="5.0" fill="#f3effb" stroke="#7353ba" stroke-width="1.2"/>
+<text x="113.0" y="68.8" font-size="10" fill="#3d2a73" text-anchor="middle" font-weight="600">LoadBalancer</text>
+<text x="113.0" y="82.4" font-size="9.5" fill="#3d2a73" text-anchor="middle" font-weight="normal">envoy · 集群外</text>
+<rect x="172.0" y="52.0" width="68.0" height="40.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="206.0" y="75.8" font-size="10.5" fill="#1b2430" text-anchor="middle" font-weight="600">gateway</text>
+<rect x="266.0" y="52.0" width="76.0" height="40.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="304.0" y="75.8" font-size="10.5" fill="#1b2430" text-anchor="middle" font-weight="600">catalog</text>
+<rect x="368.0" y="52.0" width="76.0" height="40.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="406.0" y="75.8" font-size="10.5" fill="#1b2430" text-anchor="middle" font-weight="600">orders</text>
+<rect x="470.0" y="52.0" width="76.0" height="40.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="508.0" y="75.8" font-size="10.5" fill="#1b2430" text-anchor="middle" font-weight="600">inventory</text>
+<rect x="562.0" y="52.0" width="72.0" height="40.0" rx="5.0" fill="#fff4e0" stroke="#d9730d" stroke-width="1.2"/>
+<text x="598.0" y="68.8" font-size="10" fill="#6b3b05" text-anchor="middle" font-weight="600">payments</text>
+<text x="598.0" y="82.4" font-size="9.5" fill="#6b3b05" text-anchor="middle" font-weight="normal">[模拟] 支付方</text>
+<polyline points="56.0,72.0 65.0,72.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="70.0,72.0 61.1,68.0 61.1,76.0" fill="#5b6776"/>
+<polyline points="156.0,72.0 167.0,72.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="172.0,72.0 163.1,68.0 163.1,76.0" fill="#5b6776"/>
+<polyline points="240.0,72.0 261.0,72.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="266.0,72.0 257.1,68.0 257.1,76.0" fill="#5b6776"/>
+<polyline points="219.6,52.0 219.6,26.0 390.8,26.0 390.8,47.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="390.8,52.0 394.8,43.1 386.8,43.1" fill="#5b6776"/>
+<polyline points="368.0,72.0 347.0,72.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="342.0,72.0 350.9,76.0 350.9,68.0" fill="#5b6776"/>
+<polyline points="444.0,72.0 465.0,72.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="470.0,72.0 461.1,68.0 461.1,76.0" fill="#5b6776"/>
+<polyline points="421.2,52.0 421.2,26.0 598.0,26.0 598.0,47.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="598.0,52.0 602.0,43.1 594.0,43.1" fill="#5b6776"/>
+<text x="320.0" y="18.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">同步调用：都在一次请求的路径上</text>
+<path d="M222.0,137.5 A38.0,5.5 0 0 1 298.0,137.5 V170.5 A38.0,5.5 0 0 1 222.0,170.5 Z" fill="#e8f5f2" stroke="#0f8a7e" stroke-width="1.2"/>
+<path d="M222.0,137.5 A38.0,5.5 0 0 0 298.0,137.5" fill="none" stroke="#0f8a7e" stroke-width="1.2"/>
+<text x="260.0" y="153.5" font-size="10" fill="#0b4f48" text-anchor="middle" font-weight="600">Valkey db0</text>
+<text x="260.0" y="167.1" font-size="9.5" fill="#0b4f48" text-anchor="middle" font-weight="normal">缓存</text>
+<path d="M304.0,137.5 A39.0,5.5 0 0 1 382.0,137.5 V170.5 A39.0,5.5 0 0 1 304.0,170.5 Z" fill="#e8f5f2" stroke="#0f8a7e" stroke-width="1.2"/>
+<path d="M304.0,137.5 A39.0,5.5 0 0 0 382.0,137.5" fill="none" stroke="#0f8a7e" stroke-width="1.2"/>
+<text x="343.0" y="153.5" font-size="10" fill="#0b4f48" text-anchor="middle" font-weight="600">PostgreSQL</text>
+<text x="343.0" y="167.1" font-size="9.5" fill="#0b4f48" text-anchor="middle" font-weight="normal">catalog 库</text>
+<path d="M468.0,137.5 A40.0,5.5 0 0 1 548.0,137.5 V170.5 A40.0,5.5 0 0 1 468.0,170.5 Z" fill="#e8f5f2" stroke="#0f8a7e" stroke-width="1.2"/>
+<path d="M468.0,137.5 A40.0,5.5 0 0 0 548.0,137.5" fill="none" stroke="#0f8a7e" stroke-width="1.2"/>
+<text x="508.0" y="153.5" font-size="10" fill="#0b4f48" text-anchor="middle" font-weight="600">PostgreSQL</text>
+<text x="508.0" y="167.1" font-size="9.5" fill="#0b4f48" text-anchor="middle" font-weight="normal">inventory 库</text>
+<path d="M558.0,137.5 A38.0,5.5 0 0 1 634.0,137.5 V170.5 A38.0,5.5 0 0 1 558.0,170.5 Z" fill="#e8f5f2" stroke="#0f8a7e" stroke-width="1.2"/>
+<path d="M558.0,137.5 A38.0,5.5 0 0 0 634.0,137.5" fill="none" stroke="#0f8a7e" stroke-width="1.2"/>
+<text x="596.0" y="153.5" font-size="10" fill="#0b4f48" text-anchor="middle" font-weight="600">Valkey db1</text>
+<text x="596.0" y="167.1" font-size="9.5" fill="#0b4f48" text-anchor="middle" font-weight="normal">幂等记录</text>
+<polyline points="288.8,92.0 288.8,112.0 260.0,112.0 260.0,127.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="260.0,132.0 264.0,123.1 256.0,123.1" fill="#5b6776"/>
+<polyline points="319.2,92.0 319.2,112.0 331.3,112.0 331.3,127.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="331.3,132.0 335.3,123.1 327.3,123.1" fill="#5b6776"/>
+<polyline points="508.0,92.0 508.0,127.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="508.0,132.0 512.0,123.1 504.0,123.1" fill="#5b6776"/>
+<polyline points="598.0,92.0 598.0,112.0 596.0,112.0 596.0,127.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="596.0,132.0 600.0,123.1 592.0,123.1" fill="#5b6776"/>
+<path d="M352.0,221.5 A54.0,5.5 0 0 1 460.0,221.5 V258.5 A54.0,5.5 0 0 1 352.0,258.5 Z" fill="#e8f5f2" stroke="#0f8a7e" stroke-width="1.2"/>
+<path d="M352.0,221.5 A54.0,5.5 0 0 0 460.0,221.5" fill="none" stroke="#0f8a7e" stroke-width="1.2"/>
+<text x="406.0" y="239.5" font-size="10" fill="#0b4f48" text-anchor="middle" font-weight="600">PostgreSQL</text>
+<text x="406.0" y="253.1" font-size="9.5" fill="#0b4f48" text-anchor="middle" font-weight="normal">orders 库 + outbox</text>
+<polyline points="406.0,92.0 406.0,211.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="406.0,216.0 410.0,207.1 402.0,207.1" fill="#5b6776"/>
+<rect x="214.0" y="218.0" width="106.0" height="44.0" rx="5.0" fill="#e8f5f2" stroke="#0f8a7e" stroke-width="1.2"/>
+<text x="267.0" y="236.8" font-size="10" fill="#0b4f48" text-anchor="middle" font-weight="600">NATS JetStream</text>
+<text x="267.0" y="250.4" font-size="9.5" fill="#0b4f48" text-anchor="middle" font-weight="normal">流 ORDERS</text>
+<rect x="112.0" y="218.0" width="72.0" height="44.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="148.0" y="243.8" font-size="10.5" fill="#1b2430" text-anchor="middle" font-weight="600">notifier</text>
+<path d="M10.0,223.5 A37.0,5.5 0 0 1 84.0,223.5 V256.5 A37.0,5.5 0 0 1 10.0,256.5 Z" fill="#e8f5f2" stroke="#0f8a7e" stroke-width="1.2"/>
+<path d="M10.0,223.5 A37.0,5.5 0 0 0 84.0,223.5" fill="none" stroke="#0f8a7e" stroke-width="1.2"/>
+<text x="47.0" y="239.5" font-size="10" fill="#0b4f48" text-anchor="middle" font-weight="600">Valkey db2</text>
+<text x="47.0" y="253.1" font-size="9.5" fill="#0b4f48" text-anchor="middle" font-weight="normal">去重</text>
+<polyline points="352.0,240.0 325.0,240.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 4"/>
+<polygon points="320.0,240.0 328.9,244.0 328.9,236.0" fill="#5b6776"/>
+<rect x="323.5" y="226.5" width="25.0" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="336.0" y="235.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">中继</text>
+<polyline points="214.0,240.0 189.0,240.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 4"/>
+<polygon points="184.0,240.0 192.9,244.0 192.9,236.0" fill="#5b6776"/>
+<polyline points="112.0,240.0 89.0,240.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="84.0,240.0 92.9,244.0 92.9,236.0" fill="#5b6776"/>
+<text x="10.0" y="282.0" font-size="9.5" fill="#5b6776" text-anchor="start" font-weight="normal">实线：同步调用　　虚线：订单确认之后的异步通知（事务性 outbox → NATS）　　圆柱：每个服务只访问自己的数据</text>
+</svg>

@@ -2,7 +2,9 @@
 next page and the sizes of the blocks that follow it in the derived source - enough to write a rule for
 v2/manual/pub/layout.txt ("text in the figure block => n": let n blocks of text come before the figure).
 
-  manual/.venv/Scripts/python.exe v2/manual/pub/tools/gaps.py <pdf>
+  manual/.venv/Scripts/python.exe v2/manual/pub/tools/gaps.py <pdf> [min-fill, default 0.6]
+
+With a higher min-fill (for example 0.82) it also lists the soft gaps that layout_check.py tolerates.
 """
 from __future__ import annotations
 
@@ -19,7 +21,8 @@ sys.path.insert(0, str(PUB))
 from build_pub import OUT, blocks_of  # noqa: E402
 
 pdf = sys.argv[1]
-out = subprocess.run([sys.executable, str(ROOT / "manual" / "tools" / "layout_check.py"), pdf], capture_output=True, text=True,
+min_fill = sys.argv[2] if len(sys.argv) > 2 else "0.6"
+out = subprocess.run([sys.executable, str(ROOT / "manual" / "tools" / "layout_check.py"), pdf, "--min-fill", min_fill], capture_output=True, text=True,
                      encoding="utf-8", errors="replace").stdout
 gaps = [(int(m.group(1)), int(m.group(2))) for m in re.finditer(r"page (\d+): (\d+)% used", out)]
 reader = PdfReader(pdf)

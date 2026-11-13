@@ -61,33 +61,7 @@ storefront 两种都用。下单必须知道价格、库存和支付结果，所
 
 下单涉及三个服务的数据：库存（inventory）、支付（payments）、订单（orders）。没有一个事务能同时覆盖它们。**saga** 的做法是把流程拆成一串本地事务，每一步失败时，用**补偿动作**撤销已经完成的步骤。storefront 采用编排式（orchestration）saga，由 orders 服务按顺序指挥：
 
-```{.mermaid caption="下单的 saga：orders 依次预留库存、扣款、确认订单；任何一步失败，都用补偿撤销已经完成的步骤。没有跨服务的事务，只有“每一步都可以重试、可以撤销”的约定。"}
-sequenceDiagram
-  autonumber
-  participant C as 顾客（k6）
-  participant G as gateway
-  participant O as orders
-  participant CA as catalog
-  participant I as inventory
-  participant P as payments（模拟）
-  participant DB as orders 数据库
-  C->>G: POST /api/orders（Idempotency-Key）
-  G->>O: POST /orders
-  O->>DB: INSERT 订单 PENDING（占用幂等键）
-  par 并行查询价格
-    O->>CA: GET /products/sku-007
-    O->>CA: GET /products/sku-011
-  end
-  O->>I: POST /reservations（预留库存）
-  O->>P: POST /charges（Idempotency-Key = 订单号）
-  alt 支付失败或无法确定
-    O->>I: POST /reservations/{id}/release（补偿）
-  else 成功
-    O->>DB: 一个事务：订单 CONFIRMED + outbox 事件
-  end
-  O-->>G: 201
-  G-->>C: 201
-```
+![下单的 saga：orders 依次预留库存、扣款、确认订单；任何一步失败，都用补偿撤销已经完成的步骤。没有跨服务的事务，只有“每一步都可以重试、可以撤销”的约定。](../figures/concept-saga.svg)
 
 saga 不提供隔离性：在补偿完成之前，其他请求能看到“库存已预留、订单尚未确认”的中间状态。这在电商中可以接受（预留本来就是暂时的），在转账这类场景中则需要更强的设计。
 
@@ -118,17 +92,7 @@ COMMIT;   -- 订单和事件要么都在，要么都不在
 
 一个独立的中继（relay）读取 outbox 中未发布的行，发布到 NATS，再把它们标为已发布。中继可能在“发布成功”和“标记完成”之间崩溃，于是同一事件会再发一次：outbox 提供的是**至少一次**投递。重复由两层处理：消息携带 `Nats-Msg-Id`（等于事件 ID），JetStream 在 2 分钟的去重窗口内丢弃相同 ID 的消息；消费方再按事件 ID 去重。多个 orders 副本都运行中继，`SELECT ... FOR UPDATE SKIP LOCKED` 让它们各取不同的行，不会同时处理同一行。
 
-```{.mermaid caption="事务性 outbox 的三段：订单与事件在同一个事务里提交；中继把事件发布到 NATS，重复发布由消息 ID 去重；消费者自己再去重一次。任何一处崩溃，重来一遍都不会丢、也不会重。"}
-flowchart LR
-  subgraph TX["orders：一个数据库事务"]
-    U["UPDATE orders<br/>status = CONFIRMED"] --- I["INSERT INTO outbox<br/>事件 + trace 上下文"]
-  end
-  TX -->|"COMMIT：要么都在，要么都不在"| OB[("outbox 表")]:::store
-  OB -->|"中继每 200 ms 读取<br/>FOR UPDATE SKIP LOCKED"| R["中继 relay"]
-  R -->|"发布，Nats-Msg-Id = 事件 ID"| N[["NATS JetStream<br/>2 分钟去重窗口"]]:::store
-  R -. "发布成功后标记已发布<br/>（崩溃在两步之间：重发，被去重）" .-> OB
-  N --> C["notifier<br/>按事件 ID 再去重"]
-```
+![事务性 outbox 的三段：订单与事件在同一个事务里提交；中继把事件发布到 NATS，重复发布由消息 ID 去重；消费者自己再去重一次。任何一处崩溃，重来一遍都不会丢、也不会重。](../figures/concept-outbox.svg)
 
 ### 韧性原语：每一个回答一个问题
 
@@ -163,24 +127,7 @@ HTTP 调用的链路由 OpenTelemetry 自动传递：客户端在请求头中写
 
 ### 服务与数据
 
-```{.mermaid caption="storefront 的服务与数据：同步调用（实线）在请求路径上，订单确认后的通知经事务性 outbox 与 NATS 异步送达（虚线）。每个服务只访问自己的数据。"}
-flowchart TB
-  K["k6（主机）"] -->|HTTP| LB["LoadBalancer<br/>（envoy，集群外）"]
-  LB --> GW[gateway]
-  GW --> CA[catalog]
-  GW --> OR[orders]
-  OR --> CA
-  OR --> IN[inventory]
-  OR --> PA["payments<br/>[模拟] 外部支付"]
-  CA --> VK[("Valkey db0<br/>缓存")]
-  PA --> VK1[("Valkey db1<br/>幂等记录")]
-  CA --> PG1[("PostgreSQL<br/>catalog 库")]
-  IN --> PG2[("PostgreSQL<br/>inventory 库")]
-  OR --> PG3[("PostgreSQL<br/>orders 库 + outbox")]
-  PG3 -. 中继 .-> NATS[["NATS JetStream<br/>流 ORDERS"]]
-  NATS --> NO[notifier]
-  NO --> VK2[("Valkey db2<br/>去重")]
-```
+![storefront 的服务与数据：同步调用（实线）在请求路径上，订单确认后的通知经事务性 outbox 与 NATS 异步送达（虚线）。每个服务只访问自己的数据。](../figures/concept-storefront.svg)
 
 | 组件 | 规格 | 说明 |
 |---|---|---|
@@ -208,18 +155,6 @@ Pod 的安全上下文全部加固：非 root（UID 10001）、只读根文件�
 
 第一册的配置仓库只放了一个服务的部署配置。第二册把整个平台都放进 Git（`gitops/`，发布到本地 GitLab 的 `root/platform-gitops`）：
 
-```{.mermaid caption="平台从 Git 引导（app-of-apps）：手工只做两件事——安装 Argo CD、应用根应用。根应用指向一个目录，目录里的每个文件是一个应用；同步波次决定先后，ApplicationSet 为每个服务生成一个应用。"}
-flowchart LR
-  B["bootstrap.sh<br/>安装 Argo CD<br/>应用 root.yaml"]:::dark --> ROOT["根应用<br/>platform-root"]
-  G[("GitLab<br/>platform-gitops")]:::store --> ROOT
-  ROOT --> W3["波次 −3<br/>监控栈"]
-  ROOT --> W2["波次 −2<br/>数据库运营商"]
-  ROOT --> W1["波次 −1<br/>Tempo · Loki · NATS · Valkey"]
-  ROOT --> W0["波次 0<br/>PostgreSQL 集群"]
-  ROOT --> AS["波次 1<br/>ApplicationSet"]
-  AS --> SV["6 个服务应用<br/>每个服务一个值文件"]
-```
-
 ```text
 gitops/
   bootstrap/root.yaml            唯一需要手工 apply 的清单：根应用
@@ -232,6 +167,8 @@ gitops/
 ```
 
 **app-of-apps**：根应用指向 `platform/apps/`，那里的每个文件又是一个 Application。重建平台只需要两步：安装 Argo CD，apply 根应用。**同步波次**决定顺序：先装带 CRD 的 kube-prometheus-stack（波次 −3），再装 CloudNativePG 运营商（−2），然后是 Tempo、Loki、Collector、NATS、Valkey（−1），PostgreSQL 集群（0），最后是服务（1）。波次能起作用有一个前提：Argo CD 自 1.8 起默认不评估子 Application 的健康状态，根应用会把所有子应用视为立即就绪。`argocd-values.yaml` 用一段 Lua 健康检查恢复了它，这一点很容易被忽略。
+
+![平台从 Git 引导（app-of-apps）：手工只做两件事——安装 Argo CD、应用根应用。根应用指向一个目录，目录里的每个文件是一个应用；同步波次决定先后，ApplicationSet 为每个服务生成一个应用。](../figures/concept-app-of-apps.svg)
 
 **ApplicationSet** 为 `envs/*/storefront/services/*.yaml` 中的每个文件生成一个 Application：增加一个服务就是增加一个文件。第 9 章（E8）会在同一机制上增加 staging 环境。
 

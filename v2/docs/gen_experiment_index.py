@@ -37,7 +37,7 @@ def purpose(path: Path) -> str:
         if text.endswith((".", ":", "。")):
             break
     text = " ".join(lines)
-    return (text[:200] + "…") if len(text) > 200 else text
+    return (text[:200].rsplit(" ", 1)[0] + " …") if len(text) > 200 else text      # cut between words, never inside a path
 
 
 def table(files: list[Path]) -> str:

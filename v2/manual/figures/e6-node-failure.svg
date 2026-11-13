@@ -13,19 +13,19 @@
 <text x="570.6" y="198.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">400</text>
 <text x="183.5" y="112.0" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">第一次：waypoint 只有一个副本</text>
 <line x1="191.5" y1="123.0" x2="618.0" y2="123.0" stroke="#e6ebf0" stroke-width="1.0"/>
-<rect x="191.5" y="99.0" width="9.5" height="18.0" fill="#f9e1c4" stroke="none" stroke-width="1" rx="3"/>
-<rect x="201.0" y="99.0" width="293.8" height="18.0" fill="#c0392b" stroke="none" stroke-width="1" rx="3"/>
+<rect x="191.5" y="99.0" width="8.3" height="18.0" fill="#f9e1c4" stroke="none" stroke-width="1" rx="3"/>
+<rect x="201.0" y="99.0" width="292.6" height="18.0" fill="#c0392b" stroke="none" stroke-width="1" rx="3"/>
 <text x="206.0" y="111.5" font-size="9.5" fill="#ffffff" text-anchor="start" font-weight="normal">100% 的请求失败（唯一的 waypoint 在被冻结的节点上）</text>
-<rect x="494.8" y="99.0" width="23.7" height="18.0" fill="#f9e1c4" stroke="none" stroke-width="1" rx="3"/>
+<rect x="494.8" y="99.0" width="22.5" height="18.0" fill="#f9e1c4" stroke="none" stroke-width="1" rx="3"/>
 <text x="183.5" y="142.0" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">第二次：waypoint 两个副本、跨区</text>
 <line x1="191.5" y1="153.0" x2="618.0" y2="153.0" stroke="#e6ebf0" stroke-width="1.0"/>
-<rect x="191.5" y="129.0" width="52.1" height="18.0" fill="#d9730d" stroke="none" stroke-width="1" rx="3"/>
+<rect x="191.5" y="129.0" width="50.9" height="18.0" fill="#d9730d" stroke="none" stroke-width="1" rx="3"/>
 <text x="248.6" y="141.5" font-size="9.5" fill="#1b2430" text-anchor="start" font-weight="normal">约 55 秒：到端点被移除为止</text>
 <text x="183.5" y="172.0" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">节点（两次相同）</text>
 <line x1="191.5" y1="183.0" x2="618.0" y2="183.0" stroke="#e6ebf0" stroke-width="1.0"/>
-<rect x="191.5" y="159.0" width="388.6" height="18.0" fill="#e9edf2" stroke="none" stroke-width="1" rx="3"/>
+<rect x="191.5" y="159.0" width="387.4" height="18.0" fill="#e9edf2" stroke="none" stroke-width="1" rx="3"/>
 <text x="196.5" y="171.5" font-size="9.5" fill="#1b2430" text-anchor="start" font-weight="normal">冻结</text>
-<rect x="580.1" y="159.0" width="28.4" height="18.0" fill="#d5ecdd" stroke="none" stroke-width="1" rx="3"/>
+<rect x="580.1" y="159.0" width="27.2" height="18.0" fill="#d5ecdd" stroke="none" stroke-width="1" rx="3"/>
 <line x1="236.0" y1="90.0" x2="236.0" y2="183.0" stroke="#8a94a3" stroke-width="1.1" stroke-dasharray="3 3"/>
 <rect x="237.0" y="78.0" width="103.0" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
 <text x="240.0" y="87.0" font-size="10" fill="#8a94a3" text-anchor="start" font-weight="600">47 s 节点 NotReady</text>

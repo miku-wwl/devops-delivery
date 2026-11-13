@@ -3915,7 +3915,7 @@
  [
   "E11 I4 MR 45 pipeline 31 s",
   "12-e11-iac.md",
-  "流水线：渲染新 chart（31 秒）",
+  "门禁的流水线 31 秒",
   "evidence/e11/i4/upgrade.log",
   "MR !45 (mr/20261110-140726-root, by root) pipeline 88: success after 31 s"
  ],

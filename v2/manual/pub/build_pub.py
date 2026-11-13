@@ -9,19 +9,24 @@ the book from them, deterministically, into v2/manual/.pubsrc and prints it with
      chapter in appendix D - the text keeps its traceability without carrying file paths;
   2. the "deliverables" table at the head of every chapter moves to appendix C (code and experiment index); the
      paragraph on how real the chapter's experiments are becomes a framed note;
-  3. every figure gets a kind class (concept diagram / measured data / screenshot / terminal record), flowcharts get
+  3. every figure gets a kind class (concept diagram / measured data / screenshot / terminal record / model curve);
+     the diagrams are drawn by diagram_defs.py - a Mermaid block, should a chapter contain one, still works and gets
      the book's node classes;
-  4. front matter (reading guide), exercise answers (appendix A), glossary (appendix B) and the two generated
+  4. page make-up: the rules of layout.txt (a figure lets the following text come first, or gets a height cap);
+     tables whose columns were not sized by hand get widths that follow their content;
+  5. front matter (reading guide), exercise answers (appendix A), glossary (appendix B) and the two generated
      appendices are added.
-Charts are regenerated from the evidence first (figures.py); `--check` there verifies their numbers.
+Charts and diagrams are regenerated first (figures.py); `--check` there verifies their numbers.
 """
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import shutil
 import subprocess
 import sys
+import unicodedata
 from pathlib import Path
 
 PUB = Path(__file__).resolve().parent
@@ -96,6 +101,9 @@ def evidence_markers(text: str, ch: int, index: dict[str, int]) -> str:
         line = re.sub(r"(?:\x00EV\d+\x00(?:、)?)+", render, line)
         # "见 [n]" style leftovers read fine; a dangling "（，" or "（）" does not
         line = line.replace("（）", "").replace("（，", "（")
+        # a paragraph that held nothing but evidence files (under a table or a figure) becomes a source line
+        if re.fullmatch(r'<sup class="ev">\[.*?\]</sup>', line.strip()):
+            line = f'<p class="evsrc">原始记录 {line.strip()}</p>'
         out.append(line)
     return "\n".join(out)
 
@@ -113,7 +121,7 @@ def chapter_head(text: str, title: str, code_index: list[str]) -> str:
     rest_text = "\n".join(rest)
     rest_text = re.sub(r"^(本章的[^\n]*`\[(?:真实|注入|虚拟|模拟)\]`[^\n]*)$", r"::: realness\n\1\n:::", rest_text, flags=re.M)
     rest_text = re.sub(r"\n{3,}", "\n\n", rest_text).strip("\n")
-    code_index.append(f"## {title} {{.unnumbered}}\n\n{table}\n" + ("\n" + "\n\n".join(accept) + "\n" if accept else ""))
+    code_index.append(f"## {title} {{.unnumbered .unlisted}}\n\n{table}\n" + ("\n" + "\n\n".join(accept) + "\n" if accept else ""))
     return text[:m.start()] + "## 学习目标\n\n" + rest_text + "\n\n" + text[m.end():]
 
 
@@ -192,10 +200,74 @@ def apply_layout(text: str, rules: list[tuple[str, int]], used: set[str]) -> str
     return "\n\n".join(blocks) + "\n" if moved else text
 
 
+SEP_ROW = re.compile(r"^\|(?:\s*:?-+:?\s*\|)+\s*$")
+# text column; cell padding (with a margin); one half-width unit at 9 pt (a little generous: bold headers, digits);
+# widest column that still counts as "one short item"
+TEXT_MM, PAD_MM, UNIT_MM, SHORT_MM = 178.0, 5.5, 1.8, 32.0
+
+
+def _units(cell: str) -> int:
+    """Printed width of a cell in half-width units (a CJK character counts two), without Markdown markers."""
+    s = re.sub(r"`([^`]*)`", r"\1", cell).replace("**", "")
+    s = re.sub(r"<[^>]+>", "", s)
+    return sum(2 if unicodedata.east_asian_width(c) in "WF" else 1 for c in s.strip())
+
+
+def column_widths(text: str, report: list | None = None) -> str:
+    """Pipe tables whose separator row gives every column the same number of dashes get widths that follow their
+    content. Pandoc turns the dashes into relative widths, and equal widths give a one-word first column (a time, an
+    ID, a number) as much room as a column of sentences - the sentences then wrap into many short lines (review
+    round 2, F2-12). A separator row with unequal dashes was sized by hand and is left alone.
+
+    Columns that hold one short item (up to SHORT_MM) get exactly the room they need and never wrap; the rest of
+    the text column is shared by the long columns, damped (exponent 0.6) so that the longest does not starve the
+    others. A table that fits without wrapping keeps the proportions of its content."""
+    lines = text.split("\n")
+    out, i, fenced = [], 0, False
+    while i < len(lines):
+        line = lines[i]
+        if line.startswith("```") or line.startswith("~~~"):
+            fenced = not fenced
+        if fenced or not line.startswith("|") or i + 1 >= len(lines) or not SEP_ROW.match(lines[i + 1]):
+            out.append(line)
+            i += 1
+            continue
+        j = i + 2
+        while j < len(lines) and lines[j].startswith("|"):
+            j += 1
+        seps = [c.strip() for c in lines[i + 1].strip().strip("|").split("|")]
+        rows = [re.split(r"(?<!\\)\|", l.strip().strip("|")) for l in [line] + lines[i + 2:j]]
+        if len({c.count("-") for c in seps}) == 1 and len(seps) > 1 and all(len(r) == len(seps) for r in rows):
+            maxw = [max(max(_units(r[k]) for r in rows), 2) for k in range(len(seps))]
+            natural = [PAD_MM + UNIT_MM * w for w in maxw]
+            if sum(natural) <= TEXT_MM:
+                mm = natural
+            else:
+                short = [n <= SHORT_MM for n in natural]
+                rest = TEXT_MM - sum(n for n, s in zip(natural, short) if s)
+                weight = [0.0 if s else w ** 0.6 for w, s in zip(maxw, short)]
+                if rest < 0.45 * TEXT_MM:       # many short columns: share everything, damped
+                    weight = [w ** 0.6 for w in maxw]
+                    mm = [TEXT_MM * x / sum(weight) for x in weight]
+                else:
+                    mm = [n if s else rest * x / sum(weight) for n, s, x in zip(natural, short, weight)]
+            counts = [max(3, round(96 * m / sum(mm))) for m in mm]
+            sep = "|" + "|".join((":" if c.startswith(":") else "") + "-" * n + (":" if c.endswith(":") else "")
+                                 for c, n in zip(seps, counts)) + "|"
+            if report is not None:
+                report.append((line[:40], maxw, [round(100 * m / sum(mm)) for m in mm]))
+            out += [line, sep] + lines[i + 2:j]
+        else:
+            out += lines[i:j]
+        i = j
+    return "\n".join(out)
+
+
 def unnumber(text: str) -> str:
+    """Headings of an appendix: no section numbers, and not listed in the table of contents (the bookmarks keep them)."""
     def fix(m: re.Match) -> str:
         attrs = m.group(3)
-        return f"{m.group(1)} {m.group(2)} " + (attrs.strip()[:-1] + " .unnumbered}" if attrs else "{.unnumbered}")
+        return f"{m.group(1)} {m.group(2)} " + (attrs.strip()[:-1] + " .unnumbered .unlisted}" if attrs else "{.unnumbered .unlisted}")
 
     return re.sub(r"^(#{1,4}) ([^\n{]+?)(\s*\{[^}\n]*\})?$", fix, text, flags=re.M)
 
@@ -206,8 +278,10 @@ def main() -> int:
     ap.add_argument("--out", default=str(DEFAULT_PDF))
     ap.add_argument("--html-only", action="store_true")
     ap.add_argument("--no-figures", action="store_true")
+    ap.add_argument("--show-tables", action="store_true", help="print the column widths chosen for every re-sized table")
     args = ap.parse_args()
     only = {int(x) for x in args.only.split(",") if x}
+    tables_sized = 0
 
     if not args.no_figures:
         sys.path.insert(0, str(PUB))
@@ -236,6 +310,12 @@ def main() -> int:
         text = chapter_head(text, f"第 {n} 章　{title}", code_index)
         text = figures(text)
         text = apply_layout(text, rules, used)
+        sized: list = []
+        text = column_widths(text, sized)
+        tables_sized += len(sized)
+        if args.show_tables:
+            for head, maxw, shares in sized:
+                print(f"  table ch{n:<2} {head:<40} content {maxw} -> widths % {shares}")
         ev_index.append((n, title, index))
         if not only or n in only:
             write(path.name, text)
@@ -246,11 +326,13 @@ def main() -> int:
         write("91-glossary.md", (PUB / "back" / "glossary.md").read_text(encoding="utf-8"))
         write("92-code-index.md",
               "# 附录 C　代码与实验索引 {#app-code .unnumbered}\n\n"
-              "每一章的实现都在实验仓库的 `v2/` 目录下（github.com/miku-wwl/devops-delivery，分支 `v2/publication`）。"
-              "下表按章列出产出与位置，路径相对于 `v2/`；前三章另附当时的验收记录。\n\n" + "\n".join(code_index))
+              "每一章的实现都在实验仓库的 `v2/` 目录下（`github.com/miku-wwl/devops-delivery`，分支 `v2/publication`）。"
+              "下表按章列出产出与位置，路径相对于 `v2/`；前三章另附当时的验收记录。\n\n"
+              "::: codeindex\n\n" + column_widths("\n".join(code_index)) + "\n:::\n")
+        checks = json.loads((MAN / "spot-checks.json").read_text(encoding="utf-8"))
         ev = ["# 附录 D　证据索引 {#app-evidence .unnumbered}\n",
               "正文中的上标数字（如 <sup class=\"ev\">[3]</sup>）是证据编号：每一章单独编号，对应下面列出的原始记录——终端输出、"
-              "查询结果、时间线与复盘。文件都在实验仓库的 `v2/` 目录下，路径相对于 `v2/`。全书另有 572 处以上的具体陈述与这些文件"
+              f"查询结果、时间线与复盘。文件都在实验仓库的 `v2/` 目录下，路径相对于 `v2/`。全书另有 {len(checks)} 处具体陈述与这些文件"
               "逐条自动比对（`v2/manual/spot-checks.json`）。\n"]
         for n, title, index in ev_index:
             if index:
@@ -259,11 +341,13 @@ def main() -> int:
         write("93-evidence.md", "\n".join(ev))
     if not only and len(used) != len(rules):
         print(f"layout: rule(s) that matched no single figure: {[k for k, n in rules if f'{k}=>{n}' not in used]}", file=sys.stderr)
-    print(f"sources: {len(list(OUT.glob('*.md')))} file(s) in {OUT.relative_to(ROOT)}; layout rules applied: {len(used)}; evidence markers: "
-          f"{sum(len(i) for _, _, i in ev_index)} file(s) in {sum(1 for _, _, i in ev_index if i)} chapter(s)")
+    print(f"sources: {len(list(OUT.glob('*.md')))} file(s) in {OUT.relative_to(ROOT)}; layout rules applied: {len(used)}; tables sized by "
+          f"content: {tables_sized}; evidence markers: {sum(len(i) for _, _, i in ev_index)} file(s) in "
+          f"{sum(1 for _, _, i in ev_index if i)} chapter(s)")
 
     cmd = [sys.executable, str(ROOT / "manual" / "tools" / "build.py"), "--chapters", str(OUT / "*.md"),
            "--template", str(PUB / "template.html"), "--metadata", str(PUB / "metadata.yaml"), "--math", "mathml",
+           "--toc-depth", "2", "--lua-filter", str(PUB / "codebreak.lua"),
            "--out", args.out, "--subject", "Platform engineering, DevOps and SRE: an evidence-based lab handbook (volume 2, Publication Edition)",
            "--keywords", "Kubernetes, GitOps, Argo CD, Istio ambient, capacity planning, HPA, KEDA, multi-tenancy, chaos engineering, "
                          "disaster recovery, release governance, SLO, observability, KWOK, API Priority and Fairness, OpenTofu"]

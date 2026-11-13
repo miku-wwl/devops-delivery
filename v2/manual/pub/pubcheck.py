@@ -7,10 +7,13 @@
 2. Figures: every diagram and image has a caption; the kinds are counted (concept / data / screenshot / terminal /
    model) - the counts go on the cover and into the acceptance report.
 3. Structure: which teaching elements each chapter has.
+4. Placement: no figure between a lead-in sentence ("...：") and the list, table, code or formula it announces.
+5. Cover: the counts printed on the cover (chapters, figures, spot checks) are the real ones.
 Exit code 1 when a check fails.
 """
 from __future__ import annotations
 
+import json
 import re
 import sys
 from pathlib import Path
@@ -64,6 +67,34 @@ def main() -> int:
     total = sum(totals.values())
     print(f"figures in chapters: {total} = concept {totals['concept']}, measured data {totals['data']}, screenshots {totals['shot']}, "
           f"terminal records {totals['term']}, model curves {totals['model']}  (+1 book map in the reading guide)")
+
+    # 4. Placement (review round 2, F2-01): a figure must not stand between a lead-in sentence that ends with a colon and
+    #    the list, table, code or formula that the sentence announces. (A colon followed by figure + paragraph or heading
+    #    announces the figure itself and is fine.)
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from build_pub import blocks_of
+    misplaced = 0
+    for path in CHAPTERS:
+        blocks = blocks_of(path.read_text(encoding="utf-8"))
+        for i, b in enumerate(blocks):
+            if not b.startswith("![") or i == 0 or i + 1 >= len(blocks):
+                continue
+            nxt = blocks[i + 1]
+            announced = nxt.startswith(("|", "```", "$$")) or re.match(r"^(- |\d+\. )", nxt)
+            if blocks[i - 1].rstrip().endswith(("：", ":")) and announced:
+                misplaced += 1
+                print(f"      FAIL {path.name}: a figure separates a lead-in from what it announces: …{blocks[i - 1].rstrip()[-20:]}")
+    print(f"figure placement: {misplaced} figure(s) between a lead-in and the block it announces")
+    bad += misplaced
+
+    # 5. The numbers on the cover (metadata.yaml) are the real counts.
+    meta = (MAN / "pub" / "metadata.yaml").read_text(encoding="utf-8")
+    checks = len(json.loads((MAN / "spot-checks.json").read_text(encoding="utf-8")))
+    for label, real in (("章", len(CHAPTERS)), ("幅图", total + 1), ("处", checks)):
+        m = re.search(rf'n: "(\d+) {label}"', meta)
+        ok = bool(m) and int(m.group(1)) == real
+        print(f"cover: {m.group(1) if m else '?'} {label} - counted {real}{'' if ok else '   FAIL'}")
+        bad += not ok
     print(f"RESULT: {'FAIL' if bad else 'PASS'}" + (f" - {bad} problem(s)" if bad else ""))
     return 1 if bad else 0
 

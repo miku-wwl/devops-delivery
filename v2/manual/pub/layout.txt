@@ -2,13 +2,15 @@
 #   text in the figure block => n        let the next n blocks of text come before the figure (they fill the page end)
 #   text in the figure block => max NN   cap the figure's height at NN mm so that it still fits under its paragraph
 # Tune with: manual/.venv/Scripts/python.exe v2/manual/pub/tools/gaps.py <pdf>
-storefront 的服务与数据：同步调用（实线） => 2
-同一个调用方、两个副本，两种选择后端的时机 => max 60
-响应时间律画成曲线（这是公式，不是测量） => max 65
-170 迭代/秒的台阶（2026-11-09 02:18:31 => 2
 事故演练期间的 SLO 看板 => 3
 一个 exemplar 打开的链路 => 1
-本章的实验环境。同一个 WSL 虚拟机中 => max 120
-洪水期间 API server 的匿名内存，每秒一个采样点 => max 90
-Argo CD 经合并请求升级自己 => max 85
-两种采样决定的时机 => 2
+平台从 Git 引导（app-of-apps）：手工 => 2
+同一个 CPU 消耗者，声明不同的 CPU 请求 => 1
+同一个故障，两种模式打到故障依赖上的负载 => 2
+R2 与 R4：根应用第一次同步之后的时间线 => 1
+漂移实验：注入三处改动之后 => 2
+storefront 的服务与数据：同步调用（实线） => 2
+ambient 模式的数据路径 => 1
+# the two figures of the canary experiment follow the paragraph that reads them (the screenshot's rule comes first)
+金丝雀的一次完整经历 => 1
+金丝雀实验的四个数字 => 1

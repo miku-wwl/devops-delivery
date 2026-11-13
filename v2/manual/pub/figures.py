@@ -15,30 +15,9 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-PUB = Path(__file__).resolve().parent
-MAN = PUB.parent
-V2 = MAN.parent
-FIG = MAN / "figures"
-sys.path.insert(0, str(PUB))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from charts import C, bar_chart, hbar_chart, line_chart, timeline  # noqa: E402
-
-FIGS: list[dict] = []
-CHAPTERS = sorted((MAN / "chapters").glob("*.md"))
-
-
-def fig(name: str, chapter: int, sources: list[str], check: tuple[str, ...] = (), kind: str = "quoted"):
-    def deco(fn):
-        FIGS.append({"name": name, "chapter": chapter, "sources": sources, "check": check, "kind": kind, "fn": fn})
-        return fn
-    return deco
-
-
-def ev(rel: str) -> Path:
-    return V2 / rel
-
-
-def rows(rel: str, skip: int = 1) -> list[list[str]]:
-    return [l.split() for l in ev(rel).read_text(encoding="utf-8").splitlines()[skip:] if l.strip()]
+from figreg import CHAPTERS, FIG, FIGS, MAN, PUB, V2, chapter_text, ev, fig, rows  # noqa: E402,F401
 
 
 # ---------------------------------------------------------------- chapter 1 (E0)
@@ -99,7 +78,7 @@ def _(out):
 def _(out):
     pts = [(u / 100, 1 / (1 - u / 100)) for u in range(0, 97)]
     line_chart(out, "排队模型：响应时间 R = S / (1 − U)", [{"name": "", "color": C["purple"], "pts": pts}],
-               xlabel="利用率 U", ylabel="响应时间（服务时间 S 的倍数）", xlim=(0, 1), ylim=(0, 26), h=290,
+               xlabel="利用率 U", ylabel="响应时间（服务时间 S 的倍数）", xlim=(0, 1), ylim=(0, 26), h=252,
                xticks=[0, 0.25, 0.5, 0.75, 0.9, 1.0], xfmt=lambda v: f"{v * 100:.0f}%", yfmt=lambda v: f"{v:.0f}×",
                notes=[(0.5, 2, "50%：2 倍", -20, -30, C["purple"]), (0.8, 5, "80%：5 倍", -40, -30, C["purple"]),
                       (0.9, 10, "90%：10 倍", -52, -24, C["purple"]), (0.95, 20, "95%：20 倍", -60, -12, C["purple"])])
@@ -194,7 +173,8 @@ def _(out):
         ("be-hog（BestEffort）", [(0, 190, C["lgray"], "160 MiB"), (190, 454, C["gray"], "每秒 +3 MiB，到 933 MiB")]),
         ("guaranteed（请求 = 限制）", [(0, 800, C["teal"], "80 MiB，始终运行")]),
         ("节点状态", [(180, 760, C["lred"], "MemoryPressure：拒绝新的 BestEffort Pod（580 s）")]),
-    ], xlim=(0, 820), xlabel="秒", events=[(172, "驱逐 burst-hog", C["red"]), (454, "驱逐 be-hog", C["red"]), (760, "压力解除", C["teal"])])
+    ], xlim=(0, 820), xlabel="秒", lane_h=25,
+        events=[(172, "驱逐 burst-hog", C["red"]), (454, "驱逐 be-hog", C["red"]), (760, "压力解除", C["teal"])])
 
 
 @fig("e4-neighbor", 5, ["evidence/e4/noisy.log"],
@@ -317,7 +297,7 @@ def _(out):
     bar_chart(out, "两种采样方式下的 span 流量（个/秒）", ["到达收集器", "写入 Tempo"], [
         {"name": "头部采样 10%", "color": C["gray"], "vals": [28.9, 3.4]},
         {"name": "100% 上报，由尾部采样决定", "color": C["teal"], "vals": [291, 29.9]},
-    ], ylabel="span/秒", ylim=(0, 330), h=280)
+    ], ylabel="span/秒", ylim=(0, 330), h=232)
 
 
 # ---------------------------------------------------------------- chapter 11 (E10)
@@ -359,7 +339,7 @@ def _(out):
     ], xlabel="秒（洪水在第 10 秒左右开始）", ylabel="MiB", xlim=(0, 75), ylim=(0, 2800), h=350,
         hlines=[(1536, C["blue"], "上限 1536"), (2560, C["red"], "上限 2560")],
         bands=[(10, 75, "#fdf3e7", "")],
-        notes=[(13.8, 1487, "4 秒内 938 → 1487，被杀", -8, 150, C["blue"]),
+        notes=[(13.8, 1487, "938 → 1487：被杀", -4, 92, C["blue"]),
                (22, 2437, "3 个并发 LIST：2437 MiB", -30, -34, C["red"]),
                (29.5, 2552, "2552：被杀 1 次", 26, -18, C["red"]),
                (61.7, 2004, "重启后 1.6–2.0 GiB", -6, 120, C["red"])])
@@ -379,7 +359,7 @@ def _(out):
         ("6a 借用上限为 0，3 个席位 · 被杀 5 次", 437, B, "437 ms（20.7 ms）"),
         ("6b 不限借用，7 个席位 · 被杀 8 次", 1540, B, "1540 ms（14.7 ms）"),
         ("7  3 个席位，2560 MiB · 被杀 1 次", 194, C["teal"], "194 ms（20.3 ms）"),
-    ], xlabel="受害者 GET 的 p99，毫秒；假设 K5 的目标线是安静值的 2 倍（约 40 ms）", xlim=(10, 30000), log=True,
+    ], xlabel="受害者 GET 的 p99，毫秒；假设 K5 的目标线是安静值的 2 倍（约 40 ms）", xlim=(10, 30000), log=True, row_h=22,
         vline=(40, C["green"], "目标：不超过安静值的 2 倍"))
 
 
@@ -391,7 +371,7 @@ def _(out):
 def _(out):
     bar_chart(out, "OpenBao 密封的 9 小时里，告警桥在 GitLab 中开出的事故（个）",
               ["OpenBaoSealed\n原因本身", "ArgoCDAppDegraded\n依赖它的应用", "KubeJobFailed\n每小时的快照任务", "KubeContainerWaiting\n任务的 Pod"], [
-                  {"name": "", "color": C["orange"], "vals": [1, 16, 10, 27]}], ylabel="事故数", ylim=(0, 31), h=290,
+                  {"name": "", "color": C["orange"], "vals": [1, 16, 10, 27]}], ylabel="事故数", ylim=(0, 31), h=250,
               notes=[(0, 4.5, "1 个原因"), (2, 29.5, "53 个症状：每小时关闭一批，再打开一批")])
 
 
@@ -409,6 +389,9 @@ def _(out):
 
 
 # ---------------------------------------------------------------- build and check
+import diagram_defs  # noqa: E402,F401  registers the hand-laid-out diagrams in the same registry
+
+
 def generate() -> int:
     FIG.mkdir(parents=True, exist_ok=True)
     for f in FIGS:
@@ -419,7 +402,7 @@ def generate() -> int:
 def check() -> int:
     bad = 0
     for f in FIGS:
-        chapter = CHAPTERS[f["chapter"] - 1].read_text(encoding="utf-8")
+        chapter = chapter_text(f["chapter"])
         missing = []
         for src in f["sources"]:
             if not ev(src).exists():
