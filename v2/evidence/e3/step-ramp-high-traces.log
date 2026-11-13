@@ -1,0 +1,46 @@
+# transcript: E3: phase 2 - traces of the 60->80 ramp transient, load balancer health checks and upstream failures
+# recorded: 2026-11-07T13:40:09Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e3/traces.sh list 2026-11-07T13:19:40Z 2026-11-07T13:20:05Z "{ status = error }" 900
+4c2afcba55a202680e7f4968fae89044 13:19:50 GET /api/products 2035 ms
+b09a64fb1792ccdd01a945064b82c259 13:19:51 GET /api/products 1359 ms
+7cf02e2fe40e016810c356dc8c4480bd 13:19:51 POST /api/orders 1007 ms
+f7192136006fd21c1222566cf1c51006 13:19:51 GET /api/products 1008 ms
+b86549c858b488ca13c6833b1979a279 13:19:51 GET /api/products 1009 ms
+3802113f3c046811113e6e971a1c9b3a 13:19:51 POST /api/orders 1012 ms
+53b63df612e2f0e108a732cee7c7bb19 13:19:52 GET /api/products/{product_id} 1006 ms
+ac8c77690f47c3a4130c3a56de54050a 13:19:52 GET /api/products 1124 ms
+6ba4508cc8ff8fc20d76c8790b40414f 13:19:52 GET /api/products/{product_id} 1123 ms
+841f193d485370790ec0048ee1f1d94f 13:19:52 GET /api/products 1208 ms
+
+$ bash v2/experiments/e3/traces.sh spans 4c2afcba55a202680e7f4968fae89044
++0 ms  gateway/d6st4  GET /api/products  2035 ms ERROR http.status_code=504
++0 ms  gateway/d6st4  GET  1012 ms ERROR 
++312 ms  catalog/ktzjq  GET /products  142 ms  http.status_code=200
++313 ms  catalog/ktzjq  GET  140 ms  db.system=redis
++1028 ms  gateway/d6st4  GET  1005 ms ERROR 
+
+$ bash v2/experiments/e3/traces.sh spans b09a64fb1792ccdd01a945064b82c259
++0 ms  gateway/746cl  GET /api/products  1359 ms  http.status_code=200
++1 ms  gateway/746cl  GET  1020 ms ERROR 
++271 ms  catalog/ktzjq  GET /products  963 ms  http.status_code=200
++272 ms  catalog/ktzjq  GET  364 ms ERROR db.system=redis
++637 ms  catalog/ktzjq  SELECT  262 ms  db.system=postgresql
++899 ms  catalog/ktzjq  SELECT  334 ms  db.system=postgresql
++1069 ms  gateway/746cl  GET  285 ms  http.status_code=200
++1240 ms  catalog/cb767  GET /products  8 ms  http.status_code=200
++1240 ms  catalog/cb767  GET  6 ms  db.system=redis
+
+$ docker logs kindccm-7c5080a249c3 --since 2026-11-07T13:16:30Z --until 2026-11-07T13:35:30Z 2>&1 | grep -c successful_health_check_event
+1767
+
+$ docker logs kindccm-7c5080a249c3 --since 2026-11-07T13:16:30Z --until 2026-11-07T13:35:30Z 2>&1 | grep -cE "health_check_failure_event|eject_unhealthy_event"
+0
+[exit 1]
+
+$ docker logs kindccm-7c5080a249c3 --since 2026-11-07T13:16:30Z --until 2026-11-07T13:35:30Z 2>&1 | grep "UF,URX" | tr -d "\r"
+[2026-11-07T13:18:33.513Z] "- - -" 0 UF,URX 0 0 268 - "-" "-" "-" "-" "172.20.0.2:32255"
+[2026-11-07T13:18:38.312Z] "- - -" 0 UF,URX 0 0 1652 - "-" "-" "-" "-" "172.20.0.9:32255"
+[2026-11-07T13:19:30.921Z] "- - -" 0 UF,URX 0 0 637 - "-" "-" "-" "-" "172.20.0.2:32255"
+[2026-11-07T13:19:53.068Z] "- - -" 0 UF,URX 0 0 20 - "-" "-" "-" "-" "172.20.0.10:32255"
+

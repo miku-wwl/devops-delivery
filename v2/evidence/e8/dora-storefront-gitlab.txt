@@ -1,0 +1,8 @@
+DORA - applications of project storefront, merge requests merged since 2026-11-10T04:20:30Z; deployments: gitlab
+  MR author merged      lead  concerned -> deployed  title
+!20  root   04:29:00   14.6m  catalog, orders  [emergency] orders, catalog: DB_POOL_MAX +2 (pool exhaustion)
+
+merge requests merged: 4; concerning these applications: 1; deployed within 6 h: 1
+deployment frequency: 2 service deployments in 1.0 h of records = 48 per day (1 merge requests = 24 per day)
+lead time for changes: median 14.6 min, max 14.6 min (n=1)
+change failure rate: 0 of 1 = 0 %

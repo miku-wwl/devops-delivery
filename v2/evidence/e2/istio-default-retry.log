@@ -1,0 +1,24 @@
+# transcript: E2: Istio 1.31.4 default retry policy (source)
+# recorded: 2026-11-07T08:23:25Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ curl -fsSL https://raw.githubusercontent.com/istio/istio/1.31.4/pilot/pkg/networking/core/route/retry/retry.go | sed -n "35,50p"
+var (
+	defaultNumRetries = &wrappers.UInt32Value{Value: 2}
+	defaultRetryOn    = "connect-failure,refused-stream,unavailable,cancelled,retriable-status-codes"
+
+	// Shared slice for RetryHostPredicate - immutable, safe to share
+	defaultRetryHostPredicate = []*route.RetryPolicy_RetryHostPredicate{
+		xdsfilters.RetryPreviousHosts,
+	}
+
+	// Cached default policy with RetryHostPredicate (for non-consistent-hash cases)
+	cachedDefaultPolicy = &route.RetryPolicy{
+		NumRetries:                    defaultNumRetries,
+		RetryOn:                       defaultRetryOn,
+		HostSelectionRetryMaxAttempts: 5,
+		RetryHostPredicate:            defaultRetryHostPredicate,
+	}
+
+$ curl -fsSL https://raw.githubusercontent.com/istio/istio/1.31.4/pilot/pkg/networking/core/route/retry/retry.go | grep -c RetriableStatusCodes
+3
+

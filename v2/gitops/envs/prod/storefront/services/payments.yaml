@@ -1,0 +1,9 @@
+service: payments
+replicas: 2
+env:
+  VALKEY_URL: redis://valkey.data.svc:6379/1
+  VALKEY_TIMEOUT_S: "1.0"          # store of record, not a cache (chapter 2)
+  # [模拟] external provider: median 40 ms, p99 250 ms, 2 % declined
+  PSP_LATENCY_P50_MS: "40"
+  PSP_LATENCY_P99_MS: "250"
+  PSP_DECLINE_RATE: "0.02"

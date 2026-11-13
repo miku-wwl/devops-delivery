@@ -1,0 +1,13 @@
+# transcript: E5 step B: scoped webhooks and two admission controllers (PDB) - one pod deleted
+# recorded: 2026-11-09T09:29:11Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e5/admission-restart.sh
+== Kyverno: 2 admission controller replica(s); webhook namespaceSelector: {}
+  pdb: kyverno-admission-controller   1     N/A   1     48s
+  09:29:12.651 deleting kyverno-admission-controller-5df689c86f-jq49x
+  09:29:12 shop-dev=FAIL(failed calling webhook "validate.kyverno.svc-fail") insight=ok storefront=ok
+  09:29:14 shop-dev=ok insight=ok storefront=ok
+  (70 samples; lines are printed when a result changes)
+  kyverno-admission-controller-5df689c86f-5kbbl   2026-11-09T09:29:12Z   2026-11-09T09:29:32Z
+  kyverno-admission-controller-5df689c86f-whknn   2026-11-09T09:25:14Z   2026-11-09T09:25:36Z
+

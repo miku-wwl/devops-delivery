@@ -1,0 +1,56 @@
+# transcript: P10 part A: promote the verified digest to dev and check the new feature end to end
+# recorded: 2026-11-06T10:17:21Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ DIGEST=sha256:4bb4aac303ab48d036af1808c98312c16acbe8eef3c8f6fcdc42dc4f77711f38
+
+$ bash delivery/argocd/promote.sh dev image.digest=$DIGEST --merge --title "dev: X-Request-ID (85b3a49), release run 42198984873"
+ envs/dev/values.yaml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+@@ -4,3 +4,3 @@ image:
+   tag: "0.1.1"
+-  digest: sha256:9f45ec009f30fd01ec98998c8b86f74106721346475f3847bf6911d8ab318c81
++  digest: sha256:4bb4aac303ab48d036af1808c98312c16acbe8eef3c8f6fcdc42dc4f77711f38
+ # Progressive delivery for dev: automatic canary, no manual gate.
+merge request !20: http://localhost:8929/root/delivery-gitops/-/merge_requests/20
+merged !20 -> main @ e9472b2 by root
+
+$ bash delivery/argocd/wait-sync.sh demo-api-dev "" 300
+t+1s  revision=c4724f5 sync=Synced health=Healthy operation=Succeeded
+t+5s  revision=e9472b2 sync=OutOfSync health=Healthy operation=Running
+t+8s  revision=e9472b2 sync=Synced health=Progressing operation=Succeeded
+t+27s  revision=e9472b2 sync=Synced health=Suspended operation=Succeeded
+t+59s  revision=e9472b2 sync=Synced health=Healthy operation=Succeeded
+reached Synced/Healthy at e9472b2 after 59s
+
+$ bash delivery/rollouts/watch-rollout.sh dev demo-api-dev Healthy 300
+t+1s  phase=Healthy step=2 updated=1 available=1 analysis=- message="-"
+
+$ kubectl argo rollouts get rollout demo-api-dev -n dev | sed -E "s/\x1b\[[0-9;]*m//g" | sed -n "1,6p"
+Name:            demo-api-dev
+Namespace:       dev
+Status:          ✔ Healthy
+Strategy:        Canary
+  Step:          2/2
+  SetWeight:     100
+
+# Smoke test through the Service: the caller id is echoed, an unsafe id is replaced.
+$ kubectl -n dev port-forward svc/demo-api-dev 18081:80 >/dev/null 2>&1 & PF=$!; sleep 3
+
+$ curl -s -D - -o /dev/null -H "X-Request-ID: p10-smoke-1" -H "Content-Type: application/json" -d "{\"sku\":\"BOOK-001\",\"quantity\":2}" http://127.0.0.1:18081/api/v1/orders | grep -i -E "^HTTP|^x-request-id"
+HTTP/1.1 201 Created
+
+$ curl -s -D - -o /dev/null -H "X-Request-ID: <script>" http://127.0.0.1:18081/api/v1/info | grep -i "^x-request-id"
+[exit 1]
+
+$ kill $PF; sleep 15
+
+# The same id in the access log (stdout), in Loki and on the trace in Tempo.
+$ kubectl -n dev logs -l app.kubernetes.io/name=demo-api --since=3m --prefix=false | grep "\"request_id\": \"p10-smoke-1\"" | jq -c "{msg, method, route, status, request_id, trace_id}"
+[exit 1]
+
+$ G=http://127.0.0.1:3001/api/datasources/proxy/uid
+
+$ curl -s -G "$G/loki/loki/api/v1/query_range" --data-urlencode "query={service_name=\"demo-api\"} | request_id=\"p10-smoke-1\"" --data-urlencode "start=$(( $(date +%s) - 300 ))000000000" | jq -r ".data.result[] | \"loki: \(.values[0][1]) trace_id=\(.stream.trace_id // \"-\") route=\(.stream.route // \"-\")\""
+
+$ curl -s -G "$G/tempo/api/search" --data-urlencode "q={span.request.id=\"p10-smoke-1\"}" --data-urlencode "start=$(( $(date +%s) - 300 ))" --data-urlencode "end=$(date +%s)" | jq -r ".traces[] | \"tempo: trace \(.traceID) \(.rootTraceName) \(.durationMs // 0) ms\""
+

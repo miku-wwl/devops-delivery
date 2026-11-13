@@ -1,0 +1,23 @@
+# transcript: E7: replication metrics while one replica WAL stream is cut
+# recorded: 2026-11-09T23:37:16Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# What the replication metrics say about a replica whose WAL stream is cut (one replica only: with ANY 1
+# synchronous replication the other one keeps commits flowing). Chain E7LAG on the primary's node, removed at the end.
+$ P=$(kubectl -n data get cluster pg-main -o jsonpath='{.status.currentPrimary}'); PN=$(kubectl -n data get pod $P -o jsonpath='{.spec.nodeName}'); R=$(kubectl -n data get pods -l cnpg.io/cluster=pg-main,cnpg.io/instanceRole=replica -o jsonpath='{.items[0].metadata.name}'); echo "primary $P on $PN, replica cut off: $R"
+primary pg-main-1 on ent-worker, replica cut off: pg-main-2
+
+$ PIP=$(kubectl -n data get pod $P -o jsonpath='{.status.podIP}'); RIP=$(kubectl -n data get pod $R -o jsonpath='{.status.podIP}'); docker exec $PN sh -c "iptables -N E7LAG && iptables -A E7LAG -s $RIP -d $PIP -p tcp --dport 5432 -j DROP && iptables -A E7LAG -s $PIP -d $RIP -p tcp --sport 5432 -j DROP && iptables -I FORWARD 1 -j E7LAG" 2>&1 | grep -v legacy; date -u +%T
+23:37:18
+
+$ for i in 1 2 3 4; do sleep 30; echo "$(date -u +%T) $R: lag=$(bash v2/experiments/e4/promq.sh $(date +%s) "max(cnpg_pg_replication_lag{pod=\"$R\"})" | awk '{print $NF}') wal_receiver_up=$(bash v2/experiments/e4/promq.sh $(date +%s) "max(cnpg_pg_replication_is_wal_receiver_up{pod=\"$R\"})" | awk '{print $NF}') | primary: streaming replicas=$(bash v2/experiments/e4/promq.sh $(date +%s) "max(cnpg_pg_replication_streaming_replicas{pod=\"$P\"})" | awk '{print $NF}') | cluster: $(kubectl -n data get cluster pg-main -o jsonpath='{.status.phase}') | alert: $(kubectl get --raw /api/v1/namespaces/monitoring/services/kps-prometheus:9090/proxy/api/v1/alerts | jq -r --arg r $R '[.data.alerts[] | select(.labels.alertname == "PostgresReplicaNotStreaming" and .labels.pod == $r) | .state] | join(",")')"; done
+23:37:46 pg-main-2: lag=0 wal_receiver_up=1 | primary: streaming replicas=2 | cluster: Cluster in healthy state | alert: 
+23:38:15 pg-main-2: lag=0 wal_receiver_up=0 | primary: streaming replicas=1 | cluster: Cluster in healthy state | alert: 
+23:38:44 pg-main-2: lag=0 wal_receiver_up=0 | primary: streaming replicas=1 | cluster: Cluster in healthy state | alert: pending
+23:39:14 pg-main-2: lag=0 wal_receiver_up=0 | primary: streaming replicas=1 | cluster: Cluster in healthy state | alert: pending
+
+$ docker exec $PN sh -c 'while iptables -D FORWARD -j E7LAG 2>/dev/null; do :; done; iptables -F E7LAG; iptables -X E7LAG' 2>&1 | grep -v legacy; date -u +%T
+23:39:15
+
+$ sleep 30; kubectl -n data exec -i $P -c postgres -- psql -U postgres -tA < /mnt/c/Users/weila/AppData/Local/Temp/claude/6ff893509394a9ed/216f0e85-2cba-4879-98ea-42d820e7fcc2/scratchpad/sync.sql
+ANY 1 ("pg-main-2","pg-main-3","pg-main-1") | pg-main-3=quorum pg-main-2=quorum
+

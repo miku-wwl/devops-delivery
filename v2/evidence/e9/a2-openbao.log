@@ -1,0 +1,51 @@
+== 06:45:51 delete pod secrets/openbao-0
+  pod "openbao-0" deleted from secrets namespace
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/usr/lib/python3.12/json/__init__.py", line 293, in load
+    return loads(fp.read(),
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/json/decoder.py", line 355, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+== 06:46:01 openbao-0 Running; status: 
+  06:46:11 +10s vault_core_unsealed=absent alert=inactive 
+  06:46:22 +21s vault_core_unsealed=absent alert=inactive 
+  06:46:32 +31s vault_core_unsealed=0 alert=inactive 
+  06:46:42 +41s vault_core_unsealed=0 alert=pending 
+  06:46:52 +51s vault_core_unsealed=0 alert=pending 
+  06:47:02 +61s vault_core_unsealed=0 alert=pending 
+  06:47:13 +72s vault_core_unsealed=0 alert=pending 
+  06:47:23 +82s vault_core_unsealed=0 alert=pending 
+  06:47:32 +91s vault_core_unsealed=0 alert=pending 
+  06:47:43 +102s vault_core_unsealed=0 alert=firing 
+  06:47:53 +112s vault_core_unsealed=0 alert=firing 
+  06:48:02 +121s vault_core_unsealed=0 alert=firing 
+  06:48:13 +132s vault_core_unsealed=0 alert=firing bridge: "event": "opened", "kind": "incident", "alertname": "OpenBaoSealed", "iid": 2
+== 06:48:13 unseal (platform/secrets/openbao-init.sh)
+  configured: 1 kv store, auth "kubernetes/", policies default insight-read raft-snapshot shop-read root , audit "stdout/"
+  "stdout/"
+  06:48:27 +14s after the unseal: vault_core_unsealed=1 alert=firing 
+  06:48:38 +25s after the unseal: vault_core_unsealed=1 alert=inactive 
+  06:48:48 +35s after the unseal: vault_core_unsealed=1 alert=inactive 
+  06:48:58 +45s after the unseal: vault_core_unsealed=1 alert=inactive 
+  06:49:08 +55s after the unseal: vault_core_unsealed=1 alert=inactive 
+  06:49:18 +65s after the unseal: vault_core_unsealed=1 alert=inactive 
+  06:49:28 +75s after the unseal: vault_core_unsealed=1 alert=inactive 
+  06:49:38 +85s after the unseal: vault_core_unsealed=1 alert=inactive 
+  06:49:48 +95s after the unseal: vault_core_unsealed=1 alert=inactive 
+  06:49:58 +105s after the unseal: vault_core_unsealed=1 alert=inactive 
+  06:50:08 +115s after the unseal: vault_core_unsealed=1 alert=inactive bridge: "event": "closed", "kind": "incident", "alertname": "OpenBaoSealed", "iid": 2
+== 06:50:08 bridge events since 2026-11-10T06:45:51Z:
+  {"ts": "2026-11-10T06:48:07.790Z", "event": "notification", "kind": "incident", "status": "firing", "group": {"alertname": "OpenBaoSealed"}, "alerts": [["OpenBaoSealed", "firing"]]}
+  {"ts": "2026-11-10T06:48:08.773Z", "event": "opened", "kind": "incident", "alertname": "OpenBaoSealed", "iid": 2, "fingerprint": "7fdcab40092f27e4", "startsAt": "2026-11-10T06:47:27.509Z", "labels": {"alertname": "OpenBaoSealed", "prometheus": "monitoring/kps-
+  {"ts": "2026-11-10T06:49:11.606Z", "event": "notification", "kind": "incident", "status": "resolved", "group": {"alertname": "AlertmanagerClusterCrashlooping", "namespace": "monitoring"}, "alerts": [["AlertmanagerClusterCrashlooping", "resolved"]]}
+  {"ts": "2026-11-10T06:49:12.941Z", "event": "closed", "kind": "incident", "alertname": "AlertmanagerClusterCrashlooping", "iid": 1, "fingerprint": "ca911e3054bcfd56", "endsAt": "2026-11-10T06:48:27.332Z"}
+  {"ts": "2026-11-10T06:50:04.249Z", "event": "notification", "kind": "incident", "status": "resolved", "group": {"alertname": "OpenBaoSealed"}, "alerts": [["OpenBaoSealed", "resolved"]]}
+  {"ts": "2026-11-10T06:50:05.282Z", "event": "closed", "kind": "incident", "alertname": "OpenBaoSealed", "iid": 2, "fingerprint": "7fdcab40092f27e4", "endsAt": "2026-11-10T06:48:27.509Z"}

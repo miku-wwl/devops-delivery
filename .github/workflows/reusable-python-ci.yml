@@ -1,0 +1,98 @@
+name: reusable-python-ci
+# A reusable workflow (on: workflow_call): lint and test any Python project laid out
+# like app/ (pyproject.toml + requirements-dev.txt). Callers reference it with
+#   uses: ./.github/workflows/reusable-python-ci.yml        (same repository)
+#   uses: miku-wwl/devops-delivery/.github/workflows/reusable-python-ci.yml@<sha>  (other repos)
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: Directory that contains pyproject.toml and requirements-dev.txt
+        type: string
+        default: app
+      python-version:
+        description: Python version for actions/setup-python
+        type: string
+        default: "3.13"
+    outputs:
+      coverage:
+        description: Total line coverage (percent) reported by pytest-cov
+        value: ${{ jobs.test.outputs.coverage }}
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: ${{ inputs.python-version }}
+          cache: pip
+          cache-dependency-path: ${{ inputs.working-directory }}/requirements-dev.txt
+      - name: Install dependencies
+        run: pip install --disable-pip-version-check -r requirements-dev.txt
+      - name: ruff check (lint + security rules)
+        run: ruff check --output-format=github .
+      - name: ruff format --check
+        run: ruff format --check .
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      coverage: ${{ steps.coverage.outputs.total }}
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: ${{ inputs.python-version }}
+          cache: pip
+          cache-dependency-path: ${{ inputs.working-directory }}/requirements-dev.txt
+      - name: Install dependencies
+        run: pip install --disable-pip-version-check -r requirements-dev.txt
+      - name: pytest (fails below the coverage threshold in pyproject.toml)
+        run: |
+          mkdir -p reports
+          pytest --cov --cov-report=term-missing \
+            --cov-report=xml:reports/coverage.xml --cov-report=html:reports/htmlcov \
+            --junitxml=reports/junit.xml
+      - name: Coverage summary
+        id: coverage
+        if: always() && hashFiles(format('{0}/reports/coverage.xml', inputs.working-directory)) != ''
+        run: |
+          total=$(python -c "import xml.etree.ElementTree as ET; print(round(float(ET.parse('reports/coverage.xml').getroot().get('line-rate')) * 100, 1))")
+          echo "total=${total}" >> "$GITHUB_OUTPUT"
+          {
+            echo "### Test results"
+            python - <<'EOF'
+          import xml.etree.ElementTree as ET
+          s = ET.parse("reports/junit.xml").getroot().find("testsuite")
+          print(f"- tests: {s.get('tests')}, failures: {s.get('failures')}, errors: {s.get('errors')}, skipped: {s.get('skipped')}")
+          EOF
+            echo "- line coverage: ${total}%"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-reports
+          path: ${{ inputs.working-directory }}/reports/
+          retention-days: 7
+          if-no-files-found: warn

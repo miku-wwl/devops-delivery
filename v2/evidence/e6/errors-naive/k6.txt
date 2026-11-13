@@ -1,0 +1,8 @@
+stages=30,30,30 it/s, 120,120,120 s (ramp 1 s, warm-up 5 s) iterations=10934 dropped=0
+requests=18536 (53.3/s) failed=3.29%
+browse: p50=12.1 p95=17.5 p99=23.3 max=107.9 ms
+order:  p50=132.5 p95=823.4 p99=840.8 max=866.2 ms
+checks: 96.71% passed
+stage 1-30: achieved 30.0 it/s, requests=6115 failed=0.00% | browse p50=12.1 p95=17.3 p99=22.2 max=95.5 ms | order p50=111.2 p95=223.4 p99=331.0 max=726.6 ms
+stage 2-30: achieved 30.0 it/s, requests=6105 failed=9.80% | browse p50=11.9 p95=17.1 p99=23.4 max=72.1 ms | order p50=705.4 p95=833.8 p99=851.5 max=866.2 ms
+stage 3-30: achieved 30.0 it/s, requests=6083 failed=0.12% | browse p50=12.2 p95=17.8 p99=23.7 max=107.9 ms | order p50=112.2 p95=224.5 p99=427.4 max=841.2 ms

@@ -1,0 +1,22 @@
+# transcript: P10: Kyverno admission tests still behave after adding readOnlyRootFilesystem
+# recorded: 2026-11-06T10:14:30Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl get clusterpolicy verify-release-signature -o jsonpath="{.metadata.name} ready={.status.conditions[0].status}{\"\n\"}"
+Warning: kyverno.io/v1 ClusterPolicy is deprecated and will be removed in a future release; migrate to ValidatingPolicy, MutatingPolicy, GeneratingPolicy or ImageValidatingPolicy (policies.kyverno.io), see https://kyverno.io/docs/guides/migration-to-cel/
+verify-release-signature ready=True
+
+$ yq "select(.metadata.name == \"sig-test-digest\")" delivery/policies/tests/admission-test-pods.yaml | kubectl apply --dry-run=server -f -
+pod/sig-test-digest created (server dry run)
+
+$ yq "select(.metadata.name == \"sig-test-tag\")" delivery/policies/tests/admission-test-pods.yaml | kubectl apply --dry-run=server -f -
+pod/sig-test-tag created (server dry run)
+
+$ yq "select(.metadata.name == \"sig-test-unsigned\")" delivery/policies/tests/admission-test-pods.yaml | kubectl apply --dry-run=server -f -
+Error from server: error when creating "STDIN": admission webhook "mutate.kyverno.svc-fail" denied the request: 
+
+resource Pod/prod/sig-test-unsigned was blocked due to the following policies 
+
+verify-release-signature:
+  require-release-provenance: 'image attestations verification failed, verifiedCount: 0, requiredCount: 1, error: sigstore bundle verification failed: no matching signatures found'
+[exit 1]
+

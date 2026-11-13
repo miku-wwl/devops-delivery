@@ -1,0 +1,19 @@
+service: gateway
+# E8 (chapter 9): 8ef5584 was promoted here after its canary (evidence/e8/canary-*); since E9 every
+# service runs the image of common.yaml again
+replicas: 2
+# E4 (chapter 5): the request is what a pod really uses at the planned load, and the HPA keeps the
+# average at 0.5 cores per pod - inside the range where latency stayed flat in E3 (busiest pod
+# below ~0.6 cores; with two pods the busier one carries ~53 % of the load).
+resources:
+  requests: {cpu: 500m}
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 6
+  cpuAverageUtilization: 100
+loadBalancer: true
+env:
+  CATALOG_URL: http://catalog:8080
+  ORDERS_URL: http://orders:8080
+  GATEWAY_DEADLINE_S: "3"

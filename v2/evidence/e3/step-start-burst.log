@@ -1,0 +1,78 @@
+# transcript: E3: the first seconds of a step - breaker trips, cache timeouts, and 503 series increase() cannot see
+# recorded: 2026-11-07T13:18:28Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e3/first-sample.sh 2026-11-07T09:31:00Z 2026-11-07T09:34:00Z gateway
+fdhx7 /api/orders 503: first seen 09:32:30 = 47, at the end = 47
+fdhx7 /api/orders 504: first seen 09:32:30 = 1, at the end = 1
+fdhx7 /api/products 503: first seen 09:32:30 = 106, at the end = 106
+fdhx7 /api/products 504: first seen 09:32:30 = 2, at the end = 2
+fdhx7 /api/products/{product_id} 503: first seen 09:32:30 = 138, at the end = 138
+fdhx7 /api/products/{product_id} 504: first seen 09:32:30 = 2, at the end = 2
+qm2pv /api/orders 503: first seen 09:32:15 = 49, at the end = 73
+qm2pv /api/orders/{order_id} 503: first seen 09:32:15 = 1, at the end = 4
+qm2pv /api/products 503: first seen 09:32:15 = 118, at the end = 118
+qm2pv /api/products/{product_id} 503: first seen 09:32:15 = 144, at the end = 144
+increase over the window: /api/orders 503 = 26
+increase over the window: /api/orders 504 = 0
+increase over the window: /api/orders/{order_id} 503 = 3
+increase over the window: /api/products 503 = 0
+increase over the window: /api/products 504 = 0
+increase over the window: /api/products/{product_id} 503 = 0
+increase over the window: /api/products/{product_id} 504 = 0
+
+$ bash v2/experiments/e3/warn-logs.sh 2026-11-07T09:32:00Z 2026-11-07T09:32:20Z "gateway|catalog|orders"
+1x 09:32:04 catalog-5486d76849-gnjfl cache read failed [catalog:products:20]
+1x 09:32:05 catalog-5486d76849-8bh5g cache read failed [catalog:product:sku-*]
+1x 09:32:05 catalog-5486d76849-8bh5g cache read failed [catalog:products:20]
+5x 09:32:05 catalog-5486d76849-gnjfl cache read failed [catalog:product:sku-*]
+4x 09:32:05 catalog-5486d76849-gnjfl cache read failed [catalog:products:20]
+6x 09:32:06 catalog-5486d76849-gnjfl cache read failed [catalog:product:sku-*]
+17x 09:32:06 catalog-5486d76849-gnjfl cache read failed [catalog:products:20]
+1x 09:32:06 gateway-778cc68bb5-fdhx7 circuit breaker catalog: CLOSED -> OPEN
+1x 09:32:06 gateway-778cc68bb5-fdhx7 circuit breaker orders: CLOSED -> OPEN
+1x 09:32:06 gateway-778cc68bb5-qm2pv circuit breaker catalog: CLOSED -> OPEN
+6x 09:32:07 catalog-5486d76849-gnjfl cache read failed [catalog:product:sku-*]
+4x 09:32:07 catalog-5486d76849-gnjfl cache read failed [catalog:products:20]
+1x 09:32:07 gateway-778cc68bb5-fdhx7 event loop blocked
+1x 09:32:07 gateway-778cc68bb5-qm2pv circuit breaker orders: CLOSED -> OPEN
+1x 09:32:11 gateway-778cc68bb5-fdhx7 circuit breaker catalog: HALF_OPEN -> CLOSED
+1x 09:32:11 gateway-778cc68bb5-fdhx7 circuit breaker catalog: OPEN -> HALF_OPEN
+1x 09:32:11 gateway-778cc68bb5-fdhx7 circuit breaker orders: OPEN -> HALF_OPEN
+1x 09:32:11 gateway-778cc68bb5-qm2pv circuit breaker catalog: HALF_OPEN -> CLOSED
+1x 09:32:11 gateway-778cc68bb5-qm2pv circuit breaker catalog: OPEN -> HALF_OPEN
+1x 09:32:12 gateway-778cc68bb5-fdhx7 circuit breaker orders: HALF_OPEN -> CLOSED
+1x 09:32:12 gateway-778cc68bb5-qm2pv circuit breaker orders: OPEN -> HALF_OPEN
+1x 09:32:13 gateway-778cc68bb5-qm2pv circuit breaker orders: HALF_OPEN -> OPEN
+1x 09:32:18 gateway-778cc68bb5-qm2pv circuit breaker orders: HALF_OPEN -> CLOSED
+1x 09:32:18 gateway-778cc68bb5-qm2pv circuit breaker orders: OPEN -> HALF_OPEN
+
+$ bash v2/experiments/e3/warn-logs.sh 2026-11-07T12:47:38Z 2026-11-07T12:47:50Z "gateway|catalog|orders"
+1x 12:47:42 catalog-5486d76849-8bh5g cache read failed [catalog:products:20]
+6x 12:47:42 catalog-5486d76849-gnjfl cache read failed [catalog:product:sku-*]
+7x 12:47:42 catalog-5486d76849-gnjfl cache read failed [catalog:products:20]
+1x 12:47:42 catalog-5486d76849-gnjfl cache write failed [catalog:product:sku-*]
+5x 12:47:43 catalog-5486d76849-8bh5g cache read failed [catalog:product:sku-*]
+11x 12:47:43 catalog-5486d76849-8bh5g cache read failed [catalog:products:20]
+1x 12:47:43 catalog-5486d76849-gnjfl cache read failed [catalog:product:sku-*]
+1x 12:47:43 catalog-5486d76849-gnjfl cache read failed [catalog:products:20]
+1x 12:47:43 gateway-778cc68bb5-fdhx7 circuit breaker catalog: CLOSED -> OPEN
+1x 12:47:43 gateway-canary-5f5457576d-vv4n5 circuit breaker catalog: CLOSED -> OPEN
+1x 12:47:43 gateway-canary-5f5457576d-vv4n5 circuit breaker orders: CLOSED -> OPEN
+1x 12:47:43 orders-65d744d8fc-jj6rs outbox relay failed
+1x 12:47:44 catalog-5486d76849-8bh5g cache read failed [catalog:product:sku-*]
+5x 12:47:44 catalog-5486d76849-8bh5g cache read failed [catalog:products:20]
+3x 12:47:44 catalog-5486d76849-gnjfl cache read failed [catalog:product:sku-*]
+17x 12:47:44 catalog-5486d76849-gnjfl cache read failed [catalog:products:20]
+1x 12:47:44 gateway-778cc68bb5-qm2pv circuit breaker orders: CLOSED -> OPEN
+2x 12:47:44 orders-65d744d8fc-2tpwm compensation failed: reservation not released
+2x 12:47:44 orders-65d744d8fc-jj6rs compensation failed: reservation not released
+1x 12:47:45 orders-65d744d8fc-jj6rs compensation failed: reservation not released
+1x 12:47:47 gateway-778cc68bb5-fdhx7 circuit breaker catalog: HALF_OPEN -> CLOSED
+1x 12:47:48 gateway-778cc68bb5-fdhx7 circuit breaker catalog: OPEN -> HALF_OPEN
+1x 12:47:48 gateway-778cc68bb5-qm2pv circuit breaker orders: OPEN -> HALF_OPEN
+1x 12:47:48 gateway-canary-5f5457576d-vv4n5 circuit breaker catalog: HALF_OPEN -> CLOSED
+1x 12:47:48 gateway-canary-5f5457576d-vv4n5 circuit breaker catalog: OPEN -> HALF_OPEN
+1x 12:47:48 gateway-canary-5f5457576d-vv4n5 circuit breaker orders: HALF_OPEN -> CLOSED
+1x 12:47:48 gateway-canary-5f5457576d-vv4n5 circuit breaker orders: OPEN -> HALF_OPEN
+1x 12:47:49 gateway-778cc68bb5-qm2pv circuit breaker orders: HALF_OPEN -> CLOSED
+

@@ -1,0 +1,19 @@
+2026-11-10T07:22:43.951Z baseline: k6 10 it/s for 100 min against the layer-7 entrance 172.20.0.12:8080 (pid 882169)
+  MR !37 (mr/20261110-082253-alice, by alice) pipeline 73: success after 42 s; diff: envs/prod/storefront/services/payments.yaml
+2026-11-10T08:23:39.708Z change: alice's merge request !37, pipeline 73: success after 42 s
+  merge !37 as root (Maintainer): HTTP 200 merged
+2026-11-10T08:23:40.657Z change: !37 merged by a Maintainer (root)
+2026-11-10T08:23:42.511Z escalation: the bridge opened GitLab incident #9 in root/incidents
+2026-11-10T08:24:34.000Z correction: the escalation line above is wrong - the watch matched ticket #9 (SLOBurnCheckoutAvailabilityTicket, 08:14:23-08:16:17, after the host had slept from about 07:47 to 08:13; dead man's incident #8 opened 08:13:32 after 1548.5 s of silence). The script now counts only the page opened after the merge; watch restarted.
+2026-11-10T08:26:40.490Z detection: page alert firing (checkout 5m 0.4484 1h 0.0704 | browse 5m 0.0 | page firing ticket firing)
+2026-11-10T08:27:10.651Z escalation: the bridge opened GitLab incident #12 in root/incidents
+2026-11-10T08:27:20.836Z response: incident #12 acknowledged (note in GitLab)
+  deployments: prod/payments success d7e5e13d 2026-11-10T08:24:01.571Z
+2026-11-10T08:27:22.653Z diagnosis: prod/payments deployment #25 contains !37 payments: test the provider's error handling (alice); !36 e9: Grafana - exemplars open Tempo traces, latency panel with exemplars (root); !35 e9: SLO dashboard generated from slos.yaml (root); !34 e9: SLO error ratios read 0, not no data, while nothing fails (root); !33 e9: Fluent Bit discovers new files every 5 s (root); !32 e9: Fluent Bit line_format json (key is not a value) (root); !31 e9: node-level logs (Fluent Bit -> Loki), tail sampling in the collector (root); !30 e9: ArgoCDSyncFailing also catches failure counters born in the window (root); !29 e9: alert test A3 done - probe removed (root); !28 e9: alert test A3 - a probe whose sync fails (root); !27 e9: alert routing, platform alerts, SLO rules, OpenBao metrics (root) - revert
+  merge !38 as root (Maintainer): HTTP 200 merged
+  platform-gitops: merged !38 (Revert: payments PSP_ERROR_RATE (incident #12))
+2026-11-10T08:28:04.617Z mitigation: revert merged (publish of v2/gitops, which never had the line)
+2026-11-10T08:33:56.234Z recovery: checkout 5-minute error ratio below 1 % (0.0)
+2026-11-10T08:48:55.584Z report: from the merge to the resolution (-77020 s): orders at the gateway , 5xx ; browse 5xx    <- invalid: run before the resolution (the recover loop stopped after 20 min, the page was still firing); recomputed below
+2026-11-10T08:57:18.955Z resolution: the bridge closed the incident (alert resolved)
+2026-11-10T08:57:19.536Z report: from the merge to the resolution (2018 s): orders at the gateway 5365.2162, 5xx 670.252; browse 5xx 0.0

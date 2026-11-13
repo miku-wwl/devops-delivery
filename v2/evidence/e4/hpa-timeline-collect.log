@@ -1,0 +1,45 @@
+# transcript: E4: hpa-1 results collected after the script stopped (it was edited while running; k6 and the watcher had completed)
+# recorded: 2026-11-09T02:13:47Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ python3 v2/experiments/load/k6_warnings.py v2/evidence/e4/hpa-1/k6.txt > /dev/null; cat v2/evidence/e4/hpa-1/k6.txt
+time="2026-11-09T15:06:04+13:00" level=warning msg="Request Failed" error="Post \"http://172.20.0.8:8080/api/orders\": read tcp 172.20.0.1:45635->172.20.0.8:8080: read: connection reset by peer"
+time="2026-11-09T15:07:42+13:00" level=warning msg="Request Failed" error="Post \"http://172.20.0.8:8080/api/orders\": request timeout"
+time="2026-11-09T15:10:24+13:00" level=warning msg="Request Failed" error="Post \"http://172.20.0.8:8080/api/orders\": request timeout"
+[2 more 'Request Failed' warnings collapsed; all 5 by error: 3 request timeout, 2 read tcp ADDR->ADDR: read: connection reset by peer]
+stages=30,120,30 it/s, 120,420,480 s (ramp 10 s, warm-up 30 s) iterations=70347 dropped=0
+requests=119268 (108.4/s) failed=0.01%
+browse: p50=12.4 p95=29.0 p99=61.3 max=2510.9 ms
+order:  p50=119.5 p95=243.6 p99=372.4 max=60000.5 ms
+checks: 99.99% passed
+stage 1-30: achieved 30.0 it/s, requests=6092 failed=0.00% | browse p50=11.5 p95=20.5 p99=32.8 max=1040.7 ms | order p50=108.0 p95=210.2 p99=290.2 max=660.9 ms
+stage 120: achieved 120.0 it/s, requests=85464 failed=0.01% | browse p50=13.4 p95=31.8 p99=66.7 max=1595.8 ms | order p50=126.1 p95=252.4 p99=372.9 max=1162.5 ms
+stage 3-30: achieved 30.0 it/s, requests=24418 failed=0.04% | browse p50=10.5 p95=19.3 p99=40.7 max=2510.9 ms | order p50=101.3 p95=216.8 p99=396.2 max=60000.5 ms
+
+$ kubectl -n storefront get events --sort-by=.lastTimestamp -o custom-columns=TIME:.lastTimestamp,KIND:.involvedObject.kind,NAME:.involvedObject.name,REASON:.reason,MSG:.message | grep -E "HorizontalPodAutoscaler|ScalingReplicaSet|gateway-" | grep -vE "Unhealthy.*readyz" | awk '$1 >= "2026-11-09T01:54:00Z"' | tee v2/evidence/e4/hpa-1/events.txt | cut -c1-200
+2026-11-09T02:02:43Z   Pod                       gateway-7b844f9fc9-j9lkf   Scheduled                      Successfully assigned storefront/gateway-7b844f9fc9-j9lkf to ent-worker2
+2026-11-09T02:02:43Z   ReplicaSet                gateway-7b844f9fc9         SuccessfulCreate               Created pod: gateway-7b844f9fc9-j9lkf
+2026-11-09T02:02:43Z   HorizontalPodAutoscaler   gateway                    SuccessfulRescale              New size: 3; reason: cpu resource utilization (percentage of request) above target
+2026-11-09T02:02:43Z   Deployment                gateway                    ScalingReplicaSet              Scaled up replica set gateway-7b844f9fc9 from 2 to 3
+2026-11-09T02:02:45Z   Pod                       gateway-7b844f9fc9-j9lkf   Pulled                         Container image "localhost:5001/storefront:fd38028" already present on machine and can be acc
+2026-11-09T02:02:45Z   Pod                       gateway-7b844f9fc9-j9lkf   Created                        Container created
+2026-11-09T02:02:45Z   Pod                       gateway-7b844f9fc9-j9lkf   Started                        Container started
+2026-11-09T02:02:49Z   Pod                       gateway-7b844f9fc9-j9lkf   Unhealthy                      Startup probe failed: Get "http://10.240.2.31:8080/healthz": dial tcp 10.240.2.31:8080: conne
+2026-11-09T02:08:28Z   Pod                       gateway-7b844f9fc9-j9lkf   Killing                        Stopping container app
+2026-11-09T02:08:28Z   ReplicaSet                gateway-7b844f9fc9         SuccessfulDelete               Deleted pod: gateway-7b844f9fc9-j9lkf
+2026-11-09T02:08:28Z   HorizontalPodAutoscaler   gateway                    SuccessfulRescale              New size: 2; reason: All metrics below target
+2026-11-09T02:08:28Z   Deployment                gateway                    ScalingReplicaSet              Scaled down replica set gateway-7b844f9fc9 from 3 to 2
+
+$ kubectl -n storefront get pods -l app.kubernetes.io/name=gateway -o json | jq -r '.items[] | [.metadata.name, .spec.nodeName, .metadata.creationTimestamp, (.status.conditions[] | select(.type == "PodScheduled") | .lastTransitionTime), (.status.conditions[] | select(.type == "ContainersReady") | .lastTransitionTime), (.status.conditions[] | select(.type == "Ready") | .lastTransitionTime)] | @tsv' | sort -k3 | tee v2/evidence/e4/hpa-1/pods.txt
+gateway-7b844f9fc9-qhww7	ent-worker	2026-11-09T01:52:56Z	2026-11-09T01:52:56Z	2026-11-09T01:53:05Z	2026-11-09T01:53:05Z
+gateway-7b844f9fc9-gm44w	ent-worker3	2026-11-09T01:52:56Z	2026-11-09T01:52:56Z	2026-11-09T01:53:07Z	2026-11-09T01:53:07Z
+
+$ awk -F'|' '{split($2, h, " "); sig = h[2] " " h[3] $3 $4} sig != prev {print; prev = sig}' v2/evidence/e4/hpa-1/watch.txt
+01:54:47 | hpa 2 2 3 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:02:44 | hpa 3 2 114 | deploy 3 2 | gm44w:Running:true j9lkf:Pending:false qhww7:Running:true 
+02:02:46 | hpa 3 2 114 | deploy 3 2 | gm44w:Running:true j9lkf:Running:false qhww7:Running:true 
+02:02:51 | hpa 3 2 114 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:02:58 | hpa 3 3 102 | deploy 3 3 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:08:29 | hpa 2 3 17 | deploy 2 2 | gm44w:Running:true j9lkf:Running:true qhww7:Running:true 
+02:08:36 | hpa 2 3 17 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+02:08:45 | hpa 2 2 19 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+

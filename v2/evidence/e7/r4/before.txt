@@ -1,0 +1,18 @@
+== 05:50:42 before the loss
+  ent-control-plane Ready
+  ent-worker Ready
+  ent-worker2 Ready
+  ent-worker3 Ready
+  applications: 36, not Synced/Healthy: 0
+  pods: 88
+  orders: 239152, newest 2026-11-10 01:10:44.231067+00
+  outbox not yet published: 0
+  JetStream: {"streams":1,"consumers":1,"messages":0}
+  base backups: pg-main-nightly-20261110050327=completed 
+No resources found in secrets namespace.
+  OpenBao snapshots: 
+  secret insight/api-key sha256 prefix: 1251145cb0ed8b54
+conn 1794289848.113 10.240.3.18/32 False
+start r4 rate=50.0 deadline=2.0
+ok 1 1794289848.114 57.4
+  drill writer started (run r4)

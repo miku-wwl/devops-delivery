@@ -1,0 +1,197 @@
+ROUND 2 page review - build after the round-1 fixes (cover + 225 numbered pages = 226 PDF pages)
+PDF page numbers (p1 = cover). Sheets: 6 pages per sheet, 666x943 px per page.
+
+p1      cover - OK
+p2-6    TOC: 5 pages (was 9), chapters + sections, appendices as single lines - OK
+p7      reading guide: book map (SVG) readable - OK
+p8      tables - OK
+p9      reading guide tail: 2 lines alone on the page -> FIX: narrower first column in the two tables (fewer wrapped rows)
+p10     ch1 opener - OK
+p11     fig 1-1 environment nesting (SVG): readable - OK (round-1 finding fixed)
+p12     fig 1-2 kubelet capacity: readable - OK
+p13     fig 1-3 chart - OK
+p14-17  OK (tables, code blocks)
+p18     one justified line still slightly open before a long call name; inline code now breaks at separators - OK (round-1 finding fixed)
+p19-20  OK (prod table, FAQ, exercises, summary; chapter 1 ends at 85% of p20)
+p21     ch2 opener - OK
+p22     40% blank at the bottom: the saga sequence (fig 2-1, 122 mm) does not fit under its lead-in -> ACCEPT (the only gap the layout check reports)
+p23     fig 2-1 saga (SVG sequence, numbered steps, compensation / success bands): readable - OK
+p24     fig 2-2 outbox: readable - OK (round-1 finding fixed)
+p25     OK
+p26     fig 2-3 services and data: readable - OK
+p27     fig 2-4 app-of-apps - OK
+p28-29  OK
+p30     fig 2-5 chart - OK
+p31     ~28% blank at the bottom: the Tempo screenshot (fig 2-6) follows and a section heading comes after it -> ACCEPT (soft, below the check's threshold)
+p32     fig 2-6 Tempo screenshot - OK
+p33     fig 2-7 Grafana dashboard screenshot (height-capped) - OK
+p34     troubleshooting table - OK
+p35-36  OK (prod table)
+p37     FAQ, exercises - OK
+p38     summary; chapter 2 ends at 40% of the page - OK
+p39     ch3 opener - OK
+p40     fig 3-1 ambient data path: readable - OK (round-1 finding fixed)
+p41     OK
+p42     fig 3-2 L4 vs L7: readable; caption now names the source of the percentages - OK (round-1 finding fixed)
+p43-44  OK (tables, connection census)
+p45     fig 3-3 chart - OK
+p46     fig 3-4 Grafana screenshot - OK
+p47     OK
+p48     fig 3-5 chart - OK
+p49     OK
+p50     fig 3-6 retry stacking (SVG, measured numbers, tag "实测数据"): readable - OK
+p51     OK
+p52     fig 3-7 Tempo screenshot - OK
+p53-54  OK
+p55     prod table, FAQ, exercises - OK
+p56     summary; chapter 3 ends at 55% of the page - OK
+p57     ch4 opener - OK
+p58     fig 4-1 model curve: full width now, annotations readable - OK (round-1 finding fixed)
+p59-60  OK
+p61     ~10% blank at the bottom (a section heading with its table starts the next page) - OK
+p62     OK (wide table)
+p63     ~10% blank at the bottom: lead-in sentence, its table starts on p64 -> ACCEPT (minor, as in round 1)
+p64     OK
+p65     fig 4-2 chart - OK
+p66     OK
+p67     OK (tables)
+p68     ~18% blank at the bottom (two charts follow) - OK
+p69     fig 4-3, 4-4 charts - OK
+p70-71  OK
+p72     fig 4-5 chart; ~25% blank at the bottom (the Grafana screenshot follows) -> ACCEPT (soft)
+p73     fig 4-6 Grafana screenshot - OK
+p74     OK (prod table)
+p75     FAQ, exercises; the exercise box ends ~2 lines early (an item cannot be split) -> ACCEPT (minor, as in round 1)
+p76     summary; chapter 4 ends at 70% of the page - OK
+p77     ch5 opener - OK
+p78     ~17% blank at the bottom: fig 5-1 (HPA loop) moves to p79 -> CHECK: let the next paragraph come first
+p78     (decision) the blank stays: a subsection heading follows fig 5-1, and figures are never moved across headings -> ACCEPT (soft)
+p79     fig 5-1 HPA control loop (SVG): readable - OK (round-1 finding fixed); ~20% blank at the bottom (fig 5-2 follows, then a section heading) -> ACCEPT (soft)
+p80     fig 5-2 eviction order: readable - OK
+p81     fig 5-3 chart - OK
+p82     fig 5-4 chart - OK
+p83     fig 5-5 Grafana screenshot - OK
+p84     OK
+p85     fig 5-6 chart - OK
+p86     OK
+p87     ~20% blank at the bottom (chart fig 5-7 follows) - OK
+p88     fig 5-7 chart - OK
+p89     OK (tables)
+p90     fig 5-8 chart - OK
+p91-92  OK (tables, console block)
+p93     prod table - OK
+p94     FAQ, exercises - OK
+p95     summary; chapter 5 ends at 90% of the page - OK
+p96     ch6 opener - OK
+p97     fig 6-1 tenant fences (SVG): readable, no mid-word breaks - OK (round-1 finding fixed)
+p98     fig 6-2 API request path (SVG, horizontal): readable - OK (round-1 finding fixed)
+p99-101 OK
+p102    fig 6-3 NetworkPolicy in the mesh (SVG): readable - OK (round-1 finding fixed)
+p103-105 OK (tables, long inline paths now break at separators)
+p106    fig 6-4 secret rotation (SVG, measured times, tag "实测数据"): readable - OK (round-1 finding fixed)
+p107    prod table, FAQ, first exercise - OK
+p108    exercises, summary; chapter 6 now ends here at 95% (round 1: two bullets alone on an extra page) - OK
+p109    ch7 opener - OK
+p110    ~33% blank at the bottom: fig 7-1 does not fit under the last paragraph of 7.2.2 -> FIX: figure before that paragraph, drawing tightened
+p111    fig 7-1 resilience primitives (SVG): readable - OK (round-1 finding fixed)
+p112    fig 7-2 chart: the reference-line label sits above the rows - OK (round-1 finding fixed); the evidence-only paragraph is now a right-aligned source line "原始记录 [4, 5, 6, 7]" - OK (round-1 finding fixed)
+p113    OK
+p114    fig 7-3 chart - OK
+p115    fig 7-4 partition (SVG): readable, the cut and the heartbeats are clear - OK (round-1 finding fixed)
+p116    the source line "原始记录 [17]" of the table on p115 stands alone at the top of the page -> FIX: keep the source line with the block before it
+p117    source line under the table - OK; one justified line (改进项 … long path) still shows wider character spacing; the path now breaks at "/" -> ACCEPT (minor; before the fix the whole path moved to the next line)
+p118    prod table, FAQ - OK
+p119    FAQ, exercises, summary - OK
+p120    chapter 7 ends at 25% of the page - OK
+p121    ch8 opener - OK
+p122    fig 8-1 stands between a lead-in sentence ("…每次尝试记录三种结果之一：") and its list -> FIX: split the paragraph in the chapter source; the figure follows the definition of RTO/RPO (defect present since the figure was added; missed in round 1)
+p123    fig 8-2 commit paths (SVG sequence): readable - OK
+p124    fig 8-3 WAL archiving / PITR (SVG): readable - OK (round-1 finding fixed)
+p125    OK
+p126    fig 8-4 chart - OK
+p127-130 OK (tables, lists)
+p131    fig 8-5 chart - OK
+p132    OK (table)
+p133    prod table, FAQ - OK
+p134    FAQ, exercises, summary - OK
+p135    chapter 8 ends with three bullets on the last page (15% used) -> ACCEPT (chapter tail, as in round 1)
+p136    ch9 opener - OK
+p137    ends with the lead-in "…伤及的请求比例约为：" - its formula is on p138 BELOW fig 9-1 -> FIX: the figure stands between a lead-in and its formula (same defect as p122); check all chapters for this pattern
+p138    fig 9-1 canary routes (SVG): readable - OK
+SCAN    figures that follow a lead-in ending with a colon: 11 in the book. In 6 the figure is what the colon announces (1-1, 2-1, 11-8, 12-3, 12-4, 13-2) - OK.
+        In 5 the colon announces the block AFTER the figure -> FIX in the chapter sources:
+        2-4 (app-of-apps: lead-in -> figure -> directory tree)      figure after the tree
+        3-1 (ambient path: lead-in -> figure -> the two bullets)     figure after the bullets
+        3-3 (distribution chart: "结论很清楚：" -> chart -> bullets) chart before the lead-in
+        8-1 (RPO/RTO: lead-in -> figure -> list)                     split the paragraph, figure after the definition
+        9-1 (canary routes: lead-in -> figure -> formula)            split the paragraph, figure before the lead-in
+p139    fig 9-2 two freeze keys, fig 9-3 release path (SVG): both readable - OK (round-1 findings fixed)
+p140    OK (hypothesis table)
+p141    fig 9-4 Grafana screenshot - OK
+p142    table C0-C4: the verdict "符合（更快）" wraps into three short lines -> FIX: wider verdict column for this table as well; check every hypothesis table
+p143    fig 9-5 chart, fig 9-6 Grafana screenshot - OK; ~14% blank at the bottom (section heading with its paragraph starts p144) - OK
+p144    OK
+p145    fig 9-7 impersonation accounts (SVG): readable, no mid-word breaks - OK (round-1 finding fixed)
+p146    table: verdict "符合，另有 !18" on one line - OK (round-1 finding fixed)
+p147-149 OK
+p150    fig 9-8 waves (SVG chart drawn from waves-results.md, same style as the other charts): readable - OK (round-1 finding fixed)
+p151    prod table, FAQ - OK
+p152    FAQ, exercises, summary - OK
+p153    chapter 9 ends at 20% of the page - OK
+p154    ch10 opener - OK
+p155    fig 10-1 alert chain (SVG): readable - OK (round-1 finding fixed)
+p156    fig 10-2 model curve - OK
+p157    first line of 10.3 still stretched: the 31-character identifier AlertmanagerClusterCrashlooping has no separator and moves to the next line as one word -> FIX: break points at camelCase humps as well
+p158    table: verdict "推翻（规则已修正）" in two lines - OK (round-1 finding fixed)
+p159    OK (tables)
+p160    fig 10-3 chart - OK
+p161    verdict "解除时间推翻，预算符合" in two lines - OK (round-1 finding fixed); fig 10-4 Grafana screenshot - OK
+p162    fig 10-5 head vs tail sampling (SVG): readable - OK (round-1 finding fixed)
+p163    table: verdict "推翻（预测忽略了快速失败）" in three lines of 5-6 characters - OK (round-1 finding fixed); fig 10-6 chart - OK; ~12% blank at the bottom (the screenshot follows) - OK
+p164    fig 10-7 Tempo screenshot - OK
+p165    prod table, FAQ; ~18% blank at the bottom: the exercise heading with its first item misses the page by a few millimetres
+p166    exercises, summary - OK
+p167    ONE LINE of the summary alone on the page (end of chapter 10) -> FIX: cap the height of the screenshot on p164 so that the exercises start on p165
+p168    ch11 opener - OK
+p169    fig 11-1 lab environment with the KWOK cluster (SVG): readable - OK (round-1 finding fixed)
+p170    fig 11-2 etcd space - OK
+p171    fig 11-3 LIST paths with numbered legend - OK (round-1 finding fixed)
+p172    fig 11-4 APF (SVG): readable - OK (round-1 finding fixed)
+p173    fig 11-5 chart - OK
+p174    fig 11-6 chart - OK
+p175-176 OK (tables)
+p177    fig 11-7 K5 runs: the target-line label sits above the rows, no overlap - OK (round-1 finding fixed)
+p178    fig 11-8 terminal record - OK
+p179    fig 11-9 API server memory: the note "938 → 1487：被杀" is inside the plot, clear of the axis - OK (round-1 finding fixed)
+p180    OK (scale boundary table)
+p181    prod table, FAQ - OK
+p182    FAQ, exercises - OK
+p183    summary; chapter 11 ends at 35% of the page - OK
+p184    ch12 opener - OK
+p185    fig 12-1 division of labour (SVG): readable - OK (round-1 finding fixed)
+p186    fig 12-2 state-lock sequence (SVG) - OK
+p187    fig 12-3 terminal record - OK
+p188    fig 12-4 terminal record - OK
+p189    fig 12-5 terminal record - OK
+p190    fig 12-6 Argo CD upgrading itself (SVG sequence with the measured times, tag "实测数据"): readable - OK (round-1 finding fixed)
+p191    incident E11-1 timeline: second column now headed "经过" - OK (round-1 finding fixed)
+p192    fig 12-7 chart - OK
+p193    limits, prod table - OK
+p194    FAQ, exercises; ~45% blank at the bottom although the summary (5 bullets) would fit -> CHECK the chapter source for a forced page break before 本章小结
+p195    summary alone on the page (25% used) -> same cause as p194
+p196    ch13 opener; 13.1 now lists four learning objectives - OK (round-1 finding fixed)
+p197    OK (tables)
+p198    fig 13-1 chart - OK
+p199    fig 13-2 terminal record - OK
+p200    P1 grading table, limits, 13.7: the last paragraph now names both acceptance reports - OK (round-1 finding fixed); chapter 13 ends at 80% of the page
+p201-210 appendix A (answers to the exercises of chapters 1-8): dense text, inline code breaks cleanly, no layout problems - OK
+p211-215 appendix A (answers, chapters 9-12) - OK; ends at 80% of p215
+p216    appendix B glossary, two columns - OK
+p217    glossary tail: five entries on a page of their own (10% used) -> TRY: slightly tighter glossary type so that it fits on one page
+p218    appendix C: first line of the intro is stretched (an unbreakable repository URL) -> FIX: URL as inline code (breaks at separators)
+p218-222 appendix C tables: paths in the right column break in the middle of words ("val|ues/", "storef|ront.js", "rebuild-run.s|h") because table code uses break-all -> FIX: break at separators first
+p223    appendix C tail: three rows of the chapter 13 table on a page of their own (10% used) -> re-check after the table fix
+p224-226 appendix D evidence index, two columns - OK; the book ends at 75% of p226
+ROUND 2 COMPLETE: all 226 pages viewed at 666x943 px per page.
+CORRECTION p194/p195: measured on the PDF - p194 is filled to 85% (FAQ to 45%, exercises 50-80%, pointer to the answers at 85%); the summary needs more than
+        the remaining space and correctly opens p195. No forced break, no defect. (The thumbnail was misread: the FAQ's end was taken for the page's end.)

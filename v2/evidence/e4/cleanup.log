@@ -1,0 +1,43 @@
+# transcript: E4 closing state: no e4-* namespaces or PriorityClasses, nodes schedulable; what stays on purpose (gateway HPA, KEDA + notifier ScaledObject, the [模拟] slow notifier)
+# recorded: 2026-11-09T08:16:05Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl get ns --no-headers | awk '$1 ~ /^e4-/' | wc -l
+0
+
+$ kubectl get priorityclass --no-headers | awk '$1 ~ /^e4-/' | wc -l
+0
+
+$ kubectl get nodes -o custom-columns=NODE:.metadata.name,READY:.status.conditions[-1].status,UNSCHEDULABLE:.spec.unschedulable,TAINTS:.spec.taints[*].key
+NODE                READY   UNSCHEDULABLE   TAINTS
+ent-control-plane   True    <none>          node-role.kubernetes.io/control-plane
+ent-worker          True    <none>          <none>
+ent-worker2         True    <none>          <none>
+ent-worker3         True    <none>          <none>
+
+$ kubectl -n storefront get deploy -o custom-columns=NAME:.metadata.name,READY:.status.readyReplicas,DESIRED:.spec.replicas --no-headers
+catalog     2     2
+gateway     2     2
+inventory   2     2
+notifier    1     1
+orders      2     2
+payments    2     2
+waypoint    1     1
+
+$ kubectl -n storefront get hpa -o custom-columns=NAME:.metadata.name,MIN:.spec.minReplicas,MAX:.spec.maxReplicas,CURRENT:.status.currentReplicas --no-headers
+gateway             2     6     2
+keda-hpa-notifier   1     5     1
+
+$ kubectl -n storefront get scaledobject -o custom-columns=NAME:.metadata.name,MIN:.spec.minReplicaCount,MAX:.spec.maxReplicaCount,TRIGGERS:.spec.triggers[*].type,READY:.status.conditions[0].status --no-headers
+notifier   1     5     nats-jetstream,prometheus   True
+
+$ kubectl -n storefront get deploy notifier -o jsonpath='{range .spec.template.spec.containers[0].env[?(@.name=="NOTIFY_WORK_MS")]}{.name}={.value}{end} {range .spec.template.spec.containers[0].env[?(@.name=="NOTIFIER_CONCURRENCY")]}{.name}={.value}{end}{"\n"}'
+NOTIFY_WORK_MS=200 NOTIFIER_CONCURRENCY=2
+
+$ kubectl -n argocd get applications --no-headers -o custom-columns=APP:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status | grep -vE "Synced +Healthy" | wc -l
+0
+[exit 1]
+
+$ kubectl get pods -A --no-headers | grep -vE "Running|Completed" | wc -l
+0
+[exit 1]
+

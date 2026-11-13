@@ -1,0 +1,33 @@
+# transcript: E4: handing the replica count from Git to the HPA (gateway), watched every ~2 s
+# recorded: 2026-11-09T01:52:51Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl -n storefront get deploy gateway -o jsonpath='{.spec.replicas} replicas before{"\n"}'
+2 replicas before
+
+$ bash v2/experiments/e4/watch.sh gateway > /tmp/e4-switch-watch.txt 2>&1 & echo $! > /tmp/e4-watch.pid; bash v2/platform/bootstrap/publish-gitops.sh fd38028 "E4: gateway HPA (2-6 replicas, CPU 100 % of a 500m request)"; kubectl -n argocd annotate application storefront-gateway-prod argocd.argoproj.io/refresh=normal --overwrite > /dev/null; sleep 100; kill $(cat /tmp/e4-watch.pid)
+platform-gitops: pushed c22fdea (E4: gateway HPA (2-6 replicas, CPU 100 % of a 500m request))
+
+$ awk -F'|' '{split($2, h, " "); sig = h[2] " " h[3] $3 $4} sig != prev {print; prev = sig}' /tmp/e4-switch-watch.txt
+01:52:51 | hpa none | deploy 2 2 | 9c2jd:Running:true twsgl:Running:true 
+01:52:58 | hpa 2 1  | deploy 2 1 | gm44w:Pending:false qhww7:Pending:false 9c2jd:Running:true twsgl:Running:true 
+01:53:01 | hpa 2 1  | deploy 2 1 | gm44w:Pending:false qhww7:Running:false 9c2jd:Running:true twsgl:Running:true 
+01:53:03 | hpa 2 1  | deploy 2 1 | gm44w:Running:false qhww7:Running:false 9c2jd:Running:true 
+01:53:05 | hpa 2 1  | deploy 2 2 | gm44w:Running:false qhww7:Running:true 9c2jd:Running:true 
+01:53:08 | hpa 2 1  | deploy 2 2 | gm44w:Running:true qhww7:Running:true 9c2jd:Running:true 
+01:53:13 | hpa 2 2  | deploy 2 2 | gm44w:Running:true qhww7:Running:true 9c2jd:Running:true 
+01:53:15 | hpa 2 2  | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+
+$ kubectl -n storefront get hpa gateway
+NAME      REFERENCE            TARGETS        MINPODS   MAXPODS   REPLICAS   AGE
+gateway   Deployment/gateway   cpu: 3%/100%   2         6         2          98s
+
+$ kubectl -n storefront get events --sort-by=.lastTimestamp -o custom-columns=TIME:.lastTimestamp,KIND:.involvedObject.kind,NAME:.involvedObject.name,REASON:.reason,MSG:.message | grep -E "HorizontalPodAutoscaler|ScalingReplicaSet" | tail -8
+2026-11-09T01:29:55Z   Deployment                gateway                    ScalingReplicaSet              Scaled up replica set gateway-fcbf876d9 from 1 to 2
+2026-11-09T01:52:56Z   Deployment                gateway                    ScalingReplicaSet              Scaled up replica set gateway-7b844f9fc9 from 1 to 2
+2026-11-09T01:52:56Z   HorizontalPodAutoscaler   gateway                    SuccessfulRescale              New size: 2; reason: Current number of replicas below Spec.MinReplicas
+2026-11-09T01:52:56Z   Deployment                gateway                    ScalingReplicaSet              Scaled up replica set gateway-7b844f9fc9 from 0 to 1
+2026-11-09T01:52:56Z   Deployment                gateway                    ScalingReplicaSet              Scaled down replica set gateway-fcbf876d9 from 2 to 1
+2026-11-09T01:53:07Z   Deployment                gateway                    ScalingReplicaSet              Scaled down replica set gateway-fcbf876d9 from 1 to 0
+2026-11-09T01:53:26Z   HorizontalPodAutoscaler   gateway                    FailedGetResourceMetric        failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+2026-11-09T01:53:26Z   HorizontalPodAutoscaler   gateway                    FailedComputeMetricsReplicas   invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+

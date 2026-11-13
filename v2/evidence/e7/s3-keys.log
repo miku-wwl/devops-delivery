@@ -1,0 +1,5 @@
+# E7: one key per consumer - what the CloudNativePG key may read (2026-11-09T23:30:03Z)
+backup-s3 resolves to 172.20.0.13 (Docker network kind-ent, outside the cluster)
+key of CloudNativePG, bucket pg-backups: allowed (99 objects listed)
+key of CloudNativePG, bucket velero: AccessDenied An error occurred (AccessDenied) when calling the ListObject
+key of CloudNativePG, bucket platform-snapshots: AccessDenied An error occurred (AccessDenied) when calling the ListObject

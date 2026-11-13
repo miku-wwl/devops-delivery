@@ -1,0 +1,48 @@
+{{- if and .Values.rollout.enabled .Values.rollout.analysis.enabled }}
+{{- $a := .Values.rollout.analysis }}
+# Health of the *canary* pods only: Prometheus series carry the pod label
+# rollouts-pod-template-hash (added by the PodMonitor), and the Rollout passes the
+# hash of the newest ReplicaSet as args.canary-hash.
+#
+# Three outcomes per measurement:
+#   successCondition  data present and healthy          -> Successful
+#   failureCondition  data present and unhealthy        -> Failed       (abort)
+#   neither           no data (e.g. canary got no traffic) -> Inconclusive (pause for a human)
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: {{ include "demo-api.fullname" . }}-health
+  labels:
+    {{- include "demo-api.labels" . | nindent 4 }}
+spec:
+  args:
+    - name: namespace
+    - name: canary-hash
+  metrics:
+    - name: success-rate
+      initialDelay: {{ $a.initialDelay }}
+      interval: {{ $a.interval }}
+      failureLimit: {{ $a.failureLimit }}
+      inconclusiveLimit: {{ $a.inconclusiveLimit }}
+      successCondition: "len(result) > 0 && result[0] >= {{ $a.minSuccessRate }}"
+      failureCondition: "len(result) > 0 && result[0] < {{ $a.minSuccessRate }}"
+      provider:
+        prometheus:
+          address: {{ $a.prometheusAddress }}
+          query: |
+            sum(rate(http_requests_total{namespace="{{`{{args.namespace}}`}}", rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}", route=~"/api/.*", status!~"5.."}[1m]))
+            /
+            sum(rate(http_requests_total{namespace="{{`{{args.namespace}}`}}", rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}", route=~"/api/.*"}[1m]))
+    - name: p95-latency-seconds
+      initialDelay: {{ $a.initialDelay }}
+      interval: {{ $a.interval }}
+      failureLimit: {{ $a.failureLimit }}
+      inconclusiveLimit: {{ $a.inconclusiveLimit }}
+      successCondition: "len(result) > 0 && result[0] < {{ $a.maxP95LatencySeconds }}"
+      failureCondition: "len(result) > 0 && result[0] >= {{ $a.maxP95LatencySeconds }}"
+      provider:
+        prometheus:
+          address: {{ $a.prometheusAddress }}
+          query: |
+            histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{namespace="{{`{{args.namespace}}`}}", rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}", route=~"/api/.*"}[1m])))
+{{- end }}

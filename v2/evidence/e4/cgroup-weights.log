@@ -1,0 +1,17 @@
+# transcript: E4: cpu.weight of the pod cgroups on ent-worker, and the kubelet conversion from requests
+# recorded: 2026-11-09T03:27:33Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ for p in gateway-7b844f9fc9-qhww7 orders-5cd5d8df65-tvqsm inventory-7f7684694c-z4lz4; do uid=$(kubectl -n storefront get pod $p -o jsonpath='{.metadata.uid}' | tr - _); req=$(kubectl -n storefront get pod $p -o jsonpath='{.spec.containers[0].resources.requests.cpu}'); echo "$p request $req -> cpu.weight $(docker exec ent-worker sh -c "cat /sys/fs/cgroup/kubelet.slice/kubelet-kubepods.slice/kubelet-kubepods-burstable.slice/kubelet-kubepods-burstable-pod$uid.slice/cpu.weight")"; done
+gateway-7b844f9fc9-qhww7 request 500m -> cpu.weight 20
+orders-5cd5d8df65-tvqsm request 50m -> cpu.weight 2
+inventory-7f7684694c-z4lz4 request 50m -> cpu.weight 2
+
+$ docker exec ent-worker sh -c 'for d in besteffort burstable; do echo "kubepods-$d slice: cpu.weight $(cat /sys/fs/cgroup/kubelet.slice/kubelet-kubepods.slice/kubelet-kubepods-$d.slice/cpu.weight)"; done'
+kubepods-besteffort slice: cpu.weight 1
+kubepods-burstable slice: cpu.weight 47
+
+$ python3 -c "for m in (50, 500, 2000): s = m * 1024 // 1000; print(f'{m}m: shares {s} -> weight {1 + ((s - 2) * 9999) // 262142}')"
+50m: shares 51 -> weight 2
+500m: shares 512 -> weight 20
+2000m: shares 2048 -> weight 79
+

@@ -1,0 +1,34 @@
+# E8 (chapter 9): release policies of production only (applied to rendered/prod/).
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata: {name: release-prod-availability}
+spec:
+  validationFailureAction: Enforce
+  background: false
+  rules:
+    - name: two-replicas
+      match: {any: [{resources: {kinds: [Deployment]}}]}
+      validate:
+        message: "Production runs at least two replicas of every service: a single replica is a single point of failure (chapter 7)."
+        cel:
+          expressions:
+            - expression: "!has(object.spec.replicas) || object.spec.replicas >= 2"
+    - name: autoscaler-floor
+      match: {any: [{resources: {kinds: [HorizontalPodAutoscaler]}}]}
+      validate:
+        message: "An autoscaled production service never scales below two replicas."
+        cel:
+          expressions:
+            - expression: "has(object.spec.minReplicas) && object.spec.minReplicas >= 2"
+    # E9 (chapter 10), action item 1 of the incident drill: a payment provider setting meant for a
+    # test environment (PSP_ERROR_RATE "1") passed this gate and broke every checkout. Fault
+    # simulation in production goes through /admin/faults at run time, never through the release.
+    - name: no-fault-simulation
+      match: {any: [{resources: {kinds: [Deployment]}}]}
+      validate:
+        message: "PSP_ERROR_RATE and PSP_HANG_RATE must be 0 in production: they simulate a failing payment provider (E9 incident drill)."
+        cel:
+          expressions:
+            - expression: >-
+                object.spec.template.spec.containers.all(c, !has(c.env) || c.env.all(e,
+                !(e.name in ['PSP_ERROR_RATE', 'PSP_HANG_RATE']) || !has(e.value) || double(e.value) == 0.0))

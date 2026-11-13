@@ -1,0 +1,56 @@
+== 07:30:56 L1: a pod writes a marker to stdout and is deleted
+  pod "e9-logprobe" deleted from default namespace
+  07:31:09 kubectl logs after the deletion: error: error from server (NotFound): pods "e9-logprobe" not found in namespace "default"
+  07:31:28 Loki {job="node-logs", pod="e9-logprobe"}:
+== 07:31:28 U1: the audit policy records service accounts reading Secrets
+  policy lines naming secrets in the node: 2
+  07:31:30 kube-apiserver container stopped; the kubelet restarts it
+  07:31:38 API server ready again
+  07:32:36 Secret reads by service accounts since 2026-11-10T07:31:29Z (audit log, user: count by verb):
+  File "<string>", line 12
+    if o.get("name"): names[u.split(":", 2)[2]].add(f"{o.get(\"namespace\")}/{o[\"name\"]}")
+                                                              ^
+SyntaxError: unexpected character after line continuation character
+== 07:32:54 L1 again, by content: {job="node-logs"} |= "E9-MARKER"
+    stream: {'detected_level': 'unknown', 'job': 'node-logs', 'service_name': 'node-logs'}
+      {"time":"2026-11-10T07:31:00.441081852Z","log":"E9-MARKER-1794295856"}
+== 07:32:54 U1 evaluation (the policy has been active since 07:31:38)
+    argocd:argocd-application-controller                    get   1
+    argocd:argocd-application-controller                    list  4
+    argocd:argocd-application-controller                    watch 12
+    argocd:argocd-applicationset-controller                 list  4
+    argocd:argocd-applicationset-controller                 watch 12
+    argocd:argocd-notifications-controller                  list  1
+    argocd:argocd-notifications-controller                  watch 3
+    argocd:argocd-server                                    list  4
+    argocd:argocd-server                                    watch 12
+    cert-manager:cert-manager                               watch 6
+    cert-manager:cert-manager-cainjector                    get   4
+    cert-manager:cert-manager-cainjector                    watch 3
+    cert-manager:cert-manager-webhook                       watch 3
+    cnpg-system:cnpg-cloudnative-pg                         watch 3
+    data:pg-main                                            get   18
+    external-secrets:external-secrets                       get   5
+    external-secrets:external-secrets                       list  3
+    external-secrets:external-secrets                       watch 6
+    external-secrets:external-secrets-cert-controller       get   5
+    istio-system:istiod                                     watch 6
+    keda:keda-operator                                      watch 6
+    kyverno:kyverno-admission-controller                    get   36
+    kyverno:kyverno-admission-controller                    watch 18
+    kyverno:kyverno-background-controller                   watch 3
+    kyverno:kyverno-reports-controller                      watch 3
+    monitoring:kps-grafana                                  watch 6
+    monitoring:kps-kube-state-metrics                       watch 3
+    monitoring:kps-operator                                 watch 9
+    velero:velero-server                                    list  1
+    velero:velero-server                                    watch 3
+    argocd:argocd-application-controller read by name: ['monitoring/kps-prometheus-token']
+    argocd:argocd-notifications-controller read by name: ['argocd/argocd-notifications-secret']
+    argocd:argocd-server read by name: ['argocd/argocd-notifications-secret']
+    cert-manager:cert-manager-cainjector read by name: ['cert-manager/cert-manager-webhook-ca']
+    cert-manager:cert-manager-webhook read by name: ['cert-manager/cert-manager-webhook-ca']
+    data:pg-main read by name: ['data/pg-backup-s3', 'data/pg-main-app', 'data/pg-main-ca', 'data/pg-main-replication']
+    external-secrets:external-secrets read by name: ['insight/insight-api-key']
+    external-secrets:external-secrets-cert-controller read by name: ['external-secrets/external-secrets-webhook']
+    kyverno:kyverno-admission-controller read by name: ['kyverno/kyverno-svc.kyverno.svc.kyverno-tls-ca', 'kyverno/kyverno-svc.kyverno.svc.kyverno-tls-pair']

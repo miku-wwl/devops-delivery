@@ -1,0 +1,6 @@
+rate=5/s duration=30m iterations=1160 dropped=0
+requests=1965 (8.5/s) failed=0.15%
+browse: p50=10.6 p95=17.9 p99=25.4 max=711.6 ms
+order:  p50=119.8 p95=269.0 p99=352.7 max=688.3 ms
+checks: 99.85% passed
+time="2026-11-10T04:10:08+13:00" level=error msg="test run was aborted because k6 received a 'terminated' signal"

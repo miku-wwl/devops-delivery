@@ -1,0 +1,44 @@
+# transcript: E3: packet-level counters and a ztunnel-free probe during the crash loop
+# recorded: 2026-11-07T12:21:41Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e3/storm-net.sh storm-net-180 180 40
+pod network namespace: catalog-5486d76849-8bh5g on ent-worker (pid 25564)
+pod network namespace: gateway-778cc68bb5-qm2pv on ent-worker (pid 25385)
+pod network namespace: pg-main-3 on ent-worker3 (pid 3989)
+pod network namespace: valkey-0 on ent-worker3 (pid 3276)
+envoy crashes during the run: 7
+rate=180/s duration=40s iterations=7093 dropped=106
+requests=11765 (176.5/s) failed=99.97%
+counter changes during the run (non-zero only):
+  pod:catalog-5486d76849-8bh5g       TcpRetransSegs             +12
+  pod:catalog-5486d76849-8bh5g       TcpExtTCPTimeouts          +8
+  pod:catalog-5486d76849-8bh5g       TcpExtTCPLossProbes        +4
+  pod:gateway-778cc68bb5-qm2pv       TcpRetransSegs             +44
+  pod:gateway-778cc68bb5-qm2pv       TcpExtListenOverflows      +257
+  pod:gateway-778cc68bb5-qm2pv       TcpExtListenDrops          +257
+  pod:gateway-778cc68bb5-qm2pv       TcpExtTCPTimeouts          +23
+  pod:gateway-778cc68bb5-qm2pv       TcpExtTCPLossProbes        +22
+  pod:gateway-778cc68bb5-qm2pv       TcpExtTCPSynRetrans        +5
+  pod:pg-main-3                      TcpRetransSegs             +3
+  pod:pg-main-3                      TcpExtTCPLossProbes        +3
+probes, max per 5 s (ms; fail = no TCP connection within 3 s):
+12:21:40  node->pg connect    14 | pod->pg query     0 | pod->pg connect     0
+12:21:45  node->pg connect    11 | pod->pg query     3 | pod->pg connect    24
+12:21:50  node->pg connect    11 | pod->pg query     3 | pod->pg connect    21
+12:21:55  node->pg connect    14 | pod->pg query  4492 | pod->pg connect    17
+12:22:00  node->pg connect    13 | pod->pg query  1215 | pod->pg connect     0 (1 fail)
+12:22:05  node->pg connect    14 | pod->pg query     0 (1 fail) | pod->pg connect     0
+12:22:10  node->pg connect     9 | pod->pg query     0 | pod->pg connect     0
+12:22:15  node->pg connect    21 | pod->pg query     0 | pod->pg connect     0
+12:22:20  node->pg connect    14 | pod->pg query     0 | pod->pg connect     0
+12:22:25  node->pg connect    12 | pod->pg query     0 | pod->pg connect     0
+12:22:30  node->pg connect    12 | pod->pg query     0 | pod->pg connect     0
+12:22:35  node->pg connect    12 | pod->pg query  2675 | pod->pg connect    25
+12:22:40  node->pg connect    11 | pod->pg query     2 | pod->pg connect    23
+12:22:45  node->pg connect    10 | pod->pg query     2 | pod->pg connect    21
+12:22:50  node->pg connect    12 | pod->pg query     3 | pod->pg connect    23
+12:22:55  node->pg connect    11 | pod->pg query     4 | pod->pg connect    20
+12:23:00  node->pg connect    11 | pod->pg query     2 | pod->pg connect    22
+12:23:05  node->pg connect     9 | pod->pg query     4 | pod->pg connect    21
+12:23:10  node->pg connect     0 | pod->pg query     2 | pod->pg connect    18
+

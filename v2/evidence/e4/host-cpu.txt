@@ -1,0 +1,7 @@
+# Host CPU state (Windows performance counters, average of 3 samples 2 s apart) - only CPU figures are recorded
+# recorded: 2026-11-09T03:09:16Z
+cpu: AMD Ryzen 7 8845HS w/ Radeon 780M Graphics, 16 logical processors, nominal 3801 MHz, current 2499 MHz
+% processor performance: 64.9
+% processor time: 44.0
+% processor utility: 32.2
+% processor performance = current clock relative to nominal; % processor time = share of the 16 logical processors busy (all processes of the host, WSL included)

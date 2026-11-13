@@ -1,0 +1,7 @@
+# order id lists of pitr-2 (kept outside Git); sorted bytewise (LC_ALL=C)
+ids-before: 211643 ids, sha256 8a991b897a6781a4ba22e1e0b204b2a1d470074312b4746d086a807dc2fa953d
+ids-recovered: 211644 ids, sha256 9add76821f7b40211dd70226d0569aa1cc0ae9100004f04ffe81db70b9c9839f
+ids-after: 211931 ids, sha256 5a8ab730bef7ea638b50d39832a5ec09b07d91a07a5e769d746c2933900d1cb7
+in ids-before, missing in ids-recovered: 0
+in ids-before, missing in ids-after: 0
+in ids-recovered, missing in ids-after: 0

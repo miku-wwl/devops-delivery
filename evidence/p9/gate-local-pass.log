@@ -1,0 +1,15 @@
+# transcript: P9 synthetic gate in the lab cluster: healthy candidate
+# recorded: 2026-11-06T09:24:01Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash synthetic/run-gate.sh --image ghcr.io/miku-wwl/devops-delivery/demo-api --digest sha256:9f45ec009f30fd01ec98998c8b86f74106721346475f3847bf6911d8ab318c81 --summary-dir /tmp/gate-pass
+==> candidate ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:9f45ec009f30fd01ec98998c8b86f74106721346475f3847bf6911d8ab318c81  fault=none  namespace=synthetic-1793957041
+demo-api-gate-58d6996754-g4qs9   1/1   Running   0     13s   10.244.2.52   lab-worker   <none>   <none>
+{"service":"demo-api","version":"p7/observability-5","commit":"0e551ad2d628eb0e30897536485961763c704216"}
+synthetic gate: PASS  (base http://127.0.0.1:18080, 723 requests, checks 1446 passed / 0 failed)
+  [ok  ] http_req_failed  rate<0.01  observed 0.00%
+  [ok  ] http_req_duration{name:POST /api/v1/orders}  p(95)<300  observed 11.0 ms
+  [ok  ] http_req_duration{name:GET /api/v1/info}  p(95)<300  observed 11.1 ms
+  [ok  ] http_req_duration{name:GET /api/v1/orders/:id}  p(95)<300  observed 8.9 ms
+  [ok  ] checks  rate>0.99  observed 100.00%
+==> synthetic gate PASSED
+

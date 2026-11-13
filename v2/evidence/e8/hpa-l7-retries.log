@@ -1,0 +1,116 @@
+== settings that bound the reaction time
+  metrics-server "--kubelet-preferred-address-types=InternalIP
+  metrics-server "--kubelet-use-node-status-port"
+  metrics-server "--metric-resolution=15s"
+  metrics-server "--kubelet-insecure-tls"]
+  (absent = defaults: HPA sync every 15 s, 10 % tolerance, scale-down stabilization 300 s)
+  spec:
+    maxReplicas: 6
+    metrics:
+    - resource:
+        name: cpu
+        target:
+          averageUtilization: 100
+          type: Utilization
+      type: Resource
+== k6 start 00:55:53; load step to 170 it/s at 00:58:23, back to 30 at 01:03:33
+time="2026-11-10T13:58:37+13:00" level=warning msg="Insufficient VUs, reached 600 active VUs and cannot initialize more" executor=ramping-arrival-rate scenario=shop
+stages=30,170,30 it/s, 120,300,420 s (ramp 10 s, warm-up 30 s) iterations=56917 dropped=12732
+requests=96382 (108.3/s) failed=44.80%
+browse: p50=15.2 p95=8493.9 p99=13355.1 max=19004.5 ms
+order:  p50=151.2 p95=9248.5 p99=13891.4 max=18663.8 ms
+checks: 55.20% passed
+stage 1-30: achieved 30.0 it/s, requests=6029 failed=0.00% | browse p50=11.4 p95=18.7 p99=28.7 max=223.9 ms | order p50=117.1 p95=225.3 p99=311.2 max=603.2 ms
+stage 170: achieved 170.0 it/s, requests=86412 failed=49.18% | browse p50=17.3 p95=8984.5 p99=13747.5 max=19004.5 ms | order p50=164.5 p95=9729.7 p99=14297.6 max=18663.8 ms
+stage 3-30: achieved 0.0 it/s, requests=0 failed=0.00% | browse p50=0.0 p95=0.0 p99=0.0 max=0.0 ms | order p50=0.0 p95=0.0 p99=0.0 max=0.0 ms
+time="2026-11-10T14:10:44+13:00" level=error msg="thresholds on metrics 'http_req_duration{kind:browse}, http_req_duration{kind:order}, http_req_failed{kind:browse}' have been crossed"
+== HPA and pod events (newest last)
+2026-11-10T00:59:05Z   Pod                       gateway-7b844f9fc9-m84fz                   Started                  Container started
+2026-11-10T00:59:06Z   Pod                       gateway-7b844f9fc9-m84fz                   Unhealthy                Startup probe failed: Get "http://10.240.2.35:8080/healthz": dial tcp 10.240.2.35:8080: connect: connection refused
+2026-11-10T01:00:47Z   Deployment                notifier                                   ScalingReplicaSet        Scaled up replica set notifier-59fddb4fd9 from 3 to 5
+2026-11-10T01:00:47Z   HorizontalPodAutoscaler   keda-hpa-notifier                          SuccessfulRescale        New size: 5; reason: external metric s0-nats-jetstream-ORDERS(&LabelSelector{MatchLabels:map[string]string{scaledobject.keda.sh/name: notifier,},MatchExpressions:[]LabelSelectorRequirement{},}) above target
+2026-11-10T01:00:47Z   Pod                       notifier-59fddb4fd9-6m28l                  Scheduled                Successfully assigned storefront/notifier-59fddb4fd9-6m28l to ent-worker3
+2026-11-10T01:00:47Z   ReplicaSet                notifier-59fddb4fd9                        SuccessfulCreate         Created pod: notifier-59fddb4fd9-6m28l
+2026-11-10T01:00:47Z   ReplicaSet                notifier-59fddb4fd9                        SuccessfulCreate         Created pod: notifier-59fddb4fd9-q8vwk
+2026-11-10T01:00:47Z   Pod                       notifier-59fddb4fd9-q8vwk                  Scheduled                Successfully assigned storefront/notifier-59fddb4fd9-q8vwk to ent-worker
+2026-11-10T01:00:55Z   Pod                       notifier-59fddb4fd9-q8vwk                  FailedCreatePodSandBox   Failed to create pod sandbox: rpc error: code = Unknown desc = failed to setup network for sandbox "924c07a31cf08b500ddf17ea7e6912cf903d86e49520e40da4885ab7b529df91": plugin type="istio-cni" name="istio-cni" failed (add): istio-cni cmdAdd failed to contact node Istio CNI agent: failed to send event request: Post "http://unix/cmdadd": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+2026-11-10T01:00:55Z   Pod                       notifier-59fddb4fd9-6m28l                  FailedCreatePodSandBox   Failed to create pod sandbox: rpc error: code = Unknown desc = failed to setup network for sandbox "49590b74a633096d68081f24de0a290c64d9a4810ef77c274f2453e91c7e634b": plugin type="istio-cni" name="istio-cni" failed (add): istio-cni cmdAdd failed to contact node Istio CNI agent: failed to send event request: Post "http://unix/cmdadd": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+2026-11-10T01:00:59Z   Pod                       gateway-7b844f9fc9-wd6sb                   Scheduled                Successfully assigned storefront/gateway-7b844f9fc9-wd6sb to ent-worker3
+2026-11-10T01:00:59Z   ReplicaSet                gateway-7b844f9fc9                         SuccessfulCreate         Created pod: gateway-7b844f9fc9-wd6sb
+2026-11-10T01:00:59Z   HorizontalPodAutoscaler   gateway                                    SuccessfulRescale        New size: 4; reason: cpu resource utilization (percentage of request) above target
+2026-11-10T01:00:59Z   Deployment                gateway                                    ScalingReplicaSet        Scaled up replica set gateway-7b844f9fc9 from 3 to 4
+2026-11-10T01:01:02Z   Pod                       notifier-59fddb4fd9-6m28l                  Created                  Container created
+2026-11-10T01:01:02Z   Pod                       notifier-59fddb4fd9-6m28l                  Started                  Container started
+2026-11-10T01:01:02Z   Pod                       notifier-59fddb4fd9-6m28l                  Pulled                   Container image "localhost:5001/storefront:fd38028" already present on machine and can be accessed by the pod
+2026-11-10T01:01:04Z   Pod                       notifier-59fddb4fd9-q8vwk                  FailedCreatePodSandBox   Failed to create pod sandbox: rpc error: code = Unknown desc = failed to setup network for sandbox "2f47c2d0af5605cec786d13edc184c8d846f5fae44cb497eb16a08516042d3e3": plugin type="istio-cni" name="istio-cni" failed (add): istio-cni cmdAdd failed to contact node Istio CNI agent: failed to send event request: Post "http://unix/cmdadd": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+2026-11-10T01:01:08Z   Pod                       gateway-7b844f9fc9-wd6sb                   FailedCreatePodSandBox   Failed to create pod sandbox: rpc error: code = Unknown desc = failed to setup network for sandbox "ffdd549fb0c52a1de611e2a222d4754f4cdd46789eded1673ffa811640fbbdf7": plugin type="istio-cni" name="istio-cni" failed (add): istio-cni cmdAdd failed to contact node Istio CNI agent: failed to send event request: Post "http://unix/cmdadd": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+2026-11-10T01:01:11Z   Pod                       notifier-59fddb4fd9-q8vwk                  Started                  Container started
+2026-11-10T01:01:11Z   Pod                       notifier-59fddb4fd9-q8vwk                  Created                  Container created
+2026-11-10T01:01:11Z   Pod                       notifier-59fddb4fd9-q8vwk                  Pulled                   Container image "localhost:5001/storefront:fd38028" already present on machine and can be accessed by the pod
+2026-11-10T01:01:13Z   Pod                       notifier-59fddb4fd9-q8vwk                  Unhealthy                Startup probe failed: Get "http://10.240.2.38:8080/healthz": dial tcp 10.240.2.38:8080: connect: connection refused
+2026-11-10T01:01:14Z   Pod                       gateway-7b844f9fc9-wd6sb                   FailedCreatePodSandBox   Failed to create pod sandbox: rpc error: code = Unknown desc = failed to setup network for sandbox "64ad36b483295e8bf4f18eac4eb7c2eacc991109966e47f64ffe1edd05b25416": plugin type="istio-cni" name="istio-cni" failed (add): istio-cni cmdAdd failed to contact node Istio CNI agent: unable to push CNI event (status code 500): got ack error: failure to start proxy : Bind([::1]:15053, Os { code: 99, kind: AddrNotAvailable, message: "Cannot assign requested address" })
+2026-11-10T01:01:19Z   Pod                       notifier-59fddb4fd9-6m28l                  Unhealthy                Startup probe failed: Get "http://10.240.1.45:8080/healthz": dial tcp 10.240.1.45:8080: connect: connection refused
+2026-11-10T01:01:37Z   Pod                       gateway-7b844f9fc9-wd6sb                   FailedCreatePodSandBox   Failed to create pod sandbox: rpc error: code = Unknown desc = failed to setup network for sandbox "ac1707a5dece88fd1ef548a75ed359010cf040403da693f3d937c030bab4073b": plugin type="istio-cni" name="istio-cni" failed (add): istio-cni cmdAdd failed to contact node Istio CNI agent: failed to send event request: Post "http://unix/cmdadd": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+2026-11-10T01:01:57Z   Pod                       gateway-7b844f9fc9-wd6sb                   Pulled                   Container image "localhost:5001/storefront:fd38028" already present on machine and can be accessed by the pod
+2026-11-10T01:01:57Z   Pod                       gateway-7b844f9fc9-wd6sb                   Started                  Container started
+2026-11-10T01:01:57Z   Pod                       gateway-7b844f9fc9-wd6sb                   Created                  Container created
+2026-11-10T01:02:00Z   Pod                       gateway-7b844f9fc9-wd6sb                   Unhealthy                Startup probe failed: Get "http://10.240.1.49:8080/healthz": dial tcp 10.240.1.49:8080: connect: connection refused
+2026-11-10T01:08:16Z   Deployment                gateway                                    ScalingReplicaSet        Scaled down replica set gateway-7b844f9fc9 from 4 to 3
+2026-11-10T01:08:16Z   Pod                       gateway-7b844f9fc9-wd6sb                   Killing                  Stopping container app
+2026-11-10T01:08:16Z   ReplicaSet                gateway-7b844f9fc9                         SuccessfulDelete         Deleted pod: gateway-7b844f9fc9-wd6sb
+2026-11-10T01:08:16Z   HorizontalPodAutoscaler   gateway                                    SuccessfulRescale        New size: 3; reason: All metrics below target
+2026-11-10T01:08:18Z   ReplicaSet                notifier-59fddb4fd9                        SuccessfulDelete         Deleted pod: notifier-59fddb4fd9-6m28l
+2026-11-10T01:08:18Z   HorizontalPodAutoscaler   keda-hpa-notifier                          SuccessfulRescale        New size: 4; reason: All metrics below target
+2026-11-10T01:08:18Z   Deployment                notifier                                   ScalingReplicaSet        Scaled down replica set notifier-59fddb4fd9 from 5 to 4
+2026-11-10T01:08:18Z   Pod                       notifier-59fddb4fd9-6m28l                  Killing                  Stopping container app
+2026-11-10T01:08:31Z   Pod                       gateway-7b844f9fc9-m84fz                   Killing                  Stopping container app
+2026-11-10T01:08:31Z   ReplicaSet                gateway-7b844f9fc9                         SuccessfulDelete         Deleted pod: gateway-7b844f9fc9-m84fz
+2026-11-10T01:08:31Z   Deployment                gateway                                    ScalingReplicaSet        Scaled down replica set gateway-7b844f9fc9 from 3 to 2
+2026-11-10T01:08:31Z   HorizontalPodAutoscaler   gateway                                    SuccessfulRescale        New size: 2; reason: All metrics below target
+2026-11-10T01:08:33Z   HorizontalPodAutoscaler   keda-hpa-notifier                          SuccessfulRescale        New size: 3; reason: All metrics below target
+2026-11-10T01:08:33Z   ReplicaSet                notifier-59fddb4fd9                        SuccessfulDelete         Deleted pod: notifier-59fddb4fd9-q8vwk
+2026-11-10T01:08:33Z   Pod                       notifier-59fddb4fd9-q8vwk                  Killing                  Stopping container app
+2026-11-10T01:08:33Z   Deployment                notifier                                   ScalingReplicaSet        Scaled down replica set notifier-59fddb4fd9 from 4 to 3
+2026-11-10T01:08:48Z   Deployment                notifier                                   ScalingReplicaSet        Scaled down replica set notifier-59fddb4fd9 from 3 to 2
+2026-11-10T01:08:48Z   HorizontalPodAutoscaler   keda-hpa-notifier                          SuccessfulRescale        New size: 2; reason: All metrics below target
+2026-11-10T01:08:48Z   Pod                       notifier-59fddb4fd9-8zw49                  Killing                  Stopping container app
+2026-11-10T01:08:48Z   ReplicaSet                notifier-59fddb4fd9                        SuccessfulDelete         Deleted pod: notifier-59fddb4fd9-8zw49
+== gateway pods: created, scheduled, containers ready, ready
+gateway-7b844f9fc9-vj24p	ent-worker3	2026-11-09T23:24:56Z	2026-11-09T23:24:56Z	2026-11-09T23:25:37Z	2026-11-09T23:25:37Z
+gateway-7b844f9fc9-6m9nq	ent-worker2	2026-11-10T00:37:56Z	2026-11-10T00:37:56Z	2026-11-10T00:38:07Z	2026-11-10T00:38:07Z
+== watcher: lines where the HPA decision or the pod set changed
+00:55:53 | hpa 2 2 2 | deploy 2 2 | 6m9nq:Running:true vj24p:Running:true 
+00:58:59 | hpa 2 2 49 | deploy 2 2 | 6m9nq:Running:true m84fz:Pending:false vj24p:Running:true 
+00:59:01 | hpa 3 2 124 | deploy 3 2 | 6m9nq:Running:true m84fz:Pending:false vj24p:Running:true 
+00:59:06 | hpa 3 2 124 | deploy 3 2 | 6m9nq:Running:true m84fz:Running:false vj24p:Running:true 
+00:59:09 | hpa 3 2 124 | deploy 3 3 | 6m9nq:Running:true m84fz:Running:true vj24p:Running:true 
+00:59:16 | hpa 3 3 48 | deploy 3 3 | 6m9nq:Running:true m84fz:Running:true vj24p:Running:true 
+01:01:00 | hpa 4 3 122 | deploy 4 3 | 6m9nq:Running:true m84fz:Running:true vj24p:Running:true wd6sb:Pending:false 
+01:01:15 | hpa 4 4 34 | deploy 4 3 | 6m9nq:Running:true m84fz:Running:true vj24p:Running:true wd6sb:Pending:false 
+01:01:58 | hpa 4 4 27 | deploy 4 3 | 6m9nq:Running:true m84fz:Running:true vj24p:Running:true wd6sb:Running:false 
+01:02:03 | hpa 4 4 44 | deploy 4 4 | 6m9nq:Running:true m84fz:Running:true vj24p:Running:true wd6sb:Running:true 
+01:08:17 | hpa 3 4 14 | deploy 3 3 | 6m9nq:Running:true m84fz:Running:true vj24p:Running:true wd6sb:Running:true 
+01:08:22 | hpa 3 4 14 | deploy 3 3 | 6m9nq:Running:true m84fz:Running:true vj24p:Running:true 
+01:08:32 | hpa 2 3 15 | deploy 2 2 | 6m9nq:Running:true m84fz:Running:true vj24p:Running:true 
+01:08:37 | hpa 2 3 15 | deploy 2 2 | 6m9nq:Running:true vj24p:Running:true 
+01:08:47 | hpa 2 2 18 | deploy 2 2 | 6m9nq:Running:true vj24p:Running:true 
+== notifier watcher (KEDA): lines where the decision or the pod set changed; last field = lag per replica
+00:55:54 | hpa 2 2 0 | deploy 2 2 | 5p6p7:Running:true wsc5n:Running:true 
+00:58:46 | hpa 3 2 68500m | deploy 3 2 | 5p6p7:Running:true 8zw49:Pending:false wsc5n:Running:true 
+00:58:49 | hpa 3 2 68500m | deploy 3 2 | 5p6p7:Running:true 8zw49:Running:false wsc5n:Running:true 
+00:58:54 | hpa 3 2 68500m | deploy 3 3 | 5p6p7:Running:true 8zw49:Running:true wsc5n:Running:true 
+00:59:01 | hpa 3 3 36 | deploy 3 3 | 5p6p7:Running:true 8zw49:Running:true wsc5n:Running:true 
+01:00:47 | hpa 5 3 78 | deploy 5 3 | 5p6p7:Running:true 6m28l:Pending:false 8zw49:Running:true q8vwk:Pending:false wsc5n:Running:true 
+01:01:03 | hpa 5 5 38200m | deploy 5 3 | 5p6p7:Running:true 6m28l:Running:false 8zw49:Running:true q8vwk:Pending:false wsc5n:Running:true 
+01:01:13 | hpa 5 5 38200m | deploy 5 3 | 5p6p7:Running:true 6m28l:Running:false 8zw49:Running:true q8vwk:Running:false wsc5n:Running:true 
+01:01:15 | hpa 5 5 38200m | deploy 5 4 | 5p6p7:Running:true 6m28l:Running:false 8zw49:Running:true q8vwk:Running:true wsc5n:Running:true 
+01:01:23 | hpa 5 5 12800m | deploy 5 5 | 5p6p7:Running:true 6m28l:Running:true 8zw49:Running:true q8vwk:Running:true wsc5n:Running:true 
+01:08:20 | hpa 4 5 200m | deploy 4 4 | 5p6p7:Running:true 6m28l:Running:true 8zw49:Running:true q8vwk:Running:true wsc5n:Running:true 
+01:08:32 | hpa 4 5 200m | deploy 4 4 | 5p6p7:Running:true 6m28l:Running:false 8zw49:Running:true q8vwk:Running:true wsc5n:Running:true 
+01:08:35 | hpa 3 4 0 | deploy 3 3 | 5p6p7:Running:true 6m28l:Running:false 8zw49:Running:true q8vwk:Running:true wsc5n:Running:true 
+01:08:47 | hpa 3 4 0 | deploy 3 3 | 5p6p7:Running:true 6m28l:Running:false 8zw49:Running:true q8vwk:Running:false wsc5n:Running:true 
+01:08:49 | hpa 2 3 1 | deploy 2 2 | 5p6p7:Running:true 8zw49:Running:true q8vwk:Running:false wsc5n:Running:true 
+01:09:04 | hpa 2 2 1500m | deploy 2 2 | 5p6p7:Running:true 8zw49:Running:false q8vwk:Failed:false wsc5n:Running:true 
+01:09:06 | hpa 2 2 1500m | deploy 2 2 | 5p6p7:Running:true 8zw49:Running:false wsc5n:Running:true 
+01:09:19 | hpa 2 2 500m | deploy 2 2 | 5p6p7:Running:true 8zw49:Failed:false wsc5n:Running:true 
+01:09:21 | hpa 2 2 500m | deploy 2 2 | 5p6p7:Running:true wsc5n:Running:true 

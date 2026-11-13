@@ -1,0 +1,25 @@
+# transcript: E1: control plane did not come back after the distro restart
+# recorded: 2026-11-07T07:16:06Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ docker inspect -f "{{.Name}} exit={{.State.ExitCode}} finished={{.State.FinishedAt}} error={{.State.Error}}" ent-control-plane | cut -c1-330
+/ent-control-plane exit=128 finished=2026-11-07T07:04:11.791442019Z error=failed to create task for container: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: unable to apply cgroup configuration: unable to start unit "docker-831d13e684cdd5c8f20a423fb524703dcc449853a5
+
+$ docker ps --filter name=ent- --format "{{.Names}}  {{.Status}}"
+ent-ccm  Up 11 minutes
+ent-worker3  Up 11 minutes
+ent-worker  Up 11 minutes
+ent-worker2  Up 11 minutes
+
+$ docker start ent-control-plane
+ent-control-plane
+
+$ for i in $(seq 60); do kubectl --request-timeout=5s get --raw /readyz >/dev/null 2>&1 && break; sleep 3; done; echo "API server ready after about $((i*3)) s"
+API server ready after about 12 s
+
+$ kubectl get nodes
+NAME                STATUS   ROLES           AGE    VERSION
+ent-control-plane   Ready    control-plane   4h9m   v1.37.0
+ent-worker          Ready    <none>          4h9m   v1.37.0
+ent-worker2         Ready    <none>          4h9m   v1.37.0
+ent-worker3         Ready    <none>          4h9m   v1.37.0
+

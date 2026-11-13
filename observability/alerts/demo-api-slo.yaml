@@ -1,0 +1,74 @@
+# SLOs for demo-api and multi-window, multi-burn-rate alerts (Google SRE Workbook, ch. 5).
+#
+#   availability SLO: 99.5 % of API requests succeed      -> error budget 0.5 %
+#   latency SLO:      99.0 % of API requests take <= 0.5 s -> error budget 1 %
+#   SLO period:       30 days
+#
+# burn rate = (bad events / all events) / error budget. At burn rate 1 the budget lasts
+# exactly 30 days; at 14.4 it is gone in ~2 days (2 % of the monthly budget per hour).
+#   fast burn (page):   1h AND 5m windows above 14.4x  -> ~2 % of the budget in 1 h
+#   slow burn (ticket): 6h AND 30m windows above 6x    -> ~5 % of the budget in 6 h
+# The short window makes the alert stop soon after the problem stops.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: demo-api-slo
+  namespace: monitoring
+spec:
+  groups:
+    - name: demo-api.sli
+      interval: 30s
+      rules:
+        # bad-event ratios per environment and window (dev and prod only).
+        # "or 0 * <all requests>" turns "no 5xx series in the window" into 0 instead of no data.
+        - record: demo_api:sli_errors:ratio_rate5m
+          expr: (sum by (namespace) (rate(http_requests_total{namespace=~"dev|prod", route=~"/api/.*", status=~"5.."}[5m])) or 0 * sum by (namespace) (rate(http_requests_total{namespace=~"dev|prod", route=~"/api/.*"}[5m]))) / sum by (namespace) (rate(http_requests_total{namespace=~"dev|prod", route=~"/api/.*"}[5m]))
+        - record: demo_api:sli_errors:ratio_rate30m
+          expr: (sum by (namespace) (rate(http_requests_total{namespace=~"dev|prod", route=~"/api/.*", status=~"5.."}[30m])) or 0 * sum by (namespace) (rate(http_requests_total{namespace=~"dev|prod", route=~"/api/.*"}[30m]))) / sum by (namespace) (rate(http_requests_total{namespace=~"dev|prod", route=~"/api/.*"}[30m]))
+        - record: demo_api:sli_errors:ratio_rate1h
+          expr: (sum by (namespace) (rate(http_requests_total{namespace=~"dev|prod", route=~"/api/.*", status=~"5.."}[1h])) or 0 * sum by (namespace) (rate(http_requests_total{namespace=~"dev|prod", route=~"/api/.*"}[1h]))) / sum by (namespace) (rate(http_requests_total{namespace=~"dev|prod", route=~"/api/.*"}[1h]))
+        - record: demo_api:sli_errors:ratio_rate6h
+          expr: (sum by (namespace) (rate(http_requests_total{namespace=~"dev|prod", route=~"/api/.*", status=~"5.."}[6h])) or 0 * sum by (namespace) (rate(http_requests_total{namespace=~"dev|prod", route=~"/api/.*"}[6h]))) / sum by (namespace) (rate(http_requests_total{namespace=~"dev|prod", route=~"/api/.*"}[6h]))
+        - record: demo_api:sli_slow:ratio_rate5m
+          expr: 1 - sum by (namespace) (rate(http_request_duration_seconds_bucket{namespace=~"dev|prod", route=~"/api/.*", le="0.5"}[5m])) / sum by (namespace) (rate(http_request_duration_seconds_count{namespace=~"dev|prod", route=~"/api/.*"}[5m]))
+        - record: demo_api:sli_slow:ratio_rate30m
+          expr: 1 - sum by (namespace) (rate(http_request_duration_seconds_bucket{namespace=~"dev|prod", route=~"/api/.*", le="0.5"}[30m])) / sum by (namespace) (rate(http_request_duration_seconds_count{namespace=~"dev|prod", route=~"/api/.*"}[30m]))
+        - record: demo_api:sli_slow:ratio_rate1h
+          expr: 1 - sum by (namespace) (rate(http_request_duration_seconds_bucket{namespace=~"dev|prod", route=~"/api/.*", le="0.5"}[1h])) / sum by (namespace) (rate(http_request_duration_seconds_count{namespace=~"dev|prod", route=~"/api/.*"}[1h]))
+        - record: demo_api:sli_slow:ratio_rate6h
+          expr: 1 - sum by (namespace) (rate(http_request_duration_seconds_bucket{namespace=~"dev|prod", route=~"/api/.*", le="0.5"}[6h])) / sum by (namespace) (rate(http_request_duration_seconds_count{namespace=~"dev|prod", route=~"/api/.*"}[6h]))
+        # burn rates over the short windows, for dashboards and incident write-ups
+        - record: demo_api:slo_availability:burn_rate5m
+          expr: demo_api:sli_errors:ratio_rate5m / 0.005
+        - record: demo_api:slo_latency:burn_rate5m
+          expr: demo_api:sli_slow:ratio_rate5m / 0.01
+        - record: demo_api:slo_latency:burn_rate1h
+          expr: demo_api:sli_slow:ratio_rate1h / 0.01
+
+    - name: demo-api.slo-burn
+      rules:
+        - alert: DemoApiAvailabilityFastBurn
+          expr: demo_api:sli_errors:ratio_rate1h > (14.4 * 0.005) and demo_api:sli_errors:ratio_rate5m > (14.4 * 0.005)
+          for: 2m
+          labels: {severity: page, slo: availability}
+          annotations:
+            summary: "demo-api in {{ $labels.namespace }} burns its availability budget >= 14.4x (1h and 5m)"
+            runbook: "Same as DemoApiHighErrorRate; at this pace the 30-day budget is gone in about 2 days."
+        - alert: DemoApiAvailabilitySlowBurn
+          expr: demo_api:sli_errors:ratio_rate6h > (6 * 0.005) and demo_api:sli_errors:ratio_rate30m > (6 * 0.005)
+          for: 15m
+          labels: {severity: ticket, slo: availability}
+          annotations:
+            summary: "demo-api in {{ $labels.namespace }} burns its availability budget >= 6x (6h and 30m)"
+        - alert: DemoApiLatencyFastBurn
+          expr: demo_api:sli_slow:ratio_rate1h > (14.4 * 0.01) and demo_api:sli_slow:ratio_rate5m > (14.4 * 0.01)
+          for: 2m
+          labels: {severity: page, slo: latency}
+          annotations:
+            summary: "demo-api in {{ $labels.namespace }}: >= 14.4 % of requests slower than 0.5 s (1h and 5m)"
+        - alert: DemoApiLatencySlowBurn
+          expr: demo_api:sli_slow:ratio_rate6h > (6 * 0.01) and demo_api:sli_slow:ratio_rate30m > (6 * 0.01)
+          for: 15m
+          labels: {severity: ticket, slo: latency}
+          annotations:
+            summary: "demo-api in {{ $labels.namespace }}: >= 6 % of requests slower than 0.5 s (6h and 30m)"

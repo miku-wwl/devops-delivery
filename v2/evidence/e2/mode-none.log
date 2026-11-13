@@ -1,0 +1,53 @@
+# transcript: E2: no mesh (kube-proxy L4), 20 it/s for 3 minutes
+# recorded: 2026-11-07T07:21:36Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e2/measure-mode.sh none
+mode=none target=http://172.20.0.8:8080 start=2026-11-07T07:21:36Z
+--- connections at t=120s
+server pod (port 8080)         client                                   established
+catalog-7f9b4d4c77-ntmqr       orders-6b8b5f4579-z9ctm                  1
+catalog-7f9b4d4c77-trxzq       gateway-5476f9c8fb-rh4wf                 1
+catalog-7f9b4d4c77-trxzq       orders-6b8b5f4579-zq89c                  1
+catalog-7f9b4d4c77-trxzq       orders-6b8b5f4579-z9ctm                  1
+catalog-7f9b4d4c77-trxzq       gateway-5476f9c8fb-xhv76                 1
+gateway-5476f9c8fb-rh4wf       10.240.1.1                               11
+gateway-5476f9c8fb-xhv76       10.240.3.1                               6
+inventory-5ff4675997-c9rz5     orders-6b8b5f4579-zq89c                  1
+inventory-5ff4675997-c9rz5     orders-6b8b5f4579-z9ctm                  1
+orders-6b8b5f4579-z9ctm        gateway-5476f9c8fb-rh4wf                 1
+orders-6b8b5f4579-z9ctm        gateway-5476f9c8fb-xhv76                 3
+orders-6b8b5f4579-zq89c        gateway-5476f9c8fb-rh4wf                 1
+payments-569c98ff59-4kbv5      orders-6b8b5f4579-z9ctm                  2
+payments-569c98ff59-94k6l      orders-6b8b5f4579-zq89c                  1
+--- k6
+rate=20/s duration=3m iterations=3601 dropped=0
+requests=6124 (35.8/s) failed=0.00%
+browse: p50=10.8 p95=19.2 p99=31.6 max=378.5 ms
+order:  p50=106.0 p95=225.0 p99=342.6 max=541.4 ms
+checks: 100.00% passed
+--- request share per replica over the run
+service    pod                            requests   share
+catalog    catalog-7f9b4d4c77-ntmqr            847   14.4%
+catalog    catalog-7f9b4d4c77-trxzq           5046   85.6%
+gateway    gateway-5476f9c8fb-rh4wf           3180   53.5%
+gateway    gateway-5476f9c8fb-xhv76           2767   46.5%
+inventory  inventory-5ff4675997-c9rz5          882   97.1%
+inventory  inventory-5ff4675997-cw4t8           26    2.9%
+orders     orders-6b8b5f4579-z9ctm             869   87.4%
+orders     orders-6b8b5f4579-zq89c             125   12.6%
+payments   payments-569c98ff59-4kbv5           736   86.7%
+payments   payments-569c98ff59-94k6l           113   13.3%
+--- resources
+catalog-7f9b4d4c77-ntmqr     17m    61Mi   
+catalog-7f9b4d4c77-trxzq     85m    65Mi   
+gateway-5476f9c8fb-rh4wf     146m   76Mi   
+gateway-5476f9c8fb-xhv76     104m   89Mi   
+inventory-5ff4675997-c9rz5   33m    61Mi   
+inventory-5ff4675997-cw4t8   12m    58Mi   
+notifier-5f4d566b9f-pmgh8    24m    65Mi   
+orders-6b8b5f4579-z9ctm      83m    68Mi   
+orders-6b8b5f4579-zq89c      43m    67Mi   
+payments-569c98ff59-4kbv5    15m    83Mi   
+payments-569c98ff59-94k6l    13m    63Mi   
+end=2026-11-07T07:24:48Z
+

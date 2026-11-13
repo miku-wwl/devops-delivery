@@ -1,0 +1,44 @@
+# Values for one storefront service. Environment files (envs/<env>/storefront/) override them.
+service: ""                    # gateway | catalog | inventory | payments | orders | notifier
+app: ""                        # E8: the code to run (storefront.<app>); empty = service. A canary release
+                               # "gateway-canary" runs app "gateway" (chapter 9)
+image:
+  repository: localhost:5001/storefront
+  tag: ""                      # required; the git commit of v2/apps/storefront that was built
+  pullPolicy: IfNotPresent
+replicas: 2                    # ignored when autoscaling.enabled: the HPA owns the replica count
+# HorizontalPodAutoscaler (E4, chapter 5). When enabled the Deployment has no "replicas" field,
+# otherwise every sync would reset what the HPA decided (Argo CD self-heal).
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 6
+  cpuAverageUtilization: 100   # percent of the CPU request, averaged over the pods
+  behavior: {}                 # autoscaling/v2 behavior; empty = Kubernetes defaults
+# KEDA ScaledObject (E4): scale on an event source (a queue backlog) instead of CPU. KEDA creates
+# and drives an HPA named keda-hpa-<service>; the Deployment then has no "replicas" field either.
+keda:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  pollingInterval: 10          # seconds between two reads of the event source (KEDA default 30)
+  cooldownPeriod: 300          # only used for scaling to zero
+  triggers: []
+resilienceMode: resilient      # resilient | naive (E6 baseline)
+migrations: false              # run "storefront.common.db migrate <service>" as an init container
+env: {}                        # plain variables, NAME: value
+secretEnv: {}                  # NAME: {secret: <name>, key: <key>}
+resources:
+  requests: {cpu: 50m, memory: 96Mi}
+  limits: {memory: 256Mi}
+otelEndpoint: http://otel-collector.observability.svc:4318
+# share of traces kept, decided once at the edge and followed downstream (parent-based)
+tracesSampleRatio: "1.0"
+loadBalancer: false            # expose with a LoadBalancer Service (only the gateway, until E2)
+podDisruptionBudget:
+  minAvailable: 1
+terminationGracePeriodSeconds: 30
+preStopSleepSeconds: 5         # let endpoint removal propagate before the process stops
+uvicornArgs: ["--loop", "uvloop", "--http", "httptools", "--no-access-log",
+              "--timeout-graceful-shutdown", "20"]
+podAnnotations: {}

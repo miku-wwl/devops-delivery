@@ -1,0 +1,22 @@
+== 22:28:54 before the loss
+  ent-control-plane Ready
+  ent-worker Ready
+  ent-worker2 Ready
+  ent-worker3 Ready
+  applications: 34, not Synced/Healthy: 0
+  pods: 102
+ERROR:  column ", newest " does not exist
+LINE 1: select count(*) || ", newest " || max(created_at) from order...
+                           ^
+command terminated with exit code 1
+  orders: 
+  outbox not yet published: 0
+  JetStream: {"streams":1,"consumers":1,"messages":204770}
+  base backups: pg-main-nightly-20261109141517=completed 
+  OpenBao snapshots: openbao-snapshot-29904377=Complete openbao-snapshot-pre-r1=Complete 
+  secret insight/api-key sha256 prefix: 1251145cb0ed8b54
+conn 1794263339.442 10.240.1.130/32 False
+start r1 rate=50.0 deadline=2.0
+ok 1 1794263339.451 43.2
+  drill writer started (run r1)
+  orders (22:29:14, query fixed): 211935, newest 2026-11-09 15:18:14.990849+00

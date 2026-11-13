@@ -1,0 +1,9 @@
+# transcript: E2: every order that failed on payments, and what payments recorded
+# recorded: 2026-11-07T07:57:45Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl -n data exec pg-main-3 -c postgres -- psql -d orders -tA -F " " -c "SELECT id, failure_reason, created_at FROM orders WHERE status = (chr(70)||chr(65)||chr(73)||chr(76)||chr(69)||chr(68)) ORDER BY created_at" > /tmp/failed.txt; cat /tmp/failed.txt
+5be7495e-5461-47d2-9f36-71e8f7a79ce2 payments HTTP 409 2026-11-07 07:40:23.721699+00
+
+$ for id in $(cut -d" " -f1 /tmp/failed.txt); do echo "$id payments=$(kubectl -n storefront exec deploy/payments -c app -- python -c "import urllib.request,json,sys; print(json.load(urllib.request.urlopen(sys.argv[1]))[chr(115)+chr(116)+chr(97)+chr(116)+chr(117)+chr(115)])" "http://localhost:8080/charges/$id" 2>/dev/null || echo none)"; done
+5be7495e-5461-47d2-9f36-71e8f7a79ce2 payments=approved
+

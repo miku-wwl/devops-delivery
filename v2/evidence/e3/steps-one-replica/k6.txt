@@ -1,0 +1,15 @@
+time="2026-11-08T02:42:42+13:00" level=warning msg="Request Failed" error="Get \"http://172.20.0.8:8080/api/products?limit=20\": read tcp 172.20.0.1:45355->172.20.0.8:8080: read: connection reset by peer"
+time="2026-11-08T02:43:21+13:00" level=warning msg="Request Failed" error="Get \"http://172.20.0.8:8080/api/products?limit=20\": request timeout"
+time="2026-11-08T02:43:30+13:00" level=warning msg="Request Failed" error="Get \"http://172.20.0.8:8080/api/products?limit=20\": read tcp 172.20.0.1:45999->172.20.0.8:8080: read: connection reset by peer"
+[1 more 'Request Failed' warnings collapsed; all 4 by error: 2 read tcp ADDR->ADDR: read: connection reset by peer, 2 request timeout]
+stages=40,60,80,100,120 it/s, 120 s each (ramp 10 s, warm-up 30 s) iterations=51798 dropped=0
+requests=88073 (136.2/s) failed=6.78%
+browse: p50=14.1 p95=553.7 p99=1293.9 max=57612.9 ms
+order:  p50=126.6 p95=365.4 p99=1075.7 max=57836.1 ms
+checks: 93.22% passed
+stage 40: achieved 40.0 it/s, requests=8124 failed=0.04% | browse p50=12.4 p95=24.3 p99=46.2 max=57612.9 ms | order p50=112.5 p95=231.4 p99=361.5 max=1711.2 ms
+stage 60: achieved 60.0 it/s, requests=12226 failed=0.00% | browse p50=11.5 p95=21.3 p99=33.8 max=97.5 ms | order p50=112.4 p95=223.3 p99=358.5 max=841.2 ms
+stage 80: achieved 80.0 it/s, requests=16302 failed=0.00% | browse p50=11.6 p95=22.7 p99=36.8 max=157.9 ms | order p50=108.4 p95=221.5 p99=334.7 max=595.3 ms
+stage 100: achieved 100.0 it/s, requests=20444 failed=0.00% | browse p50=14.3 p95=41.0 p99=134.0 max=669.9 ms | order p50=116.5 p95=228.8 p99=338.8 max=588.4 ms
+stage 120: achieved 120.0 it/s, requests=24504 failed=24.36% | browse p50=107.1 p95=1135.4 p99=1956.0 max=6618.5 ms | order p50=198.6 p95=805.4 p99=1869.5 max=4858.9 ms
+time="2026-11-08T02:52:31+13:00" level=error msg="thresholds on metrics 'http_req_duration{kind:browse}, http_req_failed{kind:browse}' have been crossed"

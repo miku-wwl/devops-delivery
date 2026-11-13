@@ -1,0 +1,37 @@
+# E5: the tenants' namespaces, RBAC and guard rails - owned by the platform team. Wave -2, before
+# the workloads. Pruning removes RBAC objects deleted from Git; the namespaces carry Delete=false.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tenants
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-2"}
+spec:
+  project: platform
+  source:
+    repoURL: http://gitlab:8929/root/platform-gitops.git
+    targetRevision: main
+    path: platform/manifests/tenants
+  destination: {server: "https://kubernetes.default.svc"}
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    # the SecretStores need the External Secrets CRDs, installed in the same rollout (wave -3)
+    syncOptions: [SkipDryRunOnMissingResource=true]
+    retry: {limit: 10, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}
+---
+# Team insight's workloads, through the restricted project "insight" (00-projects.yaml).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: insight
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "0"}
+spec:
+  project: insight
+  source:
+    repoURL: http://gitlab:8929/root/platform-gitops.git
+    targetRevision: main
+    path: tenants/insight
+  destination: {server: "https://kubernetes.default.svc", namespace: insight}
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}

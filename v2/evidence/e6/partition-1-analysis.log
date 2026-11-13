@@ -1,0 +1,19 @@
+# transcript: E6 partition-1: which waypoint did the calls from zone-c use during the partition (ztunnel access log on ent-worker3)
+# recorded: 2026-11-09T13:13:08Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl -n storefront get pods -l gateway.networking.k8s.io/gateway-name=waypoint -o custom-columns=POD:.metadata.name,IP:.status.podIP,NODE:.spec.nodeName --no-headers
+waypoint-cfd6dc8fb-hvb2g   10.240.2.115   ent-worker2
+waypoint-cfd6dc8fb-qs7hx   10.240.1.116   ent-worker
+
+$ zt=$(kubectl -n istio-system get pods -l app=ztunnel --field-selector spec.nodeName=ent-worker3 -o jsonpath='{.items[0].metadata.name}'); kubectl -n istio-system logs "$zt" --since-time=2026-11-09T13:04:22Z | awk '$1 >= "2026-11-09T13:04:22" && $1 <= "2026-11-09T13:09:11"' | grep -o -E 'dst.workload="waypoint-[a-z0-9-]+"|error="[^"]{0,90}' | sort | uniq -c | sort -rn | head -8
+    106 dst.workload="waypoint-cfd6dc8fb-hvb2g"
+     91 dst.workload="waypoint-cfd6dc8fb-qs7hx"
+     68 error="connection timed out, maybe a NetworkPolicy is blocking HBONE port 15008: deadline has ela
+     16 error="h2 failed: stream closed because of a broken pipe
+
+$ kubectl -n storefront get svc waypoint -o jsonpath='waypoint service: trafficDistribution={.spec.trafficDistribution} internalTrafficPolicy={.spec.internalTrafficPolicy}{"\n"}'
+waypoint service: trafficDistribution= internalTrafficPolicy=Cluster
+
+$ kubectl -n storefront get svc gateway -o jsonpath='gateway service: externalTrafficPolicy={.spec.externalTrafficPolicy}{"\n"}'
+gateway service: externalTrafficPolicy=Cluster
+

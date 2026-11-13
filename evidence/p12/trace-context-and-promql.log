@@ -1,0 +1,53 @@
+# transcript: P12: W3C trace context across a service boundary, and how increase() extrapolates
+# recorded: 2026-11-06T19:15:59Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# W3C trace context: send requests that carry a traceparent header, as an upstream service would
+$ kubectl -n dev port-forward svc/demo-api-dev 18091:80 > /tmp/pf4.log 2>&1 & PF=$!; sleep 3; cat /tmp/pf4.log
+Forwarding from 127.0.0.1:18091 -> 8080
+Forwarding from [::1]:18091 -> 8080
+
+$ TID=$(openssl rand -hex 16); SID=$(openssl rand -hex 8); echo "traceparent: 00-$TID-$SID-01   (version-traceid-parentid-flags; 01 = the caller sampled this trace)"
+traceparent: 00-ef9be21ebec2afabd097b853eb6f73e5-b993381fd6b5fba6-01   (version-traceid-parentid-flags; 01 = the caller sampled this trace)
+
+$ curl -s -o /dev/null -w "HTTP %{http_code}\n" -H "traceparent: 00-$TID-$SID-01" -H "X-Request-ID: p12-tp-sampled" http://127.0.0.1:18091/api/v1/info
+HTTP 200
+
+$ TID2=$(openssl rand -hex 16); SID2=$(openssl rand -hex 8); echo "traceparent: 00-$TID2-$SID2-00   (00 = the caller decided not to sample)"
+traceparent: 00-b22367769a6ff7e4228070bc2c40b97b-21f878315199881c-00   (00 = the caller decided not to sample)
+
+$ curl -s -o /dev/null -w "HTTP %{http_code}\n" -H "traceparent: 00-$TID2-$SID2-00" -H "X-Request-ID: p12-tp-unsampled" http://127.0.0.1:18091/api/v1/info
+HTTP 200
+
+$ kill $PF; sleep 45
+
+$ G=http://127.0.0.1:3001/api/datasources/proxy/uid
+
+# Sampled: the server span joined the caller's trace and names the caller's span as its parent (Tempo returns IDs in base64)
+$ curl -s "$G/tempo/api/traces/$TID" | jq -r '[.batches[].scopeSpans[].spans[]] | .[] | select(.kind=="SPAN_KIND_SERVER") | .name, .traceId, .parentSpanId' > /tmp/s.txt; echo "server span: $(sed -n 1p /tmp/s.txt)"; echo "  traceId      = $(sed -n 2p /tmp/s.txt | base64 -d | od -An -tx1 | tr -d ' \n')"; echo "  parentSpanId = $(sed -n 3p /tmp/s.txt | base64 -d | od -An -tx1 | tr -d ' \n')"
+server span: GET /api/v1/info
+  traceId      = ef9be21ebec2afabd097b853eb6f73e5
+  parentSpanId = b993381fd6b5fba6
+
+# Not sampled: nothing was exported to Tempo, yet the trace id travelled with the request and is in the logs
+$ curl -s -o /dev/null -w "Tempo lookup of $TID2: HTTP %{http_code}\n" "$G/tempo/api/traces/$TID2"
+Tempo lookup of b22367769a6ff7e4228070bc2c40b97b: HTTP 404
+
+$ P=$(kubectl -n dev get pods -l app.kubernetes.io/name=demo-api -o jsonpath='{.items[0].metadata.name}'); kubectl -n dev logs $P --since=3m --tail=-1 | grep '"request_id": "p12-tp-' | jq -c '{request_id, trace_id, span_id}'
+{"request_id":"p12-tp-sampled","trace_id":"ef9be21ebec2afabd097b853eb6f73e5","span_id":"52671ada4a780c95"}
+{"request_id":"p12-tp-unsampled","trace_id":"b22367769a6ff7e4228070bc2c40b97b","span_id":"1f95f1f4f64e21fe"}
+
+# PromQL: increase() extrapolates to the edges of the window, so a counter of whole requests can return a fraction. All queries at one fixed time:
+$ Q=http://127.0.0.1:9090/api/v1/query; NOW=$(date +%s); S='http_requests_total{namespace="dev", route="/api/v1/info", status="200"}'
+
+$ curl -s $Q --data-urlencode "time=$NOW" --data-urlencode "query=$S[1m]" | jq -r '.data.result[] | "raw samples in the last 1m (scrape interval 15s): " + ([.values[] | "\(.[0] | todate[11:19])=\(.[1])"] | join("  "))'
+raw samples in the last 1m (scrape interval 15s): 19:15:53=39621  19:16:08=39640  19:16:23=39662  19:16:38=39679
+
+$ curl -s $Q --data-urlencode "time=$NOW" --data-urlencode "query=$S - $S offset 1m" | jq -r '.data.result[] | "value now - value 1m ago   = \(.value[1])"'
+value now - value 1m ago   = 72
+
+$ curl -s $Q --data-urlencode "time=$NOW" --data-urlencode "query=increase($S[1m])" | jq -r '.data.result[] | "increase(...[1m])          = \(.value[1])"'
+increase(...[1m])          = 77.33333333333333
+
+$ curl -s $Q --data-urlencode "time=$NOW" --data-urlencode "query=rate($S[1m]) * 60" | jq -r '.data.result[] | "rate(...[1m]) * 60         = \(.value[1])"'
+rate(...[1m]) * 60         = 77.33333333333333
+

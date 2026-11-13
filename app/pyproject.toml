@@ -1,0 +1,33 @@
+[project]
+name = "demo-api"
+version = "0.1.0"
+description = "Reference workload for the devops-delivery training repository (a teaching service, not business software)."
+requires-python = ">=3.12"
+# Runtime and dev dependencies are pinned in requirements*.txt (compiled with uv),
+# which keeps Docker layer caching and CI dependency caching simple.
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra"
+
+[tool.coverage.run]
+source = ["demo_api"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+skip_covered = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+# E/W pycodestyle, F pyflakes, I isort, B bugbear, UP pyupgrade, S bandit (security)
+select = ["E", "W", "F", "I", "B", "UP", "S"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]  # plain assert is how pytest works

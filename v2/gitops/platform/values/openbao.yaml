@@ -1,0 +1,55 @@
+# openbao 0.30.7 = OpenBao v2.7.2 (released 2026-10-26), E5 / chapter 6. One server with integrated
+# storage (raft, one node) on a volume - the first try used "file", which OpenBao 2 no longer has
+# ("unknown storage type file"). Initialised and unsealed by platform/secrets/openbao-init.sh (one
+# key share, kept in ~/.lab-secrets/v2/openbao - production: several shares, or auto-unseal with a
+# KMS). After every restart the server is sealed until someone unseals it. No TLS on the listener:
+# the namespace is in the ambient mesh (mTLS by ztunnel) and only the External Secrets namespace
+# may connect.
+injector: {enabled: false}
+# E9 (chapter 10): metrics for the alert "OpenBao is sealed" (platform/manifests/alerts/). Only the
+# metrics are unauthenticated; the NetworkPolicy allow-prometheus-metrics lets the namespace
+# monitoring reach port 8200. A config change needs a restart (the chart's update strategy is
+# OnDelete), and every restart seals the server.
+serverTelemetry:
+  serviceMonitor: {enabled: true, interval: 30s}
+ui: {enabled: false}
+server:
+  priorityClassName: platform-critical   # E7: pinned to its volume (chapter 7, incident 2)
+  # E7 (chapter 8, rebuild R1): Ready means "the server runs", sealed or not. With the chart's default
+  # probe a new OpenBao is never Ready before someone initialises and unseals it, Argo CD reports it
+  # Progressing, and the root application starts no later sync wave - PostgreSQL could not even begin
+  # its restore (evidence/e7/r1/intervention-2.log). Clients of a sealed server get 503 "sealed".
+  readinessProbe:
+    path: "/v1/sys/health?standbyok=true&sealedcode=204&uninitcode=204"
+  resources: {requests: {cpu: 50m, memory: 96Mi}, limits: {memory: 256Mi}}
+  authDelegator: {enabled: true}   # TokenReview for the Kubernetes auth method
+  dataStorage: {enabled: true, size: 1Gi}
+  auditStorage: {enabled: false}   # the audit device writes to stdout (kubectl logs)
+  standalone:
+    enabled: true
+    config: |
+      ui = false
+      listener "tcp" {
+        address = "[::]:8200"
+        cluster_address = "[::]:8201"
+        tls_disable = 1
+        telemetry {
+          unauthenticated_metrics_access = true   # E9: Prometheus reads /v1/sys/metrics without a token
+        }
+      }
+      telemetry {
+        prometheus_retention_time = "60s"
+        disable_hostname = true
+      }
+      storage "raft" {
+        path = "/openbao/data"
+      }
+      cluster_addr = "http://POD_IP:8201"
+      # OpenBao 2.7 refuses to enable audit devices through the API (an attacker with a token
+      # could redirect the audit trail); they are declared here. stdout: kubectl logs.
+      audit "file" "stdout" {
+        description = "every request and response, secret values HMAC-ed"
+        options {
+          file_path = "stdout"
+        }
+      }

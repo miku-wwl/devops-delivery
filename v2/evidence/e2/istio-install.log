@@ -1,0 +1,61 @@
+# transcript: E2: install Istio ambient from Git
+# recorded: 2026-11-07T07:30:42Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# 07:27 UTC: the first publish attempt was refused by GitLab with HTTP 403 (cause not found);
+# 07:28 UTC: retried successfully (configuration commit 5acc9e8).
+# 07:28:46-07:30:23 UTC: gateway-api-crds stayed "Progressing (caused by CRD referencegrants)"
+# although every CRD was Established; an explicit refresh turned it Healthy in 10 s.
+$ bash v2/platform/bootstrap/wait-apps.sh 900
+t+   0s  17/20 Synced+Healthy; not yet: istio-cni=Synced/Progressing istiod=Synced/Progressing platform-root=OutOfSync/Progressing 
+t+  42s  20/21 Synced+Healthy; not yet: ztunnel=Synced/Progressing 
+t+  45s  19/21 Synced+Healthy; not yet: platform-root=Synced/Progressing ztunnel=Synced/Progressing 
+t+ 102s  21/21 Synced+Healthy; not yet: 
+all 21 applications Synced and Healthy after 102s
+
+$ kubectl -n argocd get applications -o custom-columns=NAME:.metadata.name,WAVE:.metadata.annotations.argocd\.argoproj\.io/sync-wave,SYNC:.status.sync.status,HEALTH:.status.health.status | sort -k2 -n | head -8
+NAME                        WAVE     SYNC     HEALTH
+cnpg-operator               <none>   Synced   Healthy
+dashboards                  <none>   Synced   Healthy
+gateway-api-crds            <none>   Synced   Healthy
+istio-base                  <none>   Synced   Healthy
+istio-cni                   <none>   Synced   Healthy
+istiod                      <none>   Synced   Healthy
+loki                        <none>   Synced   Healthy
+
+$ kubectl -n istio-system get pods -o wide | awk "{print \$1, \$2, \$3, \$7}"
+NAME READY STATUS NODE
+istio-cni-node-djwqf 1/1 Running ent-worker
+istio-cni-node-tz2zj 1/1 Running ent-worker2
+istio-cni-node-vxhq7 1/1 Running ent-control-plane
+istio-cni-node-wr8w9 1/1 Running ent-worker3
+istiod-94db8467c-7rn9f 1/1 Running ent-worker3
+ztunnel-2gc4b 1/1 Running ent-worker3
+ztunnel-6r97l 1/1 Running ent-worker
+ztunnel-lb62h 1/1 Running ent-control-plane
+ztunnel-zd5ms 1/1 Running ent-worker2
+
+$ kubectl get crd | grep -cE "istio.io|gateway.networking"
+28
+
+$ kubectl get gatewayclass
+NAME             CONTROLLER                    ACCEPTED   AGE
+istio            istio.io/gateway-controller   True       65s
+istio-remote     istio.io/unmanaged-gateway    True       65s
+istio-waypoint   istio.io/mesh-controller      True       65s
+
+$ sleep 60
+
+$ kubectl top pods -n istio-system --no-headers | sort
+istio-cni-node-djwqf     1m    15Mi   
+istio-cni-node-tz2zj     2m    15Mi   
+istio-cni-node-vxhq7     1m    17Mi   
+istio-cni-node-wr8w9     2m    17Mi   
+istiod-94db8467c-7rn9f   4m    49Mi   
+ztunnel-2gc4b            1m    4Mi    
+ztunnel-6r97l            1m    4Mi    
+ztunnel-lb62h            1m    4Mi    
+ztunnel-zd5ms            1m    4Mi    
+
+$ free -m | sed -n 2p
+Mem:           15642        9508         325         424        6474        6133
+

@@ -1,0 +1,47 @@
+# transcript: V1: skipped volumes, kinds and Secrets in the backup
+# recorded: 2026-11-09T15:31:10Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# V1 supplement: the backup's own summary of skipped volumes, and whether Secrets are in it
+$ V=$(kubectl -n velero get pods -o name | grep -m1 '^pod/velero-'); kubectl -n velero exec $V -c velero -- /velero backup logs v1-coverage | grep -o 'Summary for skipped PVs: .*' | sed 's/\\"/"/g' | grep -o '\[{.*}\]' | jq -r '.[] | "\(.name): \([.reasons[] | "\(.approach): \(.reason)"] | join("; "))"'
+pvc-08d3a4a8-595d-4e05-855a-d5bad6eaadb1: volumeSnapshot: not satisfy the criteria for VolumePolicy or the legacy snapshot way
+pvc-3db8e540-964a-4209-8d63-ca595124c841: volumeSnapshot: not satisfy the criteria for VolumePolicy or the legacy snapshot way
+pvc-45fad4c3-56aa-41a2-b5f9-298719ac4aca: volumeSnapshot: not satisfy the criteria for VolumePolicy or the legacy snapshot way
+pvc-4d2d6462-61a3-416a-b56a-a1ad4983b906: volumeSnapshot: not satisfy the criteria for VolumePolicy or the legacy snapshot way
+pvc-56319752-75c3-4acd-beaf-b60141544b51: volumeSnapshot: not satisfy the criteria for VolumePolicy or the legacy snapshot way
+pvc-6dcf7188-40ba-4924-ab63-0c01d849d807: volumeSnapshot: not satisfy the criteria for VolumePolicy or the legacy snapshot way
+pvc-8e4abf9d-c66f-4c5b-bf52-0764595a2f7f: volumeSnapshot: not satisfy the criteria for VolumePolicy or the legacy snapshot way
+pvc-a8698dc6-89ce-40f7-87e4-37251b3de149: volumeSnapshot: not satisfy the criteria for VolumePolicy or the legacy snapshot way
+pvc-c4e06ad4-fd4f-4e10-a9f6-373f2520c5cd: volumeSnapshot: not satisfy the criteria for VolumePolicy or the legacy snapshot way
+pvc-c66aecb0-1bfb-4418-817f-2caed69a655d: volumeSnapshot: not satisfy the criteria for VolumePolicy or the legacy snapshot way
+pvc-e0789447-ac0d-4547-9625-9b08bcbf03f4: volumeSnapshot: not satisfy the criteria for VolumePolicy or the legacy snapshot way
+
+$ kubectl -n velero exec $V -c velero -- /velero backup describe v1-coverage --details | sed -n '/^Resource List:/,/^Backup Volumes:/p' | grep -E '^  [a-z0-9./]+/[A-Za-z]+:$' | tr -d ' :' | tr '\n' ' '; echo
+apiextensions.k8s.io/v1/CustomResourceDefinition apps/v1/ControllerRevision apps/v1/DaemonSet apps/v1/Deployment apps/v1/ReplicaSet apps/v1/StatefulSet barmancloud.cnpg.io/v1/ObjectStore batch/v1/CronJob batch/v1/Job coordination.k8s.io/v1/Lease discovery.k8s.io/v1/EndpointSlice monitoring.coreos.com/v1/Alertmanager monitoring.coreos.com/v1/PodMonitor monitoring.coreos.com/v1/Prometheus monitoring.coreos.com/v1/PrometheusRule monitoring.coreos.com/v1/ServiceMonitor networking.k8s.io/v1/NetworkPolicy policy/v1/PodDisruptionBudget postgresql.cnpg.io/v1/Backup postgresql.cnpg.io/v1/Cluster postgresql.cnpg.io/v1/Database postgresql.cnpg.io/v1/ScheduledBackup rbac.authorization.k8s.io/v1/ClusterRole rbac.authorization.k8s.io/v1/ClusterRoleBinding rbac.authorization.k8s.io/v1/Role rbac.authorization.k8s.io/v1/RoleBinding scheduling.k8s.io/v1/PriorityClass v1/ConfigMap v1/Endpoints v1/Event v1/Namespace v1/PersistentVolume v1/PersistentVolumeClaim v1/Pod v1/Secret v1/Service v1/ServiceAccount 
+
+$ kubectl -n velero exec $V -c velero -- /velero backup describe v1-coverage --details | sed -n '/^  v1\/Secret:/,/^  [a-z]/p' | grep -c '    - '
+22
+
+$ kubectl -n velero exec $V -c velero -- /velero backup describe v1-coverage --details | sed -n '/^Backup Volumes:/,$p' | head -30
+Backup Volumes:
+  Velero-Native Snapshots: <none included>
+
+  CSI Snapshots: <none included>
+
+  Pod Volume Backups - kopia:
+    Completed:
+      data/nats-0: pid (size: 1, incremental size: 1)
+      data/nats-1: pid (size: 1, incremental size: 1)
+      data/nats-2: pid (size: 1, incremental size: 1)
+      data/pg-main-1: plugins, scratch-data (size: 65752406, incremental size: 65752406), shm (size: 1103152, incremental size: 1103152)
+      data/pg-main-2: plugins, scratch-data (size: 99306838, incremental size: 99306838), shm (size: 1103152, incremental size: 1103152)
+      data/pg-main-3: plugins, scratch-data (size: 65752406, incremental size: 65752406), shm (size: 1103152, incremental size: 1103152)
+      monitoring/alertmanager-kps-alertmanager-0: alertmanager-kps-alertmanager-db, config-out (size: 710, incremental size: 710)
+      monitoring/kps-grafana-676885f46d-9vmhz: sc-dashboard-volume (size: 414534, incremental size: 414534), sc-datasources-volume (size: 1022, incremental size: 1022), search (size: 215807, incremental size: 215807), storage (size: 55030695, incremental size: 55030695), tmp
+      monitoring/prometheus-kps-prometheus-0: config-out (size: 95057, incremental size: 95057)
+      observability/loki-0: tmp
+      observability/tempo-0: tmp (size: 2486566, incremental size: 2486566)
+      secrets/openbao-0: home
+
+HooksAttempted:  0
+HooksFailed:     0
+

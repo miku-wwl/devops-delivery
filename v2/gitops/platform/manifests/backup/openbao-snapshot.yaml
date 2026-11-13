@@ -1,0 +1,79 @@
+# E7 (chapter 8): hourly raft snapshot of OpenBao to the bucket platform-snapshots on the object
+# store outside the cluster. A raft snapshot is consistent (a file copy of a running raft store is
+# not), and it is what a rebuilt cluster's OpenBao is restored from (platform/secrets/openbao-restore.sh).
+# The job logs in with its service account (Kubernetes auth, role raft-snapshot: read on
+# sys/storage/raft/snapshot only - platform/secrets/openbao-init.sh) and keeps the token in the
+# container's environment, never on a command line. The upload uses the PostgreSQL image (Python 3
+# and boto3 for barman-cloud), already on every worker.
+# A snapshot is encrypted with OpenBao's barrier key: without the unseal key (kept outside the
+# cluster, ~/.lab-secrets/v2/openbao) it cannot be read - and it cannot be restored either.
+apiVersion: v1
+kind: ServiceAccount
+metadata: {name: openbao-snapshot, namespace: secrets}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: allow-openbao-snapshot, namespace: secrets}
+spec:
+  podSelector: {matchLabels: {app.kubernetes.io/name: openbao}}
+  policyTypes: [Ingress]
+  ingress:
+    - from: [{podSelector: {matchLabels: {app.kubernetes.io/name: openbao-snapshot}}}]
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata: {name: openbao-snapshot, namespace: secrets}
+spec:
+  schedule: "17 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 300
+      template:
+        metadata:
+          labels: {app.kubernetes.io/name: openbao-snapshot}
+        spec:
+          serviceAccountName: openbao-snapshot
+          restartPolicy: Never
+          securityContext: {runAsNonRoot: true, seccompProfile: {type: RuntimeDefault}}
+          initContainers:
+            - name: snapshot
+              image: quay.io/openbao/openbao:2.7.2
+              securityContext: {runAsUser: 100, allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}}
+              env:
+                - {name: BAO_ADDR, value: "http://openbao.secrets.svc:8200"}
+                - {name: HOME, value: /tmp}
+              command:
+                - sh
+                - -ec
+                - |
+                  BAO_TOKEN=$(bao write -field=token auth/kubernetes/login role=raft-snapshot \
+                    jwt=@/var/run/secrets/kubernetes.io/serviceaccount/token)
+                  export BAO_TOKEN
+                  bao operator raft snapshot save /backup/openbao.snap
+                  ls -l /backup/openbao.snap
+              resources: {requests: {cpu: 10m, memory: 32Mi}, limits: {memory: 128Mi}}
+              volumeMounts: [{name: backup, mountPath: /backup}, {name: tmp, mountPath: /tmp}]
+          containers:
+            - name: upload
+              image: ghcr.io/cloudnative-pg/postgresql:18.6-system-trixie
+              # the same user as the snapshot step: bao writes the snapshot with mode 600
+              securityContext: {runAsUser: 100, allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}}
+              envFrom: [{secretRef: {name: platform-snapshot-s3}}]
+              command:
+                - python3
+                - -c
+                - |
+                  import datetime, os, boto3
+                  key = "openbao/" + datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ") + ".snap"
+                  s3 = boto3.client("s3", endpoint_url="http://backup-s3:3900", region_name="garage")
+                  s3.upload_file("/backup/openbao.snap", "platform-snapshots", key)
+                  print("uploaded", key, os.path.getsize("/backup/openbao.snap"), "bytes")
+              resources: {requests: {cpu: 10m, memory: 48Mi}, limits: {memory: 128Mi}}
+              volumeMounts: [{name: backup, mountPath: /backup}]
+          volumes:
+            - {name: backup, emptyDir: {sizeLimit: 64Mi}}
+            - {name: tmp, emptyDir: {sizeLimit: 16Mi}}

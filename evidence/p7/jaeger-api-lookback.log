@@ -1,0 +1,33 @@
+# transcript: P7 why the recovery count was misleading: Jaeger v2.19.0 trace-search API ignores 'lookback'
+# recorded: 2026-11-06T04:32:26Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ SRC=https://raw.githubusercontent.com/jaegertracing/jaeger/v2.19.0/cmd/jaeger/internal/extension/jaegerquery/internal
+
+# the trace-search API reads start/end (unix microseconds); without start it goes back traceQueryLookbackDuration
+$ curl -s "$SRC/query_parser.go" | sed -n '277,290p'
+func (p *queryParser) parseTime(r *http.Request, paramName string, units time.Duration) (time.Time, error) {
+	formValue := r.URL.Query().Get(paramName)
+	if formValue == "" {
+		if paramName == startTimeParam {
+			return p.timeNow().Add(-1 * p.traceQueryLookbackDuration), nil
+		}
+		return p.timeNow(), nil
+	}
+	t, err := strconv.ParseInt(formValue, 10, 64)
+	if err != nil {
+		return time.Time{}, newParseError(err, paramName)
+	}
+	return time.Unix(0, 0).Add(time.Duration(t) * units), nil
+}
+
+# 'lookback' is parsed only for the dependencies (line ~195) and metrics (line ~256) endpoints, never for /api/traces
+$ curl -s "$SRC/query_parser.go" | grep -n 'lookbackParam'
+195:	dqp.lookback, err = parseDuration(r, lookbackParam, newDurationUnitsParser(time.Millisecond), defaultDependencyLookbackDuration)
+256:	lookback, err := parseDuration(r, lookbackParam, parser, defaultMetricsQueryLookbackDuration)
+
+$ curl -s "$SRC/default_params.go" | grep -n 'defaultTraceQueryLookbackDuration'
+16:	defaultTraceQueryLookbackDuration   = time.Hour * 24 * 2
+
+$ curl -s "$SRC/http_handler.go" | grep -n 'traceQueryLookbackDuration'
+86:			traceQueryLookbackDuration: defaultTraceQueryLookbackDuration,
+

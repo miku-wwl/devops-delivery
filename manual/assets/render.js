@@ -25,8 +25,14 @@
       theme: 'neutral',
       securityLevel: 'strict',
       fontFamily: '"Microsoft YaHei", "Noto Sans SC", sans-serif',
-      flowchart: { curve: 'basis', useMaxWidth: true },
-      sequence: { useMaxWidth: true, mirrorActors: false },
+      // 13px is close to the 10.5pt body text; the 16px default made diagrams too large.
+      fontSize: 13,
+      themeVariables: { fontSize: '13px' },
+      // Natural size: small diagrams are not blown up to the full column width (which
+      // made tall diagrams fill a whole page); wide ones are scaled down by the CSS
+      // max-width in manual.css.
+      flowchart: { curve: 'basis', useMaxWidth: false },
+      sequence: { useMaxWidth: false, mirrorActors: false },
     });
     await mermaid.run({ querySelector: 'pre.mermaid' });
   } catch (e) {

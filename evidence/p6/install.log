@@ -1,0 +1,25 @@
+# transcript: P6 install monitoring and Argo Rollouts
+# recorded: 2026-11-06T00:38:59Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash delivery/monitoring/install-monitoring.sh 2>&1 | grep -vE '^(Release|NAME:|LAST|NAMESPACE|STATUS|REVISION|DESCRIPTION|TEST|NOTES|kube-prometheus-stack has been|  kubectl|Visit|Get Grafana|$)'
+namespace/monitoring created
+secret/grafana-admin created
+Access Grafana local instance:
+  export POD_NAME=$(kubectl --namespace monitoring get pod -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=kube-prometheus-stack" -oname)
+Get your grafana admin user password by running:
+NAME                                                        READY   STATUS    RESTARTS   AGE
+alertmanager-kube-prometheus-stack-alertmanager-0           2/2     Running   0          88s
+kube-prometheus-stack-grafana-5c856dd5f7-ntnwp              3/3     Running   0          100s
+kube-prometheus-stack-kube-state-metrics-645c589fb6-m5mc4   1/1     Running   0          100s
+kube-prometheus-stack-operator-6b6dd4dfcb-82d6h             1/1     Running   0          100s
+kube-prometheus-stack-prometheus-node-exporter-6kq7l        1/1     Running   0          100s
+kube-prometheus-stack-prometheus-node-exporter-b47cz        1/1     Running   0          100s
+kube-prometheus-stack-prometheus-node-exporter-rnj8p        1/1     Running   0          100s
+prometheus-kube-prometheus-stack-prometheus-0               2/2     Running   0          88s
+
+$ bash delivery/rollouts/install-rollouts.sh
+namespace/argo-rollouts created
+Waiting for deployment "argo-rollouts" rollout to finish: 0 of 1 updated replicas are available...
+deployment "argo-rollouts" successfully rolled out
+kubectl-argo-rollouts: v1.10.2+be8a622
+

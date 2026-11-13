@@ -1,0 +1,44 @@
+# E2 step 3: an L7 proxy (Envoy) for the storefront namespace. With the namespace label
+# istio.io/use-waypoint=waypoint, traffic to every storefront service goes through it:
+# per-request load balancing, HTTP metrics, L7 policy and routing (retries, weights, headers).
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: waypoint
+  namespace: storefront
+  labels:
+    istio.io/waypoint-for: service
+spec:
+  gatewayClassName: istio-waypoint
+  listeners:
+    - name: mesh
+      port: 15008
+      protocol: HBONE
+  # E6 (chapter 7): the waypoint was a single replica - freezing its node stopped every call
+  # between storefront services for 5.5 minutes (evidence/e6/node-1.log). Two replicas, one per
+  # zone at most, and a disruption budget, through Istio's parameters ConfigMap.
+  infrastructure:
+    parametersRef: {group: "", kind: ConfigMap, name: waypoint-options}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: waypoint-options
+  namespace: storefront
+data:
+  deployment: |
+    spec:
+      replicas: 2
+      template:
+        spec:
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: topology.kubernetes.io/zone
+              whenUnsatisfiable: DoNotSchedule
+              nodeTaintsPolicy: Honor
+              labelSelector:
+                matchLabels:
+                  gateway.networking.k8s.io/gateway-name: waypoint
+  podDisruptionBudget: |
+    spec:
+      minAvailable: 1

@@ -1,0 +1,6 @@
+# Pages of manual/dist/DevOps-Delivery-Observability-Handbook.pdf whose gap was reviewed page by
+# page and kept on purpose: in each case a section heading moved to the next page together with
+# its large figure (docs/ACCEPTANCE_REPORT.md, section 4.3).
+# layout_check.py --accept-gaps-file reads this list; any other gap fails the check.
+# Rebuilding the book moves pages: re-review the gaps and update this list in the same commit.
+12,183,192,198

@@ -1,0 +1,118 @@
+# transcript: E5: real requests as alice, bob, carol (and break-glass), dave and the admin; then the audit log alone tells who did what, and why it was allowed or denied
+# recorded: 2026-11-09T08:35:50Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ T0=2026-11-09T08:35:32.710Z bash v2/experiments/e5/who-did-what.sh who-1
+== test Secret shop-dev/demo-credentials created by the admin; sha256 of its value: 91fecd34d314...
+== actions (T0 2026-11-09T08:35:32.710Z)
+08:35:50 alice            list pods in storefront (prod, viewer)
+      | pod/catalog-cdb4f59b9-cb767
+      | pod/catalog-cdb4f59b9-ktzjq
+      | pod/gateway-7b844f9fc9-gm44w
+      | pod/gateway-7b844f9fc9-qhww7
+      -> exit 0
+08:35:51 alice            delete a storefront pod (dry run)
+      | Error from server (Forbidden): pods "catalog-cdb4f59b9-cb767" is forbidden: User "alice" cannot delete resource "pods" in API group "" in the namespace "storefront"
+      -> exit 1
+08:35:51 alice            read a Secret in storefront
+      | Error from server (Forbidden): secrets is forbidden: User "alice" cannot list resource "secrets" in API group "" in the namespace "storefront"
+      -> exit 1
+08:35:51 alice            deployment without securityContext in shop-dev
+      | Warning: would violate PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "storefront" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "storefront" must set securityContext.capabilities.
+      | deployment.apps/psa-demo created
+      -> exit 0
+08:35:54 admin            why psa-demo has no pods (ReplicaSet events)
+      | Error creating: pods "psa-demo-79dc4c645f-rqhvp" is forbidden: violates PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "storefront" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "s
+      | Error creating: pods "psa-demo-79dc4c645f-rc29g" is forbidden: violates PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "storefront" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "s
+      | Error creating: pods "psa-demo-79dc4c645f-zls6b" is forbidden: violates PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "storefront" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "s
+      | Error creating: pods "psa-demo-79dc4c645f-wgn7z" is forbidden: violates PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "storefront" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "s
+      -> exit 0
+08:35:54 alice            read the Secret in shop-dev directly
+      | Error from server (Forbidden): secrets "demo-credentials" is forbidden: User "alice" cannot get resource "secrets" in API group "" in the namespace "shop-dev"
+      -> exit 1
+08:35:54 alice            created pod secret-reader in shop-dev (env from Secret demo-credentials)
+08:35:58 alice            read the pod's log
+      | sha256 of the mounted value: 91fecd34d314...
+      -> exit 0
+08:35:58 alice            grant tenant-viewer in shop-dev to bob
+      | rolebinding.rbac.authorization.k8s.io/bob-viewer created
+      -> exit 0
+08:35:58 alice            grant cluster-admin in shop-dev to herself (dry run)
+      | error: failed to create rolebinding: rolebindings.rbac.authorization.k8s.io "alice-admin" is forbidden: user "alice" (groups=["team-shop" "system:authenticated"]) is attempting to grant RBAC permissions not currently held:
+      | {APIGroups:["*"], Resources:["*"], Verbs:["*"]}
+      | {NonResourceURLs:["*"], Verbs:["*"]}
+      -> exit 1
+08:35:58 alice            delete the namespace's quota (dry run)
+      | Error from server (Forbidden): resourcequotas "tenant" is forbidden: User "alice" cannot delete resource "resourcequotas" in API group "" in the namespace "shop-dev"
+      -> exit 1
+08:35:58 alice            list pods in insight
+      | Error from server (Forbidden): pods is forbidden: User "alice" cannot list resource "pods" in API group "" in the namespace "insight"
+      -> exit 1
+08:35:59 bob              list pods in storefront
+      | Error from server (Forbidden): pods is forbidden: User "bob" cannot list resource "pods" in API group "" in the namespace "storefront"
+      -> exit 1
+08:35:59 bob              list pods in shop-dev (after alice's grant)
+      | pod/secret-reader
+      -> exit 0
+08:35:59 carol            exec into a storefront pod
+      | Defaulted container "app" out of: app, migrate (init)
+      | carol was here
+      -> exit 0
+08:35:59 carol            read a Secret in storefront
+      | Error from server (Forbidden): secrets is forbidden: User "carol" cannot list resource "secrets" in API group "" in the namespace "storefront"
+      -> exit 1
+08:35:59 carol-breakglass read the Secret in shop-dev (break-glass)
+      | secret/demo-credentials
+      -> exit 0
+08:35:59 dave             list RoleBindings in all namespaces
+      | rolebinding.rbac.authorization.k8s.io/argocd-application-controller
+      | rolebinding.rbac.authorization.k8s.io/argocd-applicationset-controller
+      | rolebinding.rbac.authorization.k8s.io/argocd-redis-secret-init
+      | rolebinding.rbac.authorization.k8s.io/argocd-repo-server
+      -> exit 0
+08:36:00 dave             delete a storefront pod (dry run)
+      | Error from server (Forbidden): pods "catalog-cdb4f59b9-cb767" is forbidden: User "dave" cannot delete resource "pods" in API group "" in the namespace "storefront"
+      -> exit 1
+08:36:00 admin            list storefront pods as alice (impersonation)
+      | pod/catalog-cdb4f59b9-cb767
+      | pod/catalog-cdb4f59b9-ktzjq
+      | pod/gateway-7b844f9fc9-gm44w
+      | pod/gateway-7b844f9fc9-qhww7
+      -> exit 0
+== cleanup by alice
+== the audit log's account of the same minutes (users, impersonation, Argo CD in insight)
+08:35:37.985  sa:argocd:argocd-application-controller                            -         patch   deployments     insight/insight-api                 200  allow   ClusterRoleBinding "argocd-application-controller" of ClusterRole "argocd-application-cont
+08:35:50.946  alice                                    team-shop                 -         list    pods            storefront/*                        200  allow   RoleBinding "team-shop-viewer/storefront" of ClusterRole "tenant-viewer" to Group "team-sh
+08:35:51.135  alice                                    team-shop                 -         delete  pods            storefront/catalog-cdb4f59b9-cb767  403  forbid  
+08:35:51.267  alice                                    team-shop                 -         list    secrets         storefront/*                        403  forbid  
+08:35:51.368  alice                                    team-shop                 -         create  deployments     shop-dev/psa-demo                   201  allow   RoleBinding "team-shop-developer/shop-dev" of ClusterRole "tenant-developer" to Group "tea
+08:35:54.666  alice                                    team-shop                 -         get     secrets         shop-dev/demo-credentials           403  forbid  
+08:35:54.845  alice                                    team-shop                 -         get     pods            shop-dev/secret-reader              404  allow   RoleBinding "team-shop-developer/shop-dev" of ClusterRole "tenant-developer" to Group "tea
+08:35:54.849  alice                                    team-shop                 -         get     namespaces      shop-dev/shop-dev                   403  forbid  
+08:35:54.853  alice                                    team-shop                 -         create  pods            shop-dev/secret-reader              201  allow   RoleBinding "team-shop-developer/shop-dev" of ClusterRole "tenant-developer" to Group "tea
+08:35:55.009  alice                                    team-shop                 -         get     pods            shop-dev/secret-reader              200  allow   RoleBinding "team-shop-developer/shop-dev" of ClusterRole "tenant-developer" to Group "tea
+08:35:55.015  alice                                    team-shop                 -         watch   pods            shop-dev/secret-reader              200  allow   RoleBinding "team-shop-developer/shop-dev" of ClusterRole "tenant-developer" to Group "tea
+08:35:58.536  alice                                    team-shop                 -         get     pods            shop-dev/secret-reader              200  allow   RoleBinding "team-shop-developer/shop-dev" of ClusterRole "tenant-developer" to Group "tea
+08:35:58.547  alice                                    team-shop                 -         get     pods/log        shop-dev/secret-reader              200  allow   RoleBinding "team-shop-developer/shop-dev" of ClusterRole "tenant-developer" to Group "tea
+08:35:58.674  alice                                    team-shop                 -         create  rolebindings    shop-dev/bob-viewer                 201  allow   RoleBinding "team-shop-access-manager/shop-dev" of ClusterRole "tenant-access-manager" to 
+08:35:58.777  alice                                    team-shop                 -         create  rolebindings    shop-dev/alice-admin                403  allow   RoleBinding "team-shop-access-manager/shop-dev" of ClusterRole "tenant-access-manager" to 
+08:35:58.913  alice                                    team-shop                 -         delete  resourcequotas  shop-dev/tenant                     403  forbid  
+08:35:59.030  alice                                    team-shop                 -         list    pods            insight/*                           403  forbid  
+08:35:59.149  bob                                      team-insight              -         list    pods            storefront/*                        403  forbid  
+08:35:59.274  bob                                      team-insight              -         list    pods            shop-dev/*                          200  allow   RoleBinding "bob-viewer/shop-dev" of ClusterRole "tenant-viewer" to User "bob"
+08:35:59.403  carol                                    platform-sre              -         get     pods            storefront/catalog-cdb4f59b9-cb767  200  allow   ClusterRoleBinding "platform-sre-view" of ClusterRole "view" to Group "platform-sre"
+08:35:59.417  carol                                    platform-sre              -         get     pods/exec       storefront/catalog-cdb4f59b9-cb767  403  forbid  
+08:35:59.431  carol                                    platform-sre              -         create  pods/exec       storefront/catalog-cdb4f59b9-cb767  101  allow   ClusterRoleBinding "platform-sre-operator" of ClusterRole "platform-operator" to Group "pl
+08:35:59.709  carol                                    platform-sre              -         list    secrets         storefront/*                        403  forbid  
+08:35:59.834  carol                                    break-glass,platform-sre  -         get     secrets         shop-dev/demo-credentials           200  allow   ClusterRoleBinding "break-glass" of ClusterRole "cluster-admin" to Group "break-glass"
+08:35:59.970  dave                                     auditors                  -         list    rolebindings    -/*                                 200  allow   ClusterRoleBinding "auditors-platform-reader" of ClusterRole "platform-reader" to Group "a
+08:36:00.111  dave                                     auditors                  -         delete  pods            storefront/catalog-cdb4f59b9-cb767  403  forbid  
+08:36:00.253  kubernetes-admin                         kubeadm:cluster-admins    as alice  list    pods            storefront/*                        200  allow   RoleBinding "team-shop-viewer/storefront" of ClusterRole "tenant-viewer" to Group "team-sh
+08:36:00.420  alice                                    team-shop                 -         delete  deployments     shop-dev/psa-demo                   200  allow   RoleBinding "team-shop-developer/shop-dev" of ClusterRole "tenant-developer" to Group "tea
+08:36:00.537  alice                                    team-shop                 -         delete  pods            shop-dev/secret-reader              200  allow   RoleBinding "team-shop-developer/shop-dev" of ClusterRole "tenant-developer" to Group "tea
+08:36:00.668  alice                                    team-shop                 -         delete  rolebindings    shop-dev/bob-viewer                 200  allow   RoleBinding "team-shop-access-manager/shop-dev" of ClusterRole "tenant-access-manager" to 
+08:36:00.676  alice                                    team-shop                 -         get     rolebindings    shop-dev/bob-viewer                 404  allow   RoleBinding "team-shop-developer/shop-dev" of ClusterRole "tenant-developer" to Group "tea
+== Pod Security annotations recorded by the audit log
+08:35:51 alice create deployments/psa-demo: pod-security.kubernetes.io/audit-violations=would violate PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "storefront" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "storefront" must set securityContext.capabilities.drop=
+08:35:54 alice create pods/secret-reader: pod-security.kubernetes.io/enforce-policy=restricted:latest
+== events: 31 audit records in /mnt/d/workshop/nov/devops-delivery/v2/evidence/e5/who-1/audit.jsonl
+

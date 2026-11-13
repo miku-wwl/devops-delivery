@@ -1,0 +1,46 @@
+# Admission tests for verify-release-signature (apply one document at a time).
+# All pods satisfy the "restricted" Pod Security Standard, so the only thing that
+# decides admission is the image signature.
+---
+# 1. signed by release.yml, referenced by digest -> admitted
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sig-test-digest
+  namespace: prod
+spec:
+  restartPolicy: Never
+  securityContext: {runAsNonRoot: true, runAsUser: 10001, seccompProfile: {type: RuntimeDefault}}
+  containers:
+    - name: app
+      image: ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74
+      securityContext: {allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: ["ALL"]}}
+---
+# 2. same image referenced by a tag -> admitted, and the tag is pinned to the verified digest
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sig-test-tag
+  namespace: prod
+spec:
+  restartPolicy: Never
+  securityContext: {runAsNonRoot: true, runAsUser: 10001, seccompProfile: {type: RuntimeDefault}}
+  containers:
+    - name: app
+      image: ghcr.io/miku-wwl/devops-delivery/demo-api:sha-04a724f
+      securityContext: {allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: ["ALL"]}}
+---
+# 3. an image that our release workflow did not sign -> denied
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sig-test-unsigned
+  namespace: prod
+spec:
+  restartPolicy: Never
+  securityContext: {runAsNonRoot: true, runAsUser: 100, seccompProfile: {type: RuntimeDefault}}
+  containers:
+    - name: app
+      image: docker.io/curlimages/curl:8.23.0
+      command: ["sleep", "60"]
+      securityContext: {allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: ["ALL"]}}

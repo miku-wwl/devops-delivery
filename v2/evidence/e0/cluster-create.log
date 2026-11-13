@@ -1,0 +1,92 @@
+# transcript: E0: create the ent cluster
+# recorded: 2026-11-07T03:06:09Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/platform/cluster/create.sh
+host: 16 CPUs, MemTotal 15642 MiB
+worker: 4 CPUs, 3072 MiB; system-reserved cpu=12; eviction memory.available<12720Mi
+Creating cluster "ent" ...
+ • Ensuring node image (kindest/node:v1.37.0) 🖼️  ...
+WARNING: Overriding docker network due to KIND_EXPERIMENTAL_DOCKER_NETWORK
+WARNING: Here be dragons! This is not supported currently.
+ ✓ Ensuring node image (kindest/node:v1.37.0) 🖼️
+ • Preparing nodes 📦 📦 📦 📦   ...
+ ✓ Preparing nodes 📦 📦 📦 📦 
+ • Writing configuration 📜  ...
+ ✓ Writing configuration 📜
+ • Starting control-plane 🕹️  ...
+ ✓ Starting control-plane 🕹️
+ • Installing CNI 🔌  ...
+ ✓ Installing CNI 🔌
+ • Installing StorageClass 💾  ...
+ ✓ Installing StorageClass 💾
+ • Joining worker nodes 🚜  ...
+ ✓ Joining worker nodes 🚜
+ • Waiting ≤ 3m0s for control-plane = Ready ⏳  ...
+ ✓ Waiting ≤ 3m0s for control-plane = Ready ⏳
+ • Ready after 8s 💚
+Set kubectl context to "kind-ent"
+You can now use your cluster with:
+
+kubectl cluster-info --context kind-ent
+
+Not sure what to do next? 😅  Check out https://kind.sigs.k8s.io/docs/user/quick-start/
+kind create cluster took 43 s
+template parsing error: template: :1: bad character U+0022 '"'
+template parsing error: template: :1: bad character U+0022 '"'
+Unable to find image 'registry.k8s.io/cloud-provider-kind/cloud-controller-manager:v0.12.0' locally
+v0.12.0: Pulling from cloud-provider-kind/cloud-controller-manager
+9abd88b9e15e: Pulling fs layer
+4f4fb700ef54: Pulling fs layer
+e2de96513ba9: Pulling fs layer
+5fc72bda2346: Pulling fs layer
+6b2f2c0a1a49: Pulling fs layer
+39072b6860d9: Pulling fs layer
+fb9d9afb546d: Pulling fs layer
+e2080e818347: Pulling fs layer
+726104e38297: Pulling fs layer
+7f4113b1eed1: Pulling fs layer
+575ee58fd309: Pulling fs layer
+4f4fb700ef54: Already exists
+5fc72bda2346: Download complete
+39072b6860d9: Download complete
+e2de96513ba9: Download complete
+6b2f2c0a1a49: Download complete
+fb9d9afb546d: Download complete
+726104e38297: Download complete
+575ee58fd309: Download complete
+7f4113b1eed1: Download complete
+44136fa355b3: Already exists
+9abd88b9e15e: Download complete
+2a201b07b4fd: Download complete
+e2de96513ba9: Pull complete
+5fc72bda2346: Pull complete
+4f4fb700ef54: Pull complete
+39072b6860d9: Pull complete
+fb9d9afb546d: Pull complete
+e2080e818347: Download complete
+e2080e818347: Pull complete
+6b2f2c0a1a49: Pull complete
+726104e38297: Pull complete
+575ee58fd309: Pull complete
+7f4113b1eed1: Pull complete
+9abd88b9e15e: Pull complete
+Digest: sha256:1b97632e5dfec8f83c7e970cf18cedb9e6b707e272011d712cabf6ab59d323c9
+Status: Downloaded newer image for registry.k8s.io/cloud-provider-kind/cloud-controller-manager:v0.12.0
+configmap/local-registry-hosting created
+serviceaccount/metrics-server created
+clusterrole.rbac.authorization.k8s.io/system:aggregated-metrics-reader created
+clusterrole.rbac.authorization.k8s.io/system:metrics-server created
+rolebinding.rbac.authorization.k8s.io/metrics-server-auth-reader created
+clusterrolebinding.rbac.authorization.k8s.io/metrics-server:system:auth-delegator created
+clusterrolebinding.rbac.authorization.k8s.io/system:metrics-server created
+service/metrics-server created
+deployment.apps/metrics-server created
+apiservice.apiregistration.k8s.io/v1beta1.metrics.k8s.io created
+Waiting for deployment "metrics-server" rollout to finish: 0 of 1 updated replicas are available...
+deployment "metrics-server" successfully rolled out
+NAME                STATUS   ROLES           AGE   VERSION   ZONE     INSTANCE-TYPE
+ent-control-plane   Ready    control-plane   90s   v1.37.0            
+ent-worker          Ready    <none>          76s   v1.37.0   zone-a   sim-4c3g
+ent-worker2         Ready    <none>          76s   v1.37.0   zone-b   sim-4c3g
+ent-worker3         Ready    <none>          76s   v1.37.0   zone-c   sim-4c3g
+

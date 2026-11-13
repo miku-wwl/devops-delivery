@@ -1,0 +1,10 @@
+# transcript: E5 network baseline, again with the corrected probe (HTTP/1.1; answers the waypoint generated itself do not count)
+# recorded: 2026-11-09T08:51:03Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e5/reach.sh reach-baseline-2
+source      dns  catalog  gateway  postgres  valkey  nats  insight-api  prometheus  otel
+insight     ok   ok       ok       ok        ok      ok    ok           ok          ok
+shop-dev    ok   ok       ok       ok        ok      ok    ok           ok          ok
+storefront  ok   ok       ok       ok        ok      ok    ok           ok          ok
+e5-outside  ok   ok       ok       ok        ok      ok    ok           ok          ok
+

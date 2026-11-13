@@ -1,0 +1,30 @@
+# transcript: E1: checkpoints on the primary while the replicas joined
+# recorded: 2026-11-07T04:36:26Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# log_checkpoints is on by default since PostgreSQL 15; CloudNativePG logs JSON records
+$ kubectl -n data logs pg-main-1 -c postgres | jq -r "select(.record.message != null) | select(.record.message | test(\"checkpoint (starting|complete)\")) | \"\(.record.log_time)  \(.record.message)\"" | head -12 | cut -c1-260
+2026-11-07 03:54:52.034 UTC  checkpoint starting: force wait
+2026-11-07 03:59:22.339 UTC  checkpoint complete: wrote 2900 buffers (35.4%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=269.958 s, sync=0.333 s, total=270.306 s; sync files=920, longest=0.006 s, average=0.001 s; distance=16384 kB,
+2026-11-07 03:59:52.363 UTC  checkpoint starting: time
+2026-11-07 03:59:56.848 UTC  checkpoint complete: wrote 44 buffers (0.5%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=4.429 s, sync=0.010 s, total=4.485 s; sync files=10, longest=0.005 s, average=0.001 s; distance=16384 kB, estimat
+2026-11-07 04:00:09.532 UTC  checkpoint starting: force wait
+2026-11-07 04:00:09.625 UTC  checkpoint complete: wrote 0 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.013 s, sync=0.001 s, total=0.094 s; sync files=0, longest=0.000 s, average=0.000 s; distance=16383 kB, estimate=
+2026-11-07 04:05:09.742 UTC  checkpoint starting: time
+2026-11-07 04:05:27.569 UTC  checkpoint complete: wrote 177 buffers (2.2%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=17.729 s, sync=0.050 s, total=17.828 s; sync files=144, longest=0.002 s, average=0.001 s; distance=17378 kB, est
+2026-11-07 04:10:09.111 UTC  checkpoint starting: time
+2026-11-07 04:10:18.550 UTC  checkpoint complete: wrote 93 buffers (1.1%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=9.367 s, sync=0.046 s, total=9.440 s; sync files=46, longest=0.005 s, average=0.001 s; distance=16258 kB, estimat
+2026-11-07 04:15:09.236 UTC  checkpoint starting: time
+2026-11-07 04:15:25.300 UTC  checkpoint complete: wrote 159 buffers (1.9%), wrote 2 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=16.012 s, sync=0.018 s, total=16.064 s; sync files=30, longest=0.004 s, average=0.001 s; distance=17448 kB, esti
+
+$ kubectl -n data exec pg-main-1 -c postgres -- psql -tAc "SELECT name || \" = \" || setting || coalesce(unit, \"\") FROM pg_settings WHERE name IN (chr(99)||\"heckpoint_timeout\", chr(99)||\"heckpoint_completion_target\")" 2>&1 | head -3
+ERROR:  zero-length delimited identifier at or near """"
+LINE 1: SELECT name || " = " || setting || coalesce(unit, "") FROM p...
+                                                          ^
+[exit 141]
+
+$ kubectl -n data exec pg-main-1 -c postgres -- psql -tAc "SHOW checkpoint_timeout"
+5min
+
+$ kubectl -n data exec pg-main-1 -c postgres -- psql -tAc "SHOW checkpoint_completion_target"
+0.9
+

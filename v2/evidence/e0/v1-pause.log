@@ -1,0 +1,56 @@
+# transcript: E0: pause the v1 lab cluster to free memory
+# recorded: 2026-11-07T03:02:20Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# Before: v1 lab cluster running (3 nodes) next to GitLab
+$ bash v2/platform/cluster/measure.sh "before: v1 lab running"
+## before: v1 lab running  2026-11-07T03:02:20Z
+
+### 1. WSL VM
+               total        used        free      shared  buff/cache   available
+Mem:           15642        8188         214         111        7591        7454
+Swap:           4096           4        4091
+PSI memory: some avg10=0.00 avg60=0.00 avg300=0.00 total=229072
+PSI cpu:    some avg10=1.00 avg60=1.05 avg300=1.12 total=68689968
+load: 0.69 1.09 1.38
+
+### 2. containers (docker stats: usage excludes inactive page cache)
+NAME                CPU %     MEM USAGE / LIMIT
+gitlab              1.29%     2.98GiB / 15.28GiB
+gitlab-runner       0.00%     21.3MiB / 15.28GiB
+kind-registry       0.00%     12.26MiB / 15.28GiB
+lab-control-plane   38.46%    1.581GiB / 15.28GiB
+lab-worker          47.93%    2.447GiB / 15.28GiB
+lab-worker2         31.19%    1.5GiB / 15.28GiB
+no ent cluster
+
+$ bash v2/platform/cluster/v1-lab.sh stop
+lab-control-plane
+lab-worker
+lab-worker2
+
+$ sleep 20
+
+$ bash v2/platform/cluster/measure.sh "after: v1 lab paused"
+## after: v1 lab paused  2026-11-07T03:02:53Z
+
+### 1. WSL VM
+               total        used        free      shared  buff/cache   available
+Mem:           15642        3517        4888          78        7555       12124
+Swap:           4096           4        4091
+PSI memory: some avg10=0.00 avg60=0.00 avg300=0.00 total=229688
+PSI cpu:    some avg10=0.70 avg60=1.74 avg300=1.33 total=69886340
+load: 7.03 3.02 2.04
+
+### 2. containers (docker stats: usage excludes inactive page cache)
+NAME            CPU %     MEM USAGE / LIMIT
+gitlab          1.66%     2.98GiB / 15.28GiB
+gitlab-runner   0.00%     21.34MiB / 15.28GiB
+kind-registry   0.07%     12.26MiB / 15.28GiB
+no ent cluster
+
+$ bash v2/platform/cluster/v1-lab.sh status
+lab-worker2	Exited (137) 23 seconds ago
+lab-control-plane	Exited (137) 23 seconds ago
+lab-worker	Exited (130) 29 seconds ago
+gitlab-runner	Up 56 minutes
+

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 290" width="640" height="290" font-family="'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="18.0" y="19.0" font-size="13" fill="#1b2430" text-anchor="start" font-weight="600">同一个节点上的 CPU 消耗者对网关 p50 的影响（ms）</text>
+<line x1="62.0" y1="250.0" x2="620.0" y2="250.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="253.5" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">0</text>
+<line x1="62.0" y1="184.0" x2="620.0" y2="184.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="187.5" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">50</text>
+<line x1="62.0" y1="118.0" x2="620.0" y2="118.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="121.5" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">100</text>
+<line x1="62.0" y1="52.0" x2="620.0" y2="52.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="55.5" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">150</text>
+<line x1="62.0" y1="250.0" x2="620.0" y2="250.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="14.0" y="151.0" font-size="10.5" fill="#5b6776" text-anchor="middle" font-weight="normal" transform="rotate(-90 14.0 151.0)">ms</text>
+<rect x="110.0" y="228.5" width="44.0" height="21.5" fill="#d9730d" stroke="none" stroke-width="1" rx="2"/>
+<text x="132.0" y="224.5" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">16.3</text>
+<rect x="156.0" y="228.6" width="44.0" height="21.4" fill="#0f8a7e" stroke="none" stroke-width="1" rx="2"/>
+<text x="178.0" y="224.6" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">16.2</text>
+<text x="155.0" y="265.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">没有消耗者</text>
+<rect x="296.0" y="226.8" width="44.0" height="23.2" fill="#d9730d" stroke="none" stroke-width="1" rx="2"/>
+<text x="318.0" y="222.8" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">17.6</text>
+<rect x="342.0" y="228.1" width="44.0" height="21.9" fill="#0f8a7e" stroke="none" stroke-width="1" rx="2"/>
+<text x="364.0" y="224.1" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">16.6</text>
+<text x="341.0" y="265.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">BestEffort 的消耗者</text>
+<text x="341.0" y="277.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">（没有 CPU 请求）</text>
+<rect x="482.0" y="77.3" width="44.0" height="172.7" fill="#d9730d" stroke="none" stroke-width="1" rx="2"/>
+<text x="504.0" y="73.3" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">130.8</text>
+<rect x="528.0" y="231.7" width="44.0" height="18.3" fill="#0f8a7e" stroke="none" stroke-width="1" rx="2"/>
+<text x="550.0" y="227.7" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">13.9</text>
+<text x="527.0" y="265.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">Burstable 的消耗者</text>
+<text x="527.0" y="277.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">（请求 2 核）</text>
+<rect x="62.0" y="31.0" width="12.0" height="10.0" fill="#d9730d" stroke="none" stroke-width="1" rx="2"/>
+<text x="78.0" y="40.0" font-size="10.5" fill="#5b6776" text-anchor="start" font-weight="normal">与消耗者同节点的网关</text>
+<rect x="201.0" y="31.0" width="12.0" height="10.0" fill="#0f8a7e" stroke="none" stroke-width="1" rx="2"/>
+<text x="217.0" y="40.0" font-size="10.5" fill="#5b6776" text-anchor="start" font-weight="normal">其他节点上的网关</text>
+</svg>

@@ -1,0 +1,17 @@
+# transcript: E3: why the Prometheus data of the E3 runs is gone - size-based retention
+# recorded: 2026-11-09T01:18:33Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ P=/api/v1/namespaces/monitoring/services/kps-prometheus:9090/proxy/api/v1; kubectl get --raw "$P/status/flags" | jq -r '"retention.time=\(.data["storage.tsdb.retention.time"]) retention.size=\(.data["storage.tsdb.retention.size"])"'
+retention.time=3d retention.size=3GiB
+
+$ P=/api/v1/namespaces/monitoring/services/kps-prometheus:9090/proxy/api/v1; for m in prometheus_tsdb_lowest_timestamp_seconds process_start_time_seconds; do kubectl get --raw "$P/query?query=max($m{job=\"kps-prometheus\"})" | jq -r --arg m $m '"\($m): \(.data.result[0].value[1] | tonumber | todate)"'; done
+prometheus_tsdb_lowest_timestamp_seconds: 2026-11-07T18:00:00Z
+process_start_time_seconds: 2026-11-07T08:03:34Z
+
+$ P=/api/v1/namespaces/monitoring/services/kps-prometheus:9090/proxy/api/v1; for q in "prometheus_tsdb_storage_blocks_bytes / 2^30" "prometheus_tsdb_size_retentions_total" "prometheus_tsdb_time_retentions_total" "prometheus_tsdb_head_series" "rate(prometheus_tsdb_head_samples_appended_total[1h])"; do kubectl get --raw "$P/query?query=$(jq -rn --arg q "max($q)" '$q|@uri')" | jq -r --arg q "$q" '"\($q) = \(.data.result[0].value[1])"'; done
+prometheus_tsdb_storage_blocks_bytes / 2^30 = 1.7944464376196265
+prometheus_tsdb_size_retentions_total = 3
+prometheus_tsdb_time_retentions_total = 0
+prometheus_tsdb_head_series = 108205
+rate(prometheus_tsdb_head_samples_appended_total[1h]) = 7540.015397362329
+

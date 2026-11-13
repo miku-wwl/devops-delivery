@@ -1,0 +1,140 @@
+# transcript: E3: one replica, where the gateway waited - upstream calls, CPU scheduling on its node, loop stalls
+# recorded: 2026-11-09T01:34:03Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e3/where-waits.sh one-replica-2
+=== step 80 it/s (2026-11-09T01:21:20+00:00 .. 2026-11-09T01:22:50+00:00)
+calls/s by upstream and outcome:
+  ok catalog 112.98
+  ok orders 24.31
+  timeout catalog 0
+  timeout orders 0.04
+client-side mean ms by upstream:
+  catalog 10.63
+  orders 106.15
+server-side mean ms of the upstreams:
+  catalog 2.17
+  orders 96.33
+rejected/s by upstream and reason:
+  bulkhead_full catalog 0
+  retry_budget catalog 0
+  circuit_open catalog 0
+gateway CPU, its node's ztunnel CPU, waypoint CPU (cores):
+  gateway  0.62
+  ztunnel on ent-worker3  0.25
+  waypoint  0.27
+=== step 100 it/s (2026-11-09T01:23:30+00:00 .. 2026-11-09T01:25:00+00:00)
+calls/s by upstream and outcome:
+  ok catalog 139.31
+  ok orders 30.36
+  timeout catalog 0
+  timeout orders 0
+client-side mean ms by upstream:
+  catalog 13.2
+  orders 108.86
+server-side mean ms of the upstreams:
+  catalog 2.28
+  orders 99.16
+rejected/s by upstream and reason:
+  bulkhead_full catalog 0
+  retry_budget catalog 0
+  circuit_open catalog 0
+gateway CPU, its node's ztunnel CPU, waypoint CPU (cores):
+  gateway  0.76
+  ztunnel on ent-worker3  0.29
+  waypoint  0.27
+=== step 110 it/s (2026-11-09T01:25:40+00:00 .. 2026-11-09T01:27:10+00:00)
+calls/s by upstream and outcome:
+  ok catalog 98.43
+  ok orders 32.99
+  timeout catalog 0
+  timeout orders 0
+  http_504 orders 0.3
+client-side mean ms by upstream:
+  catalog 635.49
+  orders 454.82
+server-side mean ms of the upstreams:
+  catalog 3.26
+  orders 116.81
+rejected/s by upstream and reason:
+  bulkhead_full catalog 57.78
+  retry_budget catalog 0
+  circuit_open catalog 0
+  deadline orders 0.3
+  bulkhead_full orders 0
+  circuit_open orders 0
+  retry_budget orders 0
+gateway CPU, its node's ztunnel CPU, waypoint CPU (cores):
+  gateway  0.96
+  ztunnel on ent-worker3  0.28
+  waypoint  0.3
+=== step 120 it/s (2026-11-09T01:27:50+00:00 .. 2026-11-09T01:29:20+00:00)
+calls/s by upstream and outcome:
+  ok catalog 101.05
+  ok orders 36.89
+  timeout catalog 0
+  timeout orders 0
+  http_504 orders 0.01
+client-side mean ms by upstream:
+  catalog 629.73
+  orders 386.49
+server-side mean ms of the upstreams:
+  catalog 2.78
+  orders 112.77
+rejected/s by upstream and reason:
+  bulkhead_full catalog 69.52
+  retry_budget catalog 0
+  circuit_open catalog 0
+  deadline orders 0.01
+  bulkhead_full orders 0
+  circuit_open orders 0
+  retry_budget orders 0
+gateway CPU, its node's ztunnel CPU, waypoint CPU (cores):
+  gateway  0.96
+  ztunnel on ent-worker3  0.3
+  waypoint  0.31
+
+$ for r in 80 100 110 120; do w=v2/evidence/e3/steps-one-replica-2/window-$r.json; bash v2/experiments/e3/node-sched.sh ent-worker3 $(jq -r .start $w) $(jq -r .end $w); done
+ent-worker3: CPUs 12-15, window 2026-11-09T01:21:20+00:00 .. 2026-11-09T01:22:50+00:00
+  per CPU: running (share of the CPU busy) | waiting (tasks waiting for it, on average)
+    cpu 12  running 0.532 | waiting 0.244
+    cpu 13  running 0.529 | waiting 0.251
+    cpu 14  running 0.536 | waiting 0.253
+    cpu 15  running 0.538 | waiting 0.251
+  VM CPU pressure (PSI some, share of time): 0.101
+ent-worker3: CPUs 12-15, window 2026-11-09T01:23:30+00:00 .. 2026-11-09T01:25:00+00:00
+  per CPU: running (share of the CPU busy) | waiting (tasks waiting for it, on average)
+    cpu 12  running 0.602 | waiting 0.324
+    cpu 13  running 0.594 | waiting 0.340
+    cpu 14  running 0.591 | waiting 0.335
+    cpu 15  running 0.603 | waiting 0.333
+  VM CPU pressure (PSI some, share of time): 0.122
+ent-worker3: CPUs 12-15, window 2026-11-09T01:25:40+00:00 .. 2026-11-09T01:27:10+00:00
+  per CPU: running (share of the CPU busy) | waiting (tasks waiting for it, on average)
+    cpu 12  running 0.680 | waiting 0.435
+    cpu 13  running 0.670 | waiting 0.452
+    cpu 14  running 0.682 | waiting 0.454
+    cpu 15  running 0.693 | waiting 0.425
+  VM CPU pressure (PSI some, share of time): 0.148
+ent-worker3: CPUs 12-15, window 2026-11-09T01:27:50+00:00 .. 2026-11-09T01:29:20+00:00
+  per CPU: running (share of the CPU busy) | waiting (tasks waiting for it, on average)
+    cpu 12  running 0.694 | waiting 0.481
+    cpu 13  running 0.686 | waiting 0.461
+    cpu 14  running 0.697 | waiting 0.467
+    cpu 15  running 0.709 | waiting 0.472
+  VM CPU pressure (PSI some, share of time): 0.155
+
+$ w=v2/evidence/e3/steps-one-replica-2/window-120.json; bash v2/experiments/e3/node-sched.sh ent-worker $(jq -r .start $w) $(jq -r .end $w)
+ent-worker: CPUs 4-7, window 2026-11-09T01:27:50+00:00 .. 2026-11-09T01:29:20+00:00
+  per CPU: running (share of the CPU busy) | waiting (tasks waiting for it, on average)
+    cpu 4   running 0.357 | waiting 0.085
+    cpu 5   running 0.338 | waiting 0.106
+    cpu 6   running 0.347 | waiting 0.089
+    cpu 7   running 0.334 | waiting 0.088
+  VM CPU pressure (PSI some, share of time): 0.155
+
+$ for r in 80 100 110 120; do w=v2/evidence/e3/steps-one-replica-2/window-$r.json; echo "step $r: $(bash v2/experiments/e3/stalls.sh $(jq -r .start $w) $(jq -r .end $w) gateway)"; done
+step 80: no stalls
+step 100: 2 stalls: blocked mean 337 ms (max 397) | loop thread on a CPU 179 ms | waiting for a CPU 26 ms (max 44)
+step 110: no stalls
+step 120: no stalls
+

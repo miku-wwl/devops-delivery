@@ -1,0 +1,13 @@
+service: orders
+replicas: 2
+migrations: true
+env:
+  LOG_LEVEL: INFO     # E8: the default, made explicit - an ordinary release change under sync impersonation (I3)
+  CATALOG_URL: http://catalog:8080
+  INVENTORY_URL: http://inventory:8080
+  PAYMENTS_URL: http://payments:8080
+  NATS_URL: nats://nats.data.svc:4222
+  NATS_STREAM_REPLICAS: "3"
+  DB_POOL_MAX: "12"   # E8 freeze drill: the emergency change
+secretEnv:
+  DATABASE_URL: {secret: db-orders, key: url}

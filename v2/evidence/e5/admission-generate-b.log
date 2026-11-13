@@ -1,0 +1,13 @@
+# transcript: E5 after step B: the generate rule with scoped webhooks - a new tenant namespace, and a generated policy deleted by hand (synchronize restores it)
+# recorded: 2026-11-09T09:31:25Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ t0=$(date +%s.%N); kubectl create ns e5-team-d >/dev/null; kubectl label ns e5-team-d tenant=team-d >/dev/null; for i in $(seq 1 40); do n=$(kubectl -n e5-team-d get networkpolicy,resourcequota,limitrange --no-headers 2>/dev/null | wc -l); [ "$n" -ge 4 ] && break; sleep 0.5; done; printf "%d of 4 generated objects after %.1f s\n" "$n" "$(echo "$(date +%s.%N) - $t0" | bc)"
+4 of 4 generated objects after 1.1 s
+
+$ kubectl -n e5-team-d delete networkpolicy default-deny; sleep 3; kubectl -n e5-team-d get networkpolicy default-deny -o name
+networkpolicy.networking.k8s.io "default-deny" deleted from e5-team-d namespace
+networkpolicy.networking.k8s.io/default-deny
+
+$ kubectl delete ns e5-team-d --wait=false
+namespace "e5-team-d" deleted
+

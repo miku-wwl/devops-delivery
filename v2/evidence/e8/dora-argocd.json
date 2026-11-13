@@ -1,0 +1,681 @@
+{
+ "source": "argocd",
+ "since": "2026-11-01T00:00:00Z",
+ "merge_requests": [
+  {
+   "iid": 1,
+   "title": "e8: the merge-request gate (pipeline, release policies) and a readiness probe for insight-api",
+   "author": "root",
+   "created": "2026-11-09T23:57:41.784Z",
+   "merged": "2026-11-09T23:58:36.662Z",
+   "files": [
+    ".gitlab-ci.yml",
+    "ci/render.sh",
+    "policies/release/common/release.yaml",
+    "policies/release/prod/availability.yaml",
+    "tenants/insight/app.yaml"
+   ],
+   "concerned": [
+    "insight"
+   ],
+   "deployed": {
+    "insight": "2026-11-09T23:59:23+00:00"
+   },
+   "lead_s": 101.216
+  },
+  {
+   "iid": 6,
+   "title": "e8: layer-7 entrance for the storefront (Gateway storefront-ingress, Istio)",
+   "author": "root",
+   "created": "2026-11-10T00:14:22.955Z",
+   "merged": "2026-11-10T00:14:57.049Z",
+   "files": [
+    "platform/manifests/mesh/ingress-storefront.yaml",
+    "platform/manifests/tenants/network.yaml"
+   ],
+   "concerned": [
+    "mesh",
+    "tenants"
+   ],
+   "deployed": {
+    "mesh": "2026-11-10T00:15:04+00:00",
+    "tenants": "2026-11-10T00:15:04+00:00"
+   },
+   "lead_s": 41.045
+  },
+  {
+   "iid": 8,
+   "title": "G5 catalog: database pool 10 -> 12",
+   "author": "alice",
+   "created": "2026-11-10T00:16:13.279Z",
+   "merged": "2026-11-10T00:16:52.421Z",
+   "files": [
+    "envs/prod/storefront/services/catalog.yaml"
+   ],
+   "concerned": [
+    "storefront-catalog-prod"
+   ],
+   "deployed": {
+    "storefront-catalog-prod": "2026-11-10T00:17:02+00:00"
+   },
+   "lead_s": 48.721
+  },
+  {
+   "iid": 9,
+   "title": "e8: chart value app (canary releases), retry counters and scraping for the layer-7 entrance",
+   "author": "root",
+   "created": "2026-11-10T00:53:30.555Z",
+   "merged": "2026-11-10T00:54:11.373Z",
+   "files": [
+    "charts/storefront-service/templates/_helpers.tpl",
+    "charts/storefront-service/templates/deployment.yaml",
+    "charts/storefront-service/values.yaml",
+    "envs/prod/storefront/services/catalog.yaml",
+    "platform/manifests/mesh/ingress-storefront.yaml",
+    "platform/manifests/mesh/monitoring.yaml"
+   ],
+   "concerned": [
+    "mesh",
+    "storefront-catalog-prod",
+    "storefront-gateway-prod",
+    "storefront-inventory-prod",
+    "storefront-notifier-prod",
+    "storefront-orders-prod",
+    "storefront-payments-prod"
+   ],
+   "deployed": {
+    "mesh": "2026-11-10T00:54:17+00:00"
+   },
+   "lead_s": 46.445
+  },
+  {
+   "iid": 10,
+   "title": "e8: canary release gateway-canary (8ef5584) at weight 0, preview by header",
+   "author": "root",
+   "created": "2026-11-10T01:14:54.596Z",
+   "merged": "2026-11-10T01:15:28.173Z",
+   "files": [
+    "envs/prod/storefront/services/gateway-canary.yaml",
+    "platform/manifests/mesh/ingress-storefront.yaml"
+   ],
+   "concerned": [
+    "mesh"
+   ],
+   "deployed": {
+    "mesh": "2026-11-10T01:15:32+00:00"
+   },
+   "lead_s": 37.404
+  },
+  {
+   "iid": 11,
+   "title": "e8: canary weight 5 %",
+   "author": "root",
+   "created": "2026-11-10T01:17:56.545Z",
+   "merged": "2026-11-10T01:18:29.695Z",
+   "files": [
+    "platform/manifests/mesh/ingress-storefront.yaml"
+   ],
+   "concerned": [
+    "mesh"
+   ],
+   "deployed": {
+    "mesh": "2026-11-10T01:18:33+00:00"
+   },
+   "lead_s": 36.455
+  },
+  {
+   "iid": 12,
+   "title": "e8: canary rollback - weight 0",
+   "author": "root",
+   "created": "2026-11-10T01:24:47.836Z",
+   "merged": "2026-11-10T01:25:27.299Z",
+   "files": [
+    "platform/manifests/mesh/ingress-storefront.yaml"
+   ],
+   "concerned": [
+    "mesh"
+   ],
+   "deployed": {
+    "mesh": "2026-11-10T01:25:30+00:00"
+   },
+   "lead_s": 42.164
+  },
+  {
+   "iid": 13,
+   "title": "e8: promote the gateway to 8ef5584, remove the canary",
+   "author": "root",
+   "created": "2026-11-10T01:34:42.973Z",
+   "merged": "2026-11-10T01:35:22.415Z",
+   "files": [
+    "envs/prod/storefront/services/gateway-canary.yaml",
+    "envs/prod/storefront/services/gateway.yaml",
+    "platform/manifests/mesh/ingress-storefront.yaml"
+   ],
+   "concerned": [
+    "mesh",
+    "storefront-gateway-prod"
+   ],
+   "deployed": {
+    "mesh": "2026-11-10T01:35:26+00:00",
+    "storefront-gateway-prod": "2026-11-10T01:36:05+00:00"
+   },
+   "lead_s": 82.027
+  },
+  {
+   "iid": 14,
+   "title": "e8: sync impersonation step 1 - deployer accounts, project accounts, no CreateNamespace, probes",
+   "author": "root",
+   "created": "2026-11-10T03:48:19.245Z",
+   "merged": "2026-11-10T03:48:56.683Z",
+   "files": [
+    "bootstrap/argocd-values.yaml",
+    "e8-probe-ns/configmap.yaml",
+    "e8-probe/secret.yaml",
+    "envs/prod/storefront/services/catalog.yaml",
+    "platform/apps/00-projects.yaml",
+    "platform/apps/e8-probe.yaml",
+    "platform/apps/storefront.yaml",
+    "platform/manifests/tenants/argocd-deployers.yaml"
+   ],
+   "concerned": [
+    "platform-root",
+    "storefront-catalog-prod",
+    "tenants"
+   ],
+   "deployed": {
+    "platform-root": "2026-11-10T03:49:33+00:00",
+    "storefront-catalog-prod": "2026-11-10T03:49:12+00:00",
+    "tenants": "2026-11-10T03:49:58+00:00"
+   },
+   "lead_s": 98.755
+  },
+  {
+   "iid": 15,
+   "title": "e8: sync impersonation step 2 - probes write again, orders LOG_LEVEL explicit",
+   "author": "root",
+   "created": "2026-11-10T03:53:33.611Z",
+   "merged": "2026-11-10T03:54:06.616Z",
+   "files": [
+    "e8-probe-ns/configmap.yaml",
+    "e8-probe/secret.yaml",
+    "envs/prod/storefront/services/orders.yaml"
+   ],
+   "concerned": [
+    "storefront-orders-prod"
+   ],
+   "deployed": {
+    "storefront-orders-prod": "2026-11-10T03:55:25+00:00"
+   },
+   "lead_s": 111.389
+  },
+  {
+   "iid": 16,
+   "title": "e8: sync impersonation step 3 - probes removed",
+   "author": "root",
+   "created": "2026-11-10T03:57:56.725Z",
+   "merged": "2026-11-10T03:58:34.975Z",
+   "files": [
+    "e8-probe-ns/configmap.yaml",
+    "e8-probe/secret.yaml",
+    "platform/apps/e8-probe.yaml"
+   ],
+   "concerned": [
+    "platform-root"
+   ],
+   "deployed": {
+    "platform-root": "2026-11-10T04:05:33+00:00"
+   },
+   "lead_s": 456.275
+  },
+  {
+   "iid": 17,
+   "title": "e8: deployment events - storefront applications subscribe to GitLab deployments",
+   "author": "root",
+   "created": "2026-11-10T04:17:22.118Z",
+   "merged": "2026-11-10T04:17:54.721Z",
+   "files": [
+    "bootstrap/argocd-values.yaml",
+    "bootstrap/root.yaml",
+    "platform/apps/storefront.yaml"
+   ],
+   "concerned": [
+    "platform-root"
+   ],
+   "deployed": {
+    "platform-root": "2026-11-10T04:20:09+00:00"
+   },
+   "lead_s": 166.882
+  },
+  {
+   "iid": 18,
+   "title": "e8: change freeze - deny window for the drill, job freeze",
+   "author": "root",
+   "created": "2026-11-10T04:23:16.684Z",
+   "merged": "2026-11-10T04:23:49.173Z",
+   "files": [
+    ".gitlab-ci.yml",
+    "platform/apps/00-projects.yaml"
+   ],
+   "concerned": [
+    "platform-root"
+   ],
+   "deployed": {
+    "platform-root": "2026-11-10T04:24:22+00:00"
+   },
+   "lead_s": 65.316
+  },
+  {
+   "iid": 20,
+   "title": "[emergency] orders, catalog: DB_POOL_MAX +2 (pool exhaustion)",
+   "author": "root",
+   "created": "2026-11-10T04:28:36.576Z",
+   "merged": "2026-11-10T04:29:00.202Z",
+   "files": [
+    "envs/prod/storefront/services/catalog.yaml",
+    "envs/prod/storefront/services/orders.yaml"
+   ],
+   "concerned": [
+    "storefront-catalog-prod",
+    "storefront-orders-prod"
+   ],
+   "deployed": {
+    "storefront-catalog-prod": "2026-11-10T04:31:01+00:00",
+    "storefront-orders-prod": "2026-11-10T04:42:57+00:00"
+   },
+   "lead_s": 860.424
+  },
+  {
+   "iid": 21,
+   "title": "e8: change freeze - drill window removed, year-end freeze stays",
+   "author": "root",
+   "created": "2026-11-10T04:43:21.157Z",
+   "merged": "2026-11-10T04:43:54.683Z",
+   "files": [
+    "platform/apps/00-projects.yaml"
+   ],
+   "concerned": [
+    "platform-root"
+   ],
+   "deployed": {
+    "platform-root": "2026-11-10T04:46:47+00:00"
+   },
+   "lead_s": 205.843
+  },
+  {
+   "iid": 22,
+   "title": "e8: release dashboard (stable and canary per pod)",
+   "author": "root",
+   "created": "2026-11-10T04:45:00.313Z",
+   "merged": "2026-11-10T04:45:33.872Z",
+   "files": [
+    "platform/manifests/dashboards/storefront-release.yaml"
+   ],
+   "concerned": [
+    "dashboards"
+   ],
+   "deployed": {
+    "dashboards": "2026-11-10T04:45:36+00:00"
+   },
+   "lead_s": 35.687
+  }
+ ],
+ "failures": [
+  {
+   "failed": 11,
+   "rollback": 12,
+   "restore_s": 417.0
+  }
+ ],
+ "deployments": {
+  "backup-jobs": [
+   [
+    "2026-11-09T23:24:53+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ]
+  ],
+  "barman-cloud": [
+   [
+    "2026-11-09T23:20:30+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ]
+  ],
+  "cert-manager": [
+   [
+    "2026-11-09T23:15:47+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ]
+  ],
+  "cnpg-operator": [
+   [
+    "2026-11-09T23:19:56+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ]
+  ],
+  "dashboards": [
+   [
+    "2026-11-09T23:21:56+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ],
+   [
+    "2026-11-10T04:45:36+00:00",
+    "519ab382ab200764810011ffa3671189cf738c73",
+    "success"
+   ]
+  ],
+  "external-secrets": [
+   [
+    "2026-11-09T23:15:52+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ]
+  ],
+  "gateway-api-crds": [
+   [
+    "2026-11-09T23:14:35+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ]
+  ],
+  "insight": [
+   [
+    "2026-11-09T23:24:58+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ],
+   [
+    "2026-11-09T23:59:23+00:00",
+    "d7bf9a8c19fe69c94d286bfdbe24a3c92755cf79",
+    "success"
+   ]
+  ],
+  "istio-base": [
+   [
+    "2026-11-09T23:14:41+00:00",
+    "1.31.4",
+    "success"
+   ]
+  ],
+  "istio-cni": [
+   [
+    "2026-11-09T23:15:14+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ]
+  ],
+  "istiod": [
+   [
+    "2026-11-09T23:15:15+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ]
+  ],
+  "keda": [
+   [
+    "2026-11-09T23:16:51+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ]
+  ],
+  "kyverno": [
+   [
+    "2026-11-09T23:20:40+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ]
+  ],
+  "loki": [
+   [
+    "2026-11-09T23:20:38+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ]
+  ],
+  "mesh": [
+   [
+    "2026-11-09T23:19:51+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ],
+   [
+    "2026-11-10T00:15:04+00:00",
+    "1d0bd871028bc5b6cc03e0de11c92f3391d09437",
+    "success"
+   ],
+   [
+    "2026-11-10T00:54:17+00:00",
+    "c7c91a4be6531ee5109ae4a327a84affe758a6e2",
+    "success"
+   ],
+   [
+    "2026-11-10T01:15:32+00:00",
+    "da3093448d57c229acb6ee6e7959d828a8d938bc",
+    "success"
+   ],
+   [
+    "2026-11-10T01:18:33+00:00",
+    "17e72ff14fe0533554470c2eac4892f2b967f5e1",
+    "success"
+   ],
+   [
+    "2026-11-10T01:25:30+00:00",
+    "1184b2f5c950d75a6ac1332bf2f36161d53e911c",
+    "success"
+   ],
+   [
+    "2026-11-10T01:35:26+00:00",
+    "63098d8b0fd613c41580adc6c52978d07e84df6c",
+    "success"
+   ]
+  ],
+  "monitoring": [
+   [
+    "2026-11-09T23:20:13+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ]
+  ],
+  "namespaces": [
+   [
+    "2026-11-09T23:15:44+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ]
+  ],
+  "nats": [
+   [
+    "2026-11-09T23:20:27+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ]
+  ],
+  "openbao": [
+   [
+    "2026-11-09T23:15:54+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ]
+  ],
+  "otel-collector": [
+   [
+    "2026-11-09T23:20:41+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ]
+  ],
+  "pg-main": [
+   [
+    "2026-11-09T23:21:56+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ]
+  ],
+  "platform-baseline": [
+   [
+    "2026-11-09T23:14:31+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ]
+  ],
+  "platform-root": [
+   [
+    "2026-11-09T23:24:57+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ],
+   [
+    "2026-11-10T03:49:33+00:00",
+    "1450adeb57fde66feacc1ced439d95c5527ec2de",
+    "success"
+   ],
+   [
+    "2026-11-10T04:05:33+00:00",
+    "1b4e1af6325c0c1511960097bcc03a319c1084be",
+    "success"
+   ],
+   [
+    "2026-11-10T04:20:09+00:00",
+    "a345fbb04fc6472c448f405eb7d6702de2510c80",
+    "success"
+   ],
+   [
+    "2026-11-10T04:24:22+00:00",
+    "9fddf84b0c3bf1b3d5518c448bdb3add4b2fa600",
+    "success"
+   ],
+   [
+    "2026-11-10T04:46:47+00:00",
+    "519ab382ab200764810011ffa3671189cf738c73",
+    "success"
+   ]
+  ],
+  "policies": [
+   [
+    "2026-11-09T23:20:26+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ]
+  ],
+  "storefront-catalog-prod": [
+   [
+    "2026-11-09T23:24:55+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ],
+   [
+    "2026-11-10T00:17:02+00:00",
+    "9ec0a1c14babbd45c620499436bcaf50597c9764",
+    "success"
+   ],
+   [
+    "2026-11-10T03:49:12+00:00",
+    "1450adeb57fde66feacc1ced439d95c5527ec2de",
+    "success"
+   ],
+   [
+    "2026-11-10T04:31:01+00:00",
+    "3783f5247d77b79b2e76c31a7c5821300a312f24",
+    "success"
+   ]
+  ],
+  "storefront-gateway-prod": [
+   [
+    "2026-11-09T23:24:56+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ],
+   [
+    "2026-11-10T01:36:05+00:00",
+    "63098d8b0fd613c41580adc6c52978d07e84df6c",
+    "success"
+   ]
+  ],
+  "storefront-inventory-prod": [
+   [
+    "2026-11-09T23:24:56+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ]
+  ],
+  "storefront-notifier-prod": [
+   [
+    "2026-11-09T23:24:56+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ]
+  ],
+  "storefront-orders-prod": [
+   [
+    "2026-11-09T23:24:57+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ],
+   [
+    "2026-11-10T03:55:25+00:00",
+    "3ed39f24c73b16a1ad32bc23237af9065731c60c",
+    "success"
+   ],
+   [
+    "2026-11-10T04:42:57+00:00",
+    "3783f5247d77b79b2e76c31a7c5821300a312f24",
+    "success"
+   ]
+  ],
+  "storefront-payments-prod": [
+   [
+    "2026-11-09T23:24:57+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ]
+  ],
+  "tempo": [
+   [
+    "2026-11-09T23:20:36+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ]
+  ],
+  "tenants": [
+   [
+    "2026-11-09T23:19:52+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ],
+   [
+    "2026-11-10T00:15:04+00:00",
+    "1d0bd871028bc5b6cc03e0de11c92f3391d09437",
+    "success"
+   ],
+   [
+    "2026-11-10T03:49:58+00:00",
+    "1450adeb57fde66feacc1ced439d95c5527ec2de",
+    "success"
+   ]
+  ],
+  "valkey": [
+   [
+    "2026-11-09T23:20:25+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ]
+  ],
+  "velero": [
+   [
+    "2026-11-09T23:21:08+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ]
+  ],
+  "ztunnel": [
+   [
+    "2026-11-09T23:15:34+00:00",
+    "085d44cec105ac4c37a1ffa8c2bf53b01d195f7a",
+    "success"
+   ]
+  ]
+ }
+}

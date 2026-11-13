@@ -1,0 +1,5 @@
+== 11:39:07 what --disable-qps-limits does (kwokctl v0.8.0): a throwaway cluster without nodes, container arguments
+  kube-apiserver: --max-requests-inflight=0 --max-mutating-requests-inflight=0 --enable-priority-and-fairness=false 
+  kube-scheduler: --kube-api-qps=5000 --kube-api-burst=10000 
+  kube-controller-manager: --kube-api-qps=5000 --kube-api-burst=10000 
+  deleted; kwok containers left: 0

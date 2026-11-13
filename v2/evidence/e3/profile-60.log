@@ -1,0 +1,39 @@
+# transcript: E3: where the CPU goes - py-spy at 60 iterations/s
+# recorded: 2026-11-07T09:58:37Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e3/profile.sh gateway 30 gateway-60
+profiling gateway-778cc68bb5-fdhx7 on ent-worker2, pid 21387 in the node, 30s at 100 Hz
+py-spy> Wrote raw flamegraph data to '/tmp/gateway-60.txt'. Samples: 2673 Errors: 372
+py-spy> You can use the flamegraph.pl script from https://github.com/brendangregg/flamegraph to generate a SVG
+py-spy> Wrote flamegraph data to '/tmp/gateway-60.svg'. Samples: 2656 Errors: 419
+2673 samples
+inclusive share by library (a sample can count for several libraries):
+    0.0 %  json (encode/decode)
+top 8 leaf frames (self time):
+   66.9 %  run
+    2.7 %  send
+    2.0 %  __init__
+    1.3 %  __call__
+    1.0 %  _schedstat
+    0.9 %  app
+    0.9 %  handle_async_request
+    0.6 %  __enter__
+
+$ bash v2/experiments/e3/profile.sh orders 30 orders-60
+profiling orders-65d744d8fc-2tpwm on ent-worker, pid 25518 in the node, 30s at 100 Hz
+py-spy> Wrote raw flamegraph data to '/tmp/orders-60.txt'. Samples: 2823 Errors: 220
+py-spy> You can use the flamegraph.pl script from https://github.com/brendangregg/flamegraph to generate a SVG
+py-spy> Wrote flamegraph data to '/tmp/orders-60.svg'. Samples: 2856 Errors: 180
+2823 samples
+inclusive share by library (a sample can count for several libraries):
+    0.0 %  json (encode/decode)
+top 8 leaf frames (self time):
+   78.8 %  run
+    1.2 %  execute
+    1.1 %  __init__
+    1.0 %  _schedstat
+    0.7 %  send
+    0.6 %  _do_execute
+    0.5 %  read
+    0.4 %  start_span
+

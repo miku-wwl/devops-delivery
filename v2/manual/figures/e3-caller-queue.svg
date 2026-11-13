@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 300" width="640" height="300" font-family="'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="18.0" y="19.0" font-size="13" fill="#1b2430" text-anchor="start" font-weight="600">同一次 catalog 调用的两种耗时（ms）：调用方看到的与被调用方自己的</text>
+<line x1="62.0" y1="260.0" x2="620.0" y2="260.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="263.5" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">0</text>
+<line x1="62.0" y1="202.2" x2="620.0" y2="202.2" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="205.7" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">200</text>
+<line x1="62.0" y1="144.4" x2="620.0" y2="144.4" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="147.9" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">400</text>
+<line x1="62.0" y1="86.7" x2="620.0" y2="86.7" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="90.2" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">600</text>
+<line x1="62.0" y1="260.0" x2="620.0" y2="260.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="14.0" y="156.0" font-size="10.5" fill="#5b6776" text-anchor="middle" font-weight="normal" transform="rotate(-90 14.0 156.0)">ms</text>
+<rect x="86.8" y="256.9" width="44.0" height="3.1" fill="#d9730d" stroke="none" stroke-width="1" rx="2"/>
+<text x="108.8" y="252.9" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">10.6</text>
+<rect x="132.8" y="259.4" width="44.0" height="0.6" fill="#0f8a7e" stroke="none" stroke-width="1" rx="2"/>
+<text x="154.8" y="255.4" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">2.2</text>
+<text x="131.8" y="275.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">80 迭代/秒</text>
+<text x="131.8" y="287.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">网关 0.62 核</text>
+<rect x="226.2" y="256.2" width="44.0" height="3.8" fill="#d9730d" stroke="none" stroke-width="1" rx="2"/>
+<text x="248.2" y="252.2" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">13.2</text>
+<rect x="272.2" y="259.3" width="44.0" height="0.7" fill="#0f8a7e" stroke="none" stroke-width="1" rx="2"/>
+<text x="294.2" y="255.3" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">2.3</text>
+<text x="271.2" y="275.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">100</text>
+<text x="271.2" y="287.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">0.76 核</text>
+<rect x="365.8" y="76.6" width="44.0" height="183.4" fill="#d9730d" stroke="none" stroke-width="1" rx="2"/>
+<text x="387.8" y="72.6" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">635</text>
+<rect x="411.8" y="259.0" width="44.0" height="1.0" fill="#0f8a7e" stroke="none" stroke-width="1" rx="2"/>
+<text x="433.8" y="255.0" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">3.3</text>
+<text x="410.8" y="275.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">110</text>
+<text x="410.8" y="287.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">0.96 核</text>
+<rect x="505.2" y="78.0" width="44.0" height="182.0" fill="#d9730d" stroke="none" stroke-width="1" rx="2"/>
+<text x="527.2" y="74.0" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">630</text>
+<rect x="551.2" y="259.2" width="44.0" height="0.8" fill="#0f8a7e" stroke="none" stroke-width="1" rx="2"/>
+<text x="573.2" y="255.2" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">2.8</text>
+<text x="550.2" y="275.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">120</text>
+<text x="550.2" y="287.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">0.96 核</text>
+<rect x="62.0" y="31.0" width="12.0" height="10.0" fill="#d9730d" stroke="none" stroke-width="1" rx="2"/>
+<text x="78.0" y="40.0" font-size="10.5" fill="#5b6776" text-anchor="start" font-weight="normal">网关看到的调用耗时</text>
+<rect x="190.5" y="31.0" width="12.0" height="10.0" fill="#0f8a7e" stroke="none" stroke-width="1" rx="2"/>
+<text x="206.5" y="40.0" font-size="10.5" fill="#5b6776" text-anchor="start" font-weight="normal">catalog 自己的处理时间</text>
+</svg>

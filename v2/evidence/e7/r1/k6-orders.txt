@@ -1,0 +1,2 @@
+1:metric_name 2:timestamp 3:metric_value 4:check 5:error 6:error_code 7:expected_response 8:group 9:method 10:name 11:proto 12:scenario 13:service 14:status 15:subproto 16:tls_version 17:url 18:extra_tags 19:metadata 
+order POSTs before T0: 152, acknowledged (2xx): 147, last acknowledged -1.0 s from T0; 2xx after T0: 2

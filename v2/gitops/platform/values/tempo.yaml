@@ -1,0 +1,34 @@
+# grafana/tempo 1.24.4 (single binary, Tempo 2.9.0). The metrics generator turns spans into
+# request-rate/latency series and the service graph, pushed to Prometheus by remote write.
+tempo:
+  retention: 24h
+  # requests from measurement (E1: 719 MiB working set at 34 req/s)
+  resources: {requests: {cpu: 50m, memory: 640Mi}, limits: {memory: 1Gi}}
+  # E3 (chapter 4): the chart starts Tempo with a 1 GiB memory ballast (-mem-ballast-size-mbs=
+  # 1024): a never-touched slice that counts as Go heap but not as resident memory. Next to
+  # GOMEMLIMIT 800 MiB the heap could never get under the soft limit: ~18 GCs per second,
+  # ~1.3 cores burnt at any load. Without the soft limit the GC target (about twice ballast +
+  # live data) let real memory reach the 1 GiB limit: OOM-killed while completing a block, in a
+  # crash loop. Ballasts predate GOMEMLIMIT and should not be combined with it.
+  memBallastSizeMbs: 0
+  extraEnv:
+    - {name: GOMEMLIMIT, value: "900MiB"}   # 90 % of the container limit
+  reportingEnabled: false                    # no anonymous usage reports to Grafana Labs
+  ingester:
+    max_block_bytes: 104857600   # 100 MiB (default 500 MB)
+    max_block_duration: 5m       # default 30m
+  metricsGenerator:
+    enabled: true
+    remoteWriteUrl: http://kps-prometheus.monitoring:9090/api/v1/write
+  # "enabled" only starts the generator; the processors are switched on per tenant here.
+  # Without this block the generator runs, writes nothing, and the service graph stays empty
+  # (found in E1: zero traces_service_graph_* series in Prometheus).
+  overrides:
+    defaults:
+      metrics_generator:
+        processors: [service-graphs, span-metrics]
+# E7: pinned to its volume, may preempt a pod that took its place (chapter 7, incident 2)
+priorityClassName: platform-critical
+persistence:
+  enabled: true
+  size: 2Gi

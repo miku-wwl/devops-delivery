@@ -1,0 +1,2 @@
+openbao-0 Running at T0 + 305 s; Ready=false (uninitialised); openbao app: Synced/Progressing
+after 10 s: Ready=true, openbao app: Synced/Progressing

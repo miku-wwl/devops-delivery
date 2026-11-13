@@ -1,0 +1,25 @@
+== 2026-11-10T11:58:39Z E10 cleanup
+  kwokctl clusters: (none listed = none left)
+  kwok containers: 0
+  ~/.kwok/scale.kubeconfig present: no
+  slip: the throwaway cluster flagcheck (k2-flags.log) was created without --kubeconfig; kwokctl wrote its context into ~/.kube/config and deleting it left current-context empty - restored with kubectl config use-context kind-ent
+  kubectl context: kind-ent
+  WSL available MiB: 5007
+== GitLab platform-gitops: freeze periods 0, open merge requests 0, deployments 34
+== storefront images
+  catalog                    localhost:5001/storefront:05a04fe
+  gateway                    localhost:5001/storefront:05a04fe
+  inventory                  localhost:5001/storefront:05a04fe
+  notifier                   localhost:5001/storefront:05a04fe
+  orders                     localhost:5001/storefront:05a04fe
+  payments                   localhost:5001/storefront:05a04fe
+  storefront-ingress-istio   docker.io/istio/proxyv2:1.31.4-distroless
+  waypoint                   docker.io/istio/proxyv2:1.31.4-distroless
+== worker memory requests (of allocatable)
+  ent-worker 2770Mi (87%)
+  ent-worker2 2650Mi (83%)
+  ent-worker3 3050Mi (95%)
+== pods not Running/Completed: 0
+== newest PostgreSQL base backup: pg-main-nightly-20261110055945 completed
+  Argo CD applications (sync/health):  38 Synced/Healthy;
+  alert bridge healthz: {"ok": true}

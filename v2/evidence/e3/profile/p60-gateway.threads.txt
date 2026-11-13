@@ -1,0 +1,10 @@
+CPU per thread over the 30 s window (cores; py-spy thread names by pod-namespace id):
+  MainThread                         tid 1       0.428
+  OtelBatchSpanRecordProcessor       tid 12      0.003
+  OtelBatchLogRecordProcessor        tid 13      0.002
+  loopwatch                          tid 14      0.008
+  (native thread)                    tid 15      0.000
+  (native thread)                    tid 16      0.000
+  (native thread)                    tid 17      0.000
+  (native thread)                    tid 18      0.000
+  total                                          0.441

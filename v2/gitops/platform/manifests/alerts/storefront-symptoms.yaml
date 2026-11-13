@@ -1,0 +1,25 @@
+# E9 (chapter 10), action item 2 of the incident drill: a page on the symptom itself. The SLO's
+# burn-rate page depends on the healthy traffic its windows hold: with a full hour of history the
+# drill's failure (98 % of checkouts) pages on the 1 h / 5 min pair only after 14.4 % x 60 / 0.98 = 8.8
+# minutes - longer than the drill's whole outage (4.5 minutes); it paged after 2 minutes only because
+# the windows held 35 minutes of traffic. Back-test on the drill: this rule fires at 08:26:15. More than half of the checkouts failing for two minutes is
+# worth waking someone up whatever the budget says.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: storefront-symptoms
+  namespace: monitoring
+spec:
+  groups:
+    - name: storefront.symptoms
+      rules:
+        - alert: CheckoutFailing
+          expr: |
+            (sum(rate(http_server_requests_total{namespace="storefront", service="gateway", route="/api/orders", method="POST", code=~"5.."}[2m]))
+              / sum(rate(http_server_requests_total{namespace="storefront", service="gateway", route="/api/orders", method="POST"}[2m])) > 0.5)
+            and on() (sum(increase(http_server_requests_total{namespace="storefront", service="gateway", route="/api/orders", method="POST"}[2m])) > 20)
+          for: 1m
+          labels: {severity: critical, team: shop}
+          annotations:
+            summary: "more than half of the checkouts fail ({{ $value | humanizePercentage }} over 2 minutes)"
+            runbook_url: https://github.com/miku-wwl/devops-delivery/blob/v2/enterprise/v2/docs/runbooks.md#checkout-failing

@@ -1,0 +1,112 @@
+# transcript: E3: which hop is slow when readiness probes time out (node and in-pod probes during the crash loop)
+# recorded: 2026-11-07T12:17:26Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e3/storm-probe.sh storm-probe-180 180 60
+ent-worker: probing catalog-5486d76849-8bh5g (10.240.1.47)
+ent-worker2: probing catalog-5486d76849-gnjfl (10.240.2.27)
+ent-worker3: probing inventory-868559bc67-dgkrb (10.240.3.44)
+load balancer container: kindccm-7c5080a249c3 (http://172.20.0.8:8080)
+envoy pid 4931, open files now: 109
+Max open files            1024                 1048576              files     
+window 2026-11-07T12:17:36Z .. 2026-11-07T12:18:59Z
+envoy crashes during the run: 11
+first events:
+[2026-11-07 12:17:40.301][4955][error][envoy_bug] [source/common/network/socket_interface_impl.cc:89] envoy bug failure: false. Details: socket(2) failed, got e
+[2026-11-07 12:17:40.303][4955][critical][backtrace] [./source/server/backtrace.h:129] Caught Segmentation fault, suspect faulting address 0x0
+[2026-11-07 12:17:41.926][4985][info][main] [source/server/server.cc:1001] starting main dispatch loop
+[2026-11-07 12:17:45.563][5018][error][envoy_bug] [source/common/network/socket_interface_impl.cc:89] envoy bug failure: false. Details: socket(2) failed, got e
+k6 summary:
+rate=180/s duration=60s iterations=10693 dropped=108
+requests=17668 (286.6/s) failed=100.00%
+browse: p50=0.0 p95=2318.6 p99=4704.0 max=5781.7 ms
+order:  p50=90.3 p95=2713.2 p99=5376.7 max=6772.8 ms
+checks: 0.00% passed
+time="2026-11-08T01:18:39+13:00" level=error msg="thresholds on metrics 'http_req_duration{kind:browse}, http_req_duration{kind:order}, http_req_failed{kind:browse}' have been crossed"
+k6 network errors: 16884
+  14373 error="Get \
+   2510 error="Post \
+      1 error="unexpected EOF
+readiness (R = ready, - = not ready), every 2 s:
+12:17:45 inventory/w1=- orders/w1=- payments/w1=- 
+12:17:47 catalog/w1=- catalog/w2=- inventory/w1=- orders/w1=- orders/w2=- payments/w1=- 
+12:18:38 catalog/w1=- inventory/w1=- orders/w1=- orders/w2=- payments/w1=- 
+12:18:40 inventory/w1=- orders/w1=- payments/w1=- 
+12:18:42 
+ztunnel on ent-worker: 2683 lines, 2 with error=, by error:
+      2 error="attempted recursive call to ourselves"
+ztunnel on ent-worker2: 2577 lines, 2 with error=, by error:
+      1 error="while closing connection: receive: io error: protocol error: unexpected internal error encountered"
+      1 error="attempted recursive call to ourselves"
+ztunnel on ent-worker3: 52 lines, 0 with error=, by error:
+
+max latency (ms) per 5 s: node -> pod /healthz | node -> pod /readyz | pod -> db SELECT 1 | new db connection
+== ent-worker
+12:17:25        3      20       2      20
+12:17:30        4       7       3      21
+12:17:35        3     715    2623      25
+12:17:40        4    3001 (1 not 200)    1021      44 (1 failed)
+12:17:45        3    3001 (1 not 200)       0       0
+12:17:50        3    3001 (4 not 200)       0       0
+12:17:55        6     954 (4 not 200)       0       0
+12:18:00        3     954 (3 not 200)       0       0
+12:18:05        3     953 (3 not 200)       0       0 (1 failed)
+12:18:10        3    3001 (2 not 200)       0       0
+12:18:15        3     954 (3 not 200)       0       0
+12:18:20        5     956 (4 not 200)       0       0
+12:18:25        3     954 (4 not 200)       0      22 (1 failed)
+12:18:30        2     952 (3 not 200)       0       0
+12:18:35        4     952 (2 not 200)       4       0
+12:18:40        3       7       3      21
+12:18:45        5       7       5      27
+12:18:50        4       7       3      24
+12:18:55        4       9       3      21
+12:19:00        5       7       3      28
+12:19:05        0       0       2      19
+12:19:10        0       0       2      18
+== ent-worker2
+12:17:25        3       7       2      20
+12:17:30        4       8       3      20
+12:17:35        3    1467 (1 not 200)    2211      27
+12:17:40        5     953 (2 not 200)    1427      53
+12:17:45        4    2358 (3 not 200)       0       0 (1 failed)
+12:17:50        3     955 (3 not 200)       0       0
+12:17:55        4     955 (5 not 200)       0       0
+12:18:00        3     953 (3 not 200)    4791       0
+12:18:05        3     953 (3 not 200)     964       0 (1 failed)
+12:18:10        4     953 (3 not 200)       0       0
+12:18:15        2     953 (4 not 200)     948       0 (1 failed)
+12:18:20        3     957 (3 not 200)       0       0
+12:18:25        3     955 (4 not 200)       0       0
+12:18:30        3     951 (3 not 200)       0       0
+12:18:35        4     951 (2 not 200)      10      43
+12:18:40        4       8       6      19
+12:18:45        4       7       2      18
+12:18:50        4       8       2      20
+12:18:55        4       7       3      24
+12:19:00        7      18       2      20
+12:19:05        0       0       3      21
+12:19:10        0       0       2      31
+== ent-worker3
+12:17:25        4       8       3      21
+12:17:30        6       7       2      23
+12:17:35        5       6       7      35
+12:17:40        4      56       2      25
+12:17:45        4       6       2      21
+12:17:50        4      10       3      19
+12:17:55        3       8       3      27
+12:18:00        3       9       3      74
+12:18:05        4       5       2      23
+12:18:10        3       7       3      24
+12:18:15        2       6       2      18
+12:18:20        3       6       2      24
+12:18:25        3      11       2      57
+12:18:30        3       7       2      27
+12:18:35        4       7       2      19
+12:18:40        3      12       2      17
+12:18:45        4       8       2      19
+12:18:50        3       7       2      25
+12:18:55        6       7       2      21
+12:19:00        4       8       2      20
+12:19:05        3       7       2      25
+12:19:10        0       0       2      24
+

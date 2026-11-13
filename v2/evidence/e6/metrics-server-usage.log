@@ -1,0 +1,9 @@
+# transcript: E6: metrics-server memory - requested 200Mi before the fix, used about 38 MiB (the new pod, requests 64Mi)
+# recorded: 2026-11-09T13:05:46Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl get --raw /api/v1/nodes/$(kubectl -n kube-system get pod -l k8s-app=metrics-server -o jsonpath='{.items[0].spec.nodeName}')/proxy/stats/summary | jq -r '.pods[] | select(.podRef.name | startswith("metrics-server")) | "\(.podRef.name) working set \((.memory.workingSetBytes / 1048576) | floor) MiB"'
+metrics-server-78f468bb75-78pbm working set 42 MiB
+
+$ kubectl -n kube-system get deploy metrics-server -o jsonpath='request {.spec.template.spec.containers[0].resources.requests.memory}{"\n"}'
+request 64Mi
+

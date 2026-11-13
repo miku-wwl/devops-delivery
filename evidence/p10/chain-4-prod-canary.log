@@ -1,0 +1,54 @@
+# transcript: P10 part A: the same digest goes to prod as a canary (20 %, analysis in the background)
+# recorded: 2026-11-06T13:29:12Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ DIGEST=sha256:4bb4aac303ab48d036af1808c98312c16acbe8eef3c8f6fcdc42dc4f77711f38
+
+$ kubectl argo rollouts get rollout demo-api-prod -n prod | sed -E "s/\x1b\[[0-9;]*m//g" | sed -n "1,9p"
+Name:            demo-api-prod
+Namespace:       prod
+Status:          ✔ Healthy
+Strategy:        Canary
+  Step:          6/6
+  SetWeight:     100
+  ActualWeight:  100
+Images:          ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:7826c3b200f29420237e75169e25d4780192439e9ca01c5d1b17988e513b2559 (stable)
+Replicas:
+
+$ bash delivery/argocd/promote.sh prod image.digest=$DIGEST --merge --title "prod: X-Request-ID (85b3a49), verified in dev"
+ envs/prod/values.yaml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+@@ -4,3 +4,3 @@ image:
+   tag: "0.1.1"
+-  digest: sha256:7826c3b200f29420237e75169e25d4780192439e9ca01c5d1b17988e513b2559
++  digest: sha256:4bb4aac303ab48d036af1808c98312c16acbe8eef3c8f6fcdc42dc4f77711f38
+ # Progressive delivery for prod: 5 replicas (20% steps = 1 pod), metrics scraped
+merge request !21: http://localhost:8929/root/delivery-gitops/-/merge_requests/21
+merged !21 -> main @ f49539c by root
+
+$ bash delivery/argocd/wait-sync.sh demo-api-prod "" 120 || true
+t+1s  revision=e9472b2 sync=Synced health=Healthy operation=Succeeded
+t+73s  revision=f49539c sync=OutOfSync health=Healthy operation=Running
+t+81s  revision=f49539c sync=Synced health=Progressing operation=Succeeded
+t+94s  revision=f49539c sync=Synced health=Suspended operation=Succeeded
+timeout after 120s
+
+$ bash delivery/rollouts/watch-rollout.sh prod demo-api-prod Paused 300
+t+0s  phase=Paused step=1 updated=1 available=5 analysis=Running message="CanaryPauseStep"
+
+$ sleep 100
+
+$ AR=$(kubectl -n prod get analysisrun --sort-by=.metadata.creationTimestamp -o jsonpath="{.items[-1:].metadata.name}"); echo "analysis run: $AR"
+analysis run: demo-api-prod-56ffb56667-8
+
+$ kubectl -n prod get analysisrun "$AR" -o json | jq -r "\"\(.metadata.name): \(.status.phase)\", (.status.metricResults[] | \"  \(.name): phase=\(.phase) successful=\(.successful // 0) failed=\(.failed // 0) values=\([.measurements[].value] | join(\", \"))\")"
+demo-api-prod-56ffb56667-8: Running
+  success-rate: phase=Running successful=5 failed=0 values=[1], [1], [1], [1], [1]
+  p95-latency-seconds: phase=Running successful=5 failed=0 values=[0.004749999999999999], [0.00475], [0.004750000000000001], [0.00475], [0.00475]
+
+$ kubectl get pods -n prod -l app.kubernetes.io/name=demo-api -o custom-columns=POD:.metadata.name,HASH:.metadata.labels.rollouts-pod-template-hash,IMAGE:.spec.containers[0].image --no-headers | sed -E "s/@sha256:(.{12}).*/@sha256:\1.../"
+demo-api-prod-56ffb56667-kdrzz   56ffb56667   ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:4bb4aac303ab...
+demo-api-prod-745d56f9d4-9twbt   745d56f9d4   ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:7826c3b200f2...
+demo-api-prod-745d56f9d4-nrbh4   745d56f9d4   ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:7826c3b200f2...
+demo-api-prod-745d56f9d4-sq5rd   745d56f9d4   ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:7826c3b200f2...
+demo-api-prod-745d56f9d4-zc8nd   745d56f9d4   ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:7826c3b200f2...
+

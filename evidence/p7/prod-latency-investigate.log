@@ -1,0 +1,25 @@
+# transcript: P7 unexpected alert: DemoApiHighLatency firing in prod
+# recorded: 2026-11-06T04:13:44Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl argo rollouts get rollout demo-api-prod -n prod | sed -E 's/\x1b\[[0-9;]*m//g' | sed -n '1,8p'
+Name:            demo-api-prod
+Namespace:       prod
+Status:          ॥ Paused
+Message:         CanaryPauseStep
+Strategy:        Canary
+  Step:          1/6
+  SetWeight:     20
+  ActualWeight:  20
+
+$ kubectl -n prod get configmap demo-api-prod -o jsonpath='{.data}'; echo
+{"FAULT_ERROR_RATE":"0","FAULT_LATENCY_MS":"0"}
+
+# p95 and request rate per ReplicaSet (stable vs canary)
+$ curl -s -G http://127.0.0.1:9090/api/v1/query --data-urlencode 'query=histogram_quantile(0.95, sum by (rollouts_pod_template_hash, role, le) (rate(http_request_duration_seconds_bucket{namespace="prod", route=~"/api/.*"}[2m])))' | jq -r '.data.result[] | "p95 hash=\(.metric.rollouts_pod_template_hash) role=\(.metric.role): \(.value[1] | tonumber * 1000 | floor) ms"'
+p95 hash=6bdb67694c role=stable: 852 ms
+p95 hash=66ffb5d6db role=canary: 4 ms
+
+$ curl -s -G http://127.0.0.1:9090/api/v1/query --data-urlencode 'query=histogram_quantile(0.95, sum by (route, le) (rate(http_request_duration_seconds_bucket{namespace="prod", route=~"/api/.*"}[2m])))' | jq -r '.data.result[] | "p95 \(.metric.route): \(.value[1] | tonumber * 1000 | floor) ms"'
+p95 /api/v1/orders: 872 ms
+p95 /api/v1/info: 4 ms
+

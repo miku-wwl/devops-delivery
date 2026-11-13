@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 196" width="640" height="196" font-family="'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="10.0" y="16.0" font-size="10" fill="#5b6776" text-anchor="start" font-weight="600">kubelet 以为的</text>
+<rect x="10.0" y="26.0" width="114.0" height="54.0" rx="5.0" fill="#ffffff" stroke="#b9c6d4" stroke-width="1.2" stroke-dasharray="3 3"/>
+<text x="67.0" y="43.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="600">/proc/meminfo</text>
+<text x="67.0" y="56.6" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">MemTotal 15642 MiB</text>
+<text x="67.0" y="70.2" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">整台虚拟机</text>
+<rect x="138.0" y="26.0" width="114.0" height="54.0" rx="5.0" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.2"/>
+<text x="195.0" y="49.8" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">cAdvisor</text>
+<text x="195.0" y="63.4" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">读取 MemTotal</text>
+<rect x="266.0" y="26.0" width="114.0" height="54.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="323.0" y="43.0" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">kubelet</text>
+<text x="323.0" y="56.6" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">capacity =</text>
+<text x="323.0" y="70.2" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">15642 MiB</text>
+<rect x="394.0" y="26.0" width="114.0" height="54.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="451.0" y="43.0" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">allocatable</text>
+<text x="451.0" y="56.6" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">capacity − 预留</text>
+<text x="451.0" y="70.2" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">− 驱逐阈值</text>
+<rect x="522.0" y="26.0" width="114.0" height="54.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="579.0" y="43.0" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">调度器</text>
+<text x="579.0" y="56.6" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">按 allocatable</text>
+<text x="579.0" y="70.2" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">放 Pod</text>
+<polyline points="124.0,53.0 133.0,53.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="138.0,53.0 129.1,49.0 129.1,57.0" fill="#5b6776"/>
+<polyline points="252.0,53.0 261.0,53.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="266.0,53.0 257.1,49.0 257.1,57.0" fill="#5b6776"/>
+<polyline points="380.0,53.0 389.0,53.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="394.0,53.0 385.1,49.0 385.1,57.0" fill="#5b6776"/>
+<polyline points="508.0,53.0 517.0,53.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="522.0,53.0 513.1,49.0 513.1,57.0" fill="#5b6776"/>
+<text x="10.0" y="122.0" font-size="10" fill="#5b6776" text-anchor="start" font-weight="600">内核执行的</text>
+<rect x="168.0" y="132.0" width="190.0" height="54.0" rx="5.0" fill="#fdecea" stroke="#c0392b" stroke-width="1.2"/>
+<text x="263.0" y="155.8" font-size="10" fill="#7a1f16" text-anchor="middle" font-weight="600">节点容器的 cgroup</text>
+<text x="263.0" y="169.4" font-size="9.5" fill="#7a1f16" text-anchor="middle" font-weight="normal">memory.max = 3072 MiB</text>
+<rect x="434.0" y="132.0" width="204.0" height="54.0" rx="5.0" fill="#fdecea" stroke="#c0392b" stroke-width="1.2"/>
+<text x="536.0" y="155.8" font-size="10" fill="#7a1f16" text-anchor="middle" font-weight="600">内核 OOM killer</text>
+<text x="536.0" y="169.4" font-size="9.5" fill="#7a1f16" text-anchor="middle" font-weight="normal">用量到 3072 MiB 就杀进程</text>
+<polyline points="358.0,159.0 429.0,159.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="434.0,159.0 425.1,155.0 425.1,163.0" fill="#5b6776"/>
+<polyline points="323.0,132.0 323.0,85.0" fill="none" stroke="#c0392b" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 4"/>
+<polygon points="323.0,80.0 319.0,88.9 327.0,88.9" fill="#c0392b"/>
+<circle cx="323.0" cy="108.0" r="9" fill="#ffffff"/>
+<line x1="317.0" y1="102.0" x2="329.0" y2="114.0" stroke="#c0392b" stroke-width="2.2"/>
+<line x1="317.0" y1="114.0" x2="329.0" y2="102.0" stroke="#c0392b" stroke-width="2.2"/>
+<text x="337.0" y="111.5" font-size="9.5" fill="#c0392b" text-anchor="start" font-weight="600">kubelet 不读它</text>
+</svg>

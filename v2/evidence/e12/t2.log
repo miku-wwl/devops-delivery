@@ -1,0 +1,28 @@
+22:48:33 T2 injected - candidate: "since a restart, the platform's secrets are not refreshed"
+  22:48:44 OpenBao answers: sealed=true
+== 22:48:44 grade right after the injection (NOWAIT, expected FAIL)
+== 22:48:44 T2 grade
+  FAIL  OpenBao unsealed
+  PASS  the unseal key files unchanged and read-only (no new key, no lost key)
+  PASS  both SecretStores Valid, insight's ExternalSecret synced
+== 22:48:46 result: 2 passed, 1 failed -> FAIL
+  exit code 1
+== 22:48:46 the candidate: evidence
+  Initialized        true
+  Sealed             true
+  Unseal Progress    0/1
+  ExternalSecret: SecretSynced - secret synced
+  -rw------- 393 init-throwaway.json
+  -r-------- 393 init.json
+  -r-------- 393 init.json.copy
+  -rw------- 0 init.json.truncated-20261110T134403Z
+== 22:48:46 the candidate: repair with the fixed script (it waits for an answer, refuses to replace a key)
+  unsealed
+  status: {"initialized":true,"sealed":false,"version":"2.7.2","storage_type":"raft"}
+== 22:48:51 grade after the repair
+== 22:48:51 T2 grade
+  PASS  OpenBao unsealed
+  PASS  the unseal key files unchanged and read-only (no new key, no lost key)
+  PASS  both SecretStores Valid, insight's ExternalSecret synced
+== 22:48:53 result: 3 passed, 0 failed -> PASS
+  exit code 0

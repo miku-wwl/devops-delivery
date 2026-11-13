@@ -1,0 +1,22 @@
+# transcript: P7 unexpected alert: which prod pods are slow, and why
+# recorded: 2026-11-06T04:14:08Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ for p in $(kubectl -n prod get pods -l app.kubernetes.io/name=demo-api -o name); do printf '%s role=%s restarts=%s started=%s FAULT_LATENCY_MS=%s\n' "${p#pod/}" "$(kubectl -n prod get $p -o jsonpath='{.metadata.labels.role}')" "$(kubectl -n prod get $p -o jsonpath='{.status.containerStatuses[0].restartCount}')" "$(kubectl -n prod get $p -o jsonpath='{.status.containerStatuses[0].state.running.startedAt}')" "$(kubectl -n prod exec $p -- printenv FAULT_LATENCY_MS 2>/dev/null)"; done
+demo-api-prod-66ffb5d6db-hq8zp role=canary restarts=0 started=2026-11-06T04:02:27Z FAULT_LATENCY_MS=0
+demo-api-prod-6bdb67694c-2nnx7 role=stable restarts=0 started=2026-11-06T01:09:04Z FAULT_LATENCY_MS=0
+demo-api-prod-6bdb67694c-2qnp2 role=stable restarts=0 started=2026-11-06T01:10:16Z FAULT_LATENCY_MS=0
+demo-api-prod-6bdb67694c-bfsxz role=stable restarts=0 started=2026-11-06T01:09:09Z FAULT_LATENCY_MS=0
+demo-api-prod-6bdb67694c-pw772 role=stable restarts=0 started=2026-11-06T01:14:11Z FAULT_LATENCY_MS=800
+
+$ kubectl -n prod get pods -l app.kubernetes.io/name=demo-api -o jsonpath='{range .items[*]}{.metadata.name}{" lastTerminated="}{.status.containerStatuses[0].lastState.terminated.reason}{" at "}{.status.containerStatuses[0].lastState.terminated.finishedAt}{"\n"}{end}'
+demo-api-prod-66ffb5d6db-hq8zp lastTerminated= at 
+demo-api-prod-6bdb67694c-2nnx7 lastTerminated= at 
+demo-api-prod-6bdb67694c-2qnp2 lastTerminated= at 
+demo-api-prod-6bdb67694c-bfsxz lastTerminated= at 
+demo-api-prod-6bdb67694c-pw772 lastTerminated= at 
+
+$ kubectl get events -n prod --sort-by=.lastTimestamp | grep -iE 'unhealthy|killing|backoff|restart' | tail -6
+11m         Warning   Unhealthy              pod/demo-api-prod-6bdb67694c-7rjc4    Readiness probe failed: Get "http://10.244.2.39:8080/readyz": dial tcp 10.244.2.39:8080: connect: connection refused
+11m         Normal    Killing                pod/demo-api-prod-6bdb67694c-7rjc4    Stopping container demo-api
+11m         Warning   Unhealthy              pod/demo-api-prod-66ffb5d6db-hq8zp    Readiness probe failed: Get "http://10.244.2.45:8080/readyz": dial tcp 10.244.2.45:8080: connect: connection refused
+

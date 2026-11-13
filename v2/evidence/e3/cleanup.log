@@ -1,0 +1,28 @@
+# transcript: E3: environment after the experiments - profiling tools removed, replicas and GitOps state as committed
+# recorded: 2026-11-09T01:45:12Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ for n in ent-worker ent-worker2 ent-worker3; do docker exec $n sh -c "rm -f /usr/local/bin/py-spy /tmp/orders-60.* /tmp/p60-* /tmp/gateway-60.* /tmp/t-all.txt /tmp/t-gil.txt /tmp/t.txt /tmp/idle-all.txt /tmp/idle-gil.txt; echo $n: py-spy \$(test -f /usr/local/bin/py-spy && echo present || echo removed), /tmp entries left: \$(ls /tmp | wc -l)"; done
+ent-worker: py-spy removed, /tmp entries left: 0
+ent-worker2: py-spy removed, /tmp entries left: 0
+ent-worker3: py-spy removed, /tmp entries left: 0
+
+$ kubectl -n storefront get deploy -o custom-columns=NAME:.metadata.name,REPLICAS:.spec.replicas,READY:.status.readyReplicas,IMAGE:.spec.template.spec.containers[0].image
+NAME        REPLICAS   READY   IMAGE
+catalog     2          2       localhost:5001/storefront:fd38028
+gateway     2          2       localhost:5001/storefront:fd38028
+inventory   2          2       localhost:5001/storefront:fd38028
+notifier    1          1       localhost:5001/storefront:fd38028
+orders      2          2       localhost:5001/storefront:fd38028
+payments    2          2       localhost:5001/storefront:fd38028
+waypoint    1          1       docker.io/istio/proxyv2:1.31.4-distroless
+
+$ kubectl get deploy,pod -A --no-headers | grep -cE "canary|e3-burst"
+0
+[exit 1]
+
+$ kubectl -n argocd get applications --no-headers -o custom-columns=APP:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status | awk '{s[$2" "$3]++} END {for (k in s) print s[k], k}'
+23 Synced Healthy
+
+$ docker exec kindccm-7c5080a249c3 grep "open files" /proc/1/limits
+Max open files            65536                1048576              files     
+

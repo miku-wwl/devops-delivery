@@ -1,0 +1,4 @@
+# Grafana screenshot (original, unedited): dashboard "Storefront: load and saturation" (uid storefront-capacity)
+# window: 2026-11-09T01:19:30Z .. 01:30:30Z = the one-replica step load (evidence/e3/one-replica-2.log)
+# taken: 2026-11-09T01:35:23Z from the anonymous read-only Grafana (port-forward 127.0.0.1:3000)
+$ manual/.venv/Scripts/python.exe manual/tools/webshot.py --url "http://127.0.0.1:3000/d/storefront-capacity/storefront3a-load-and-saturation?orgId=1&from=1794187170000&to=1794187830000&kiosk" --out v2/evidence/e3/grafana-capacity-one-replica.png --width 1600 --height 1300 --wait-ms 12000

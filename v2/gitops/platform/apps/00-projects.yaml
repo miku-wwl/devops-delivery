@@ -1,0 +1,92 @@
+# Two Argo CD projects. "platform" may install cluster-wide components; "storefront" may only
+# deploy namespaced resources into the storefront namespaces, from this repository.
+# E5 adds the project "insight" for a second team (below).
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: platform
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-10"}
+spec:
+  description: Shared platform components (operators, observability, data services)
+  sourceRepos:
+    - http://gitlab:8929/root/platform-gitops.git
+    - https://prometheus-community.github.io/helm-charts
+    - https://grafana.github.io/helm-charts
+    - https://open-telemetry.github.io/opentelemetry-helm-charts
+    - https://cloudnative-pg.github.io/charts
+    - https://nats-io.github.io/k8s/helm/charts
+    - https://blob.istio.io/istio-release/charts
+    - https://kedacore.github.io/charts
+    - https://kyverno.github.io/kyverno/
+    - https://openbao.github.io/openbao-helm
+    - https://charts.external-secrets.io
+    - https://charts.jetstack.io                 # E7: cert-manager
+    - https://vmware-tanzu.github.io/helm-charts # E7: Velero
+    - https://fluent.github.io/helm-charts       # E9: Fluent Bit (node-level logs)
+    - https://argoproj.github.io/argo-helm       # E11: Argo CD manages itself (apps/argocd.yaml)
+  destinations:
+    - {server: https://kubernetes.default.svc, namespace: "*"}
+  # E8 (chapter 9): with sync impersonation on, Argo CD applies this project's changes as this
+  # account (created by the Argo CD release itself: gitops/bootstrap/argocd-values.yaml extraObjects)
+  destinationServiceAccounts:
+    - {server: https://kubernetes.default.svc, namespace: "*", defaultServiceAccount: "argocd:argocd-platform"}
+  clusterResourceWhitelist:
+    - {group: "*", kind: "*"}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: storefront
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-10"}
+spec:
+  description: The storefront services
+  sourceRepos:
+    - http://gitlab:8929/root/platform-gitops.git
+  destinations:
+    - {server: https://kubernetes.default.svc, namespace: "storefront*"}
+  # E8: applied as storefront's own deployer account (platform/manifests/tenants/argocd-deployers.yaml)
+  destinationServiceAccounts:
+    - {server: https://kubernetes.default.svc, namespace: "storefront*", defaultServiceAccount: argocd-storefront}
+  # E8 (chapter 9): change freeze, the second key (the first: the job "freeze" of the gate,
+  # .gitlab-ci.yml). In a deny window Argo CD runs no automated sync of this project, self-heal
+  # included; an operator may still sync by hand (manualSync) - the emergency path.
+  syncWindows:
+    - {kind: deny, schedule: "0 0 24 12 *", duration: 72h, applications: ["*"], manualSync: true, timeZone: UTC}   # year-end freeze, 24-26 December
+  clusterResourceWhitelist: []   # E8: no namespaces either - they are the platform's (no CreateNamespace)
+  namespaceResourceWhitelist:
+    - {group: "", kind: "*"}
+    - {group: apps, kind: "*"}
+    - {group: policy, kind: PodDisruptionBudget}
+    - {group: autoscaling, kind: HorizontalPodAutoscaler}
+    - {group: keda.sh, kind: ScaledObject}
+    - {group: monitoring.coreos.com, kind: ServiceMonitor}
+---
+# E5: team insight may deploy only into its own namespace, only these namespaced kinds, and no
+# cluster-scoped objects. Secrets, RBAC, NetworkPolicies and quotas belong to the platform.
+# Argo CD cannot restrict a path inside a repository: one repository per team is the real
+# boundary; here the Applications themselves are created by the platform.
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: insight
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-10"}
+spec:
+  description: Team insight - its own namespace only
+  sourceRepos:
+    - http://gitlab:8929/root/platform-gitops.git
+  destinations:
+    - {server: https://kubernetes.default.svc, namespace: insight}
+  # E8: applied as insight's own deployer account
+  destinationServiceAccounts:
+    - {server: https://kubernetes.default.svc, namespace: insight, defaultServiceAccount: argocd-insight}
+  clusterResourceWhitelist: []
+  namespaceResourceWhitelist:
+    - {group: "", kind: Service}
+    - {group: "", kind: ConfigMap}
+    - {group: apps, kind: Deployment}
+    - {group: policy, kind: PodDisruptionBudget}
+    - {group: autoscaling, kind: HorizontalPodAutoscaler}
+    - {group: external-secrets.io, kind: ExternalSecret}   # which secret to copy; the store is the platform's

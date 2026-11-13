@@ -1,0 +1,22 @@
+# transcript: E4: topology spread over three [模拟] zones while one zone takes no new pods
+# recorded: 2026-11-09T02:34:14Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e4/spread.sh ent-worker2
+== zones: ent-worker    zone-a ent-worker2   zone-b ent-worker3   zone-c 
+node/ent-worker2 cordoned
+== with ent-worker2 cordoned
+  soft: Running on ent-worker x1; Running on ent-worker3 x2; 
+  hard: Pending on unscheduled x1; Running on ent-worker x1; Running on ent-worker3 x1; 
+  honor: Running on ent-worker x1; Running on ent-worker3 x2; 
+== why the pending pod is pending
+hard-b89956f99-vphnb   0/4 nodes are available: 1 node(s) had untolerated taint(s), 1 node(s) were unschedulable, 2 node(s) didn't match pod topology spread constraints. preemption: 0/4 nodes are available: 2 No preemption victims found for incoming pod, 2 Pre
+node/ent-worker2 uncordoned
+== 02:34:36 uncordoned
+== 20 s later
+  soft: Running on ent-worker x1; Running on ent-worker3 x2; 
+  hard: Running on ent-worker x1; Running on ent-worker2 x1; Running on ent-worker3 x1; 
+  honor: Running on ent-worker x1; Running on ent-worker3 x2; 
+2026-11-09T02:34:15Z   hard-b89956f99-w6j9d     Scheduled
+2026-11-09T02:34:15Z   hard-b89956f99-jqql2     Scheduled
+2026-11-09T02:34:36Z   hard-b89956f99-vphnb     Scheduled
+

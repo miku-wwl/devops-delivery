@@ -1,0 +1,12 @@
+  2026-11-09T15:16:20.115036954Z[11:23] terminating any other active server processes
+  2026-11-09T15:16:20.125840833Z[11:23] shutting down due to startup process failure
+  2026-11-09T15:16:20.148179412Z[11:23] database system is shut down
+  2026-11-09T15:16:21.64032051Z[11:23] pg_ctl: no server running
+  
+  2026-11-09T15:16:21.640382603Z[11:23] Error while deactivating instance
+  2026-11-09T15:16:21.640496278Z[11:23] Exited log pipe
+  2026-11-09T15:16:21.640561364Z[11:23] Exited log pipe
+  2026-11-09T15:16:21.640609362Z[11:23] Exited log pipe
+  2026-11-09T15:16:21.640525412Z[11:23] Error while restoring a backup
+  2026-11-09T15:16:21.641651321Z[11:23] Webserver exited
+  2026-11-09T15:16:21.642029472Z[11:23] restore error

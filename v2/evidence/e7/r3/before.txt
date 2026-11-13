@@ -1,0 +1,17 @@
+== 04:53:18 before the loss
+  ent-control-plane Ready
+  ent-worker Ready
+  ent-worker2 Ready
+  ent-worker3 Ready
+  applications: 35, not Synced/Healthy: 0
+  pods: 90
+  orders: 239152, newest 2026-11-10 01:10:44.231067+00
+  outbox not yet published: 0
+  JetStream: {"streams":1,"consumers":1,"messages":25512}
+  base backups: pg-main-nightly-20261109232156=completed pg-main-nightly-20261110020000=completed 
+  OpenBao snapshots: openbao-snapshot-29904677=Complete openbao-snapshot-29904737=Complete 
+  secret insight/api-key sha256 prefix: 1251145cb0ed8b54
+conn 1794286404.017 10.240.2.14/32 False
+start r3 rate=50.0 deadline=2.0
+ok 1 1794286404.021 27.9
+  drill writer started (run r3)

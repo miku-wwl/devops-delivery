@@ -1,0 +1,136 @@
+# E5: admission policy for tenant namespaces (label "tenant"), enforced by Kyverno.
+# Pod Security Admission (namespace label, built in) already enforces the "restricted" profile;
+# these rules add what is specific to this platform. Order inside the API server: mutating
+# admission (including the LimitRange defaults) runs before validation, so a container that states
+# no resources gets the namespace's defaults first and then passes the resources rule.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: tenant-pods
+  annotations:
+    policies.kyverno.io/title: Tenant pods
+    policies.kyverno.io/description: >-
+      Images only from the platform registry, with a fixed tag; every container with a memory
+      limit and a CPU request.
+spec:
+  background: true
+  rules:
+    - name: images-from-the-platform-registry-with-a-tag
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+              namespaceSelector: {matchExpressions: [{key: tenant, operator: Exists}]}
+      validate:
+        failureAction: Enforce
+        message: "Images must be localhost:5001/<name>:<tag> - the platform registry, a fixed tag, not :latest."
+        pattern:
+          spec:
+            =(initContainers):
+              - image: "localhost:5001/*:* & !*:latest"
+            containers:
+              - image: "localhost:5001/*:* & !*:latest"
+    - name: memory-limit-and-cpu-request
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+              namespaceSelector: {matchExpressions: [{key: tenant, operator: Exists}]}
+      validate:
+        failureAction: Enforce
+        message: "Every container needs a memory limit and a CPU request."
+        pattern:
+          spec:
+            containers:
+              - resources:
+                  limits: {memory: "?*"}
+                  requests: {cpu: "?*"}
+---
+# A namespace created with the label "tenant" gets the platform's defaults at once, even when
+# nobody remembers to add them: default-deny networking (DNS and the namespace itself allowed),
+# a quota and container defaults. Kyverno owns the generated objects (synchronize: a deleted or
+# edited copy is restored). Namespaces whose defaults come from Git carry the label
+# "tenant-defaults: git" and are excluded (shop-dev and insight: platform/manifests/tenants/).
+# E8 (rebuild R3, chapter 9): the exclusion used to rest on the order alone - those namespaces
+# existed before this policy did; with both in one sync wave on an empty cluster, Kyverno generated
+# their objects first, and Argo CD and Kyverno then both claimed them.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: tenant-namespace-defaults
+  annotations:
+    policies.kyverno.io/title: Tenant namespace defaults
+spec:
+  rules:
+    - name: default-deny
+      match:
+        any:
+          - resources:
+              kinds: [Namespace]
+              selector: {matchExpressions: [{key: tenant, operator: Exists}, {key: tenant-defaults, operator: DoesNotExist}]}
+      generate:
+        synchronize: true
+        apiVersion: networking.k8s.io/v1
+        kind: NetworkPolicy
+        name: default-deny
+        namespace: "{{request.object.metadata.name}}"
+        data:
+          spec:
+            podSelector: {}
+            policyTypes: [Ingress, Egress]
+    - name: allow-dns-and-same-namespace
+      match:
+        any:
+          - resources:
+              kinds: [Namespace]
+              selector: {matchExpressions: [{key: tenant, operator: Exists}, {key: tenant-defaults, operator: DoesNotExist}]}
+      generate:
+        synchronize: true
+        apiVersion: networking.k8s.io/v1
+        kind: NetworkPolicy
+        name: allow-dns-and-same-namespace
+        namespace: "{{request.object.metadata.name}}"
+        data:
+          spec:
+            podSelector: {}
+            policyTypes: [Ingress, Egress]
+            ingress:
+              - from: [{podSelector: {}}]
+            egress:
+              - to: [{podSelector: {}}]
+              - to: [{namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: kube-system}}, podSelector: {matchLabels: {k8s-app: kube-dns}}}]
+                ports: [{port: 53, protocol: UDP}, {port: 53, protocol: TCP}]
+    - name: quota
+      match:
+        any:
+          - resources:
+              kinds: [Namespace]
+              selector: {matchExpressions: [{key: tenant, operator: Exists}, {key: tenant-defaults, operator: DoesNotExist}]}
+      generate:
+        synchronize: true
+        apiVersion: v1
+        kind: ResourceQuota
+        name: tenant
+        namespace: "{{request.object.metadata.name}}"
+        data:
+          spec:
+            hard: {pods: "10", requests.cpu: "1", requests.memory: 768Mi, limits.memory: 1536Mi}
+    - name: container-defaults
+      match:
+        any:
+          - resources:
+              kinds: [Namespace]
+              selector: {matchExpressions: [{key: tenant, operator: Exists}, {key: tenant-defaults, operator: DoesNotExist}]}
+      generate:
+        synchronize: true
+        apiVersion: v1
+        kind: LimitRange
+        name: tenant-defaults
+        namespace: "{{request.object.metadata.name}}"
+        data:
+          spec:
+            limits:
+              - type: Container
+                defaultRequest: {cpu: 50m, memory: 64Mi}
+                default: {memory: 128Mi}
+                max: {memory: 512Mi}

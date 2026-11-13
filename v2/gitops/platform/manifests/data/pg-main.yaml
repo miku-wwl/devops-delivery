@@ -1,0 +1,99 @@
+# PostgreSQL for the storefront: one CloudNativePG cluster, three instances (one primary, two
+# streaming replicas), one per [模拟] zone. Each service owns a database and a login role
+# ("database per service" on a shared cluster). Role passwords live in Secrets created by
+# platform/bootstrap/bootstrap.sh, outside Git (E5 moves them to an external secret store).
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pg-main
+  namespace: data
+spec:
+  instances: 3
+  # E7: pinned to their volumes, the instances must be able to preempt a pod that took their
+  # place while they were away (incident 2 of chapter 7)
+  priorityClassName: platform-critical
+  primaryUpdateStrategy: unsupervised
+  # E7: a rolling update promotes an already updated replica (switchover, seconds) instead of
+  # restarting the primary in place (the default "restart": writes wait for the same pod)
+  primaryUpdateMethod: switchover
+  postgresql:
+    parameters:
+      shared_buffers: 64MB
+      effective_cache_size: 256MB
+      max_connections: "200"
+      work_mem: 4MB
+      log_min_duration_statement: "250ms"
+      # the default, written down: a finished WAL segment is archived at least every 5 minutes,
+      # which bounds what a loss of the whole cluster costs (chapter 8)
+      archive_timeout: 5min
+    # E7 (chapter 8, F3/F4): synchronous replication. A commit returns only after one of the two
+    # standbys (ANY 1) has flushed it: an acknowledged order survives the loss of the primary even
+    # when the other standby lags. "required": with no standby reachable, commits wait instead of
+    # quietly becoming asynchronous ("preferred") - durability over availability.
+    synchronous:
+      method: any
+      number: 1
+      dataDurability: required
+  # E7: WAL archiving (and the WAL that replicas and restores fetch) through the Barman Cloud
+  # plugin to the ObjectStore pg-backups (pg-backup.yaml), outside the cluster
+  # E7 (chapter 8): this cluster was rebuilt after the loss of the whole Kubernetes cluster: born from
+  # the archive of its predecessor (last base backup + all WAL to the end of the archive) and archiving
+  # under a name of its own - an archive takes one writer. Each rebuild moves both names on
+  # (experiments/e7/rebuild.sh dr-change): R1 pg-main -> pg-main-r1, R2 pg-main-r1 -> pg-main-r2.
+  bootstrap:
+    recovery:
+      source: pg-main-archive
+  externalClusters:
+    - name: pg-main-archive
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters: {barmanObjectName: pg-backups, serverName: pg-main-r3}
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters: {barmanObjectName: pg-backups, serverName: pg-main-r4}
+  managed:
+    roles:
+      - {name: catalog, ensure: present, login: true, passwordSecret: {name: pg-role-catalog}}
+      - {name: inventory, ensure: present, login: true, passwordSecret: {name: pg-role-inventory}}
+      - {name: orders, ensure: present, login: true, passwordSecret: {name: pg-role-orders}}
+      # E7: drills (failover, recovery) write here, not into a service's database
+      - {name: drill, ensure: present, login: true, passwordSecret: {name: pg-role-drill}}
+  storage:
+    size: 2Gi
+  resources:
+    requests: {cpu: 100m, memory: 256Mi}
+    limits: {memory: 512Mi}
+  affinity:
+    topologyKey: topology.kubernetes.io/zone
+    podAntiAffinityType: required
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata: {name: pg-main-catalog, namespace: data}
+spec: {cluster: {name: pg-main}, name: catalog, owner: catalog}
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata: {name: pg-main-inventory, namespace: data}
+spec: {cluster: {name: pg-main}, name: inventory, owner: inventory}
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata: {name: pg-main-orders, namespace: data}
+spec: {cluster: {name: pg-main}, name: orders, owner: orders}
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata: {name: pg-main-drill, namespace: data}
+spec: {cluster: {name: pg-main}, name: drill, owner: drill}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: pg-main
+  namespace: data
+spec:
+  selector:
+    matchLabels: {cnpg.io/cluster: pg-main}
+  podMetricsEndpoints: [{port: metrics}]

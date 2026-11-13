@@ -1,0 +1,55 @@
+# transcript: E5 start: resources before the phase, API server audit/admission flags, namespace Pod Security labels, NetworkPolicy enforcement probe
+# recorded: 2026-11-09T08:20:20Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ git log --oneline -1
+efb43fa docs(v2/e4): chapter 5 complete - eviction ranking measured against a committed prediction; E4 validated
+
+$ for n in ent-worker ent-worker2 ent-worker3; do echo "$n: allocatable $(kubectl get node $n -o jsonpath='{.status.allocatable.memory}'), working set $(kubectl get --raw /api/v1/nodes/$n/proxy/stats/summary | jq -r '.node.memory.workingSetBytes / 1048576 | floor') MiB"; kubectl describe node $n | grep -E "^  (cpu|memory) " ; done
+ent-worker: allocatable 2730064Ki, working set 1868 MiB
+  cpu                1180m (31%)   0 (0%)
+  memory             2306Mi (86%)  4608Mi (172%)
+ent-worker2: allocatable 2730064Ki, working set 2474 MiB
+  cpu                880m (23%)    2 (53%)
+  memory             2218Mi (83%)  6400Mi (240%)
+ent-worker3: allocatable 2730064Ki, working set 1782 MiB
+  cpu                1275m (34%)   0 (0%)
+  memory             1914Mi (71%)  6Gi (230%)
+
+$ free -m
+               total        used        free      shared  buff/cache   available
+Mem:           15642       10496        1060         616        4942        5145
+Swap:           4096         979        3116
+
+$ kubectl -n kube-system get pod -l component=kube-apiserver -o jsonpath='{.items[0].spec.containers[0].command}' | tr ',' '\n' | grep -E "audit|admission|authorization"
+"--authorization-mode=Node
+"--enable-admission-plugins=NodeRestriction"
+"--audit-policy-file=/etc/kubernetes/audit/policy.yaml"
+"--audit-log-path=/var/log/kubernetes/audit/audit.log"
+"--audit-log-maxsize=100"
+"--audit-log-maxbackup=5"]
+
+$ kubectl get ns -L pod-security.kubernetes.io/enforce --no-headers
+argocd               Active   2d4h   
+cnpg-system          Active   2d4h   
+data                 Active   2d4h   
+default              Active   2d5h   
+e2-bench             Active   2d     
+istio-system         Active   2d     
+keda                 Active   6h5m   
+kube-node-lease      Active   2d5h   
+kube-public          Active   2d5h   
+kube-system          Active   2d5h   
+local-path-storage   Active   2d5h   
+monitoring           Active   2d4h   
+observability        Active   2d4h   
+storefront           Active   2d4h   
+
+$ bash v2/experiments/e5/np-probe.sh
+== kindnet: docker.io/kindest/kindnetd:v20260820-69b56db7
+== 1. no NetworkPolicy
+  no policy: 3/3 connections to server:8080 succeeded
+== 2. default-deny ingress
+  default deny: 0/3 connections to server:8080 succeeded
+== 3. allow from role=client on 8080
+  allowed again: 3/3 connections to server:8080 succeeded
+

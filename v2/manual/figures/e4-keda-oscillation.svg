@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 280" width="640" height="280" font-family="'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="18.0" y="19.0" font-size="13" fill="#1b2430" text-anchor="start" font-weight="600">只按积压扩缩：恒定负载下通知服务的副本数</text>
+<line x1="62.0" y1="234.0" x2="543.5" y2="234.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="237.5" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">0</text>
+<line x1="62.0" y1="201.5" x2="543.5" y2="201.5" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="205.0" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">1</text>
+<line x1="62.0" y1="169.0" x2="543.5" y2="169.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="172.5" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">2</text>
+<line x1="62.0" y1="136.5" x2="543.5" y2="136.5" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="140.0" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">3</text>
+<line x1="62.0" y1="104.0" x2="543.5" y2="104.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="107.5" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">4</text>
+<line x1="62.0" y1="71.5" x2="543.5" y2="71.5" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="75.0" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">5</text>
+<line x1="62.0" y1="234.0" x2="543.5" y2="234.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="302.8" y="268.0" font-size="10.5" fill="#5b6776" text-anchor="middle" font-weight="normal">负载升到 90 迭代/秒之后的秒数</text>
+<text x="14.0" y="143.0" font-size="10.5" fill="#5b6776" text-anchor="middle" font-weight="normal" transform="rotate(-90 14.0 143.0)">副本</text>
+<line x1="62.0" y1="234.0" x2="62.0" y2="238.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="62.0" y="250.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">0</text>
+<line x1="127.1" y1="234.0" x2="127.1" y2="238.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="127.1" y="250.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">100</text>
+<line x1="192.1" y1="234.0" x2="192.1" y2="238.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="192.1" y="250.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">200</text>
+<line x1="257.2" y1="234.0" x2="257.2" y2="238.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="257.2" y="250.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">300</text>
+<line x1="322.3" y1="234.0" x2="322.3" y2="238.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="322.3" y="250.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">400</text>
+<line x1="387.3" y1="234.0" x2="387.3" y2="238.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="387.3" y="250.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">500</text>
+<line x1="452.4" y1="234.0" x2="452.4" y2="238.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="452.4" y="250.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">600</text>
+<line x1="517.5" y1="234.0" x2="517.5" y2="238.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="517.5" y="250.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">700</text>
+<line x1="62.0" y1="136.5" x2="543.5" y2="136.5" stroke="#0f8a7e" stroke-width="1.3" stroke-dasharray="6 4"/>
+<text x="549.5" y="140.0" font-size="10" fill="#0f8a7e" text-anchor="start" font-weight="600">实际需要 3 个</text>
+<polyline points="62.0,201.5 74.4,201.5 74.4,136.5 276.1,136.5 276.1,201.5 285.8,201.5 285.8,136.5 294.3,136.5 294.3,71.5 486.9,71.5 486.9,201.5 497.3,201.5 497.3,169.0 506.4,169.0 506.4,104.0 537.0,104.0 537.0,104.0" fill="none" stroke="#d9730d" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+<line x1="276.1" y1="201.5" x2="290.1" y2="109.5" stroke="#c0392b" stroke-width="0.9"/>
+<circle cx="276.1" cy="201.5" r="2.6" fill="#c0392b" stroke="#fff" stroke-width="1.2"/>
+<rect x="291.1" y="104.5" width="146.5" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="294.1" y="113.5" font-size="10" fill="#c0392b" text-anchor="start" font-weight="normal">积压消化完 → 300 s 后缩到 1</text>
+<line x1="486.9" y1="201.5" x2="402.9" y2="143.5" stroke="#c0392b" stroke-width="0.9"/>
+<circle cx="486.9" cy="201.5" r="2.6" fill="#c0392b" stroke="#fff" stroke-width="1.2"/>
+<rect x="334.9" y="138.5" width="67.0" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="398.9" y="147.5" font-size="10" fill="#c0392b" text-anchor="end" font-weight="normal">又一次缩到 1</text>
+<line x1="62.0" y1="36.0" x2="80.0" y2="36.0" stroke="#d9730d" stroke-width="2.4"/>
+<text x="85.0" y="40.0" font-size="10.5" fill="#5b6776" text-anchor="start" font-weight="normal">通知服务的副本数（只有积压触发器）</text>
+</svg>

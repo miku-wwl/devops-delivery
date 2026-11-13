@@ -1,0 +1,4 @@
+# Grafana screenshot (original, unedited): dashboard "Storefront: load and saturation" (uid storefront-capacity)
+# window: 2026-11-09T02:16:00Z .. 02:26:30Z = the 170 it/s step with the gateway HPA and the notifier ScaledObject (evidence/e4/hpa-timeline-2.log)
+# taken: 2026-11-09T08:11:53Z from the anonymous read-only Grafana (port-forward 127.0.0.1:3000)
+$ manual/.venv/Scripts/python.exe manual/tools/webshot.py --url "http://127.0.0.1:3000/d/storefront-capacity/storefront3a-load-and-saturation?orgId=1&from=1794190560000&to=1794191190000&kiosk" --out v2/evidence/e4/grafana-capacity-hpa-170.png --width 1600 --height 1300 --wait-ms 12000

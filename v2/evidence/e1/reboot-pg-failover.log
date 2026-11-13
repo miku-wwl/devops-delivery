@@ -1,0 +1,41 @@
+# transcript: E1: unplanned PostgreSQL failover after the WSL restart
+# recorded: 2026-11-07T07:17:44Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ date -u +%FT%TZ
+2026-11-07T07:17:44Z
+
+$ kubectl -n argocd get applications -o custom-columns=NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status | grep -v Healthy
+NAME                        SYNC     HEALTH
+platform-root               Synced   Degraded
+
+$ kubectl -n data get cluster pg-main -o jsonpath="{.status.phase} | reason: {.status.phaseReason} | currentPrimary: {.status.currentPrimary} | targetPrimary: {.status.targetPrimary} | ready {.status.readyInstances}/{.status.instances}{\"\n\"}"
+Cluster in healthy state | reason:  | currentPrimary: pg-main-3 | targetPrimary: pg-main-3 | ready 3/3
+
+$ kubectl -n data get pods -l cnpg.io/cluster=pg-main -o custom-columns=NAME:.metadata.name,READY:.status.containerStatuses[0].ready,RESTARTS:.status.containerStatuses[0].restartCount,ROLE:.metadata.labels.cnpg\.io/instanceRole,NODE:.spec.nodeName,STARTED:.status.startTime
+NAME        READY   RESTARTS   ROLE     NODE          STARTED
+pg-main-1   true    1          <none>   ent-worker    2026-11-07T03:54:06Z
+pg-main-2   true    1          <none>   ent-worker2   2026-11-07T03:59:26Z
+pg-main-3   true    1          <none>   ent-worker3   2026-11-07T04:00:14Z
+
+$ kubectl -n data get events --sort-by=.lastTimestamp --field-selector involvedObject.name=pg-main 2>/dev/null | tail -12 | cut -c1-200
+LAST SEEN   TYPE     REASON           OBJECT            MESSAGE
+51s         Normal   FailingOver      cluster/pg-main   Current primary isn't healthy, initiating a failover from pg-main-1
+51s         Normal   FailoverTarget   cluster/pg-main   Failing over from pg-main-1 to pg-main-3
+
+$ kubectl -n cnpg-system logs deploy/cnpg-cloudnative-pg --since=20m 2>/dev/null | jq -r "select(.msg|test(\"primary|failover|switchover|promot|fenc|Failing\";\"i\")) | \"\(.ts) \(.msg) \(.instance // .podName // \"\")\"" 2>/dev/null | tail -15 | cut -c1-200
+2026-11-07T07:16:59.305378416Z There is a switchover or a failover in progress, waiting for the operation to complete 
+2026-11-07T07:16:59.999045817Z There is a switchover or a failover in progress, waiting for the operation to complete 
+2026-11-07T07:17:00.10139885Z There is a switchover or a failover in progress, waiting for the operation to complete 
+2026-11-07T07:17:00.59361735Z There is a switchover or a failover in progress, waiting for the operation to complete 
+2026-11-07T07:17:01.701669907Z There is a switchover or a failover in progress, waiting for the operation to complete 
+2026-11-07T07:17:02.795357814Z There is a switchover or a failover in progress, waiting for the operation to complete 
+2026-11-07T07:17:04.391516368Z There is a switchover or a failover in progress, waiting for the operation to complete 
+2026-11-07T07:17:05.47469255Z There is a switchover or a failover in progress, waiting for the operation to complete 
+2026-11-07T07:17:06.646637546Z There is a switchover or a failover in progress, waiting for the operation to complete 
+2026-11-07T07:17:07.759598021Z There is a switchover or a failover in progress, waiting for the operation to complete 
+2026-11-07T07:17:08.89090629Z There is a switchover or a failover in progress, waiting for the operation to complete 
+2026-11-07T07:17:10.006264089Z There is a switchover or a failover in progress, waiting for the operation to complete 
+2026-11-07T07:17:11.084808183Z There is a switchover or a failover in progress, waiting for the operation to complete 
+2026-11-07T07:17:12.151231746Z There is a switchover or a failover in progress, waiting for the operation to complete 
+2026-11-07T07:17:17.955788561Z Setting primary label 
+

@@ -1,0 +1,70 @@
+# transcript: E5 RBAC matrix after External Secrets (tenants manage ExternalSecrets, not stores, still no Secrets)
+# recorded: 2026-11-09T09:48:36Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e5/rbac-matrix.sh
+user             verb        resource                     namespace   want got  result
+alice            get         pods                         storefront  yes  yes  ok
+alice            get         pods:log                     storefront  yes  yes  ok
+alice            create      pods:exec                    storefront  no   no   ok
+alice            delete      pods                         storefront  no   no   ok
+alice            patch       deployments                  storefront  no   no   ok
+alice            get         secrets                      storefront  no   no   ok
+alice            create      deployments                  shop-dev    yes  yes  ok
+alice            create      pods:exec                    shop-dev    yes  yes  ok
+alice            get         pods:exec                    shop-dev    yes  yes  ok
+alice            get         pods:exec                    storefront  no   no   ok
+alice            get         secrets                      shop-dev    no   no   ok
+alice            create      secrets                      shop-dev    no   no   ok
+alice            update      resourcequotas               shop-dev    no   no   ok
+alice            delete      networkpolicies              shop-dev    no   no   ok
+alice            create      rolebindings                 shop-dev    yes  yes  ok
+alice            bind        clusterroles/tenant-viewer   shop-dev    yes  yes  ok
+alice            bind        clusterroles/cluster-admin   shop-dev    no   no   ok
+alice            create      serviceaccounts:token        shop-dev    no   no   ok
+alice            get         pods                         insight     no   no   ok
+alice            list        namespaces                   -           no   no   ok
+alice            list        nodes                        -           no   no   ok
+alice            create      clusterrolebindings          -           no   no   ok
+alice            impersonate users                        -           no   no   ok
+alice            delete      namespaces/shop-dev          -           no   no   ok
+bob              get         pods                         insight     yes  yes  ok
+bob              create      deployments                  insight     yes  yes  ok
+bob              get         pods                         storefront  no   no   ok
+bob              get         pods                         shop-dev    no   no   ok
+bob              get         secrets                      insight     no   no   ok
+bob              create      networkpolicies              insight     no   no   ok
+bob              create      externalsecrets              insight     yes  yes  ok
+bob              create      secretstores                 insight     no   no   ok
+bob              get         secrets                      insight     no   no   ok
+carol            list        pods                         *           yes  yes  ok
+carol            create      pods:exec                    storefront  yes  yes  ok
+carol            get         pods:exec                    storefront  yes  yes  ok
+carol            delete      pods                         storefront  yes  yes  ok
+carol            create      pods:eviction                storefront  yes  yes  ok
+carol            patch       nodes                        -           yes  yes  ok
+carol            patch       deployments                  storefront  yes  yes  ok
+carol            update      deployments                  storefront  no   no   ok
+carol            create      networkpolicies              insight     yes  yes  ok
+carol            get         secrets                      storefront  no   no   ok
+carol            get         secrets                      data        no   no   ok
+carol            create      clusterrolebindings          -           no   no   ok
+carol            create      namespaces                   -           no   no   ok
+carol-breakglass get         secrets                      storefront  yes  error MISMATCH (break-glass: cluster-admin for one hour)
+carol-breakglass create      clusterrolebindings          -           yes  error MISMATCH (break-glass: cluster-admin for one hour)
+dave             list        pods                         *           yes  yes  ok
+dave             get         pods:log                     storefront  yes  yes  ok
+dave             list        clusterrolebindings          -           yes  yes  ok
+dave             list        rolebindings                 *           yes  yes  ok
+dave             list        nodes                        -           yes  yes  ok
+dave             get         secrets                      storefront  no   no   ok
+dave             list        secrets                      *           no   no   ok
+dave             create      pods:exec                    storefront  no   no   ok
+dave             delete      pods                         storefront  no   no   ok
+dave             patch       nodes                        -           no   no   ok
+== 58 checks, 56 as expected, 2 mismatches
+[exit 1]
+
+$ kubectl -n argocd get applications --no-headers -o custom-columns=A:.metadata.name,S:.status.sync.status,H:.status.health.status | grep -vcE 'Synced +Healthy'
+0
+[exit 1]
+

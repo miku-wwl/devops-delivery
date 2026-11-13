@@ -1,0 +1,8 @@
+# transcript: E2: what payments recorded for the failed order
+# recorded: 2026-11-07T07:50:55Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl -n storefront exec deploy/payments -c app -- python -c "import urllib.request,json; print(json.dumps(json.load(urllib.request.urlopen(\"http://localhost:8080/charges/5be7495e-5461-47d2-9f36-71e8f7a79ce2\"))))"
+{"charge_id": "22effeaddbfa4e9bbd2e3cd45ecf076a", "order_id": "5be7495e-5461-47d2-9f36-71e8f7a79ce2", "amount_cents": 5625, "status": "approved", "processed_at": 1794037225.0156398}
+
+$ kubectl -n data exec pg-main-3 -c postgres -- psql -d inventory -tAc "SELECT order_id, status, items FROM reservations WHERE order_id = (chr(53)||chr(98)||chr(101)||chr(55)||chr(52)||chr(57)||chr(53)||chr(101)||chr(45)||chr(53)||chr(52)||chr(54)||chr(49)||chr(45)||chr(52)||chr(55)||chr(100)||chr(50)||chr(45)||chr(57)||chr(102)||chr(51)||chr(54)||chr(45)||chr(55)||chr(49)||chr(101)||chr(56)||chr(102)||chr(53)||chr(54)||chr(55)||chr(57)||chr(99)||chr(101)||chr(50))::uuid"
+

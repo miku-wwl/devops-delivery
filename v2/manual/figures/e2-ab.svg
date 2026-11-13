@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 310" width="640" height="310" font-family="'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="18.0" y="19.0" font-size="13" fill="#1b2430" text-anchor="start" font-weight="600">ambient 相对无网格的 p50 差值（ms）：一次对比与三轮交替</text>
+<line x1="62.0" y1="240.3" x2="620.0" y2="240.3" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="243.8" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">0</text>
+<line x1="62.0" y1="190.7" x2="620.0" y2="190.7" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="194.2" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">10</text>
+<line x1="62.0" y1="141.2" x2="620.0" y2="141.2" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="144.7" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">20</text>
+<line x1="62.0" y1="91.6" x2="620.0" y2="91.6" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="55.0" y="95.1" font-size="10" fill="#5b6776" text-anchor="end" font-weight="normal">30</text>
+<line x1="62.0" y1="270.0" x2="620.0" y2="270.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="14.0" y="161.0" font-size="10.5" fill="#5b6776" text-anchor="middle" font-weight="normal" transform="rotate(-90 14.0 161.0)">ms</text>
+<rect x="86.8" y="220.5" width="44.0" height="19.8" fill="#1f6fb2" stroke="none" stroke-width="1" rx="2"/>
+<text x="108.8" y="216.5" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">+4.0</text>
+<rect x="132.8" y="79.7" width="44.0" height="160.5" fill="#d9730d" stroke="none" stroke-width="1" rx="2"/>
+<text x="154.8" y="75.7" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">+32.4</text>
+<text x="131.8" y="285.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">第一次：各跑一次</text>
+<text x="131.8" y="297.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">相隔 15 分钟</text>
+<rect x="226.2" y="226.9" width="44.0" height="13.4" fill="#1f6fb2" stroke="none" stroke-width="1" rx="2"/>
+<text x="248.2" y="222.9" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">+2.7</text>
+<rect x="272.2" y="157.0" width="44.0" height="83.2" fill="#d9730d" stroke="none" stroke-width="1" rx="2"/>
+<text x="294.2" y="153.0" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">+16.8</text>
+<text x="271.2" y="285.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">交替 第 1 轮</text>
+<rect x="365.8" y="228.4" width="44.0" height="11.9" fill="#1f6fb2" stroke="none" stroke-width="1" rx="2"/>
+<text x="387.8" y="224.4" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">+2.4</text>
+<rect x="411.8" y="213.5" width="44.0" height="26.8" fill="#d9730d" stroke="none" stroke-width="1" rx="2"/>
+<text x="433.8" y="209.5" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">+5.4</text>
+<text x="410.8" y="285.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">交替 第 2 轮</text>
+<rect x="505.2" y="229.9" width="44.0" height="10.4" fill="#1f6fb2" stroke="none" stroke-width="1" rx="2"/>
+<text x="527.2" y="225.9" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">+2.1</text>
+<rect x="551.2" y="240.3" width="44.0" height="3.0" fill="#d9730d" stroke="none" stroke-width="1" rx="2"/>
+<text x="573.2" y="254.2" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">-0.6</text>
+<text x="550.2" y="285.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">交替 第 3 轮</text>
+<rect x="62.0" y="31.0" width="12.0" height="10.0" fill="#1f6fb2" stroke="none" stroke-width="1" rx="2"/>
+<text x="78.0" y="40.0" font-size="10.5" fill="#5b6776" text-anchor="start" font-weight="normal">浏览 p50 的差</text>
+<rect x="166.9" y="31.0" width="12.0" height="10.0" fill="#d9730d" stroke="none" stroke-width="1" rx="2"/>
+<text x="182.9" y="40.0" font-size="10.5" fill="#5b6776" text-anchor="start" font-weight="normal">下单 p50 的差</text>
+</svg>

@@ -1,0 +1,11 @@
+# transcript: E3: what fails at 60 iterations/s (full mix)
+# recorded: 2026-11-07T09:49:58Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ GW=http://$(kubectl -n storefront get svc gateway -o jsonpath="{.status.loadBalancer.ingress[0].ip}"):8080; BASE_URL=$GW RATE=60 DURATION=90s taskset -c 0-3 k6 run v2/experiments/e3/diag-status.js > /tmp/diag60.txt 2>&1; grep -o "OUT [^\"]*" /tmp/diag60.txt | sort | uniq -c | sort -rn | head -12; grep -E "http_reqs|http_req_failed|iterations|dropped" /tmp/diag60.txt | head -5
+      7 OUT order status=503 error_code=1503 error=
+              * s: 60.00 iterations/s for 1m30s (maxVUs: 100-600, gracefulStop: 30s)
+running (0m01.0s), 005/100 VUs, 53 complete and 0 interrupted iterations
+running (0m02.0s), 004/100 VUs, 114 complete and 0 interrupted iterations
+running (0m03.0s), 005/100 VUs, 173 complete and 0 interrupted iterations
+running (0m04.0s), 004/100 VUs, 234 complete and 0 interrupted iterations
+

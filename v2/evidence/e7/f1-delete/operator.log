@@ -1,0 +1,59 @@
+2026-11-09T14:25:55.972973094Z Current primary isn't healthy, initiating a failover  
+2026-11-09T14:25:56.029254682Z Cluster has become unhealthy  
+2026-11-09T14:25:56.055193337Z Old primary pod not found in managed instances, skipping label demotion  
+2026-11-09T14:25:56.056165602Z Waiting for all WAL receivers to be down to elect a new primary  
+2026-11-09T14:25:56.142155385Z Old primary pod not found in managed instances, skipping label demotion  
+2026-11-09T14:25:56.142217029Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pending
+2026-11-09T14:25:56.274688396Z Waiting for all WAL receivers to be down to elect a new primary  
+2026-11-09T14:25:56.346570534Z Old primary pod not found in managed instances, skipping label demotion  
+2026-11-09T14:25:56.346623863Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pending
+2026-11-09T14:25:56.455320069Z Waiting for all WAL receivers to be down to elect a new primary  
+2026-11-09T14:25:57.526352965Z Old primary pod not found in managed instances, skipping label demotion  
+2026-11-09T14:25:57.526420366Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pending
+2026-11-09T14:25:57.6384589Z Waiting for all WAL receivers to be down to elect a new primary  
+2026-11-09T14:25:58.715155456Z Old primary pod not found in managed instances, skipping label demotion  
+2026-11-09T14:25:58.71519853Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pending
+2026-11-09T14:25:58.984128079Z Waiting for the new primary to notice the promotion request  
+2026-11-09T14:25:59.152236599Z Old primary pod not found in managed instances, skipping label demotion  
+2026-11-09T14:25:59.152294417Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T14:25:59.317364741Z Old primary pod not found in managed instances, skipping label demotion  
+2026-11-09T14:25:59.317441415Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T14:26:00.382826286Z Old primary pod not found in managed instances, skipping label demotion  
+2026-11-09T14:26:00.382884635Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T14:26:01.45647011Z Old primary pod not found in managed instances, skipping label demotion  
+2026-11-09T14:26:01.456552233Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T14:26:02.528055912Z Old primary pod not found in managed instances, skipping label demotion  
+2026-11-09T14:26:02.528142051Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T14:26:03.595442911Z Old primary pod not found in managed instances, skipping label demotion  
+2026-11-09T14:26:03.595525608Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T14:26:04.667509039Z Old primary pod not found in managed instances, skipping label demotion  
+2026-11-09T14:26:04.667549702Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T14:26:05.735784161Z Old primary pod not found in managed instances, skipping label demotion  
+2026-11-09T14:26:05.73586246Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T14:26:06.816263313Z Old primary pod not found in managed instances, skipping label demotion  
+2026-11-09T14:26:06.816351958Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T14:26:07.926761881Z Old primary pod not found in managed instances, skipping label demotion  
+2026-11-09T14:26:07.926811804Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T14:26:08.999027931Z Old primary pod not found in managed instances, skipping label demotion  
+2026-11-09T14:26:08.999091047Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T14:26:10.059020271Z Old primary pod not found in managed instances, skipping label demotion  
+2026-11-09T14:26:10.059101447Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T14:26:11.124128277Z Old primary pod not found in managed instances, skipping label demotion  
+2026-11-09T14:26:11.124180624Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T14:26:12.203320804Z Old primary pod not found in managed instances, skipping label demotion  
+2026-11-09T14:26:12.203401221Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T14:26:13.279339136Z Old primary pod not found in managed instances, skipping label demotion  
+2026-11-09T14:26:13.279401061Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T14:26:14.339463131Z Old primary pod not found in managed instances, skipping label demotion  
+2026-11-09T14:26:14.339523781Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T14:26:15.399449476Z Old primary pod not found in managed instances, skipping label demotion  
+2026-11-09T14:26:15.399494812Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T14:26:16.46426068Z Old primary pod not found in managed instances, skipping label demotion  
+2026-11-09T14:26:16.46434925Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T14:26:17.559506565Z Old primary pod not found in managed instances, skipping label demotion  
+2026-11-09T14:26:17.559567264Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T14:26:18.627879296Z Old primary pod not found in managed instances, skipping label demotion  
+2026-11-09T14:26:18.627933211Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T14:26:19.696940961Z Old primary pod not found in managed instances, skipping label demotion  
+2026-11-09T14:26:19.697088467Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T14:26:20.819668456Z Setting primary label  

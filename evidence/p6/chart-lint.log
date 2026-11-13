@@ -1,0 +1,41 @@
+# transcript: P6 chart 0.2.0: Rollout, AnalysisTemplate, PodMonitor
+# recorded: 2026-11-06T00:42:25Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ helm lint delivery/helm/demo-api -f delivery/helm/demo-api/values-prod.yaml --set rollout.enabled=true --set podMonitor.enabled=true --quiet
+
+# Deployment mode is unchanged (rollout disabled): identical pod template as before the refactor
+$ helm template t delivery/helm/demo-api -f delivery/helm/demo-api/values-prod.yaml | grep -E '^kind:' | sort | uniq -c
+      1 kind: ConfigMap
+      1 kind: Deployment
+      1 kind: Pod
+      1 kind: PodDisruptionBudget
+      1 kind: Service
+      1 kind: ServiceAccount
+
+# Rollout mode
+$ helm template t delivery/helm/demo-api -f delivery/helm/demo-api/values-prod.yaml --set rollout.enabled=true --set podMonitor.enabled=true | grep -E '^kind:' | sort | uniq -c
+      1 kind: AnalysisTemplate
+      1 kind: ConfigMap
+      1 kind: Pod
+      1 kind: PodDisruptionBudget
+      1 kind: PodMonitor
+      1 kind: Rollout
+      1 kind: Service
+      1 kind: ServiceAccount
+
+$ helm template t delivery/helm/demo-api --set rollout.enabled=true --show-only templates/analysistemplate.yaml | sed -n '/metrics:/,$p' | head -14
+  metrics:
+    - name: success-rate
+      initialDelay: 45s
+      interval: 20s
+      failureLimit: 1
+      successCondition: "len(result) > 0 && result[0] >= 0.95"
+      provider:
+        prometheus:
+          address: http://kube-prometheus-stack-prometheus.monitoring.svc:9090
+          query: |
+            sum(rate(http_requests_total{namespace="{{args.namespace}}", rollouts_pod_template_hash="{{args.canary-hash}}", route=~"/api/.*", status!~"5.."}[1m]))
+            /
+            sum(rate(http_requests_total{namespace="{{args.namespace}}", rollouts_pod_template_hash="{{args.canary-hash}}", route=~"/api/.*"}[1m]))
+    - name: p95-latency-seconds
+

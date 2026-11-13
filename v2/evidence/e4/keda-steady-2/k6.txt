@@ -1,0 +1,11 @@
+time="2026-11-09T16:41:40+13:00" level=warning msg="Request Failed" error="Get \"http://172.20.0.8:8080/api/products?limit=20\": request timeout"
+time="2026-11-09T16:42:14+13:00" level=warning msg="Request Failed" error="Get \"http://172.20.0.8:8080/api/products?limit=20\": request timeout"
+stages=30,90,30 it/s, 60,720,120 s (ramp 10 s, warm-up 30 s) iterations=71796 dropped=53
+requests=122030 (131.9/s) failed=4.10%
+browse: p50=36.2 p95=452.2 p99=1638.9 max=58190.2 ms
+order:  p50=250.2 p95=658.8 p99=1377.5 max=4386.4 ms
+checks: 95.90% passed
+stage 1-30: achieved 30.0 it/s, requests=3040 failed=0.00% | browse p50=17.8 p95=37.3 p99=58.6 max=107.0 ms | order p50=151.3 p95=284.9 p99=386.7 max=516.3 ms
+stage 90: achieved 90.0 it/s, requests=110206 failed=4.54% | browse p50=39.8 p95=508.5 p99=1726.0 max=8969.9 ms | order p50=265.6 p95=685.2 p99=1443.5 max=4386.4 ms
+stage 3-30: achieved 29.6 it/s, requests=5984 failed=0.03% | browse p50=17.2 p95=29.5 p99=43.1 max=58190.2 ms | order p50=143.6 p95=254.6 p99=362.2 max=886.0 ms
+time="2026-11-09T16:42:28+13:00" level=error msg="thresholds on metrics 'http_req_failed{kind:browse}' have been crossed"

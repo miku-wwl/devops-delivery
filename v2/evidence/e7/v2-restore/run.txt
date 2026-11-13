@@ -1,0 +1,29 @@
+persistentvolumeclaim/data-hostpath created
+persistentvolumeclaim/data-local created
+configmap/app-config created
+deployment.apps/app created
+== 15:31:38 before: PV types and the files
+  data-hostpath -> pvc-157eeb2e-6895-4c41-abd1-9b87165a6d6a: hostPath /var/local-path-provisioner/pvc-157eeb2e-6895-4c41-abd1-9b87165a6d6a_e7-velero_data-hostpath
+    marker: v2-restore 2026-11-09T15:31:38Z
+  data-local -> pvc-071907a4-eefb-48e4-904e-48f76efc2d7b: local /var/local-path-provisioner/pvc-071907a4-eefb-48e4-904e-48f76efc2d7b_e7-velero_data-local
+    marker: v2-restore 2026-11-09T15:31:38Z
+== 15:31:39 backup v2-restore
+Backup completed with status: Completed. You may check for more information using the commands `velero backup describe v2-restore` and `velero backup logs v2-restore`.
+  phase Completed, items 27, warnings 1, errors 0
+  e7-velero/app-6b6b74bfc-rbn9n volume=l Completed 32 bytes
+  log: Adding pvc data-hostpath to additionalItems
+  log: Adding related Pod app-6b6b74bfc-rbn9n to PVC data-hostpath
+  log: Backed up 16 items out of an estimated total of 27 (estimate will change throughout the backup)
+  log: Backed up 17 items out of an estimated total of 27 (estimate will change throughout the backup)
+  log: Backing Up Item Block including events e7-velero/data-hostpath.18e66a38796b906a (1 items in block)
+== 15:31:49 the accident: kubectl delete namespace e7-velero
+== 15:32:40 namespace gone; restore
+Restore completed with status: Completed. You may check for more information using the commands `velero restore describe v2-restore-restore` and `velero restore logs v2-restore-restore`.
+  phase Completed, items 13, warnings 3, errors 0
+== 15:32:52 restored and running after 12 s
+  configmap: restored from a Velero backup
+Defaulted container "app" out of: app, restore-wait (init)
+  data-hostpath -> pvc-876347ac-7377-4b25-85cf-1132534d25bb (hostPath): marker v2-restore 2026-11-09T15:32:52Z
+Defaulted container "app" out of: app, restore-wait (init)
+  data-local -> pvc-83db8103-25ee-4553-939c-511bb780f461 (local): marker v2-restore 2026-11-09T15:31:38Z
+  (the app writes a new marker if none exists: a marker with a later time than above is not the restored one)

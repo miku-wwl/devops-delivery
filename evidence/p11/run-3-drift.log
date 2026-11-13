@@ -1,0 +1,54 @@
+# transcript: P11 drift: a manual hotfix on node1 is detected (--check --diff) and corrected
+# recorded: 2026-11-06T09:39:21Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ cd ansible && export PATH="$HOME/work/ansible-venv/bin:$PATH" ANSIBLE_FORCE_COLOR=0 ANSIBLE_CONFIG="$PWD/ansible.cfg"
+
+# someone edits the file by hand on node1
+$ docker exec node1 sed -i 's/^replicas: 1$/replicas: 5/' /opt/demo-api/config/config.yaml
+
+$ docker exec node1 grep replicas /opt/demo-api/config/config.yaml
+replicas: 5
+
+# dry run: report the drift without touching anything
+$ ansible-playbook site.yml --check --diff --limit node1 | sed -n '/Application configuration/,/^$/p;/PLAY RECAP/,$p'
+TASK [baseline : Application configuration is rendered] ************************
+--- before: /opt/demo-api/config/config.yaml
++++ after: /home/devops/.ansible/tmp/ansible-local-270491un1em5ll/tmpi7yiiwrk/config.yaml.j2
+@@ -2,6 +2,6 @@
+ service: demo-api
+ environment: lab
+ listen: "0.0.0.0:8080"
+-replicas: 5
++replicas: 1
+ host: node1
+ os: "Ubuntu 24.04"
+
+PLAY RECAP *********************************************************************
+node1                      : ok=7    changed=1    unreachable=0    failed=0    skipped=2    rescued=0    ignored=0   
+
+
+$ docker exec node1 grep replicas /opt/demo-api/config/config.yaml
+replicas: 5
+
+# real run: converge back to the declared state (the handler fires once)
+$ ansible-playbook site.yml --limit node1 | grep -E 'changed:|RUNNING HANDLER|node1 +:'
+changed: [node1]
+RUNNING HANDLER [baseline : Restart demo-api] **********************************
+changed: [node1]
+node1                      : ok=9    changed=2    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+$ docker exec node1 grep replicas /opt/demo-api/config/config.yaml
+replicas: 1
+
+$ docker exec node1 cat /opt/demo-api/logs/restarts.log
+2026-11-06T09:38:26Z
+2026-11-06T09:40:01Z
+
+# and converged state stays converged
+$ ansible-playbook site.yml | sed -n '/PLAY RECAP/,$p'
+PLAY RECAP *********************************************************************
+localhost                  : ok=1    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+node1                      : ok=8    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+node2                      : ok=8    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+

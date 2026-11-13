@@ -1,0 +1,31 @@
+# E8 cleanup: the drills removed their probes (e8-probe, e8-probe-ns: Applications pruned, objects deleted 04:01:52), the GitLab freeze period (04:43:18) and the drill window (!21); what stays is below. Rebuilds R3 and R4 replaced the cluster (DR chain now pg-main-r4).
+# lab state 2026-11-10T06:25:55Z
+== Argo CD applications (sync/health: count)
+       36 Synced/Healthy
+== sync impersonation: true
+== projects: accounts and sync windows
+  PROJECT      ACCOUNT                  WINDOWS
+  default      <none>                   <none>
+  insight      argocd-insight           <none>
+  platform     argocd:argocd-platform   <none>
+  root         argocd:argocd-root       <none>
+  storefront   argocd-storefront        0 0 24 12 *
+== notifications secret keys: ['gitlab-deployments-token']
+== GitLab platform-gitops: freeze periods 0, open merge requests 0, deployments 20
+== storefront images
+  catalog                    localhost:5001/storefront:8ef5584
+  gateway                    localhost:5001/storefront:8ef5584
+  inventory                  localhost:5001/storefront:8ef5584
+  notifier                   localhost:5001/storefront:8ef5584
+  orders                     localhost:5001/storefront:8ef5584
+  payments                   localhost:5001/storefront:8ef5584
+  storefront-ingress-istio   docker.io/istio/proxyv2:1.31.4-distroless
+  waypoint                   docker.io/istio/proxyv2:1.31.4-distroless
+== worker memory requests (of allocatable)
+  ent-worker 2754Mi (86%)
+  ent-worker2 2538Mi (79%)
+  ent-worker3 3130Mi (98%)
+== pods not Running/Completed: 0
+== newest PostgreSQL base backup: pg-main-nightly-20261110055945 completed
+  probe secret: Error from server (NotFound): secrets "e8-probe" not found
+  probe configmap: Error from server (NotFound): configmaps "e8-probe-ns" not found

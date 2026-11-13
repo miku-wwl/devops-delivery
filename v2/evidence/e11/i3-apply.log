@@ -1,0 +1,41 @@
+data.gitlab_user.alice: Reading...
+gitlab_project.gitops: Refreshing state... [id=3]
+data.gitlab_user.alice: Read complete after 0s [id=5]
+gitlab_project_membership.alice: Refreshing state... [id=3:5]
+gitlab_branch_protection.main: Refreshing state... [id=3:main]
+
+OpenTofu used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  ~ update in-place (current -> planned)
+-/+ destroy and then create replacement
+
+OpenTofu will perform the following actions:
+
+  # gitlab_branch_protection.main must be replaced
+-/+ resource "gitlab_branch_protection" "main" {
+      ~ allow_force_push             = true -> false
+      + allowed_to_merge             = (known after apply)
+      + allowed_to_push              = (known after apply)
+      + allowed_to_unprotect         = (known after apply)
+      ~ branch_protection_id         = 5 -> (known after apply)
+      ~ id                           = "3:main" -> (known after apply)
+      ~ push_access_level            = "developer" -> "no one" # forces replacement
+        # (4 unchanged attributes hidden)
+    }
+
+  # gitlab_project_membership.alice will be updated in-place
+  ~ resource "gitlab_project_membership" "alice" {
+      ~ access_level   = "maintainer" -> "developer"
+        id             = "3:5"
+        # (3 unchanged attributes hidden)
+    }
+
+Plan: 1 to add, 1 to change, 1 to destroy.
+gitlab_branch_protection.main: Destroying... [id=3:main]
+gitlab_project_membership.alice: Modifying... [id=3:5]
+gitlab_branch_protection.main: Destruction complete after 1s
+gitlab_branch_protection.main: Creating...
+gitlab_project_membership.alice: Modifications complete after 1s [id=3:5]
+gitlab_branch_protection.main: Creation complete after 0s [id=3:main]
+
+Apply complete! Resources: 1 added, 1 changed, 1 destroyed.

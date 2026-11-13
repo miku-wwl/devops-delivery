@@ -1,0 +1,22 @@
+== 11:37:10 10 000 pods Running, defaults (APF on), API server limit 2560 MiB
+  etcd db size MiB: 92.6016 (in use 92.6016)
+  objects: events=8962 nodes=1000 pods=10000 leases=1003
+  resident memory MiB by component: etcd=147.281 kube-controller-manager=276.625 kwok-controller=85.6055 kube-scheduler=480.234 prometheus=175.758 kube-apiserver=1026.95
+  docker: kwok-scale-prometheus 136.8MiB / 384MiB 0.31%
+  docker: kwok-scale-kwok-controller 66.86MiB / 256MiB 0.00%
+  docker: kwok-scale-kube-controller-manager 236.1MiB / 512MiB 2.92%
+  docker: kwok-scale-kube-scheduler 461.4MiB / 768MiB 0.30%
+  docker: kwok-scale-kube-apiserver 993MiB / 2.5GiB 4.59%
+  docker: kwok-scale-etcd 69.06MiB / 512MiB 1.62%
+  WSL available MiB: 3261
+== 11:39:01 after the flood
+  etcd db size MiB: 94.2305 (in use 94.2305)
+  objects: events=11002 nodes=1000 pods=-1 leases=1003
+  resident memory MiB by component: etcd=106.637 kube-controller-manager=296.055 kwok-controller=95.9375 kube-scheduler=495.863 prometheus=150.383 kube-apiserver=1776.17
+  docker: kwok-scale-prometheus 157MiB / 384MiB 0.62%
+  docker: kwok-scale-kwok-controller 92.67MiB / 256MiB 0.07%
+  docker: kwok-scale-kube-controller-manager 295.7MiB / 512MiB 1.68%
+  docker: kwok-scale-kube-scheduler 495.8MiB / 768MiB 0.29%
+  docker: kwok-scale-kube-apiserver 1.593GiB / 2.5GiB 2.48%
+  docker: kwok-scale-etcd 93.87MiB / 512MiB 0.98%
+  WSL available MiB: 2772

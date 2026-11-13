@@ -1,0 +1,15 @@
+== 10:26:25 1. no pods: the API server's compaction, then defragmentation
+  10:26:26 start: revision 89986, db size 176.87 MiB, in use 176.87 MiB; pods 0, events 12004; available MiB 2937
+  10:28:47 after the API server's compaction, 136 s later: revision 92446, db size 178.6 MiB, in use 24.28 MiB; pods 0, events 12004; available MiB 2972
+  10:28:51 defragmentation: Finished defragmenting etcd member[127.0.0.1:2379]. took 351.587344ms
+  10:28:52 after defragmentation: revision 93025, db size 18.73 MiB, in use 18.73 MiB; pods 0, events 12004; available MiB 2918
+== 10:28:56 2. pods 0 -> 5000
+  10:29:31 5000 pods Running: revision 110280, db size 52.86 MiB, in use 52.86 MiB; pods 5000, events 14005; available MiB 3124
+  10:29:41 compact to revision 110918: compacted revision 110918
+  10:29:42 defragmentation: Finished defragmenting etcd member[127.0.0.1:2379]. took 561.870221ms
+  10:29:42 5000 pods, compacted and defragmented: revision 111003, db size 53.26 MiB, in use 51.43 MiB; pods 5000, events 14005; available MiB 3030
+== 10:29:52 2. pods 5000 -> 10000
+  10:30:30 10000 pods Running: revision 128817, db size 67.51 MiB, in use 67.51 MiB; pods 10000, events 16127; available MiB 2863
+  10:30:47 compact to revision 129453: compacted revision 129453
+  10:30:47 defragmentation: Finished defragmenting etcd member[127.0.0.1:2379]. took 1.967095039s
+  10:30:50 10000 pods, compacted and defragmented: revision 129455, db size 68.91 MiB, in use 68.65 MiB; pods 10000, events 16127; available MiB 2788

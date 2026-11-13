@@ -1,0 +1,49 @@
+# vmware-tanzu/velero chart 12.2.3 with Velero v1.18.4 (2026-09-28; the chart ships 1.18.2) and
+# velero-plugin-for-aws v1.14.4 (the plugin README pairs 1.14.x with Velero 1.18.x), E7.
+# Kubernetes objects and - through the node agent's file-system backup (kopia) - volume contents go
+# to the bucket "velero" on the object store outside the cluster; credentials from
+# platform/backup/secrets.sh (velero/velero-s3, key "cloud"). No volume snapshots: the local-path
+# provisioner has no CSI snapshot support.
+image:
+  repository: velero/velero
+  tag: v1.18.4
+initContainers:
+  - name: velero-plugin-for-aws
+    image: velero/velero-plugin-for-aws:v1.14.4
+    imagePullPolicy: IfNotPresent
+    volumeMounts: [{mountPath: /target, name: plugins}]
+resources: {requests: {cpu: 20m, memory: 96Mi}, limits: {memory: 512Mi}}
+# the pre-install/pre-upgrade job that applies the CRDs (Argo CD runs it as a PreSync hook)
+kubectl:
+  image: {repository: registry.k8s.io/kubectl, tag: v1.37.0}
+configuration:
+  backupStorageLocation:
+    - name: default
+      provider: aws
+      bucket: velero
+      default: true
+      config:
+        region: garage
+        s3ForcePathStyle: "true"
+        s3Url: http://backup-s3:3900
+  volumeSnapshotLocation: []
+credentials:
+  useSecret: true
+  existingSecret: velero-s3
+snapshotsEnabled: false
+deployNodeAgent: true
+nodeAgent:
+  resources: {requests: {cpu: 10m, memory: 48Mi}, limits: {memory: 512Mi}}
+metrics:
+  enabled: true
+  serviceMonitor: {enabled: true}
+# every night: all Kubernetes objects of all namespaces (no volume contents - see chapter 8: the
+# node agent cannot read the platform's hostPath volumes; data has its own backups). Kept 7 days.
+schedules:
+  objects-daily:
+    schedule: "30 2 * * *"
+    template:
+      ttl: 168h
+      includedNamespaces: ["*"]
+      snapshotVolumes: false
+      defaultVolumesToFsBackup: false

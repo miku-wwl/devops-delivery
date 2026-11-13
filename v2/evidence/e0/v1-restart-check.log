@@ -1,0 +1,47 @@
+# transcript: E0: the paused v1 cluster comes back, then a graceful pause
+# recorded: 2026-11-07T03:03:15Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# The first pause used the default 10 s stop timeout and the nodes were killed (exit 137).
+# Check that v1 survives that (etcd is crash-safe), then pause it gracefully.
+$ bash v2/platform/cluster/v1-lab.sh start
+lab-control-plane
+lab-worker
+lab-worker2
+E1107 16:03:28.064543   18194 memcache.go:381] "Couldn't get current server API group list" err="unknown"
+E1107 16:03:28.068388   18194 memcache.go:381] "Couldn't get current server API group list" err="unknown"
+E1107 16:03:28.072121   18194 memcache.go:381] "Couldn't get current server API group list" err="unknown"
+E1107 16:03:28.087739   18194 memcache.go:381] "Couldn't get current server API group list" err="unknown"
+E1107 16:03:28.093233   18194 memcache.go:381] "Couldn't get current server API group list" err="unknown"
+Error from server (Forbidden): unknown
+[exit 1]
+
+$ kubectl --context kind-lab get nodes
+NAME                STATUS   ROLES           AGE   VERSION
+lab-control-plane   Ready    control-plane   27h   v1.37.0
+lab-worker          Ready    <none>          27h   v1.37.0
+lab-worker2         Ready    <none>          27h   v1.37.0
+
+$ sleep 60
+
+$ kubectl --context kind-lab get pods -A --no-headers | awk "{print \$4}" | sort | uniq -c
+     42 Running
+
+$ kubectl --context kind-lab -n argocd get applications -o custom-columns=NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status
+NAME            SYNC     HEALTH
+demo-api-dev    Synced   Healthy
+demo-api-prod   Synced   Healthy
+
+$ time bash v2/platform/cluster/v1-lab.sh stop
+lab-control-plane
+lab-worker
+lab-worker2
+
+real	1m29.735s
+user	0m0.027s
+sys	0m0.055s
+
+$ bash v2/platform/cluster/v1-lab.sh status
+lab-worker2	Exited (130) About a minute ago
+lab-control-plane	Exited (130) Less than a second ago
+lab-worker	Exited (130) About a minute ago
+

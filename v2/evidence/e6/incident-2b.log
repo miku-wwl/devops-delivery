@@ -1,0 +1,30 @@
+# transcript: E6 incident 2, continued: moving three pods was not enough (1802 + 1024 > 2666 Mi); Grafana (512Mi) moved off ent-worker2 as well
+# recorded: 2026-11-09T11:10:45Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl get pods -A --field-selector spec.nodeName=ent-worker2 -o custom-columns=NS:.metadata.namespace,POD:.metadata.name,MEM:.spec.containers[*].resources.requests.memory --no-headers | sort -k3 -h | tail -6
+monitoring         kps-grafana-676885f46d-ghn6b                       96Mi,96Mi,320Mi
+storefront         inventory-7f7684694c-wx2nh                         96Mi
+storefront         orders-5cd5d8df65-lsmph                            96Mi
+argocd             argocd-repo-server-df9488968-k6l2b                 128Mi
+kyverno            kyverno-admission-controller-5df689c86f-5kbbl      128Mi
+data               pg-main-2                                          256Mi
+
+$ kubectl -n monitoring delete pod -l app.kubernetes.io/name=grafana --wait=true
+pod "kps-grafana-676885f46d-ghn6b" deleted from monitoring namespace
+
+$ kubectl -n monitoring wait --for=condition=Ready pod/prometheus-kps-prometheus-0 --timeout=600s
+error: timed out waiting for the condition on pods/prometheus-kps-prometheus-0
+[exit 1]
+
+$ kubectl get pods -A -o wide --no-headers | awk '$2 ~ /^(prometheus-kps|kps-grafana)/ {print $1 "/" $2, $4, $8}'
+monitoring/kps-grafana-676885f46d-bm59x Running ent-worker2
+monitoring/prometheus-kps-prometheus-0 Pending <none>
+
+$ for n in ent-worker ent-worker2 ent-worker3; do echo "$n: $(kubectl describe node $n | grep -E '^  memory ' | awk '{print $2, $3}') requested"; done
+ent-worker: 2098Mi (78%) requested
+ent-worker2: 1802Mi (67%) requested
+ent-worker3: 2666Mi (99%) requested
+
+$ kubectl get pods -A --no-headers | grep -vcE 'Running|Completed'
+1
+

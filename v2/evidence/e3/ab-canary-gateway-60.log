@@ -1,0 +1,22 @@
+# transcript: E3: old and new gateway build side by side at 60 it/s (canary under the same traffic)
+# recorded: 2026-11-07T12:47:10Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e3/ab-canary.sh ab-gateway-60 gateway fd38028 60 180
+deployment.apps/gateway-canary created
+Waiting for deployment "gateway-canary" rollout to finish: 0 of 1 updated replicas are available...
+deployment "gateway-canary" successfully rolled out
+gateway-778cc68bb5-fdhx7          ent-worker2   localhost:5001/storefront:f3d9043
+gateway-778cc68bb5-qm2pv          ent-worker    localhost:5001/storefront:f3d9043
+gateway-canary-5f5457576d-vv4n5   ent-worker3   localhost:5001/storefront:fd38028
+rate=60/s duration=180s iterations=10800 dropped=0
+requests=18213 (106.8/s) failed=3.20%
+browse: p50=13.2 p95=25.1 p99=300.3 max=2937.8 ms
+order:  p50=123.1 p95=257.3 p99=1161.7 max=3287.5 ms
+checks: 96.80% passed
+time="2026-11-08T01:50:32+13:00" level=error msg="thresholds on metrics 'http_req_failed{kind:browse}' have been crossed"
+window: 12:48:11 .. 12:50:32 (141 s)
+pod                                image       req/s  cores ms CPU/req   p50 ms   p95 ms   lag p99
+gateway-778cc68bb5-fdhx7           f3d9043      31.1  0.230       7.42     14.5    143.7       4.8
+gateway-778cc68bb5-qm2pv           f3d9043      25.4  0.187       7.39     14.3    143.0       4.5
+gateway-canary-5f5457576d-vv4n5    fd38028      50.8  0.281       5.53     13.5    146.6       4.9
+

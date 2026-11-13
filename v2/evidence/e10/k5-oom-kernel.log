@@ -1,0 +1,43 @@
+== 2026-11-10T11:09:25Z kernel log of the WSL VM, cgroup OOM kills (dmesg | grep; kernel time = seconds since boot, runs about 3 % fast against the wall clock, chapter 10). Container 3340c0f206a2 = kube-apiserver of cluster k2 (K5 run 2, 10:17:34-10:18:34 UTC); b41116c940d1 = kube-apiserver of cluster k5 (K5 run 3, 11:05:13-11:06:13 UTC)
+[262070.438339] kube-apiserver invoked oom-killer: gfp_mask=0xcc0(GFP_KERNEL), order=0, oom_score_adj=0
+[262070.446006] oom-kill:constraint=CONSTRAINT_MEMCG,nodemask=(null),cpuset=docker-3340c0f206a2.scope,mems_allowed=0,oom_memcg=/system.slice/docker-3340c0f206a2.scope,task_memcg=/system.slice/docker-3340c0f206a2.scope,task=kube-apiserver,pid=1262230,uid=0
+[262070.446208] Memory cgroup out of memory: Killed process 1262230 (kube-apiserver) total-vm:3025044kB, anon-rss:1567152kB, file-rss:640kB, shmem-rss:0kB, UID:0 pgtables:3388kB oom_score_adj:0
+[262082.047288] kube-apiserver invoked oom-killer: gfp_mask=0x100cca(GFP_HIGHUSER_MOVABLE), order=0, oom_score_adj=0
+[262082.049034] oom-kill:constraint=CONSTRAINT_MEMCG,nodemask=(null),cpuset=docker-3340c0f206a2.scope,mems_allowed=0,oom_memcg=/system.slice/docker-3340c0f206a2.scope,task_memcg=/system.slice/docker-3340c0f206a2.scope,task=kube-apiserver,pid=1269201,uid=0
+[262082.049231] Memory cgroup out of memory: Killed process 1269201 (kube-apiserver) total-vm:3073496kB, anon-rss:1567016kB, file-rss:384kB, shmem-rss:0kB, UID:0 pgtables:3392kB oom_score_adj:0
+[262086.839629] kube-apiserver invoked oom-killer: gfp_mask=0xcc0(GFP_KERNEL), order=0, oom_score_adj=0
+[262086.841662] oom-kill:constraint=CONSTRAINT_MEMCG,nodemask=(null),cpuset=docker-3340c0f206a2.scope,mems_allowed=0,oom_memcg=/system.slice/docker-3340c0f206a2.scope,task_memcg=/system.slice/docker-3340c0f206a2.scope,task=kube-apiserver,pid=1275774,uid=0
+[262086.842236] Memory cgroup out of memory: Killed process 1275774 (kube-apiserver) total-vm:3004984kB, anon-rss:1567056kB, file-rss:512kB, shmem-rss:0kB, UID:0 pgtables:3368kB oom_score_adj:0
+[262091.852534] kube-apiserver invoked oom-killer: gfp_mask=0xcc0(GFP_KERNEL), order=0, oom_score_adj=0
+[262091.853173] oom-kill:constraint=CONSTRAINT_MEMCG,nodemask=(null),cpuset=docker-3340c0f206a2.scope,mems_allowed=0,oom_memcg=/system.slice/docker-3340c0f206a2.scope,task_memcg=/system.slice/docker-3340c0f206a2.scope,task=kube-apiserver,pid=1278455,uid=0
+[262091.853478] Memory cgroup out of memory: Killed process 1278455 (kube-apiserver) total-vm:3004752kB, anon-rss:1567104kB, file-rss:256kB, shmem-rss:0kB, UID:0 pgtables:3360kB oom_score_adj:0
+[262096.930361] kube-apiserver invoked oom-killer: gfp_mask=0xcc0(GFP_KERNEL), order=0, oom_score_adj=0
+[262096.931373] oom-kill:constraint=CONSTRAINT_MEMCG,nodemask=(null),cpuset=docker-3340c0f206a2.scope,mems_allowed=0,oom_memcg=/system.slice/docker-3340c0f206a2.scope,task_memcg=/system.slice/docker-3340c0f206a2.scope,task=kube-apiserver,pid=1281085,uid=0
+[262096.931480] Memory cgroup out of memory: Killed process 1281085 (kube-apiserver) total-vm:3070736kB, anon-rss:1567232kB, file-rss:512kB, shmem-rss:0kB, UID:0 pgtables:3364kB oom_score_adj:0
+[262103.056593] kube-apiserver invoked oom-killer: gfp_mask=0xcc0(GFP_KERNEL), order=0, oom_score_adj=0
+[262103.059660] oom-kill:constraint=CONSTRAINT_MEMCG,nodemask=(null),cpuset=docker-3340c0f206a2.scope,mems_allowed=0,oom_memcg=/system.slice/docker-3340c0f206a2.scope,task_memcg=/system.slice/docker-3340c0f206a2.scope,task=kube-apiserver,pid=1284664,uid=0
+[262103.059807] Memory cgroup out of memory: Killed process 1284664 (kube-apiserver) total-vm:3071152kB, anon-rss:1567484kB, file-rss:768kB, shmem-rss:0kB, UID:0 pgtables:3368kB oom_score_adj:0
+[262111.003685] kube-apiserver invoked oom-killer: gfp_mask=0x100cca(GFP_HIGHUSER_MOVABLE), order=0, oom_score_adj=0
+[262111.004577] oom-kill:constraint=CONSTRAINT_MEMCG,nodemask=(null),cpuset=docker-3340c0f206a2.scope,mems_allowed=0,oom_memcg=/system.slice/docker-3340c0f206a2.scope,task_memcg=/system.slice/docker-3340c0f206a2.scope,task=kube-apiserver,pid=1290455,uid=0
+[262111.004678] Memory cgroup out of memory: Killed process 1290455 (kube-apiserver) total-vm:3004904kB, anon-rss:1567232kB, file-rss:128kB, shmem-rss:0kB, UID:0 pgtables:3356kB oom_score_adj:0
+[262123.769907] kube-apiserver invoked oom-killer: gfp_mask=0x100cca(GFP_HIGHUSER_MOVABLE), order=0, oom_score_adj=0
+[262123.770433] oom-kill:constraint=CONSTRAINT_MEMCG,nodemask=(null),cpuset=docker-3340c0f206a2.scope,mems_allowed=0,oom_memcg=/system.slice/docker-3340c0f206a2.scope,task_memcg=/system.slice/docker-3340c0f206a2.scope,task=kube-apiserver,pid=1300073,uid=0
+[262123.770869] Memory cgroup out of memory: Killed process 1300073 (kube-apiserver) total-vm:3006016kB, anon-rss:1567168kB, file-rss:0kB, shmem-rss:0kB, UID:0 pgtables:3352kB oom_score_adj:0
+[264931.608206] kube-apiserver invoked oom-killer: gfp_mask=0xcc0(GFP_KERNEL), order=0, oom_score_adj=0
+[264931.615875] oom-kill:constraint=CONSTRAINT_MEMCG,nodemask=(null),cpuset=docker-b41116c940d1.scope,mems_allowed=0,oom_memcg=/system.slice/docker-b41116c940d1.scope,task_memcg=/system.slice/docker-b41116c940d1.scope,task=kube-apiserver,pid=1346656,uid=0
+[264931.616109] Memory cgroup out of memory: Killed process 1346656 (kube-apiserver) total-vm:3023620kB, anon-rss:1567128kB, file-rss:60928kB, shmem-rss:0kB, UID:0 pgtables:3372kB oom_score_adj:0
+[264944.626598] kube-apiserver invoked oom-killer: gfp_mask=0x100cca(GFP_HIGHUSER_MOVABLE), order=0, oom_score_adj=0
+[264944.640413] oom-kill:constraint=CONSTRAINT_MEMCG,nodemask=(null),cpuset=docker-b41116c940d1.scope,mems_allowed=0,oom_memcg=/system.slice/docker-b41116c940d1.scope,task_memcg=/system.slice/docker-b41116c940d1.scope,task=kube-apiserver,pid=1355169,uid=0
+[264944.640564] Memory cgroup out of memory: Killed process 1355169 (kube-apiserver) total-vm:3270540kB, anon-rss:1566688kB, file-rss:49920kB, shmem-rss:0kB, UID:0 pgtables:3380kB oom_score_adj:0
+[264956.760065] kube-apiserver invoked oom-killer: gfp_mask=0x100cca(GFP_HIGHUSER_MOVABLE), order=0, oom_score_adj=0
+[264956.760429] oom-kill:constraint=CONSTRAINT_MEMCG,nodemask=(null),cpuset=docker-b41116c940d1.scope,mems_allowed=0,oom_memcg=/system.slice/docker-b41116c940d1.scope,task_memcg=/system.slice/docker-b41116c940d1.scope,task=kube-apiserver,pid=1362312,uid=0
+[264956.760512] Memory cgroup out of memory: Killed process 1362312 (kube-apiserver) total-vm:3074180kB, anon-rss:1566684kB, file-rss:49408kB, shmem-rss:0kB, UID:0 pgtables:3388kB oom_score_adj:0
+[264965.879310] kube-apiserver invoked oom-killer: gfp_mask=0xcc0(GFP_KERNEL), order=2, oom_score_adj=0
+[264965.901314] oom-kill:constraint=CONSTRAINT_MEMCG,nodemask=(null),cpuset=docker-b41116c940d1.scope,mems_allowed=0,oom_memcg=/system.slice/docker-b41116c940d1.scope,task_memcg=/system.slice/docker-b41116c940d1.scope,task=kube-apiserver,pid=1369846,uid=0
+[264965.901448] Memory cgroup out of memory: Killed process 1369846 (kube-apiserver) total-vm:3071872kB, anon-rss:1566932kB, file-rss:49408kB, shmem-rss:0kB, UID:0 pgtables:3356kB oom_score_adj:0
+[264974.574807] kube-apiserver invoked oom-killer: gfp_mask=0xcc0(GFP_KERNEL), order=0, oom_score_adj=0
+[264974.575209] oom-kill:constraint=CONSTRAINT_MEMCG,nodemask=(null),cpuset=docker-b41116c940d1.scope,mems_allowed=0,oom_memcg=/system.slice/docker-b41116c940d1.scope,task_memcg=/system.slice/docker-b41116c940d1.scope,task=kube-apiserver,pid=1377090,uid=0
+[264974.575308] Memory cgroup out of memory: Killed process 1377090 (kube-apiserver) total-vm:3072288kB, anon-rss:1565860kB, file-rss:49152kB, shmem-rss:0kB, UID:0 pgtables:3360kB oom_score_adj:0
+[264984.541213] kube-apiserver invoked oom-killer: gfp_mask=0xcc0(GFP_KERNEL), order=0, oom_score_adj=0
+[264984.544695] oom-kill:constraint=CONSTRAINT_MEMCG,nodemask=(null),cpuset=docker-b41116c940d1.scope,mems_allowed=0,oom_memcg=/system.slice/docker-b41116c940d1.scope,task_memcg=/system.slice/docker-b41116c940d1.scope,task=kube-apiserver,pid=1383423,uid=0
+[264984.544794] Memory cgroup out of memory: Killed process 1383423 (kube-apiserver) total-vm:3140316kB, anon-rss:1567128kB, file-rss:49024kB, shmem-rss:0kB, UID:0 pgtables:3368kB oom_score_adj:0

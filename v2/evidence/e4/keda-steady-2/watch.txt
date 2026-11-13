@@ -1,0 +1,376 @@
+03:27:02 | hpa 2 2 3 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:27:05 | hpa 2 2 3 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:27:07 | hpa 2 2 3 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:27:10 | hpa 2 2 3 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:27:12 | hpa 2 2 3 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:27:15 | hpa 2 2 3 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:27:17 | hpa 2 2 5 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:27:20 | hpa 2 2 5 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:27:22 | hpa 2 2 5 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:27:24 | hpa 2 2 5 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:27:26 | hpa 2 2 5 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:27:29 | hpa 2 2 5 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:27:31 | hpa 2 2 9 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:27:34 | hpa 2 2 9 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:27:36 | hpa 2 2 9 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:27:39 | hpa 2 2 9 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:27:41 | hpa 2 2 9 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:27:44 | hpa 2 2 9 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:27:46 | hpa 2 2 34 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:27:49 | hpa 2 2 34 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:27:51 | hpa 2 2 34 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:27:54 | hpa 2 2 34 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:27:56 | hpa 2 2 34 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:27:58 | hpa 2 2 34 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:28:01 | hpa 2 2 38 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:28:03 | hpa 2 2 38 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:28:06 | hpa 2 2 38 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:28:08 | hpa 2 2 38 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:28:11 | hpa 2 2 38 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:28:13 | hpa 2 2 38 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:28:16 | hpa 2 2 43 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:28:18 | hpa 2 2 43 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:28:21 | hpa 2 2 43 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:28:23 | hpa 2 2 43 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:28:26 | hpa 2 2 43 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:28:28 | hpa 2 2 43 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:28:30 | hpa 2 2 45 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:28:33 | hpa 2 2 45 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:28:35 | hpa 2 2 45 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:28:38 | hpa 2 2 45 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:28:41 | hpa 2 2 45 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:28:43 | hpa 2 2 45 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:28:46 | hpa 2 2 47 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:28:49 | hpa 2 2 47 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:28:51 | hpa 2 2 47 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:28:54 | hpa 2 2 47 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:28:57 | hpa 2 2 47 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:28:59 | hpa 2 2 105 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:29:02 | hpa 2 2 105 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:29:05 | hpa 2 2 105 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:29:07 | hpa 2 2 105 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:29:10 | hpa 2 2 105 | deploy 2 2 | gm44w:Running:true qhww7:Running:true 
+03:29:13 | hpa 4 2 173 | deploy 4 2 | 6rmf7:Pending:false 7m4ms:Pending:false gm44w:Running:true qhww7:Running:true 
+03:29:16 | hpa 4 2 173 | deploy 4 2 | 6rmf7:Pending:false 7m4ms:Pending:false gm44w:Running:true qhww7:Running:true 
+03:29:19 | hpa 4 2 173 | deploy 4 2 | 6rmf7:Running:false 7m4ms:Running:false gm44w:Running:true qhww7:Running:true 
+03:29:22 | hpa 4 2 173 | deploy 4 3 | 6rmf7:Running:false 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:29:25 | hpa 4 2 173 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:29:27 | hpa 4 2 173 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:29:29 | hpa 4 4 148 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:29:32 | hpa 4 4 148 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:29:35 | hpa 4 4 148 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:29:37 | hpa 4 4 148 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:29:40 | hpa 4 4 148 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:29:43 | hpa 4 4 148 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:29:45 | hpa 4 4 57 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:29:48 | hpa 4 4 57 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:29:50 | hpa 4 4 57 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:29:53 | hpa 4 4 57 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:29:56 | hpa 4 4 57 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:29:58 | hpa 4 4 72 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:30:01 | hpa 4 4 72 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:30:03 | hpa 4 4 72 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:30:05 | hpa 4 4 72 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:30:08 | hpa 4 4 72 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:30:11 | hpa 4 4 72 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:30:13 | hpa 4 4 66 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:30:16 | hpa 4 4 66 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:30:19 | hpa 4 4 66 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:30:21 | hpa 4 4 66 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:30:24 | hpa 4 4 66 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:30:27 | hpa 4 4 66 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:30:29 | hpa 4 4 70 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:30:32 | hpa 4 4 70 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:30:34 | hpa 4 4 70 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:30:36 | hpa 4 4 70 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:30:39 | hpa 4 4 70 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:30:41 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:30:44 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:30:47 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:30:49 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:30:52 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:30:54 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:30:57 | hpa 4 4 69 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:31:00 | hpa 4 4 69 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:31:02 | hpa 4 4 69 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:31:04 | hpa 4 4 69 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:31:07 | hpa 4 4 69 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:31:09 | hpa 4 4 69 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:31:12 | hpa 4 4 69 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:31:15 | hpa 4 4 69 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:31:17 | hpa 4 4 69 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:31:20 | hpa 4 4 69 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:31:22 | hpa 4 4 69 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:31:25 | hpa 4 4 69 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:31:27 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:31:30 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:31:33 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:31:35 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:31:37 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:31:40 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:31:42 | hpa 4 4 66 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:31:45 | hpa 4 4 66 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:31:47 | hpa 4 4 66 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:31:50 | hpa 4 4 66 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:31:53 | hpa 4 4 66 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:31:55 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:31:58 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:32:01 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:32:03 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:32:06 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:32:08 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:32:11 | hpa 4 4 70 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:32:15 | hpa 4 4 70 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:32:17 | hpa 4 4 70 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:32:20 | hpa 4 4 70 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:32:23 | hpa 4 4 70 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:32:26 | hpa 4 4 87 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:32:28 | hpa 4 4 87 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:32:31 | hpa 4 4 87 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:32:34 | hpa 4 4 87 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:32:37 | hpa 4 4 87 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:32:39 | hpa 4 4 90 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:32:41 | hpa 4 4 90 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:32:44 | hpa 4 4 90 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:32:47 | hpa 4 4 90 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:32:50 | hpa 4 4 90 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:32:52 | hpa 4 4 90 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:32:55 | hpa 4 4 84 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:32:58 | hpa 4 4 84 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:33:00 | hpa 4 4 84 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:33:03 | hpa 4 4 84 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:33:06 | hpa 4 4 84 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:33:08 | hpa 4 4 84 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:33:10 | hpa 4 4 73 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:33:13 | hpa 4 4 73 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:33:16 | hpa 4 4 73 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:33:18 | hpa 4 4 73 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:33:21 | hpa 4 4 73 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:33:24 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:33:26 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:33:29 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:33:31 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:33:34 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:33:37 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:33:39 | hpa 4 4 69 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:33:42 | hpa 4 4 69 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:33:43 | hpa 4 4 69 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:33:46 | hpa 4 4 69 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:33:49 | hpa 4 4 69 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:33:51 | hpa 4 4 69 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:33:54 | hpa 4 4 65 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:33:56 | hpa 4 4 65 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:33:59 | hpa 4 4 65 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:34:01 | hpa 4 4 65 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:34:04 | hpa 4 4 65 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:34:07 | hpa 4 4 65 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:34:09 | hpa 4 4 73 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:34:12 | hpa 4 4 73 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:34:14 | hpa 4 4 73 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:34:16 | hpa 4 4 73 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:34:19 | hpa 4 4 73 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:34:22 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:34:24 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:34:27 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:34:29 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:34:32 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:34:34 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:34:37 | hpa 4 4 67 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:34:39 | hpa 4 4 67 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:34:42 | hpa 4 4 67 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:34:45 | hpa 4 4 67 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:34:46 | hpa 4 4 67 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:34:49 | hpa 4 4 67 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:34:52 | hpa 4 4 59 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:34:54 | hpa 4 4 59 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:34:57 | hpa 4 4 59 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:34:59 | hpa 4 4 59 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:35:02 | hpa 4 4 59 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:35:05 | hpa 4 4 59 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:35:08 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:35:10 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:35:13 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:35:15 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:35:17 | hpa 4 4 68 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:35:20 | hpa 4 4 71 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:35:22 | hpa 4 4 71 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:35:25 | hpa 4 4 71 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:35:27 | hpa 4 4 71 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:35:30 | hpa 4 4 71 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:35:33 | hpa 4 4 71 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:35:35 | hpa 4 4 84 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:35:38 | hpa 4 4 84 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:35:40 | hpa 4 4 84 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:35:43 | hpa 4 4 84 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:35:46 | hpa 4 4 84 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:35:48 | hpa 4 4 84 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:35:50 | hpa 4 4 65 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:35:53 | hpa 4 4 65 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:35:55 | hpa 4 4 65 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:35:58 | hpa 4 4 65 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:36:00 | hpa 4 4 65 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:36:03 | hpa 4 4 65 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:36:06 | hpa 4 4 65 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:36:09 | hpa 4 4 65 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:36:11 | hpa 4 4 65 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:36:14 | hpa 4 4 65 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:36:17 | hpa 4 4 65 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:36:19 | hpa 4 4 81 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:36:21 | hpa 4 4 81 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:36:23 | hpa 4 4 81 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:36:26 | hpa 4 4 81 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:36:29 | hpa 4 4 81 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:36:31 | hpa 4 4 81 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:36:34 | hpa 4 4 91 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:36:36 | hpa 4 4 91 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:36:39 | hpa 4 4 91 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:36:42 | hpa 4 4 91 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:36:44 | hpa 4 4 91 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:36:47 | hpa 4 4 91 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:36:50 | hpa 4 4 82 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:36:52 | hpa 4 4 82 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:36:54 | hpa 4 4 82 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:36:57 | hpa 4 4 82 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:36:59 | hpa 4 4 82 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:37:02 | hpa 4 4 82 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:37:05 | hpa 4 4 69 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:37:07 | hpa 4 4 69 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:37:10 | hpa 4 4 69 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:37:13 | hpa 4 4 69 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:37:15 | hpa 4 4 69 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:37:18 | hpa 4 4 75 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:37:21 | hpa 4 4 75 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:37:23 | hpa 4 4 75 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:37:26 | hpa 4 4 75 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:37:28 | hpa 4 4 75 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:37:31 | hpa 4 4 75 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:37:34 | hpa 4 4 76 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:37:36 | hpa 4 4 76 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:37:39 | hpa 4 4 76 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:37:42 | hpa 4 4 76 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:37:44 | hpa 4 4 76 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:37:47 | hpa 4 4 73 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:37:50 | hpa 4 4 73 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:37:52 | hpa 4 4 73 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:37:55 | hpa 4 4 73 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:37:57 | hpa 4 4 73 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:37:59 | hpa 4 4 73 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:38:02 | hpa 4 4 66 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:38:05 | hpa 4 4 66 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:38:07 | hpa 4 4 66 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:38:10 | hpa 4 4 66 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:38:13 | hpa 4 4 66 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:38:15 | hpa 4 4 66 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:38:18 | hpa 4 4 77 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:38:20 | hpa 4 4 77 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:38:23 | hpa 4 4 77 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:38:25 | hpa 4 4 77 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:38:27 | hpa 4 4 77 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:38:30 | hpa 4 4 73 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:38:32 | hpa 4 4 73 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:38:35 | hpa 4 4 73 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:38:38 | hpa 4 4 73 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:38:41 | hpa 4 4 73 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:38:43 | hpa 4 4 73 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:38:46 | hpa 4 4 70 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:38:48 | hpa 4 4 70 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:38:51 | hpa 4 4 70 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:38:53 | hpa 4 4 70 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:38:56 | hpa 4 4 70 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:38:59 | hpa 4 4 70 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:39:00 | hpa 4 4 70 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:39:03 | hpa 4 4 70 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:39:06 | hpa 4 4 70 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:39:09 | hpa 4 4 70 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:39:12 | hpa 4 4 70 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:39:15 | hpa 4 4 70 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:39:17 | hpa 4 4 70 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:39:20 | hpa 4 4 70 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:39:22 | hpa 4 4 70 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:39:25 | hpa 4 4 70 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:39:28 | hpa 4 4 70 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:39:30 | hpa 4 4 66 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:39:32 | hpa 4 4 66 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:39:35 | hpa 4 4 66 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:39:37 | hpa 4 4 66 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:39:40 | hpa 4 4 66 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:39:42 | hpa 4 4 66 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:39:45 | hpa 4 4 74 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:39:48 | hpa 4 4 74 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:39:50 | hpa 4 4 74 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:39:53 | hpa 4 4 74 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:39:55 | hpa 4 4 74 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:39:58 | hpa 4 4 64 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:40:01 | hpa 4 4 64 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:40:03 | hpa 4 4 64 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:40:05 | hpa 4 4 64 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:40:08 | hpa 4 4 64 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:40:11 | hpa 4 4 64 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:40:13 | hpa 4 4 74 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:40:16 | hpa 4 4 74 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:40:19 | hpa 4 4 74 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:40:21 | hpa 4 4 74 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:40:24 | hpa 4 4 74 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:40:26 | hpa 4 4 74 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:40:29 | hpa 4 4 71 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:40:31 | hpa 4 4 71 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:40:33 | hpa 4 4 71 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:40:36 | hpa 4 4 71 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:40:38 | hpa 4 4 71 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:40:41 | hpa 4 4 71 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:40:43 | hpa 4 4 48 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:40:46 | hpa 4 4 48 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:40:48 | hpa 4 4 48 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:40:50 | hpa 4 4 48 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:40:53 | hpa 4 4 48 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:40:55 | hpa 4 4 48 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:40:58 | hpa 4 4 22 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:41:00 | hpa 4 4 22 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:41:03 | hpa 4 4 22 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:41:04 | hpa 4 4 22 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:41:07 | hpa 4 4 22 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:41:09 | hpa 4 4 22 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:41:12 | hpa 4 4 22 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:41:14 | hpa 4 4 22 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:41:17 | hpa 4 4 22 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:41:19 | hpa 4 4 22 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:41:22 | hpa 4 4 22 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:41:24 | hpa 4 4 22 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:41:27 | hpa 4 4 22 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:41:29 | hpa 4 4 22 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:41:32 | hpa 4 4 22 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:41:34 | hpa 4 4 22 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:41:36 | hpa 4 4 22 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:41:38 | hpa 4 4 22 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:41:41 | hpa 4 4 21 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:41:43 | hpa 4 4 21 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:41:46 | hpa 4 4 21 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:41:48 | hpa 4 4 21 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:41:51 | hpa 4 4 21 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:41:53 | hpa 4 4 21 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:41:56 | hpa 4 4 24 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:41:58 | hpa 4 4 24 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:42:01 | hpa 4 4 24 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:42:03 | hpa 4 4 24 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:42:06 | hpa 4 4 24 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:42:08 | hpa 4 4 24 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:42:10 | hpa 4 4 22 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:42:12 | hpa 4 4 22 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:42:15 | hpa 4 4 22 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:42:17 | hpa 4 4 22 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:42:20 | hpa 4 4 22 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:42:22 | hpa 4 4 22 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:42:25 | hpa 4 4 23 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:42:27 | hpa 4 4 23 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:42:30 | hpa 4 4 23 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:42:32 | hpa 4 4 23 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:42:35 | hpa 4 4 23 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:42:37 | hpa 4 4 23 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:42:40 | hpa 4 4 21 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:42:41 | hpa 4 4 21 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:42:44 | hpa 4 4 21 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:42:46 | hpa 4 4 21 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:42:49 | hpa 4 4 21 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:42:51 | hpa 4 4 21 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:42:54 | hpa 4 4 5 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 
+03:42:56 | hpa 4 4 5 | deploy 4 4 | 6rmf7:Running:true 7m4ms:Running:true gm44w:Running:true qhww7:Running:true 

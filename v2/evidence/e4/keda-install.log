@@ -1,0 +1,29 @@
+# transcript: E4: KEDA 2.21.0 through GitOps, and the notifier handed to KEDA
+# recorded: 2026-11-09T02:14:16Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/platform/bootstrap/publish-gitops.sh fd38028 "E4: KEDA 2.21.0; notifier scales on its JetStream backlog"
+platform-gitops: pushed bdb51c5 (E4: KEDA 2.21.0; notifier scales on its JetStream backlog)
+
+$ for a in $(kubectl -n argocd get applications -o name); do kubectl -n argocd annotate $a argocd.argoproj.io/refresh=normal --overwrite > /dev/null; done; for i in $(seq 1 60); do kubectl -n keda get deploy keda-operator > /dev/null 2>&1 && kubectl -n keda rollout status deploy/keda-operator --timeout=5s > /dev/null 2>&1 && break; sleep 5; done; kubectl -n keda get pods -o wide --no-headers | awk '{print $1, $2, $3, $7}'
+keda-admission-webhooks-d8866994b-2pgw5 0/1 ContainerCreating ent-worker2
+keda-operator-bd4b87784-6xgqk 1/1 Running 40s
+keda-operator-metrics-apiserver-67675b58f-8kq7z 0/1 ContainerCreating ent-worker
+
+$ for i in $(seq 1 60); do kubectl -n storefront get scaledobject notifier > /dev/null 2>&1 && break; sleep 5; done; sleep 20; kubectl -n storefront get scaledobject notifier; kubectl -n storefront get hpa
+NAME       SCALETARGETKIND      SCALETARGETNAME   MIN   MAX   READY   ACTIVE   FALLBACK   PAUSED   TRIGGERS         AUTHENTICATIONS   AGE
+notifier   apps/v1.Deployment   notifier          1     5     True    False    False      False    nats-jetstream                     54s
+NAME                REFERENCE             TARGETS              MINPODS   MAXPODS   REPLICAS   AGE
+gateway             Deployment/gateway    cpu: 3%/100%         2         6         2          22m
+keda-hpa-notifier   Deployment/notifier   <unknown>/50 (avg)   1         5         1          24s
+
+$ kubectl -n storefront get deploy notifier -o jsonpath='notifier replicas={.spec.replicas} ready={.status.readyReplicas} env NOTIFY_WORK_MS={.spec.template.spec.containers[0].env[?(@.name=="NOTIFY_WORK_MS")].value}{"\n"}'
+notifier replicas=1 ready=1 env NOTIFY_WORK_MS=200
+
+$ kubectl -n argocd get applications --no-headers -o custom-columns=APP:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status | grep -vE "Synced +Healthy"; echo "(apps not Synced/Healthy above)"
+keda                        Synced   Progressing
+platform-root               Synced   Progressing
+(apps not Synced/Healthy above)
+
+$ kubectl get --raw /apis/external.metrics.k8s.io/v1beta1 | jq -r '.groupVersion'
+external.metrics.k8s.io/v1beta1
+

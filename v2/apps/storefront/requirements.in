@@ -1,0 +1,21 @@
+# Top-level runtime dependencies of the storefront services. Compile the pinned lock file with:
+#   uv pip compile requirements.in -o requirements.txt --python-version 3.13 --python-platform linux
+fastapi==0.162.0
+uvicorn==0.54.0
+uvloop==0.23.0
+httptools==0.9.0
+httpx==0.28.1
+# httpcore runs "import sniffio" on every request; anyio 4.x no longer installs sniffio, and a
+# failed import searches sys.path again each time: 3.4 % of the gateway's CPU (E3, chapter 4)
+sniffio==1.3.1
+asyncpg==0.32.0
+redis==8.1.0
+nats-py==2.16.0
+prometheus-client==0.26.0
+# OpenTelemetry: SDK, OTLP/HTTP exporter (traces + logs), auto-instrumentation of the libraries above
+opentelemetry-sdk==1.45.2
+opentelemetry-exporter-otlp-proto-http==1.45.2
+opentelemetry-instrumentation-fastapi==0.66b2
+opentelemetry-instrumentation-httpx==0.66b2
+opentelemetry-instrumentation-asyncpg==0.66b2
+opentelemetry-instrumentation-redis==0.66b2

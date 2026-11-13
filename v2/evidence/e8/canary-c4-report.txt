@@ -1,0 +1,2 @@
+8697 requests through the layer-7 entrance during the promotion (probe every 25 ms): 4177 answered by fd38028 (no version header), 4520 by 8ef5584, 0 failed
+merge request merged at epoch 1794274522.8; first 8ef5584 answer of the stable release cannot be told from the canary (same version) - last fd38028 answer +55.5 s after the merge

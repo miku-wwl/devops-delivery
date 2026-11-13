@@ -1,0 +1,12 @@
+== 01:23:02.422 route weights: 95 5
+== 01:23:02.553 C2 under live weights: 10 s of requests with x-storefront-preview: canary
+  version 8ef5584 200: 400
+== 01:23:12.714 the canary turns faulty (50 % 503)
+  gateway-canary-7fb9c96977-gdxlc {"latency_ms":0.0,"error_rate":0.5,"status":503}
+  gateway-canary-7fb9c96977-r8cwx {"latency_ms":0.0,"error_rate":0.5,"status":503}
+== 01:24:44.390 decision: roll the canary back (weight 0)
+  MR !12 (mr/20261110-012445-root, by root) pipeline 22: success after 37 s; diff: platform/manifests/mesh/ingress-storefront.yaml
+  merge !12 as root (Maintainer): HTTP 200 merged
+  platform-gitops: merged !12 (e8: canary rollback - weight 0)
+== 01:25:27.655 merged
+== 01:25:31.479 the route in the cluster has weight 0

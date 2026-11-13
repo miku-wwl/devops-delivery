@@ -1,0 +1,37 @@
+# transcript: E3: what fails above 170 iterations/s - load balancer, readiness and ztunnel captured live
+# recorded: 2026-11-07T12:13:51Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e3/lb-storm.sh lb-storm-180 180 60
+load balancer container: kindccm-7c5080a249c3 (http://172.20.0.8:8080)
+envoy pid 4441, open files now: 109
+Max open files            1024                 1048576              files     
+window 2026-11-07T12:13:53Z .. 2026-11-07T12:15:16Z
+envoy crashes during the run: 11
+first events:
+[2026-11-07 12:13:57.459][4468][error][envoy_bug] [source/common/network/socket_interface_impl.cc:89] envoy bug failure: false. Details: socket(2) failed, got e
+[2026-11-07 12:13:57.464][4468][critical][backtrace] [./source/server/backtrace.h:129] Caught Segmentation fault, suspect faulting address 0x0
+[2026-11-07 12:13:59.716][4521][info][main] [source/server/server.cc:1001] starting main dispatch loop
+[2026-11-07 12:14:02.953][4529][error][envoy_bug] [source/common/network/socket_interface_impl.cc:89] envoy bug failure: false. Details: socket(2) failed, got e
+k6 summary:
+rate=180/s duration=60s iterations=10698 dropped=103
+requests=17665 (286.4/s) failed=99.95%
+browse: p50=0.0 p95=2283.1 p99=2891.3 max=4207.0 ms
+order:  p50=122.6 p95=2527.4 p99=3367.6 max=4124.3 ms
+checks: 0.05% passed
+time="2026-11-08T01:14:56+13:00" level=error msg="thresholds on metrics 'http_req_duration{kind:browse}, http_req_duration{kind:order}, http_req_failed{kind:browse}' have been crossed"
+k6 network errors: 17114
+  14451 error="Get \
+   2663 error="Post \
+readiness (R = ready, - = not ready), every 2 s:
+12:14:02 catalog/w1=- catalog/w2=- orders/w2=- 
+12:14:11 catalog/w1=- catalog/w2=- inventory/w1=- orders/w1=- orders/w2=- payments/w1=- 
+12:14:54 catalog/w2=- inventory/w1=- orders/w1=- orders/w2=- payments/w1=- 
+12:14:56 catalog/w2=- orders/w1=- orders/w2=- 
+12:14:58 orders/w2=- 
+12:15:00 
+ztunnel on ent-worker: 2438 lines, 2 with error=, by error:
+      2 error="attempted recursive call to ourselves"
+ztunnel on ent-worker2: 2501 lines, 3 with error=, by error:
+      3 error="attempted recursive call to ourselves"
+ztunnel on ent-worker3: 13 lines, 0 with error=, by error:
+

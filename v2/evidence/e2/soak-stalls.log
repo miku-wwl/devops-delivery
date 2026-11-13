@@ -1,0 +1,48 @@
+# transcript: E2: 15-minute soak - did the event loops stall?
+# recorded: 2026-11-07T08:45:55Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# every stall the watchdog reported since the new pods started (threshold 250 ms)
+$ for p in $(kubectl -n storefront get pods -l app.kubernetes.io/part-of=storefront -o name); do kubectl -n storefront logs $p -c app 2>/dev/null | grep "event loop blocked" | jq -c "{ts, service, blocked_ms, cpu_ms, loop_thread_cpu_ms, runqueue_ms, top: (.stack | split(\"\n\") | map(select(test(\"File\"))) | .[-2:] | join(\" <- \"))}"; done | sort
+[exit 1]
+
+# loop wake-ups later than 50 ms / 100 ms / 250 ms during the soak, per service
+$ for le in 0.05 0.1 0.25; do kubectl get --raw "/api/v1/namespaces/monitoring/services/kps-prometheus:9090/proxy/api/v1/query?query=$(jq -rn --arg s "sum by (service) (increase(event_loop_lag_seconds_count{namespace=\"storefront\"}[16m])) - sum by (service) (increase(event_loop_lag_seconds_bucket{namespace=\"storefront\",le=\"$le\"}[16m]))" "\$s|@uri")" | jq -r --arg le $le ".data.result[] | \"lag > \(\$le) s: \(.metric.service) \(.value[1] | tonumber | round)\""; done | sort
+lag > 0.05 s: catalog 8
+lag > 0.05 s: gateway 5
+lag > 0.05 s: inventory 2
+lag > 0.05 s: notifier 0
+lag > 0.05 s: orders 8
+lag > 0.05 s: payments 2
+lag > 0.1 s: catalog 1
+lag > 0.1 s: gateway 2
+lag > 0.1 s: inventory 2
+lag > 0.1 s: notifier 0
+lag > 0.1 s: orders 1
+lag > 0.1 s: payments 0
+lag > 0.25 s: catalog 0
+lag > 0.25 s: gateway 0
+lag > 0.25 s: inventory 0
+lag > 0.25 s: notifier 0
+lag > 0.25 s: orders 0
+lag > 0.25 s: payments 0
+
+# longest garbage collection per service and generation
+$ kubectl get --raw "/api/v1/namespaces/monitoring/services/kps-prometheus:9090/proxy/api/v1/query?query=$(jq -rn --arg s "max by (service, generation) (histogram_quantile(1, sum by (service, generation, le) (increase(python_gc_pause_seconds_bucket{namespace=\"storefront\"}[16m]))))" "\$s|@uri")" | jq -r ".data.result[] | \"gc max \(.metric.service) gen\(.metric.generation): \(.value[1]) s\""
+gc max orders gen0: 0.025 s
+gc max gateway gen1: 0.05 s
+gc max catalog gen2: 0.25 s
+gc max payments gen0: 0.005 s
+gc max gateway gen0: 0.025 s
+gc max notifier gen0: 0.0025 s
+gc max orders gen1: 0.025 s
+gc max inventory gen1: 0.01 s
+gc max inventory gen0: 0.01 s
+gc max catalog gen1: 0.01 s
+gc max payments gen1: 0.01 s
+gc max notifier gen1: 0.025 s
+gc max gateway gen2: 0.25 s
+gc max catalog gen0: 0.01 s
+gc max orders gen2: 0.25 s
+gc max inventory gen2: NaN s
+gc max payments gen2: NaN s
+

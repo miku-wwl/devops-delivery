@@ -1,0 +1,25 @@
+# transcript: P7 permanent fix: chart 0.3.1 keeps release config in the pod template
+# recorded: 2026-11-06T04:15:39Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ helm lint delivery/helm/demo-api --set rollout.enabled=true --set otel.enabled=true --quiet && echo "lint ok"
+lint ok
+
+$ helm template t delivery/helm/demo-api --set rollout.enabled=true --set faults.latencyMs=800 --show-only templates/rollout.yaml | yq '.spec.template.spec.containers[0] | {envFrom, env: [.env[] | select(.name | test("FAULT"))]}'
+Error: 1:38: lexer: invalid input text "envFrom, env: [...."
+[exit 1]
+
+$ bash delivery/argocd/update-chart.sh --merge
+ 3 files changed, 13 insertions(+), 6 deletions(-)
+merge request !19: http://localhost:8929/root/delivery-gitops/-/merge_requests/19
+merged !19 -> main @ c4724f5 by root
+
+$ bash delivery/rollouts/watch-rollout.sh prod demo-api-prod Paused 420
+t+0s  phase=Paused step=1 updated=1 available=5 analysis=Running message="CanaryPauseStep"
+
+$ kubectl -n prod get pods -l app.kubernetes.io/name=demo-api -L role --no-headers | awk '{print $1, $NF}'
+demo-api-prod-66ffb5d6db-hq8zp canary
+demo-api-prod-6bdb67694c-2nnx7 stable
+demo-api-prod-6bdb67694c-2qnp2 stable
+demo-api-prod-6bdb67694c-9x5wg stable
+demo-api-prod-6bdb67694c-bfsxz stable
+

@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 222" width="640" height="222" font-family="'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="8.0" y="8.0" width="624.0" height="98.0" rx="7" fill="#fff8ee" stroke="#e6c69a" stroke-width="1"/>
+<text x="17.0" y="23.0" font-size="10" fill="#6b3b05" text-anchor="start" font-weight="600">头部采样 10%：请求开始时决定——那时还不知道它会不会出错</text>
+<rect x="20.0" y="36.0" width="100.0" height="58.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="70.0" y="68.8" font-size="10.5" fill="#1b2430" text-anchor="middle" font-weight="600">服务的 SDK</text>
+<rect x="316.0" y="32.0" width="90.0" height="32.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="361.0" y="51.8" font-size="10.5" fill="#1b2430" text-anchor="middle" font-weight="600">收集器</text>
+<path d="M524.0,31.5 A48.0,5.5 0 0 1 620.0,31.5 V66.5 A48.0,5.5 0 0 1 524.0,66.5 Z" fill="#e8f5f2" stroke="#0f8a7e" stroke-width="1.2"/>
+<path d="M524.0,31.5 A48.0,5.5 0 0 0 620.0,31.5" fill="none" stroke="#0f8a7e" stroke-width="1.2"/>
+<text x="572.0" y="55.5" font-size="10.5" fill="#0b4f48" text-anchor="middle" font-weight="600">Tempo</text>
+<rect x="316.0" y="70.0" width="90.0" height="28.0" rx="5.0" fill="#fdecea" stroke="#c0392b" stroke-width="1.2"/>
+<text x="361.0" y="87.8" font-size="10.5" fill="#7a1f16" text-anchor="middle" font-weight="normal">丢弃</text>
+<polyline points="120.0,48.0 311.0,48.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="316.0,48.0 307.1,44.0 307.1,52.0" fill="#5b6776"/>
+<rect x="190.3" y="34.5" width="55.4" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="218.0" y="43.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">10% 的链路</text>
+<polyline points="406.0,48.0 519.0,48.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="524.0,48.0 515.1,44.0 515.1,52.0" fill="#5b6776"/>
+<polyline points="120.0,84.0 311.0,84.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 4"/>
+<polygon points="316.0,84.0 307.1,80.0 307.1,88.0" fill="#5b6776"/>
+<rect x="159.7" y="70.5" width="116.7" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="218.0" y="79.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">90%：连同其中出错的请求</text>
+<rect x="8.0" y="114.0" width="624.0" height="100.0" rx="7" fill="#f0f8f6" stroke="#a9d6cd" stroke-width="1"/>
+<text x="17.0" y="129.0" font-size="10" fill="#0b4f48" text-anchor="start" font-weight="600">100% 上报 + 尾部采样：整条链路结束之后决定</text>
+<rect x="20.0" y="142.0" width="100.0" height="60.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="70.0" y="175.8" font-size="10.5" fill="#1b2430" text-anchor="middle" font-weight="600">服务的 SDK</text>
+<rect x="216.0" y="138.0" width="190.0" height="68.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="311.0" y="162.0" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">收集器（尾部采样）</text>
+<text x="311.0" y="175.6" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">等 10 秒，看完整条链路</text>
+<text x="311.0" y="189.2" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">出错或慢于 1 秒：全留；其余留 10%</text>
+<path d="M524.0,141.5 A48.0,5.5 0 0 1 620.0,141.5 V176.5 A48.0,5.5 0 0 1 524.0,176.5 Z" fill="#e8f5f2" stroke="#0f8a7e" stroke-width="1.2"/>
+<path d="M524.0,141.5 A48.0,5.5 0 0 0 620.0,141.5" fill="none" stroke="#0f8a7e" stroke-width="1.2"/>
+<text x="572.0" y="165.5" font-size="10.5" fill="#0b4f48" text-anchor="middle" font-weight="600">Tempo</text>
+<rect x="452.0" y="184.0" width="60.0" height="24.0" rx="5.0" fill="#ffffff" stroke="#b9c6d4" stroke-width="1.2" stroke-dasharray="3 3"/>
+<text x="482.0" y="199.8" font-size="10.5" fill="#5b6776" text-anchor="middle" font-weight="normal">丢弃</text>
+<polyline points="120.0,172.0 211.0,172.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="216.0,172.0 207.1,168.0 207.1,176.0" fill="#5b6776"/>
+<rect x="146.0" y="158.5" width="44.0" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="168.0" y="167.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">全部链路</text>
+<polyline points="406.0,160.0 519.0,160.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="524.0,160.0 515.1,156.0 515.1,164.0" fill="#5b6776"/>
+<rect x="438.2" y="146.5" width="53.5" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="465.0" y="155.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">保留的链路</text>
+<polyline points="406.0,196.0 447.0,196.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 4"/>
+<polygon points="452.0,196.0 443.1,192.0 443.1,200.0" fill="#5b6776"/>
+</svg>

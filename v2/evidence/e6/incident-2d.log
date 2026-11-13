@@ -1,0 +1,8 @@
+# transcript: E6 incident 2: the preemption that brought Prometheus back (events of the preempted Grafana pod and of Prometheus)
+# recorded: 2026-11-09T12:46:39Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl -n monitoring get events --field-selector involvedObject.name=kps-grafana-676885f46d-bm59x -o custom-columns=TIME:.lastTimestamp,REASON:.reason,MSG:.message --no-headers
+
+$ kubectl -n monitoring get events --field-selector involvedObject.name=prometheus-kps-prometheus-0 -o custom-columns=TIME:.lastTimestamp,REASON:.reason,MSG:.message --no-headers | grep -E 'Scheduled|Preempt|Nominated' | tail -3
+[exit 1]
+

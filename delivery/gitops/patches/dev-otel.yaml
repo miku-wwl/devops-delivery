@@ -1,0 +1,8 @@
+# dev: export traces and logs to the OpenTelemetry Collector. dev deploys without a
+# canary gate, so faults injected for observability drills stay in place long enough
+# to be investigated (prod keeps its analysis gate).
+otel:
+  enabled: true
+rollout:
+  analysis:
+    enabled: false

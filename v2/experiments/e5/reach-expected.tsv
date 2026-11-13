@@ -1,0 +1,51 @@
+# E5: who should reach whom once the platform's NetworkPolicies are applied (written before they
+# were). Targets as in reach.sh; "ok" = the destination itself answered.
+# tenants: deny everything but DNS and their own namespace (egress and ingress)
+insight	dns	ok
+insight	catalog	blocked
+insight	gateway	blocked
+insight	postgres	blocked
+insight	valkey	blocked
+insight	nats	blocked
+insight	insight-api	ok
+insight	prometheus	blocked
+insight	otel	blocked
+shop-dev	dns	ok
+shop-dev	catalog	blocked
+shop-dev	gateway	blocked
+shop-dev	postgres	blocked
+shop-dev	valkey	blocked
+shop-dev	nats	blocked
+shop-dev	insight-api	blocked
+shop-dev	prometheus	blocked
+shop-dev	otel	blocked
+# storefront: reaches its data services and the platform; not another tenant
+storefront	dns	ok
+storefront	catalog	ok
+storefront	gateway	ok
+storefront	postgres	ok
+storefront	valkey	ok
+storefront	nats	ok
+storefront	insight-api	blocked
+storefront	prometheus	ok
+storefront	otel	ok
+# any other namespace: only the public entry point of the storefront, and the shared platform
+e5-outside	dns	ok
+e5-outside	catalog	blocked
+e5-outside	gateway	ok
+e5-outside	postgres	blocked
+e5-outside	valkey	blocked
+e5-outside	nats	blocked
+e5-outside	insight-api	blocked
+e5-outside	prometheus	ok
+e5-outside	otel	ok
+# monitoring: the services' metrics port (8080), not the data services' client ports
+monitoring	dns	ok
+monitoring	catalog	ok
+monitoring	gateway	ok
+monitoring	postgres	blocked
+monitoring	valkey	blocked
+monitoring	nats	blocked
+monitoring	insight-api	blocked
+monitoring	prometheus	ok
+monitoring	otel	ok

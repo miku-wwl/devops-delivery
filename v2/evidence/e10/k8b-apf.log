@@ -1,0 +1,17 @@
+  e10-low: {"lendablePercent":0,"limitResponse":{"queuing":{"handSize":1,"queueLengthLimit":5,"queues":1},"type":"Queue"},"nominalConcurrencyShares":1}; workload-low lendablePercent 90
+  API server flags: 
+== 11:30:03 K5: victim alone for 30 s
+  victim's GET: HTTP/2 200 : flow schema service-accounts, priority level workload-low
+  nominal seats: e10-low=3 workload-low=244 
+== 11:30:33 flood: 40 workers LIST all pods for 60 s; the victim keeps going
+  11:30:53 a flood request 20 s in: no answer (connection failed)
+The connection to the server 127.0.0.1:32766 was refused - did you specify the right host or port?
+The connection to the server 127.0.0.1:32766 was refused - did you specify the right host or port?
+== 11:31:38 rejected by APF (apiserver_flowcontrol_rejected_requests_total): e10-low +0, workload-low +0
+The connection to the server 127.0.0.1:32766 was refused - did you specify the right host or port?
+  flood: 20152 requests, codes {'000': 16521, '403': 268, '429': 3363}; LIST p50 nan s, p99 nan s (200 only)
+  429 by message: {'text:Too_many_requests,_please_try_again_later.': 3363}
+  victim quiet: 57 GETs, codes {'200': 57}; p50 11.2 ms, p99 14.7 ms
+  victim flood: 85 GETs, codes {'200': 35, '000': 44, '403': 6}; p50 78.6 ms, p99 1539.7 ms
+cat: /sys/fs/cgroup/system.slice/docker-9acd43d5c26a0ae39be565ff71367430e857b6a1e437d4f9a9d5c49e1e9d7ad0.scope/memory.peak: No such file or directory
+v2/experiments/e10/scale.sh: line 122: / 1048576 : syntax error: operand expected (error token is "/ 1048576 ")

@@ -1,0 +1,44 @@
+# transcript: E1: tests after the notifier start-up fix
+# recorded: 2026-11-07T04:03:20Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ cd v2/apps/storefront
+
+$ docker compose -f compose.test.yaml build tests 2>&1 | grep -E "All checks|naming to|ERROR" | tail -2
+#15 0.549 All checks passed!
+#16 naming to docker.io/library/storefront-test-tests:latest done
+
+$ docker compose -f compose.test.yaml run --rm tests pytest -v --cov=storefront --cov-report=term 2>&1 | grep -vE "^\{\"ts\"" | sed -n "/test session starts/,\$p" | grep -E "PASSED|FAILED|ERROR|passed|failed|TOTAL|Required"
+tests/test_integration.py::test_migrations_apply_once PASSED             [  3%]
+tests/test_integration.py::test_concurrent_reservations_never_oversell PASSED [  7%]
+tests/test_integration.py::test_notifier_waits_for_the_stream_instead_of_crashing PASSED [ 11%]
+tests/test_integration.py::test_an_order_flows_through_the_outbox_and_nats_to_the_notifier PASSED [ 14%]
+tests/test_resilience.py::test_backoff_grows_exponentially_up_to_the_cap_and_jitter_stays_below_it PASSED [ 18%]
+tests/test_resilience.py::test_retry_budget_limits_retries_to_a_fraction_of_requests PASSED [ 22%]
+tests/test_resilience.py::test_breaker_opens_on_failure_ratio_then_half_opens_and_closes PASSED [ 25%]
+tests/test_resilience.py::test_breaker_reopens_when_a_trial_call_fails_and_needs_min_calls PASSED [ 29%]
+tests/test_resilience.py::test_bulkhead_rejects_instead_of_queueing PASSED [ 33%]
+tests/test_services.py::test_operational_endpoints_and_injected_faults PASSED [ 37%]
+tests/test_services.py::test_catalog_cache_aside_and_degrades_when_the_cache_fails PASSED [ 40%]
+tests/test_services.py::test_payments_is_idempotent_and_refuses_a_concurrent_duplicate PASSED [ 44%]
+tests/test_services.py::test_payment_latency_model_has_the_configured_median_and_p99 PASSED [ 48%]
+tests/test_services.py::test_order_saga_happy_path_and_idempotent_replay PASSED [ 51%]
+tests/test_services.py::test_order_rejected_when_out_of_stock_or_unknown_product PASSED [ 55%]
+tests/test_services.py::test_declined_payment_releases_the_reservation PASSED [ 59%]
+tests/test_services.py::test_payments_unreachable_fails_the_order_and_compensates PASSED [ 62%]
+tests/test_services.py::test_gateway_relays_and_requires_an_idempotency_key PASSED [ 66%]
+tests/test_services.py::test_notifier_sends_once_per_event_id PASSED     [ 70%]
+tests/test_upstream.py::test_get_is_retried_after_a_503_and_the_retry_is_counted PASSED [ 74%]
+tests/test_upstream.py::test_post_without_idempotency_key_is_never_retried PASSED [ 77%]
+tests/test_upstream.py::test_post_with_idempotency_key_is_retried PASSED [ 81%]
+tests/test_upstream.py::test_timeouts_become_upstream_errors_and_4xx_pass_through PASSED [ 85%]
+tests/test_upstream.py::test_retry_budget_stops_a_retry_storm PASSED     [ 88%]
+tests/test_upstream.py::test_breaker_opens_and_then_fails_fast_without_calling PASSED [ 92%]
+tests/test_upstream.py::test_deadline_is_propagated_and_an_expired_deadline_fails_fast PASSED [ 96%]
+tests/test_upstream.py::test_naive_policy_retries_without_budget_or_breaker PASSED [100%]
+TOTAL                                  1240    123    224     27    89%
+Required test coverage of 85.0% reached. Total coverage: 89.07%
+======================== 27 passed in 69.97s (0:01:09) =========================
+
+$ docker compose -f compose.test.yaml down -v 2>&1 | tail -1
+ Network storefront-test_default Removed 
+

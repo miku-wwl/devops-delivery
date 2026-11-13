@@ -1,0 +1,39 @@
+# clock drift and AlertmanagerClusterCrashlooping, 2026-11-10T06:40:37Z
+== 1. restarts: alertmanager=0 config-reloader=0  (pod started 2026-11-10T05:57:56Z)
+== 2. process_start_time_seconds{job="kps-alertmanager"} over the last 3 minutes (sample time -> value)
+  container alertmanager
+    1794292668 -> 1794290238.16
+    1794292683 -> 1794290238.16
+    1794292697 -> 1794290237.16
+    1794292712 -> 1794290237.16
+    1794292726 -> 1794290236.16
+    1794292741 -> 1794290236.16
+    1794292755 -> 1794290235.16
+    1794292770 -> 1794290235.16
+    1794292785 -> 1794290235.16
+    1794292800 -> 1794290234.16
+    1794292815 -> 1794290234.16
+    1794292829 -> 1794290234.16
+  container config-reloader
+    1794292660 -> 1794290238.69
+    1794292675 -> 1794290238.69
+    1794292690 -> 1794290238.69
+    1794292704 -> 1794290237.69
+    1794292719 -> 1794290237.69
+    1794292733 -> 1794290236.69
+    1794292748 -> 1794290236.69
+    1794292762 -> 1794290235.69
+    1794292777 -> 1794290235.69
+    1794292792 -> 1794290234.69
+    1794292807 -> 1794290234.69
+    1794292821 -> 1794290234.69
+    1794292836 -> 1794290234.69
+   changes() over 10 minutes (the alert fires above 4):
+     config-reloader 14
+     alertmanager 15
+== 3. wall clock, monotonic uptime and boot time over 60 s
+  WSL VM: wall clock +58.32 s, uptime +60.02 s (monotonic +2.91 % against the wall clock), btime 1794034941 -> 1794034939 (-2 s)
+  kind node ent-worker3: wall clock +58.47 s, uptime +60.14 s (monotonic +2.86 % against the wall clock), btime 1794034939 -> 1794034937 (-2 s)
+== 4. node exporter: offset and sync status
+   [('172.20.0.10:9100', '0'), ('172.20.0.2:9100', '0'), ('172.20.0.8:9100', '0'), ('172.20.0.9:9100', '0')]
+   [('172.20.0.10:9100', '1'), ('172.20.0.2:9100', '1'), ('172.20.0.8:9100', '1'), ('172.20.0.9:9100', '1')]

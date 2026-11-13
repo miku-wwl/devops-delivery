@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 184" width="640" height="184" font-family="'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="10.0" y="26.0" width="96.0" height="60.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="58.0" y="52.8" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">每一次写入</text>
+<text x="58.0" y="66.4" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">创建、修改、删除</text>
+<rect x="128.0" y="26.0" width="132.0" height="60.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="194.0" y="52.8" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">一个新的修订版本</text>
+<text x="194.0" y="66.4" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">旧版本仍留在文件里</text>
+<rect x="322.0" y="20.0" width="122.0" height="72.0" rx="5.0" fill="#fff4e0" stroke="#d9730d" stroke-width="1.2"/>
+<text x="383.0" y="46.0" font-size="10" fill="#6b3b05" text-anchor="middle" font-weight="600">旧版本被清除</text>
+<text x="383.0" y="59.6" font-size="9.5" fill="#6b3b05" text-anchor="middle" font-weight="normal">页面标记为空闲</text>
+<text x="383.0" y="73.2" font-size="9.5" fill="#6b3b05" text-anchor="middle" font-weight="normal">文件大小不变</text>
+<rect x="510.0" y="26.0" width="122.0" height="60.0" rx="5.0" fill="#e6f4ea" stroke="#2e8b57" stroke-width="1.2"/>
+<text x="571.0" y="52.8" font-size="10" fill="#1d5c38" text-anchor="middle" font-weight="600">重写成新文件</text>
+<text x="571.0" y="66.4" font-size="9.5" fill="#1d5c38" text-anchor="middle" font-weight="normal">空间还给文件系统</text>
+<polyline points="106.0,56.0 123.0,56.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="128.0,56.0 119.1,52.0 119.1,60.0" fill="#5b6776"/>
+<polyline points="260.0,56.0 317.0,56.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="322.0,56.0 313.1,52.0 313.1,60.0" fill="#5b6776"/>
+<rect x="278.5" y="42.5" width="25.0" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="291.0" y="51.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">压缩</text>
+<text x="291.0" y="72.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">每 5 分钟</text>
+<polyline points="444.0,56.0 505.0,56.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="510.0,56.0 501.1,52.0 501.1,60.0" fill="#5b6776"/>
+<rect x="455.0" y="42.5" width="44.0" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="477.0" y="51.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">碎片整理</text>
+<text x="477.0" y="72.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">逐个成员</text>
+<rect x="322.0" y="126.0" width="310.0" height="46.0" rx="5.0" fill="#fdecea" stroke="#c0392b" stroke-width="1.2"/>
+<text x="477.0" y="145.8" font-size="10" fill="#7a1f16" text-anchor="middle" font-weight="600">超过配额（默认 2 GiB）</text>
+<text x="477.0" y="159.4" font-size="9.5" fill="#7a1f16" text-anchor="middle" font-weight="normal">NOSPACE：只接受读和删除，不能再创建任何对象</text>
+<polyline points="194.0,86.0 194.0,149.0 317.0,149.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 4"/>
+<polygon points="322.0,149.0 313.1,145.0 313.1,153.0" fill="#5b6776"/>
+<rect x="221.8" y="134.5" width="72.5" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="258.0" y="143.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">不压缩、不整理</text>
+</svg>

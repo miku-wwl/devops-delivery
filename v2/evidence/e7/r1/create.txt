@@ -1,0 +1,48 @@
+== 22:38:30 (T0 + 67 s) create.sh
+host: 16 CPUs, MemTotal 15642 MiB
+worker: 4 CPUs, 3584 MiB; system-reserved cpu=12; eviction memory.available<12208Mi
+Creating cluster "ent" ...
+ • Ensuring node image (kindest/node:v1.37.0) 🖼️  ...
+WARNING: Overriding docker network due to KIND_EXPERIMENTAL_DOCKER_NETWORK
+WARNING: Here be dragons! This is not supported currently.
+ ✓ Ensuring node image (kindest/node:v1.37.0) 🖼️
+ • Preparing nodes 📦 📦 📦 📦   ...
+ ✓ Preparing nodes 📦 📦 📦 📦 
+ • Writing configuration 📜  ...
+ ✓ Writing configuration 📜
+ • Starting control-plane 🕹️  ...
+ ✓ Starting control-plane 🕹️
+ • Installing CNI 🔌  ...
+ ✓ Installing CNI 🔌
+ • Installing StorageClass 💾  ...
+ ✓ Installing StorageClass 💾
+ • Joining worker nodes 🚜  ...
+ ✓ Joining worker nodes 🚜
+ • Waiting ≤ 3m0s for control-plane = Ready ⏳  ...
+ ✓ Waiting ≤ 3m0s for control-plane = Ready ⏳
+ • Ready after 8s 💚
+Set kubectl context to "kind-ent"
+You can now use your cluster with:
+
+kubectl cluster-info --context kind-ent
+
+Have a question, bug, or feature request? Let us know! https://kind.sigs.k8s.io/#community 🙂
+kind create cluster took 46 s
+configmap/local-registry-hosting created
+serviceaccount/metrics-server created
+clusterrole.rbac.authorization.k8s.io/system:aggregated-metrics-reader created
+clusterrole.rbac.authorization.k8s.io/system:metrics-server created
+rolebinding.rbac.authorization.k8s.io/metrics-server-auth-reader created
+clusterrolebinding.rbac.authorization.k8s.io/metrics-server:system:auth-delegator created
+clusterrolebinding.rbac.authorization.k8s.io/system:metrics-server created
+service/metrics-server created
+deployment.apps/metrics-server created
+apiservice.apiregistration.k8s.io/v1beta1.metrics.k8s.io created
+Waiting for deployment "metrics-server" rollout to finish: 0 of 1 updated replicas are available...
+deployment "metrics-server" successfully rolled out
+NAME                STATUS   ROLES           AGE   VERSION   ZONE     INSTANCE-TYPE
+ent-control-plane   Ready    control-plane   57s   v1.37.0            
+ent-worker          Ready    <none>          43s   v1.37.0   zone-a   sim-4c3.5g
+ent-worker2         Ready    <none>          43s   v1.37.0   zone-b   sim-4c3.5g
+ent-worker3         Ready    <none>          43s   v1.37.0   zone-c   sim-4c3.5g
+== 22:39:50 (T0 + 147 s) create.sh exit 0

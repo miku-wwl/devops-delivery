@@ -1,0 +1,21 @@
+# transcript: E2: interleaved A/B - no mesh vs ambient L4, 3 x 90 s each
+# recorded: 2026-11-07T07:46:07Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e2/ab-mesh.sh 3 90
+rep  mode       br_p50   br_p95   or_p50   or_p95    req/s  failed
+1    none         12.8       23    122.4    249.5     34.1   0.03%
+1    ambient      15.5     29.6    139.2    254.9     33.8      0%
+2    none           13     22.5    126.2    234.6       34      0%
+2    ambient      15.4     29.9    131.6    258.4     34.7   0.03%
+3    none         12.4     22.6      124    230.1     34.4      0%
+3    ambient      14.5     24.6    123.4    226.5     34.4      0%
+argo cd automated sync restored; namespace label back to ambient
+
+$ kubectl -n argocd get application platform-root namespaces -o jsonpath="{range .items[*]}{.metadata.name} {.spec.syncPolicy.automated}{\"\n\"}{end}"
+platform-root {"prune":true,"selfHeal":true}
+namespaces {"prune":false,"selfHeal":true}
+
+$ kubectl get ns storefront --show-labels
+NAME         STATUS   AGE     LABELS
+storefront   Active   4h11m   istio.io/dataplane-mode=ambient,kubernetes.io/metadata.name=storefront
+

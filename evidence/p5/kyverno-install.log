@@ -1,0 +1,30 @@
+# transcript: P5 install Kyverno and the signature policy
+# recorded: 2026-11-06T00:24:57Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ helm upgrade --install kyverno kyverno/kyverno --version 3.9.2 -n kyverno --create-namespace --wait --timeout 6m | head -8
+Release "kyverno" does not exist. Installing it now.
+NAME: kyverno
+LAST DEPLOYED: Fri Nov  6 13:24:58 2026
+NAMESPACE: kyverno
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+NOTES:
+
+$ kubectl -n kyverno get pods
+NAME                                             READY   STATUS    RESTARTS   AGE
+kyverno-admission-controller-75c55c6475-7r5j6    1/1     Running   0          44s
+kyverno-background-controller-7f5648c454-jf2s8   1/1     Running   0          44s
+kyverno-cleanup-controller-6b96f7d9b-zhtgx       1/1     Running   0          44s
+kyverno-reports-controller-7866559564-f2d5b      1/1     Running   0          44s
+
+$ kubectl apply -f delivery/policies/verify-release-signature.yaml
+Warning: kyverno.io/v1 ClusterPolicy is deprecated and will be removed in a future release; migrate to ValidatingPolicy, MutatingPolicy, GeneratingPolicy or ImageValidatingPolicy (policies.kyverno.io), see https://kyverno.io/docs/guides/migration-to-cel/
+clusterpolicy.kyverno.io/verify-release-signature created
+
+$ sleep 10
+
+$ kubectl get clusterpolicy verify-release-signature -o jsonpath='{.status.conditions[?(@.type=="Ready")].status} {.status.conditions[?(@.type=="Ready")].message}{"\n"}'
+Warning: kyverno.io/v1 ClusterPolicy is deprecated and will be removed in a future release; migrate to ValidatingPolicy, MutatingPolicy, GeneratingPolicy or ImageValidatingPolicy (policies.kyverno.io), see https://kyverno.io/docs/guides/migration-to-cel/
+True Ready
+

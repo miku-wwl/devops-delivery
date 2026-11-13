@@ -1,0 +1,39 @@
+# transcript: P6 switch dev to Argo Rollout (after fixing the MR creation race)
+# recorded: 2026-11-06T00:49:31Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash delivery/argocd/promote.sh dev @$PWD/delivery/gitops/patches/dev-rollout.yaml --merge --title "dev: progressive delivery with Argo Rollouts"
+ envs/dev/values.yaml | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+@@ -5 +5,9 @@ image:
+   digest: sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74
++# Progressive delivery for dev: automatic canary, no manual gate.
++podMonitor:
++  enabled: true
++rollout:
++  enabled: true
++  steps:
++    - setWeight: 50
++    - pause: {duration: 30s}
+merge request !10: http://localhost:8929/root/delivery-gitops/-/merge_requests/10
+merged !10 -> main @ f109009 by root
+
+$ bash delivery/argocd/wait-sync.sh demo-api-dev
+t+1s  revision=8b890f3 sync=Synced health=Healthy operation=Succeeded
+t+78s  revision=f109009 sync=OutOfSync health=Healthy operation=Running
+t+82s  revision=f109009 sync=OutOfSync health=Progressing operation=Succeeded
+t+85s  revision=f109009 sync=Synced health=Progressing operation=Succeeded
+t+94s  revision=f109009 sync=Synced health=Healthy operation=Succeeded
+reached Synced/Healthy at f109009 after 94s
+
+$ kubectl get rollout,podmonitor,deploy -n dev
+NAME                               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+rollout.argoproj.io/demo-api-dev   1         1         1            1           15s
+
+NAME                                            AGE
+podmonitor.monitoring.coreos.com/demo-api-dev   15s
+
+$ kubectl get podmonitors -A
+NAMESPACE   NAME            AGE
+dev         demo-api-dev    15s
+prod        demo-api-prod   4m28s
+

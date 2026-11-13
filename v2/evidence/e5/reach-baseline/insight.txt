@@ -1,0 +1,9 @@
+dns ok 59ms
+catalog ok 76ms
+gateway ok 128ms
+postgres ok 7ms
+valkey ok 5ms
+nats ok 10ms
+insight-api ok 9ms
+prometheus ok 8ms
+otel ok 28ms

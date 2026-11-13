@@ -1,0 +1,11 @@
+# transcript: P10: consumer-side provenance check before promotion (Windows gh CLI)
+# recorded: 2026-11-06T10:16:27Z | host: jiejie | user: weila | cwd: /d/workshop/nov/devops-delivery
+
+$ IMG=ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:4bb4aac303ab48d036af1808c98312c16acbe8eef3c8f6fcdc42dc4f77711f38
+
+$ gh attestation verify "oci://$IMG" --repo miku-wwl/devops-delivery --format json --jq '.[0].verificationResult | {predicateType: .statement.predicateType, signerWorkflow: .signature.certificate.githubWorkflowRef, sourceRepositoryRef: .signature.certificate.sourceRepositoryRef, sourceRepositoryDigest: .signature.certificate.sourceRepositoryDigest, runInvocationURI: .signature.certificate.runInvocationURI}'
+{"predicateType":"https://slsa.dev/provenance/v1","runInvocationURI":"https://github.com/miku-wwl/devops-delivery/actions/runs/42198984873/attempts/1","signerWorkflow":"refs/heads/p10/closed-loop","sourceRepositoryDigest":"85b3a49c7a25849861368913e9372a80ffa3cbe2","sourceRepositoryRef":"refs/heads/p10/closed-loop"}
+
+$ gh attestation verify "oci://$IMG" --repo miku-wwl/devops-delivery --predicate-type https://spdx.dev/Document/v2.3 --format json --jq '.[0].verificationResult.statement | {predicateType, sbomPackages: (.predicate.packages | length)}'
+{"predicateType":"https://spdx.dev/Document/v2.3","sbomPackages":124}
+

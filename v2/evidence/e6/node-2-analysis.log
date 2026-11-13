@@ -1,0 +1,35 @@
+# transcript: E6 node-2: why nearly every request failed until the endpoints were removed (Prometheus, which stayed up this time)
+# recorded: 2026-11-09T13:02:33Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e4/series.sh 2026-11-09T12:51:30Z 2026-11-09T12:54:00Z 15 'gw_5xx/s=sum(rate(http_server_requests_total{namespace="storefront",service="gateway",code=~"5.."}[30s]))' 'breaker_open_rejects/s=sum(rate(upstream_rejected_total{namespace="storefront",reason="circuit_open"}[30s]))' 'timeouts/s=sum(rate(upstream_requests_total{namespace="storefront",outcome="timeout"}[30s]))' 'conn_errors/s=sum(rate(upstream_requests_total{namespace="storefront",outcome=~"connect.*|reset.*|error"}[30s]))'
+time gw_5xx/s breaker_open_rejects/s timeouts/s conn_errors/s
+12:51:30  0      0      0.07  0
+12:51:45  0      0      0     0
+12:52:00  0      0      0     0
+12:52:15  17.8   16.93  6.07  0
+12:52:30  52.82  52.9   1.7   0.07
+12:52:45  51.9   51.96  1.53  0
+12:53:00  37.04  37.32  1.15  0
+12:53:15  0.27   0.27   0     0
+12:53:30  0      0      0     0
+12:53:45  0      0      0     0
+12:54:00  0      0      0     0
+
+$ bash v2/experiments/e4/promq.sh 2026-11-09T12:52:40Z 'sum by (service, upstream, reason) (increase(upstream_rejected_total{namespace="storefront"}[60s])) > 0'
+  reason=circuit_open,service=gateway,upstream=catalog 2003.327
+  reason=circuit_open,service=gateway,upstream=orders 410.238
+  reason=retry_budget,service=gateway,upstream=catalog 17.777
+  reason=retry_budget,service=orders,upstream=catalog 4.289
+  reason=circuit_open,service=orders,upstream=catalog 2.86
+  reason=retry_budget,service=gateway,upstream=orders 2.735
+
+$ bash v2/experiments/e4/promq.sh 2026-11-09T12:52:40Z 'sum by (service, upstream, outcome) (increase(upstream_requests_total{namespace="storefront",outcome!="ok"}[60s])) > 0'
+  outcome=timeout,service=gateway,upstream=catalog 105.294
+  outcome=timeout,service=gateway,upstream=orders 68.373
+  outcome=timeout,service=orders,upstream=catalog 11.441
+  outcome=timeout,service=orders,upstream=inventory 2.86
+  outcome=connect_error,service=gateway,upstream=catalog 1.367
+
+$ bash v2/experiments/e4/promq.sh 2026-11-09T12:59:00Z 'count(up{namespace=~"storefront|data|monitoring"} == 1)'
+   28
+

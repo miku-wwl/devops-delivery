@@ -1,0 +1,174 @@
+ROUND 1 page review - build fa47436 (cover + 233 numbered pages = 234 PDF pages)
+PDF page numbers (p1 = cover). Sheets: 6 pages per sheet, 666x943 px per page.
+
+p1      cover - OK
+p2-10   TOC is 9 pages (depth 3 + preface/appendix subsections) -> FIX: depth 2, unlisted sub-headings in front/back matter
+p11     reading guide: book map (Mermaid) small, large empty area, text unreadable -> FIX: redraw as SVG
+p12-13  reading guide text - OK
+p14     ch1 opener - OK
+p15     fig 1-1 environment nesting: text tiny -> FIX: redraw / re-layout
+p16-17  OK
+p18     justified paragraphs with long inline code: stretched word spacing -> FIX: css overflow-wrap for inline code
+p19-26  OK (fig 1-3 chart fine)
+p27     bottom gap (tall saga sequence figure follows on p28) -> ACCEPT (figure cannot be split)
+p28     saga sequence - OK
+p29     fig 2-2 outbox: LR chain unreadable -> FIX: TB
+p30-44  OK (fig 2-4, 2-5 charts fine, screenshots fine, prod table, exercises)
+p45     fig 3-1 ambient data path: small / wide -> FIX: re-layout
+p46     fig 3-2 L4 vs L7 (capped 60mm): small -> FIX: reconsider cap / re-layout
+p47-48  OK
+p49     3.5 connection census, table - OK
+p50     fig 3-3 chart OK; ~35% blank at bottom because the screenshot fig 3-4 follows -> check gap tool
+p51     fig 3-4 Grafana screenshot - OK
+p52-54  OK (fig 3-5 chart fine)
+p55     fig 3-6 retry stacking (LR, 3 boxes): text small but legible; tagged measured data (numbers are measured) -> check zoom
+p56     OK
+p57     fig 3-7 Tempo screenshot - OK
+p58-60  OK
+p61     ch3 exercises end + summary; chapter ends at ~65% of the page (chapter break) - OK
+p62     ch4 opener - OK
+p63     fig 4-1 model curve (capped 65mm): annotation and axis text small -> FIX: lift the cap or enlarge fonts
+p64-67  OK
+p68     ~12% blank at bottom: lead-in sentence ends with a colon and the table went to p69 -> MINOR (check after rebuild)
+p69     OK
+p70     fig 4-2 hbar chart - OK
+p71-72  OK
+p73     tables - OK
+p74     fig 4-3, 4-4 charts - OK
+p75-76  OK
+p77     fig 4-5 bar chart - OK
+p78     fig 4-6 Grafana screenshot - OK
+p79     OK (prod table)
+p80     exercise box: ~2 blank lines at the bottom of the box (last item moved to p81) -> MINOR
+p81     chapter end (40% used) - OK
+p82     ch5 opener - OK
+p83     realness note at top of page, 5.2 - OK
+p84     fig 5-1 HPA control loop (TB): nodes small in the middle of a half-page frame, node text hard to read -> FIX: redraw (custom SVG loop) ; IDEA: measure effective font size of every Mermaid figure
+p85     fig 5-2 eviction order (LR flowchart): text small, borderline legible -> MEASURE
+p86     OK
+p87     fig 5-3 HPA timeline chart - OK
+p88     fig 5-4 bar chart - OK
+p89     fig 5-5 Grafana screenshot - OK
+p90     OK
+p91     fig 5-6 KEDA oscillation chart - OK
+p92     OK
+p93     fig 5-7 bar chart - OK
+p94     OK
+p95     fig 5-8 eviction timeline chart - OK
+p96     OK
+p97-99  OK (prod table, FAQ)
+p100    exercises + summary - OK
+p101    chapter end (35% used) - OK
+p102    ch6 opener - OK
+p103    fig 6-1 tenant boundary (Mermaid): small text, labels broken mid-word ("Kyve rno", "Extern al Secrets"), big empty subgraph -> FIX: redraw
+p104    fig 6-2 API request path (TB): small nodes, mid-word breaks ("A rgo CD", "ValidatingAdmissio nPolicy"), wide empty margins -> FIX: redraw
+p105-108 OK
+GENERAL  Mermaid labels break inside Latin words; LR chains wider than the column and tall TB chains are scaled down until the text is ~5pt
+         -> systematic pass: measure the printed font size of every diagram, fix all below a threshold
+p109    fig 6-3 NetworkPolicy in the mesh (two LR subgraphs): tiny, unreadable -> FIX: redraw
+p110-111 OK
+p112    fig 6-4 secret rotation (LR): small text -> FIX: re-layout
+p113-114 OK
+p115    chapter 6 ends with two bullets alone on the page (~10% used) -> FIX if possible (pull back / tighten)
+p116    ch7 opener - OK
+p117    ~35% blank at the bottom (tall fig 7-1 follows) -> resolved by redrawing fig 7-1 more compactly
+p118    fig 7-1 resilience primitives (TB): small nodes and text -> FIX: redraw
+p119    fig 7-2 hbar chart: the vline label "正常: 1 次" overlaps the first row's value label -> FIX
+p119    a paragraph holding only evidence markers "[4, 5, 6, 7]" stands alone under the figure -> FIX: attach markers to a sentence
+p120    OK
+p121    OK
+p122    fig 7-3 node-failure timeline chart - OK
+p123    fig 7-4 partition (Mermaid TB + subgraphs): confusing layout, floating edge labels -> FIX: redraw
+p123    lone evidence-marker paragraph "[17]" under the table -> FIX (same as p119)
+p124    OK
+p125    lone marker paragraph "[20, 21, 12]"; one justified line stretched to huge letter spacing before a long inline code path -> FIX (markers; inline code wrapping)
+p126    OK (prod table)
+p127    exercises, summary - OK
+p128    chapter 7 end (25% used) - OK
+p129    ch8 opener - OK
+p130    fig 8-1 RPO/RTO concept timeline (SVG) - OK
+p131    fig 8-2 commit paths (Mermaid sequence) - OK, readable
+p132    fig 8-3 WAL archiving / PITR (LR): small text -> MEASURE
+p133    ~28% blank at the bottom (chart fig 8-4 follows on p134) -> MINOR (check after rebuild)
+p134    fig 8-4 hbar chart - OK
+p135-137 OK
+p138    justified lines stretched around long inline code paths -> FIX (inline code wrapping)
+p139    fig 8-5 rebuild timeline chart - OK
+p140-142 OK
+p143    chapter 8 ends with three bullets on the last page (15% used) -> MINOR (short chapter tail)
+p144    ch9 opener - OK
+p145    OK
+p146    fig 9-1 canary routing (LR, 5 nodes) - OK, readable
+p147    fig 9-2 two freeze keys (LR + diamonds): tiny, unreadable -> FIX: redraw; fig 9-3 release path (two subgraphs): small -> MEASURE/FIX
+p148    OK
+p149    fig 9-4 Grafana screenshot - OK
+p150    OK
+p151    fig 9-5 hbar chart, fig 9-6 Grafana screenshot - OK
+p152    OK (long identifiers wrap inside table cells)
+p153    fig 9-7 impersonation accounts (LR): labels broken mid-word ("argocd-roo t", "Applicatio n") -> FIX
+p154    OK
+p155    table: verdict column too narrow, "符合，另有 !18" wraps one character per line -> FIX
+p156    OK
+p157    OK
+p158    fig 9-8 R2 vs R4 sync waves: Mermaid gantt, tiny axis labels, style differs from the other data charts -> FIX: redraw with the chart library from the evidence
+p159-160 OK
+p161    chapter 9 end (30% used) - OK
+p162    ch10 opener - OK
+p163    fig 10-1 alert chain (LR, two subgraphs): small text -> FIX
+p164    fig 10-2 burn-rate model curve - OK
+p165    first lines of 10.3 stretched (long inline code) -> FIX (inline code wrapping)
+p166    tables: verdict column too narrow ("推翻（规则已修正）", "符合，有两个保留" wrap 1-2 characters per line) -> FIX
+p167    stretched line before a long inline path -> FIX (inline code wrapping)
+p168    fig 10-3 incident timeline chart - OK
+p169    table verdict column too narrow ("解除时间推翻，预算符合" one character per line) -> FIX; fig 10-4 Grafana screenshot - OK
+p170    table X1 verdict column same problem -> FIX
+p171    fig 10-5 head vs tail sampling (two subgraphs): small text -> MEASURE
+p172    fig 10-6 bar chart OK; ~45% blank at the bottom (screenshot fig 10-7 follows) -> try: shorter chart + height cap for the screenshot, else ACCEPT
+p173    fig 10-7 Tempo screenshot - OK
+p174-175 OK
+p176    ch11 opener - OK
+p177    fig 11-1 lab environment (TB, capped 120mm): small text -> MEASURE/FIX
+p178    fig 11-2 etcd MVCC (LR): small -> MEASURE
+p179    fig 11-3 LIST paths (LR): small text -> MEASURE/FIX
+p180    fig 11-4 APF (long LR chain): tiny, unreadable -> FIX: redraw
+p181    fig 11-5 scheduling chart - OK
+p182    fig 11-6 etcd bar chart - OK
+p183-184 OK
+p185    fig 11-7 K5 runs (log hbar): the target-line label overlaps the first bar -> FIX (same as p119: vline label placement)
+p186    fig 11-8 terminal record - OK
+p187    fig 11-9 API server memory chart: annotation "4 秒内 938 → 1487，被杀" sits on the x axis / tick labels -> FIX: move the note
+p188-190 OK
+p191    chapter 11 end (30% used) - OK
+p192    ch12 opener - OK
+p193    fig 12-1 division of labour (TB + subgraph): small text -> MEASURE
+p194    fig 12-2 state-lock sequence - OK
+p195    ~22% blank at the bottom (terminal figure follows) -> MINOR
+p196    fig 12-3, 12-4 terminal records - OK
+p197    fig 12-5 terminal record - OK
+p198    fig 12-6 Argo CD self-upgrade sequence (capped 85mm): small text -> MEASURE / lift cap
+p199    incident E11-1 timeline table: second column has no header -> FIX (add "事件")
+p200    fig 12-7 alert storm bar chart - OK
+p201-202 OK
+p203    chapter 12 end (25% used) - OK
+p204    ch13 opener OK; "13.1 学习目标" contains only the realness note, no objectives -> FIX: add objectives
+p205    tables OK; ~15% blank at the bottom (lead-in sentence, table on p206) -> MINOR
+p206    fig 13-1 grading bar chart - OK
+p207    fig 13-2 terminal record - OK
+p208    OK; 13.7 last sentence points only to docs/acceptance-report.md (v2.0.0) -> FIX: also name the publication acceptance report
+p209-216 appendix A (answers): dense text, no layout problems - OK
+p217-223 appendix A (answers) - OK
+p224    appendix B glossary, two columns - OK
+p225    glossary tail: five entries on a page of their own (20% used) -> MINOR (try to fit / balance)
+p226    appendix C intro paragraph stretched (justified + inline code/URL) -> FIX (inline code wrapping / left-align)
+p227-228 appendix C tables - OK
+p229-230 appendix C tables - OK
+p231    appendix C tail: three rows on a page of their own -> MINOR
+p232-234 appendix D evidence index, two columns - OK
+ROUND 1 COMPLETE: all 234 pages viewed at 666x943 px per page.
+
+FIX LOG (after round 1)
+F-01 DONE  all 34 Mermaid figures redrawn as hand-laid-out SVG (v2/manual/pub/diagrams.py, diagram_defs.py, figreg.py);
+           figcheck.py measures printed text size (before: 22 figures below 6.5 pt, smallest 3.4 pt);
+           chapters updated by tools/p6_diagrams.py; figures --check PASS 63 figs / 254 values; verify_evidence PASS 572; pubcheck PASS
+TODO  A1 toc depth 2 + unlisted; A2 inline code wrapping; A3 lone evidence markers; A4 verdict column; A5 hbar vline label, fig 11-9 note
+TODO  B11 ch12 E11-1 table header; B12 ch13 objectives; B13 ch13 13.7 acceptance refs; layout tuning; fig 4-1 cap; REVIEW.md; ACCEPTANCE.md

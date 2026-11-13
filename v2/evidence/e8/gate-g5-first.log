@@ -1,0 +1,35 @@
+# transcript: E8 gate drill: the first G5 attempt
+# recorded: 2026-11-10T00:14:06Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# E8 gate drill: why G5 did not run as intended (MR !5)
+# 1. the merge request also carried files that were being written in the working tree while the drill ran (mr.sh mirrors v2/gitops)
+$ TOKEN=$(cat ~/.lab-secrets/gitlab-root-token); curl -fsS -H "PRIVATE-TOKEN: $TOKEN" http://localhost:8929/api/v4/projects/3/merge_requests/5/changes | jq -r '.changes[].new_path'
+envs/prod/storefront/services/catalog.yaml
+platform/manifests/mesh/ingress-storefront.yaml
+platform/manifests/tenants/network.yaml
+
+# 2. its pipeline failed before running anything: the render job could not fetch the repository (HTTP 403)
+$ curl -fsS -H "PRIVATE-TOKEN: $TOKEN" "http://localhost:8929/api/v4/projects/3/pipelines/10/jobs?include_retried=true" | jq -c '.[] | {id, name, status, failure_reason}'
+{"id":28,"name":"release-policies","status":"skipped","failure_reason":null}
+{"id":27,"name":"render","status":"failed","failure_reason":"script_failure"}
+
+$ curl -fsS -H "PRIVATE-TOKEN: $TOKEN" http://localhost:8929/api/v4/projects/3/jobs/27/trace | grep -E "RPC failed|fatal|Job failed"
+2026-11-10T00:01:40.190481Z 01E error: RPC failed; HTTP 403 curl 22 The requested URL returned error: 403
+2026-11-10T00:01:40.190496Z 01E fatal: expected flush after ref listing
+2026-11-10T00:01:41.688768Z 00O [31;1mERROR: Job failed: exit code 128[0;m
+
+$ docker exec gitlab sh -c 'grep -h "2026-11-10T00:01:40" /var/log/gitlab/gitlab-rails/production_json.log' | jq -c 'select(.status == 403) | {time, path, status, username, remote_ip}'
+{"time":"2026-11-10T00:01:40.176Z","path":"/root/platform-gitops.git/git-upload-pack","status":403,"username":"alice","remote_ip":"172.19.0.4"}
+
+# the same user's pipelines just before (7, 8, 9) fetched the repository; her account is active and her token valid
+$ curl -fsS -H "PRIVATE-TOKEN: $TOKEN" http://localhost:8929/api/v4/users/5 | jq -c '{username, state, locked}'
+{"username":"alice","state":"active","locked":false}
+
+# 3. alice's own merge attempt: 401 from GitLab's merge permission check (identified user, valid token) - a Developer may not merge into main
+$ docker exec gitlab sh -c 'grep -h "merge_requests/5/merge" /var/log/gitlab/gitlab-rails/api_json.log' | jq -c '{time, status, username, token_type}' | head -3
+{"time":"2026-11-10T00:01:46.768Z","status":401,"username":"alice","token_type":"PersonalAccessToken"}
+{"time":"2026-11-10T00:01:46.989Z","status":405,"username":"root","token_type":"PersonalAccessToken"}
+
+$ bash v2/platform/gitops/mr.sh close 5
+MR !5: closed
+

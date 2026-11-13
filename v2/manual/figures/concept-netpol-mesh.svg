@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 232" width="640" height="232" font-family="'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="8.0" y="8.0" width="624.0" height="126.0" rx="7" fill="#f7f9fc" stroke="#b9c6d4" stroke-width="1"/>
+<text x="17.0" y="23.0" font-size="10" fill="#46525f" text-anchor="start" font-weight="600">没有 waypoint：应用以为自己在访问 8080，线上是到 15008 端口的隧道</text>
+<rect x="20.0" y="36.0" width="100.0" height="40.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="70.0" y="59.8" font-size="10.5" fill="#1b2430" text-anchor="middle" font-weight="600">客户端 Pod</text>
+<rect x="160.0" y="36.0" width="90.0" height="40.0" rx="5.0" fill="#e8f5f2" stroke="#0f8a7e" stroke-width="1.2"/>
+<text x="205.0" y="59.8" font-size="10.5" fill="#0b4f48" text-anchor="middle" font-weight="600">ztunnel</text>
+<rect x="500.0" y="32.0" width="120.0" height="90.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="560.0" y="73.8" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">服务端 Pod</text>
+<text x="560.0" y="87.4" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">应用端口 8080</text>
+<polyline points="120.0,56.0 155.0,56.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="160.0,56.0 151.1,52.0 151.1,60.0" fill="#5b6776"/>
+<polyline points="250.0,56.0 495.0,56.0" fill="none" stroke="#0f8a7e" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="500.0,56.0 489.9,51.2 489.9,60.8" fill="#0f8a7e"/>
+<rect x="270.6" y="42.5" width="208.8" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="375.0" y="51.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">HBONE，目的端口 15008：策略必须放行 15008</text>
+<rect x="160.0" y="86.0" width="130.0" height="36.0" rx="5.0" fill="#ffffff" stroke="#b9c6d4" stroke-width="1.2" stroke-dasharray="3 3"/>
+<text x="225.0" y="107.8" font-size="10.5" fill="#5b6776" text-anchor="middle" font-weight="normal">网格外的客户端</text>
+<polyline points="290.0,104.0 495.0,104.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="500.0,104.0 491.1,100.0 491.1,108.0" fill="#5b6776"/>
+<rect x="317.2" y="90.5" width="155.6" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="395.0" y="99.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">直接到 8080：经典规则只对它生效</text>
+<rect x="8.0" y="144.0" width="624.0" height="80.0" rx="7" fill="#f7f9fc" stroke="#b9c6d4" stroke-width="1"/>
+<text x="17.0" y="159.0" font-size="10" fill="#46525f" text-anchor="start" font-weight="600">有 waypoint：到达服务端的连接来自 waypoint，不是客户端</text>
+<rect x="20.0" y="172.0" width="100.0" height="40.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="70.0" y="195.8" font-size="10.5" fill="#1b2430" text-anchor="middle" font-weight="600">客户端 Pod</text>
+<rect x="266.0" y="172.0" width="110.0" height="40.0" rx="5.0" fill="#fff4e0" stroke="#d9730d" stroke-width="1.2"/>
+<text x="321.0" y="195.8" font-size="10.5" fill="#6b3b05" text-anchor="middle" font-weight="600">waypoint</text>
+<rect x="500.0" y="172.0" width="120.0" height="40.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="560.0" y="195.8" font-size="10.5" fill="#1b2430" text-anchor="middle" font-weight="600">服务端 Pod</text>
+<polyline points="120.0,192.0 261.0,192.0" fill="none" stroke="#0f8a7e" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="266.0,192.0 255.9,187.2 255.9,196.8" fill="#0f8a7e"/>
+<rect x="176.9" y="178.5" width="32.1" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="193.0" y="187.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">15008</text>
+<polyline points="376.0,192.0 495.0,192.0" fill="none" stroke="#0f8a7e" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="500.0,192.0 489.9,187.2 489.9,196.8" fill="#0f8a7e"/>
+<rect x="379.4" y="178.5" width="117.2" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="438.0" y="187.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">15008，来源是 waypoint</text>
+</svg>

@@ -1,0 +1,59 @@
+# API server audit policy for the v2 "ent" cluster (E0; used in E5 to answer "who did what").
+# The first matching rule wins. Principles:
+#   - drop high-volume noise (health checks, discovery, events, leases, authn/authz reviews);
+#   - never record bodies of Secrets/ConfigMaps/tokens (they would leak the secret into the log);
+#   - system components (service accounts, nodes, controllers): writes at Metadata, reads not at all;
+#   - people: writes with the request body; RBAC/admission/network-policy writes with request and response.
+apiVersion: audit.k8s.io/v1
+kind: Policy
+omitStages: ["RequestReceived"]
+rules:
+  - level: None
+    nonResourceURLs: ["/healthz*", "/livez*", "/readyz*", "/version", "/metrics", "/openapi/*", "/api", "/api/*", "/apis", "/apis/*"]
+  - level: None
+    resources:
+      - group: ""
+        resources: ["events"]
+      - group: "events.k8s.io"
+        resources: ["events"]
+      - group: "coordination.k8s.io"
+        resources: ["leases"]
+      - group: "authentication.k8s.io"
+        resources: ["tokenreviews"]
+      - group: "authorization.k8s.io"
+        resources: ["subjectaccessreviews", "selfsubjectaccessreviews", "selfsubjectrulesreviews", "localsubjectaccessreviews"]
+  # E9 (chapter 10): which service account read which Secret. Reads of Secrets by service accounts
+  # are recorded (Metadata: who, which object - never the value); their other reads are still dropped.
+  - level: Metadata
+    verbs: ["get", "list", "watch"]
+    userGroups: ["system:serviceaccounts"]
+    resources:
+      - group: ""
+        resources: ["secrets"]
+  - level: None
+    verbs: ["get", "list", "watch"]
+    userGroups: ["system:serviceaccounts", "system:nodes"]
+  - level: None
+    verbs: ["get", "list", "watch"]
+    users: ["system:kube-controller-manager", "system:kube-scheduler", "system:kube-proxy", "system:apiserver", "system:volume-scheduler"]
+  - level: Metadata
+    resources:
+      - group: ""
+        resources: ["secrets", "configmaps", "serviceaccounts/token", "pods/exec", "pods/attach", "pods/portforward"]
+  - level: Metadata
+    verbs: ["create", "update", "patch", "delete", "deletecollection"]
+    userGroups: ["system:serviceaccounts", "system:nodes"]
+  - level: Metadata
+    verbs: ["create", "update", "patch", "delete", "deletecollection"]
+    users: ["system:kube-controller-manager", "system:kube-scheduler", "system:apiserver"]
+  - level: RequestResponse
+    verbs: ["create", "update", "patch", "delete", "deletecollection"]
+    resources:
+      - group: "rbac.authorization.k8s.io"
+      - group: "admissionregistration.k8s.io"
+      - group: "kyverno.io"
+      - group: "networking.k8s.io"
+        resources: ["networkpolicies"]
+  - level: Request
+    verbs: ["create", "update", "patch", "delete", "deletecollection"]
+  - level: Metadata

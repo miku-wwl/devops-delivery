@@ -1,0 +1,40 @@
+# transcript: E1: baseline traffic, 20 iterations/s for 3 minutes
+# recorded: 2026-11-07T04:09:20Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# k6 runs on the WSL host pinned to CPUs 0-3 (the control-plane CPUs), outside the worker nodes
+$ GW=$(kubectl -n storefront get svc gateway -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
+
+$ free -m | sed -n 2p
+Mem:           15642        8702         606         214        6788        6939
+
+$ BASE_URL=http://$GW:8080 RATE=20 DURATION=3m SUMMARY=/tmp/e1-baseline.json taskset -c 0-3 k6 run --quiet v2/experiments/load/storefront.js
+rate=20/s duration=3m iterations=3601 dropped=0
+requests=6169 (34.3/s) failed=0.00%
+browse: p50=10.6 p95=15.8 p99=23.3 max=95.0 ms
+order:  p50=104.6 p95=233.7 p99=362.0 max=835.8 ms
+checks: 100.00% passed
+
+$ free -m | sed -n 2p
+Mem:           15642        9473         150         218        6477        6168
+
+$ kubectl top pods -n storefront --sort-by=cpu
+NAME                         CPU(cores)   MEMORY(bytes)   
+gateway-786fdccd48-g27sq     184m         64Mi            
+catalog-7ffc6f9889-sx787     142m         64Mi            
+orders-5cf5fb5767-w2cls      133m         67Mi            
+gateway-786fdccd48-lrdgm     109m         64Mi            
+orders-5cf5fb5767-s6ghv      56m          65Mi            
+payments-6449975555-xjbvh    42m          59Mi            
+inventory-5dc5445569-ldbrn   36m          59Mi            
+notifier-5fbc6b7555-zx6zs    30m          63Mi            
+inventory-5dc5445569-z79wf   13m          58Mi            
+catalog-7ffc6f9889-jrmw8     6m           57Mi            
+payments-6449975555-fk66w    5m           58Mi            
+
+$ kubectl top nodes
+NAME                CPU(cores)   CPU(%)   MEMORY(bytes)   MEMORY(%)   
+ent-control-plane   337m         2%       1680Mi          10%         
+ent-worker          801m         21%      2310Mi          86%         
+ent-worker2         652m         17%      1944Mi          72%         
+ent-worker3         466m         12%      1512Mi          56%         
+

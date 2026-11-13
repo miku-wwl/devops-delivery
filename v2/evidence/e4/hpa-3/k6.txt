@@ -1,0 +1,14 @@
+time="2026-11-09T15:38:51+13:00" level=warning msg="Insufficient VUs, reached 600 active VUs and cannot initialize more" executor=ramping-arrival-rate scenario=shop
+time="2026-11-09T15:39:29+13:00" level=warning msg="Request Failed" error="Get \"http://172.20.0.8:8080/api/products?limit=20\": dial tcp 172.20.0.8:8080: connect: cannot assign requested address"
+time="2026-11-09T15:39:29+13:00" level=warning msg="Request Failed" error="Post \"http://172.20.0.8:8080/api/orders\": dial tcp 172.20.0.8:8080: connect: cannot assign requested address"
+time="2026-11-09T15:39:29+13:00" level=warning msg="Request Failed" error="Get \"http://172.20.0.8:8080/api/products?limit=20\": dial tcp 172.20.0.8:8080: connect: cannot assign requested address"
+[32543 more 'Request Failed' warnings collapsed; all 32546 by error: 32518 dial tcp ADDR: connect: cannot assign requested address, 24 request timeout, 4 read tcp ADDR->ADDR: read: connection reset by peer]
+stages=30,170,30 it/s, 120,300,420 s (ramp 10 s, warm-up 30 s) iterations=55097 dropped=14552
+requests=92822 (105.3/s) failed=66.94%
+browse: p50=16.6 p95=6448.9 p99=9712.3 max=60004.0 ms
+order:  p50=140.0 p95=7771.4 p99=10919.2 max=59595.9 ms
+checks: 33.06% passed
+stage 1-30: achieved 30.0 it/s, requests=6076 failed=0.05% | browse p50=17.3 p95=54.1 p99=446.8 max=2669.5 ms | order p50=151.2 p95=382.6 p99=1806.1 max=2708.7 ms
+stage 170: achieved 166.8 it/s, requests=84283 failed=72.31% | browse p50=16.3 p95=6518.0 p99=9800.1 max=60004.0 ms | order p50=133.8 p95=7843.6 p99=10867.8 max=59595.9 ms
+stage 3-30: achieved 0.0 it/s, requests=0 failed=0.00% | browse p50=0.0 p95=0.0 p99=0.0 max=0.0 ms | order p50=0.0 p95=0.0 p99=0.0 max=0.0 ms
+time="2026-11-09T15:50:50+13:00" level=error msg="thresholds on metrics 'http_req_duration{kind:browse}, http_req_duration{kind:order}, http_req_failed{kind:browse}' have been crossed"

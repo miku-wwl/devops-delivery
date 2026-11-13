@@ -98,19 +98,30 @@ td code, th code { font-size: .84em; word-break: break-all; }
 
 /* ---------- figures & diagrams ---------- */
 figure { margin: 4mm 0 5mm; text-align: center; break-inside: avoid; counter-increment: figure; }
-figure img { max-width: 100%; max-height: 205mm; border: 1px solid var(--rule); border-radius: 4px; }
+/* 155 mm leaves room for a caption and some text on the same page; taller images would
+   only fit on an almost empty page and push big gaps into the layout. */
+figure img { max-width: 100%; max-height: 155mm; border: 1px solid var(--rule); border-radius: 4px; }
 figure.diagram pre.mermaid { background: none; border: none; padding: 0; margin: 0; text-align: center; white-space: normal; }
-figure.diagram svg { max-width: 100%; height: auto; }
+figure.diagram svg { max-width: 100%; max-height: 140mm; width: auto; height: auto; }
+/* deeply nested diagrams: a taller cap keeps their text readable */
+figure.diagram.tall svg { max-height: 200mm; }
+/* diagrams that should use the full column width even if Mermaid draws them small */
+figure.diagram.wide svg { width: 100%; max-height: 200mm; }
 figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.6mm; }
 figcaption::before { content: "图 " counter(chapter) "-" counter(figure) "　"; font-weight: 700; color: var(--ink); }
 
-/* ---------- callouts: ::: tip / note / warning / danger / principle / faq ---------- */
-div.tip, div.note, div.warning, div.danger, div.principle, div.faq {
+/* ---------- callouts: ::: tip / note / warning / danger / principle / faq / exercise ---------- */
+div.tip, div.note, div.warning, div.danger, div.principle, div.faq, div.exercise {
   border-left: 4px solid; border-radius: 4px; padding: 2.4mm 4mm 1mm; margin: 3.4mm 0 4mm; break-inside: avoid;
 }
-div.tip::before, div.note::before, div.warning::before, div.danger::before, div.principle::before, div.faq::before {
+div.tip::before, div.note::before, div.warning::before, div.danger::before, div.principle::before, div.faq::before,
+div.exercise::before {
   display: block; font-weight: 700; margin-bottom: 1mm;
 }
+/* exercise lists can be long: let them break across pages, but never inside one item */
+div.exercise { background: #fff8f1; border-color: #e36209; break-inside: auto; }
+div.exercise::before { content: "练习"; color: #bc4c00; }
+div.exercise li { break-inside: avoid; }
 div.tip { background: #e9f7ef; border-color: #2da44e; }
 div.tip::before { content: "提示"; color: #1a7f37; }
 div.note { background: #eef5ff; border-color: #2f81f7; }
@@ -129,3 +140,17 @@ div[title]::before { content: attr(title) !important; }
 .evidence { font-size: 8.8pt; color: var(--muted); }
 .lead { font-size: 11pt; color: #33404d; border-left: 3px solid var(--accent-2); padding-left: 3.5mm; margin: 0 0 4mm; }
 kbd { font-family: "Cascadia Mono", Consolas, monospace; font-size: .85em; border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 3px; padding: 0 .3em; }
+
+/* ---------- appendix tables: fixed column widths (auto layout wastes space) ---------- */
+.tbl-glossary table, .tbl-faq table, .tbl-evidence table, .tbl-check table { table-layout: fixed; }
+.tbl-glossary col:nth-child(1), .tbl-glossary th:nth-child(1) { width: 26% !important; } .tbl-glossary col:nth-child(2), .tbl-glossary th:nth-child(2) { width: 62% !important; } .tbl-glossary col:nth-child(3), .tbl-glossary th:nth-child(3) { width: 12% !important; }
+.tbl-faq col:nth-child(1), .tbl-faq th:nth-child(1) { width: 9% !important; } .tbl-faq col:nth-child(2), .tbl-faq th:nth-child(2) { width: 91% !important; }
+.tbl-evidence col:nth-child(1), .tbl-evidence th:nth-child(1) { width: 6% !important; } .tbl-evidence col:nth-child(2), .tbl-evidence th:nth-child(2) { width: 8% !important; } .tbl-evidence col:nth-child(3), .tbl-evidence th:nth-child(3) { width: 20% !important; }
+.tbl-evidence col:nth-child(4), .tbl-evidence th:nth-child(4) { width: 11% !important; } .tbl-evidence col:nth-child(5), .tbl-evidence th:nth-child(5) { width: 9% !important; } .tbl-evidence col:nth-child(6), .tbl-evidence th:nth-child(6) { width: 46% !important; }
+.tbl-check col:nth-child(1), .tbl-check th:nth-child(1) { width: 64% !important; } .tbl-check col:nth-child(2), .tbl-check th:nth-child(2) { width: 18% !important; } .tbl-check col:nth-child(3), .tbl-check th:nth-child(3) { width: 18% !important; }
+.tbl-layers table { table-layout: fixed; }
+.tbl-layers col:nth-child(1), .tbl-layers th:nth-child(1) { width: 7% !important; } .tbl-layers col:nth-child(2), .tbl-layers th:nth-child(2) { width: 15% !important; } .tbl-layers col:nth-child(3), .tbl-layers th:nth-child(3) { width: 15% !important; }
+.tbl-layers col:nth-child(4), .tbl-layers th:nth-child(4) { width: 5% !important; } .tbl-layers col:nth-child(5), .tbl-layers th:nth-child(5) { width: 11% !important; } .tbl-layers col:nth-child(6), .tbl-layers th:nth-child(6) { width: 47% !important; }
+.tbl-versions table, .tbl-commands table { table-layout: fixed; }
+.tbl-versions col:nth-child(1), .tbl-versions th:nth-child(1) { width: 13% !important; } .tbl-versions col:nth-child(2), .tbl-versions th:nth-child(2) { width: 30% !important; } .tbl-versions col:nth-child(3), .tbl-versions th:nth-child(3) { width: 47% !important; } .tbl-versions col:nth-child(4), .tbl-versions th:nth-child(4) { width: 10% !important; }
+.tbl-commands col:nth-child(1), .tbl-commands th:nth-child(1) { width: 24% !important; } .tbl-commands col:nth-child(2), .tbl-commands th:nth-child(2) { width: 66% !important; } .tbl-commands col:nth-child(3), .tbl-commands th:nth-child(3) { width: 10% !important; }

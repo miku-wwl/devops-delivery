@@ -1,0 +1,16 @@
+# transcript: P4 config history and AppProject guard rails
+# recorded: 2026-11-06T00:00:34Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ git -C ~/work/delivery-gitops fetch -q origin && git -C ~/work/delivery-gitops log --format='%h %an  %s' --first-parent -6 origin/main
+Terminated
+[exit 143]
+
+# the AppProject only allows namespaces dev and prod - an Application aimed at kube-system is refused
+$ argocd app create sneaky-app --grpc-web --project delivery --repo http://gitlab:8929/root/delivery-gitops.git --path charts/demo-api --dest-server https://kubernetes.default.svc --dest-namespace kube-system
+{"level":"fatal","msg":"rpc error: code = InvalidArgument desc = application spec for sneaky-app is invalid: InvalidSpecError: application destination server 'https://kubernetes.default.svc' and namespace 'kube-system' do not match any of the allowed destinations in project 'delivery'","time":"2026-11-06T13:02:43+13:00"}
+[exit 20]
+
+$ argocd app list --grpc-web -o name
+argocd/demo-api-dev
+argocd/demo-api-prod
+

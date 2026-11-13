@@ -1,0 +1,28 @@
+== 07:16:36.945 Alertmanager on ent-worker3, Prometheus on ent-worker3, PostgreSQL primary pg-main-1 on ent-worker
+== 07:16:36.953 last heartbeat before the pause: 07:16:36.578; a write: 07:16:37
+== 07:16:38.078 docker pause ent-worker3
+  07:16:53.138 +15s node True | write: NOTICE:  relation "e9_deadman" already exists, skipping 
+  07:17:07.650 +29s node True | write: NOTICE:  relation "e9_deadman" already exists, skipping 
+  07:17:23.174 +45s node Unknown | write: NOTICE:  relation "e9_deadman" already exists, skipping 
+  07:17:38.678 +60s node Unknown | write: NOTICE:  relation "e9_deadman" already exists, skipping 
+  07:17:53.199 +75s node Unknown | write: NOTICE:  relation "e9_deadman" already exists, skipping 
+  07:18:08.790 +90s node Unknown | write: NOTICE:  relation "e9_deadman" already exists, skipping 
+  07:18:23.366 +105s node Unknown | write: NOTICE:  relation "e9_deadman" already exists, skipping 
+  07:18:38.989 +120s node Unknown | write: NOTICE:  relation "e9_deadman" already exists, skipping 
+  07:18:53.573 +135s node Unknown | write: NOTICE:  relation "e9_deadman" already exists, skipping 
+  07:19:09.158 +151s node Unknown | write: NOTICE:  relation "e9_deadman" already exists, skipping 
+  07:19:23.671 +165s node Unknown | write: NOTICE:  relation "e9_deadman" already exists, skipping 
+  07:19:39.186 +181s node Unknown | write: NOTICE:  relation "e9_deadman" already exists, skipping 
+  07:19:53.816 +195s node Unknown | write: NOTICE:  relation "e9_deadman" already exists, skipping | bridge: "event": "deadman_opened", "iid": 6, "silent_seconds": 183.2
+  07:20:09.357 +211s node Unknown | write: NOTICE:  relation "e9_deadman" already exists, skipping | bridge: "event": "deadman_opened", "iid": 6, "silent_seconds": 183.2
+  07:20:23.967 +225s node Unknown | write: NOTICE:  relation "e9_deadman" already exists, skipping | bridge: "event": "deadman_opened", "iid": 6, "silent_seconds": 183.2
+== 07:20:24.622 docker unpause ent-worker3 (+226 s)
+  07:20:34.706 +10s after the unpause: "event": "deadman_closed", "iid": 6
+== 07:20:34.714 node Unknown, Prometheus targets up: 70
+== bridge events since 2026-11-10T07:16:36Z:
+  {"ts": "2026-11-10T07:19:40.447Z", "event": "deadman_opened", "iid": 6, "silent_seconds": 183.2}
+  {"ts": "2026-11-10T07:20:25.702Z", "event": "notification", "kind": "ticket", "status": "resolved", "group": {"alertname": "VeleroBackupWarnings"}, "alerts": [["VeleroBackupWarnings", "resolved"]]}
+  {"ts": "2026-11-10T07:20:26.783Z", "event": "closed", "kind": "ticket", "alertname": "VeleroBackupWarnings", "iid": 3, "fingerprint": "4e204a24cdb7047d", "endsAt": "2026-11-10T07:19:27.355Z"}
+  {"ts": "2026-11-10T07:20:27.817Z", "event": "deadman_closed", "iid": 6}
+== 07:20:54 check after A4: rows written during the pause (07:16:38-07:20:24) and bridge events after the unpause
+  rows during the pause | total | first | last: 14|16|07:16:37|07:20:24

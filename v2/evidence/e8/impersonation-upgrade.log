@@ -1,0 +1,76 @@
+== 2026-11-10T03:52:04Z (since 2026-11-10T03:50:03Z)
+-- argocd-cm application.sync.impersonation.enabled: 'true'
+-- the projects' accounts (destinationServiceAccounts)
+  PROJECT      NAMESPACES    ACCOUNT
+  default      <none>        <none>
+  insight      insight       argocd-insight
+  platform     *             argocd:argocd-platform
+  storefront   storefront*   argocd-storefront
+-- what the accounts may do (kubectl auth can-i)
+  argocd:argocd-application-controller     create secrets -n storefront   yes
+  argocd:argocd-application-controller     patch deployments -n storefront yes
+  argocd:argocd-application-controller     patch deployments -n insight   yes
+  argocd:argocd-application-controller     get namespaces                 Warning: resource 'namespaces' is not namespace scoped
+
+yes
+  argocd:argocd-platform                   create secrets -n storefront   yes
+  argocd:argocd-platform                   patch deployments -n storefront yes
+  argocd:argocd-platform                   patch deployments -n insight   yes
+  argocd:argocd-platform                   get namespaces                 Warning: resource 'namespaces' is not namespace scoped
+
+yes
+  storefront:argocd-storefront             create secrets -n storefront   no
+  storefront:argocd-storefront             patch deployments -n storefront yes
+  storefront:argocd-storefront             patch deployments -n insight   no
+  storefront:argocd-storefront             get namespaces                 Warning: resource 'namespaces' is not namespace scoped
+
+no
+  insight:argocd-insight                   create secrets -n storefront   no
+  insight:argocd-insight                   patch deployments -n storefront no
+  insight:argocd-insight                   patch deployments -n insight   yes
+  insight:argocd-insight                   get namespaces                 Warning: resource 'namespaces' is not namespace scoped
+
+no
+  argocd-application-controller impersonate serviceaccounts -n storefront: yes
+-- applications whose last sync finished since 2026-11-10T03:50:03Z (name, sync, health, phase, finished, message)
+-- all applications (sync/health: count)
+       37 Synced/Healthy
+-- the probe objects
+  secret e8-probe: created 2026-11-10T03:49:28Z, written-by: 'an application of the project storefront'
+  configmap e8-probe-ns: created 2026-11-10T03:49:28Z, write: '1'
+-- audit log
+  requests on e8-probe e8-probe-ns since 2026-11-10T03:50:03Z:
+    2026-11-10T03:51:25.044 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe-ns 200
+    2026-11-10T03:52:06.604 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe 200
+    2026-11-10T03:52:07.550 kubernetes-admin as=- get secrets storefront/e8-probe 200
+    2026-11-10T03:52:07.688 kubernetes-admin as=- get secrets storefront/e8-probe 200
+    2026-11-10T03:52:07.837 kubernetes-admin as=- get configmaps storefront/e8-probe-ns 200
+    2026-11-10T03:52:07.971 kubernetes-admin as=- get configmaps storefront/e8-probe-ns 200
+  writes with impersonation since 2026-11-10T03:50:03Z (impersonated user, verb, resource, namespace, code, applied/dry-run: count):
+    system:serviceaccount:argocd:argocd-platform patch backupstoragelocations velero 200 dry-run: 2
+    system:serviceaccount:argocd:argocd-platform patch clusterrolebindings - 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch clusterroles - 200 dry-run: 5
+    system:serviceaccount:argocd:argocd-platform patch configmaps velero 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch customresourcedefinitions - 200 dry-run: 38
+    system:serviceaccount:argocd:argocd-platform patch customresourcedefinitions - 403 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch daemonsets velero 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch deployments external-secrets 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch deployments velero 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch rolebindings external-secrets 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch rolebindings velero 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch roles external-secrets 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch roles velero 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch schedules velero 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch secrets external-secrets 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch serviceaccounts external-secrets 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch serviceaccounts velero 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch servicemonitors velero 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch services external-secrets 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch services velero 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch validatingwebhookconfigurations - 200 dry-run: 2
+-- the order in which helm applied the change (audit log, writes 03:50:00-03:51:00 on argocd-platform / argocd-cm)
+  2026-11-10T03:50:17.539 kubernetes-admin patch serviceaccounts argocd argocd-platform 201
+  2026-11-10T03:50:17.572 kubernetes-admin patch configmaps argocd argocd-cm 200
+  2026-11-10T03:50:19.574 kubernetes-admin patch clusterrolebindings - argocd-platform 201
+-- impersonated requests refused (HTTP 403) since 2026-11-10T03:50:03Z
+  2026-11-10T03:50:18.333914Z system:serviceaccount:argocd:argocd-platform patch customresourcedefinitions policyexceptions.kyverno.io Forbidden: User "system:serviceaccount:argocd:argocd-platform" cannot patch resource "customresourcedefinitions" in API group "apiextensions.k8s.io" at the cluster scope (/apis/apiextensions.k8s.io/v1/customresourcedefinitions/policyexceptions.kyverno.io?dryRun=All&fieldManager=argocd-controller&force=true)

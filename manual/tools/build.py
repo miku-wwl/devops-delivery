@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import glob
+import os
 import re
 import subprocess
 import sys
@@ -28,25 +29,57 @@ ROOT = Path(__file__).resolve().parents[2]
 MANUAL = ROOT / "manual"
 BUILD = MANUAL / "build"
 
-FOOTER = (
-    '<div style="width:100%;font-size:7.5px;color:#8c959f;padding:0 16mm;'
-    "font-family:'Microsoft YaHei',sans-serif;display:flex;justify-content:space-between;\">"
-    "<span>DevOps 软件交付与可观测性实战手册</span>"
-    '<span><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>'
-)
+TITLE = "DevOps 软件交付与可观测性实战手册"   # volume 1; another volume passes --metadata
 
 
-def pandoc(chapters: list[Path], html_out: Path) -> None:
+def footer(title: str) -> str:
+    return (
+        '<div style="width:100%;font-size:7.5px;color:#8c959f;padding:0 16mm;'
+        "font-family:'Microsoft YaHei',sans-serif;display:flex;justify-content:space-between;\">"
+        f"<span>{title}</span>"
+        '<span><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>'
+    )
+
+
+def meta_title(metadata: Path) -> str:
+    m = re.search(r'^title:\s*"(.*)"\s*$', metadata.read_text(encoding="utf-8"), re.M)
+    return m.group(1) if m else TITLE
+
+
+def rebase_images(html: Path, chapter_dir: Path) -> int:
+    """Chapters write image paths relative to their own directory (right for Markdown previews);
+    the HTML lives in BUILD. Rewrite every relative <img src> from the one to the other.
+    For volume 1 both directories are children of manual/, so nothing changes."""
+    text = html.read_text(encoding="utf-8")
+    count = 0
+
+    def fix(m: re.Match) -> str:
+        nonlocal count
+        src = m.group(2)
+        if re.match(r"^[a-z]+:|^/|^#", src):
+            return m.group(0)
+        new = Path(os.path.relpath((chapter_dir / src).resolve(), BUILD)).as_posix()
+        count += new != src
+        return m.group(1) + new + m.group(3)
+
+    html.write_text(re.sub(r'(<img\b[^>]*?\bsrc=")([^"]+)(")', fix, text), encoding="utf-8")
+    return count
+
+
+def pandoc(chapters: list[Path], html_out: Path, metadata: Path, math: str = "plain", template: Path | None = None,
+           toc_depth: int = 3, filters: tuple[str, ...] = ()) -> None:
     cmd = [
         "pandoc", *[str(c) for c in chapters],
         "--from", "markdown+east_asian_line_breaks",
         "--to", "html5", "--standalone",
-        "--template", str(MANUAL / "assets" / "template.html"),
-        "--metadata-file", str(MANUAL / "metadata.yaml"),
-        "--toc", "--toc-depth=3", "--number-sections",
+        "--template", str(template or MANUAL / "assets" / "template.html"),
+        "--metadata-file", str(metadata),
+        "--toc", f"--toc-depth={toc_depth}", "--number-sections",
         "--syntax-highlighting=tango",
         "--lua-filter", str(MANUAL / "tools" / "mermaid.lua"),
+        *[a for f in filters for a in ("--lua-filter", str(Path(f).resolve()))],
         "--output", str(html_out),
+        *(["--mathml"] if math == "mathml" else []),   # volume 2 has formulas; Edge renders MathML
     ]
     subprocess.run(cmd, check=True, cwd=ROOT)
 
@@ -63,10 +96,10 @@ def norm(text: str) -> str:
     return re.sub(r"\s+", "", text or "")
 
 
-def print_pdf(page, path: Path) -> None:
+def print_pdf(page, path: Path, title: str = TITLE) -> None:
     page.pdf(
         path=str(path), format="A4", print_background=True, prefer_css_page_size=True,
-        display_header_footer=True, header_template="<div></div>", footer_template=FOOTER,
+        display_header_footer=True, header_template="<div></div>", footer_template=footer(title),
         outline=True, tagged=True,
     )
 
@@ -75,7 +108,19 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--chapters", default=str(MANUAL / "chapters" / "*.md"))
     ap.add_argument("--out", default=str(MANUAL / "dist" / "DevOps-Delivery-Observability-Handbook.pdf"))
+    ap.add_argument("--metadata", default=str(MANUAL / "metadata.yaml"),
+                    help="pandoc metadata (title, cover); its title is also the footer and the PDF title")
+    ap.add_argument("--math", choices=["plain", "mathml"], default="plain",
+                    help="TeX math: pandoc's plain-text rendering (volume 1, no formulas) or MathML")
+    ap.add_argument("--template", default=None, help="pandoc HTML template (default: manual/assets/template.html)")
+    ap.add_argument("--subject", default=None, help="PDF subject (default: volume 1's)")
+    ap.add_argument("--keywords", default=None, help="PDF keywords (default: volume 1's)")
+    ap.add_argument("--toc-depth", type=int, default=3, help="heading levels in the table of contents (default 3)")
+    ap.add_argument("--lua-filter", action="append", default=[], help="additional pandoc Lua filter (repeatable)")
     ap.add_argument("--html-only", action="store_true")
+    ap.add_argument("--allow-warnings", action="store_true",
+                    help="exit 0 even if TOC page numbers may be wrong (headings missing from the outline, "
+                         "page count changed between passes); by default these fail the build")
     args = ap.parse_args()
 
     chapters = sorted(Path(p).resolve() for p in glob.glob(args.chapters))
@@ -85,8 +130,13 @@ def main() -> int:
     BUILD.mkdir(parents=True, exist_ok=True)
     html = BUILD / "manual.html"
     t0 = time.time()
-    pandoc(chapters, html)
-    print(f"pandoc: {len(chapters)} chapter file(s) -> {html.relative_to(ROOT)}")
+    metadata = Path(args.metadata).resolve()
+    title = meta_title(metadata)
+    pandoc(chapters, html, metadata, args.math, Path(args.template).resolve() if args.template else None,
+           args.toc_depth, tuple(args.lua_filter))
+    rebased = rebase_images(html, chapters[0].parent)
+    print(f"pandoc: {len(chapters)} chapter file(s) -> {html.relative_to(ROOT)}"
+          + (f" ({rebased} image path(s) rebased from {chapters[0].parent.relative_to(ROOT)})" if rebased else ""))
     if args.html_only:
         return 0
 
@@ -114,7 +164,7 @@ def main() -> int:
 
         # Body (TOC + chapters) is printed with a footer; the cover is printed separately below.
         page.evaluate("document.body.classList.add('mode-body')")
-        print_pdf(page, pass1)
+        print_pdf(page, pass1, title)
         reader = PdfReader(str(pass1))
         outline: list[tuple[str, int]] = []
         flatten_outline(reader, reader.outline, outline)
@@ -124,14 +174,16 @@ def main() -> int:
         for h in headings:
             target = norm(h["text"])
             for i in range(cursor, len(outline)):
-                if norm(outline[i][0]) == target:
+                # Chromium writes some headings' text twice into the outline (seen with unnumbered h1); accept that
+                if norm(outline[i][0]) in (target, target + target):
                     if h["id"]:
                         pages[h["id"]] = outline[i][1]
                     cursor = i + 1
                     break
         missing = [h["text"].strip() for h in headings if h["id"] and h["id"] not in pages]
+        problems: list[str] = []
         if missing:
-            print(f"warning: {len(missing)} heading(s) not found in outline: {missing[:5]}", file=sys.stderr)
+            problems.append(f"{len(missing)} heading(s) not found in the PDF outline, their TOC page numbers are blank: {missing[:5]}")
 
         page.evaluate(
             """(pages) => {
@@ -143,7 +195,7 @@ def main() -> int:
             pages,
         )
         body_pdf = BUILD / "body.pdf"
-        print_pdf(page, body_pdf)
+        print_pdf(page, body_pdf, title)
 
         cover_pdf = BUILD / "cover.pdf"
         page.evaluate("document.body.classList.replace('mode-body', 'mode-cover')")
@@ -156,10 +208,10 @@ def main() -> int:
     writer = PdfWriter(clone_from=str(body_pdf))
     writer.insert_page(PdfReader(str(cover_pdf)).pages[0], 0)
     writer.add_metadata({
-        "/Title": "DevOps 软件交付与可观测性实战手册",
+        "/Title": title,
         "/Author": "Weilai Wang (miku-wwl) · written with Claude Code",
-        "/Subject": "CI/CD, GitOps, DevSecOps, progressive delivery and observability - hands-on manual",
-        "/Keywords": "GitHub Actions, GitLab CI, Helm, Argo CD, Argo Rollouts, Trivy, Cosign, OpenTelemetry, Prometheus, Grafana",
+        "/Subject": args.subject or "CI/CD, GitOps, DevSecOps, progressive delivery and observability - hands-on manual",
+        "/Keywords": args.keywords or "GitHub Actions, GitLab CI, Helm, Argo CD, Argo Rollouts, Trivy, Cosign, OpenTelemetry, Prometheus, Grafana",
     })
     with open(out, "wb") as fh:
         writer.write(fh)
@@ -170,8 +222,11 @@ def main() -> int:
     print(f"pdf: {out.relative_to(ROOT) if out.is_relative_to(ROOT) else out} | pages={n2} (pass1={n1}) "
           f"| headings mapped={len(pages)}/{len(headings)} | {size_mb:.1f} MB | {time.time() - t0:.0f}s")
     if n1 != n2:
-        print("warning: page count changed between passes; TOC numbers may be off by one", file=sys.stderr)
-    return 0
+        problems.append(f"page count changed between passes ({n1} -> {n2}); TOC page numbers may be off by one")
+    for p in problems:
+        print(f"{'warning' if args.allow_warnings else 'error'}: {p}", file=sys.stderr)
+    # Up to v1.0 these were warnings only and the build still exited 0.
+    return 3 if problems and not args.allow_warnings else 0
 
 
 if __name__ == "__main__":

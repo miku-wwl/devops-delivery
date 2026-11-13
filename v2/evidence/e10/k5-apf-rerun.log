@@ -1,0 +1,8 @@
+== 10:17:04 K5: victim alone for 30 s
+== 10:17:34 flood: 20 workers LIST all pods for 60 s; the victim keeps going
+The connection to the server 127.0.0.1:32766 was refused - did you specify the right host or port?
+The connection to the server 127.0.0.1:32766 was refused - did you specify the right host or port?
+== 10:18:34 rejected by APF (apiserver_flowcontrol_rejected_requests_total): e10-low +0, workload-low +0
+  flood: 19118 requests, codes {'000': 16873, '403': 156, '429': 2089}; LIST p50 nan s, p99 nan s (200 only)
+  victim quiet: 57 GETs, codes {'200': 57}; p50 11.4 ms, p99 40.1 ms
+  victim flood: 86 GETs, codes {'200': 18, '000': 61, '403': 7}; p50 85.4 ms, p99 2080.9 ms

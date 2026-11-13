@@ -1,0 +1,85 @@
+# E9 (chapter 10): the platform's own alerts. Severity decides the route (values/monitoring.yaml):
+# critical -> a GitLab incident through the alert bridge, warning -> a GitLab issue. Every alert names
+# its team and links its runbook (v2/docs/runbooks.md).
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: platform-alerts
+  namespace: monitoring
+spec:
+  groups:
+    - name: platform.alertmanager
+      rules:
+        # replaces AlertmanagerClusterCrashlooping (disabled in values/monitoring.yaml): restarts as
+        # the kubelet counts them, not changes of a start time that moves with the clock
+        - alert: AlertmanagerRestarting
+          expr: increase(kube_pod_container_status_restarts_total{namespace="monitoring", container="alertmanager"}[15m]) > 2
+          labels: {severity: critical, team: platform}
+          annotations:
+            summary: "Alertmanager restarted {{ $value | humanize }} times in 15 minutes"
+            runbook_url: https://github.com/miku-wwl/devops-delivery/blob/v2/enterprise/v2/docs/runbooks.md#alertmanager-restarting
+    - name: platform.argocd
+      rules:
+        # E9 (A3): the counter of a phase is born at 1 with the first failure - increase() never sees
+        # it. The second half catches series that did not exist 10 minutes ago (evidence/e9/a3-backtest.log).
+        - alert: ArgoCDSyncFailing
+          expr: |
+            (sum by (name, project) (increase(argocd_app_sync_total{phase=~"Error|Failed"}[10m])) > 0)
+            or
+            (sum by (name, project) (argocd_app_sync_total{phase=~"Error|Failed"} unless argocd_app_sync_total{phase=~"Error|Failed"} offset 10m) > 0)
+          labels: {severity: warning, team: platform}
+          annotations:
+            summary: "Argo CD: sync of {{ $labels.name }} (project {{ $labels.project }}) failed in the last 10 minutes"
+            runbook_url: https://github.com/miku-wwl/devops-delivery/blob/v2/enterprise/v2/docs/runbooks.md#argocd-sync-failing
+        - alert: ArgoCDRootNotSynced
+          expr: max by (name) (argocd_app_info{name="platform-root", sync_status!="Synced"}) == 1
+          for: 5m
+          labels: {severity: critical, team: platform}
+          annotations:
+            summary: "the root application has not been in sync for 5 minutes - no change reaches the cluster"
+            description: "E8: after sync impersonation was enabled the root application could not sync for 7 minutes and nobody noticed."
+            runbook_url: https://github.com/miku-wwl/devops-delivery/blob/v2/enterprise/v2/docs/runbooks.md#argocd-root-not-synced
+        - alert: ArgoCDAppOutOfSync
+          expr: max by (name, project) (argocd_app_info{sync_status="OutOfSync"}) == 1
+          for: 15m
+          labels: {severity: warning, team: platform}
+          annotations:
+            summary: "Argo CD: {{ $labels.name }} has been OutOfSync for 15 minutes"
+            runbook_url: https://github.com/miku-wwl/devops-delivery/blob/v2/enterprise/v2/docs/runbooks.md#argocd-app-out-of-sync
+        - alert: ArgoCDAppDegraded
+          expr: max by (name, project) (argocd_app_info{health_status="Degraded"}) == 1
+          for: 10m
+          labels: {severity: warning, team: platform}
+          annotations:
+            summary: "Argo CD: {{ $labels.name }} has been Degraded for 10 minutes"
+            runbook_url: https://github.com/miku-wwl/devops-delivery/blob/v2/enterprise/v2/docs/runbooks.md#argocd-app-degraded
+    - name: platform.openbao
+      rules:
+        - alert: OpenBaoSealed
+          expr: max(vault_core_unsealed{namespace="secrets"}) == 0
+          for: 1m
+          labels: {severity: critical, team: platform}
+          annotations:
+            summary: "OpenBao is sealed - External Secrets cannot read or refresh any secret"
+            runbook_url: https://github.com/miku-wwl/devops-delivery/blob/v2/enterprise/v2/docs/runbooks.md#openbao-sealed
+    - name: platform.velero
+      rules:
+        - alert: VeleroBackupWarnings
+          expr: sum by (schedule) (increase(velero_backup_warning_total[1h])) > 0
+          labels: {severity: warning, team: platform}
+          annotations:
+            summary: "Velero: a backup of schedule '{{ $labels.schedule }}' completed with warnings in the last hour"
+            description: "E7: a backup that skipped every volume still reported Completed - warnings are where that shows."
+            runbook_url: https://github.com/miku-wwl/devops-delivery/blob/v2/enterprise/v2/docs/runbooks.md#velero-backup-warnings
+        - alert: VeleroBackupFailed
+          expr: sum by (schedule) (increase(velero_backup_failure_total[1h]) + increase(velero_backup_partial_failure_total[1h])) > 0
+          labels: {severity: critical, team: platform}
+          annotations:
+            summary: "Velero: a backup of schedule '{{ $labels.schedule }}' failed in the last hour"
+            runbook_url: https://github.com/miku-wwl/devops-delivery/blob/v2/enterprise/v2/docs/runbooks.md#velero-backup-failed
+        - alert: VeleroBackupTooOld
+          expr: time() - max by (schedule) (velero_backup_last_successful_timestamp{schedule!=""}) > 26 * 3600
+          labels: {severity: warning, team: platform}
+          annotations:
+            summary: "Velero: no successful backup of schedule '{{ $labels.schedule }}' for more than 26 hours"
+            runbook_url: https://github.com/miku-wwl/devops-delivery/blob/v2/enterprise/v2/docs/runbooks.md#velero-backup-too-old

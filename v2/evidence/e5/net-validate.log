@@ -1,0 +1,45 @@
+# transcript: E5: after the NetworkPolicies, with every client reconnected (storefront pods replaced; KEDA, Prometheus and the CNPG operator restarted)
+# recorded: 2026-11-09T09:00:14Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e5/net-validate.sh
+== 1. replace every storefront pod, one at a time (09:00:14)
+  catalog: 2/2 ready
+  gateway: 2/2 ready
+  inventory: 2/2 ready
+  notifier: 1/1 ready
+  orders: 2/2 ready
+  payments: 2/2 ready
+  waypoint: 1/1 ready
+== 2. restart the other clients of the data namespace (09:02:32)
+  keda-operator, prometheus, cnpg operator ready at 09:02:58; waiting 90 s for scrapes and polls
+== 3a. order flow under load (k6, 20 it/s for 60 s, new connections everywhere)
+  requests=2055 (35.7/s) failed=0.00%
+  browse: p50=15.1 p95=22.3 p99=31.9 max=181.5 ms
+  order:  p50=128.2 p95=236.2 p99=368.2 max=515.7 ms
+  checks: 100.00% passed
+  notifications sent during the run: 0
+== 3b. Prometheus targets (data, storefront, keda): up / total
+        3 data data/nats up
+        3 data data/pg-main up
+        1 data valkey up
+        1 keda keda-operator up
+        1 keda keda-operator-metrics-apiserver up
+        2 storefront catalog up
+        2 storefront gateway up
+        2 storefront inventory up
+        1 storefront istio-system/waypoints up
+        1 storefront notifier up
+        2 storefront orders up
+        2 storefront payments up
+== 3c. KEDA: ScaledObject and the NATS trigger
+  Ready=True Active=True
+  keda-operator errors since the restart: 0
+== 3d. PostgreSQL cluster (CNPG) and NATS
+  pg-main: Cluster in healthy state, ready instances 3/3, primary pg-main-3
+  replication: 0 streaming replicas seen from pg-main-1 (0 if pg-main-1 is a replica)
+  nats-0 3/3 Running
+  nats-1 3/3 Running
+  nats-2 3/3 Running
+== 3e. Argo CD applications not Synced/Healthy: 0
+== 3f. pods not Running/Completed: 0
+

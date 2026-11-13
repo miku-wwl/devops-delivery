@@ -1,0 +1,35 @@
+# transcript: E5: three attempts by an Application of project insight to leave the team boundary
+# recorded: 2026-11-09T09:34:38Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e5/argocd-projects.sh
+== e5-escape-dest: sync Unknown
+  condition InvalidSpecError: application destination server 'https://kubernetes.default.svc' and namespace 'storefront' do not match any of the allowed destinations in project 'insight'
+== e5-escape-repo: sync Unknown
+  condition InvalidSpecError: application repo https://github.com/argoproj/argocd-example-apps.git is not permitted in project 'insight'
+== e5-escape-kinds: sync OutOfSync
+== e5-escape-kinds: explicit sync
+  operation Failed: one or more synchronization tasks are not valid: resource :LimitRange is not permitted in project insight; resource :Namespace is not permitted in project insight; resource :ResourceQuota is not permitted in project insight; resource networ
+  LimitRange/insight/tenant-defaults: SyncFailed resource :LimitRange is not permitted in project insight
+  NetworkPolicy/insight/default-deny: SyncFailed resource networking.k8s.io:NetworkPolicy is not permitted in project insight
+  NetworkPolicy/storefront/allow-same-namespace: SyncFailed resource networking.k8s.io:NetworkPolicy is not permitted in project insight
+  ClusterRole/insight/tenant-access-manager: SyncFailed resource rbac.authorization.k8s.io:ClusterRole is not permitted in project insight
+  ResourceQuota/shop-dev/tenant: SyncFailed resource :ResourceQuota is not permitted in project insight
+  ClusterRole/insight/tenant-viewer: SyncFailed resource rbac.authorization.k8s.io:ClusterRole is not permitted in project insight
+  NetworkPolicy/shop-dev/default-deny: SyncFailed resource networking.k8s.io:NetworkPolicy is not permitted in project insight
+  RoleBinding/shop-dev/team-shop-access-manager: SyncFailed resource rbac.authorization.k8s.io:RoleBinding is not permitted in project insight
+  ClusterRoleBinding/insight/platform-sre-operator: SyncFailed resource rbac.authorization.k8s.io:ClusterRoleBinding is not permitted in project insight
+  ClusterRoleBinding/insight/platform-sre-view: SyncFailed resource rbac.authorization.k8s.io:ClusterRoleBinding is not permitted in project insight
+  ClusterRoleBinding/insight/auditors-view: SyncFailed resource rbac.authorization.k8s.io:ClusterRoleBinding is not permitted in project insight
+  Namespace/insight/insight: SyncFailed resource :Namespace is not permitted in project insight
+  RoleBinding/storefront/team-shop-viewer: SyncFailed resource rbac.authorization.k8s.io:RoleBinding is not permitted in project insight
+  NetworkPolicy/insight/allow-dns-and-same-namespace: SyncFailed resource networking.k8s.io:NetworkPolicy is not permitted in project insight
+  LimitRange/shop-dev/tenant-defaults: SyncFailed resource :LimitRange is not permitted in project insight
+  ClusterRoleBinding/insight/auditors-platform-reader: SyncFailed resource rbac.authorization.k8s.io:ClusterRoleBinding is not permitted in project insight
+  NetworkPolicy/shop-dev/allow-dns-and-same-namespace: SyncFailed resource networking.k8s.io:NetworkPolicy is not permitted in project insight
+  ClusterRole/insight/platform-reader: SyncFailed resource rbac.authorization.k8s.io:ClusterRole is not permitted in project insight
+  ClusterRole/insight/platform-operator: SyncFailed resource rbac.authorization.k8s.io:ClusterRole is not permitted in project insight
+== owners of the NetworkPolicies and the quota in insight: unchanged
+  NetworkPolicy/allow-dns-and-same-namespace tenants:networking.k8s.io/NetworkPolicy:insight/allow-dns-and-same-namespace
+  NetworkPolicy/default-deny tenants:networking.k8s.io/NetworkPolicy:insight/default-deny
+  ResourceQuota/tenant tenants:/ResourceQuota:insight/tenant
+

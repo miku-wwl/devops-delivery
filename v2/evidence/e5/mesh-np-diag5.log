@@ -1,0 +1,53 @@
+# transcript: E5: who answered the request behind the waypoint (response headers), and the connections between waypoint and server
+# recorded: 2026-11-09T08:49:38Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ KEEP=1 bash v2/experiments/e5/mesh-np-diag3.sh > /dev/null; kubectl -n e5-b get pods -o wide --no-headers | awk '{print $1, $6, $7}'
+client 10.240.3.82 ent-worker3
+server 10.240.2.71 ent-worker2
+waypoint-555c664d55-55s66 10.240.2.70 ent-worker2
+
+$ kubectl -n e5-b exec client -- python -c "import socket; s = socket.create_connection(('server.e5-b.svc.cluster.local', 8080), 3); s.sendall(b'GET / HTTP/1.0' + bytes([13, 10]) + b'Host: probe' + bytes([13, 10, 13, 10])); print(s.recv(400).decode(errors='replace'))"
+HTTP/1.1 426 Upgrade Required
+content-length: 16
+content-type: text/plain
+date: Mon, 09 Nov 2026 08:49:51 GMT
+server: istio-envoy
+connection: close
+
+Upgrade Required
+
+$ W=$(kubectl -n e5-b get pods -l gateway.networking.k8s.io/gateway-name=waypoint -o jsonpath='{.items[0].status.podIP}'); S=$(kubectl -n e5-b get pod server -o jsonpath='{.status.podIP}'); for n in ent-worker2; do docker exec $n conntrack -L 2>/dev/null | grep -E "src=($W|$S) " | grep -E "dst=($W|$S) " | cut -c1-220; done
+tcp      6 111 TIME_WAIT src=10.240.2.1 dst=10.240.2.70 sport=47374 dport=15021 src=10.240.2.70 dst=10.240.2.1 sport=15021 dport=47374 [ASSURED] mark=0 use=1
+udp      17 20 src=10.240.2.70 dst=10.96.0.10 sport=38584 dport=53 src=10.240.0.2 dst=10.240.2.70 sport=53 dport=38584 mark=0 use=1
+udp      17 20 src=10.240.2.70 dst=10.96.0.10 sport=47948 dport=53 src=10.240.0.3 dst=10.240.2.70 sport=53 dport=47948 mark=0 use=1
+udp      17 20 src=10.240.2.70 dst=10.96.0.10 sport=36931 dport=53 src=10.240.0.3 dst=10.240.2.70 sport=53 dport=36931 mark=0 use=1
+udp      17 20 src=10.240.2.70 dst=10.96.0.10 sport=50492 dport=53 src=10.240.0.2 dst=10.240.2.70 sport=53 dport=50492 mark=0 use=1
+udp      17 21 src=10.240.2.70 dst=10.96.0.10 sport=45068 dport=53 src=10.240.0.2 dst=10.240.2.70 sport=53 dport=45068 mark=0 use=1
+udp      17 20 src=10.240.2.70 dst=10.96.0.10 sport=53133 dport=53 src=10.240.0.2 dst=10.240.2.70 sport=53 dport=53133 mark=0 use=1
+udp      17 20 src=10.240.2.70 dst=10.96.0.10 sport=47405 dport=53 src=10.240.0.3 dst=10.240.2.70 sport=53 dport=47405 mark=0 use=1
+tcp      6 112 TIME_WAIT src=10.240.2.1 dst=10.240.2.70 sport=47380 dport=15021 src=10.240.2.70 dst=10.240.2.1 sport=15021 dport=47380 [ASSURED] mark=0 use=1
+udp      17 21 src=10.240.2.70 dst=10.96.0.10 sport=42600 dport=53 src=10.240.0.2 dst=10.240.2.70 sport=53 dport=42600 mark=0 use=1
+udp      17 21 src=10.240.2.70 dst=10.96.0.10 sport=60899 dport=53 src=10.240.0.3 dst=10.240.2.70 sport=53 dport=60899 mark=0 use=1
+udp      17 21 src=10.240.2.70 dst=10.96.0.10 sport=46428 dport=53 src=10.240.0.3 dst=10.240.2.70 sport=53 dport=46428 mark=0 use=1
+udp      17 20 src=10.240.2.70 dst=10.96.0.10 sport=41339 dport=53 src=10.240.0.3 dst=10.240.2.70 sport=53 dport=41339 mark=0 use=1
+udp      17 20 src=10.240.2.70 dst=10.96.0.10 sport=40759 dport=53 src=10.240.0.3 dst=10.240.2.70 sport=53 dport=40759 mark=0 use=1
+udp      17 21 src=10.240.2.70 dst=10.96.0.10 sport=35010 dport=53 src=10.240.0.2 dst=10.240.2.70 sport=53 dport=35010 mark=0 use=1
+tcp      6 86392 ESTABLISHED src=10.240.2.70 dst=10.96.246.62 sport=59272 dport=15012 src=10.240.3.19 dst=10.240.2.70 sport=15012 dport=59272 [ASSURED] mark=0 use=1
+udp      17 20 src=10.240.2.70 dst=10.96.0.10 sport=50119 dport=53 src=10.240.0.2 dst=10.240.2.70 sport=53 dport=50119 mark=0 use=1
+udp      17 20 src=10.240.2.70 dst=10.96.0.10 sport=40426 dport=53 src=10.240.0.3 dst=10.240.2.70 sport=53 dport=40426 mark=0 use=1
+tcp      6 86399 ESTABLISHED src=10.240.3.82 dst=10.240.2.70 sport=45610 dport=15008 src=10.240.2.70 dst=10.240.3.82 sport=15008 dport=45610 [ASSURED] mark=0 use=1
+tcp      6 86390 ESTABLISHED src=10.240.2.70 dst=10.96.246.62 sport=59260 dport=15012 src=10.240.3.19 dst=10.240.2.70 sport=15012 dport=59260 [ASSURED] mark=0 use=1
+udp      17 21 src=10.240.2.70 dst=10.96.0.10 sport=51299 dport=53 src=10.240.0.3 dst=10.240.2.70 sport=53 dport=51299 mark=0 use=1
+
+$ kubectl -n e5-b exec deploy/waypoint -- pilot-agent request GET stats 2>/dev/null | grep -E "^cluster\.(connect_originate|inbound-vip\|8080\|http\|server)" | grep -E "upstream_cx_total|upstream_rq_total|upstream_cx_connect_fail" | head -8
+[exit 1]
+
+$ kubectl get networkpolicy -n e5-b
+NAME                       POD-SELECTOR                                      AGE
+allow-client-to-server     role=server                                       13s
+allow-client-to-waypoint   gateway.networking.k8s.io/gateway-name=waypoint   13s
+default-deny               <none>                                            13s
+
+$ kubectl delete ns e5-b --wait=false
+namespace "e5-b" deleted
+

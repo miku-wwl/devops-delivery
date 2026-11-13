@@ -1,0 +1,89 @@
+diff -u -N /tmp/LIVE-2801485612/batch.v1.Job.argocd.argocd-redis-secret-init /tmp/MERGED-1602749374/batch.v1.Job.argocd.argocd-redis-secret-init
+--- /tmp/LIVE-2801485612/batch.v1.Job.argocd.argocd-redis-secret-init	2026-11-11 02:56:57.306550922 +1300
++++ /tmp/MERGED-1602749374/batch.v1.Job.argocd.argocd-redis-secret-init	2026-11-11 02:56:57.306550922 +1300
+@@ -0,0 +1,85 @@
++apiVersion: batch/v1
++kind: Job
++metadata:
++  annotations:
++    helm.sh/hook: pre-install,pre-upgrade
++    helm.sh/hook-delete-policy: before-hook-creation
++  creationTimestamp: "2026-11-10T13:56:57Z"
++  generation: 1
++  labels:
++    app.kubernetes.io/component: redis-secret-init
++    app.kubernetes.io/instance: argocd
++    app.kubernetes.io/managed-by: Helm
++    app.kubernetes.io/name: argocd-redis-secret-init
++    app.kubernetes.io/part-of: argocd
++    app.kubernetes.io/version: v3.6.1
++    helm.sh/chart: argo-cd-10.14.0
++  name: argocd-redis-secret-init
++  namespace: argocd
++  uid: 57fe0d54-dfd3-423d-8b97-1070d5e93ec8
++spec:
++  backoffLimit: 6
++  completionMode: NonIndexed
++  completions: 1
++  manualSelector: false
++  parallelism: 1
++  podReplacementPolicy: TerminatingOrFailed
++  selector:
++    matchLabels:
++      batch.kubernetes.io/controller-uid: 57fe0d54-dfd3-423d-8b97-1070d5e93ec8
++  suspend: false
++  template:
++    metadata:
++      labels:
++        app.kubernetes.io/component: redis-secret-init
++        app.kubernetes.io/instance: argocd
++        app.kubernetes.io/managed-by: Helm
++        app.kubernetes.io/name: argocd-redis-secret-init
++        app.kubernetes.io/part-of: argocd
++        app.kubernetes.io/version: v3.6.1
++        batch.kubernetes.io/controller-uid: 57fe0d54-dfd3-423d-8b97-1070d5e93ec8
++        batch.kubernetes.io/job-name: argocd-redis-secret-init
++        controller-uid: 57fe0d54-dfd3-423d-8b97-1070d5e93ec8
++        helm.sh/chart: argo-cd-10.14.0
++        job-name: argocd-redis-secret-init
++    spec:
++      affinity:
++        podAntiAffinity:
++          preferredDuringSchedulingIgnoredDuringExecution:
++          - podAffinityTerm:
++              labelSelector:
++                matchLabels:
++                  app.kubernetes.io/name: argocd-redis-secret-init
++              topologyKey: kubernetes.io/hostname
++            weight: 100
++      containers:
++      - command:
++        - argocd
++        - admin
++        - redis-initial-password
++        image: quay.io/argoproj/argocd:v3.6.1
++        imagePullPolicy: IfNotPresent
++        name: secret-init
++        resources: {}
++        securityContext:
++          allowPrivilegeEscalation: false
++          capabilities:
++            drop:
++            - ALL
++          readOnlyRootFilesystem: true
++          runAsNonRoot: true
++          seccompProfile:
++            type: RuntimeDefault
++        terminationMessagePath: /dev/termination-log
++        terminationMessagePolicy: File
++      dnsPolicy: ClusterFirst
++      nodeSelector:
++        kubernetes.io/os: linux
++      restartPolicy: OnFailure
++      schedulerName: default-scheduler
++      securityContext: {}
++      serviceAccount: argocd-redis-secret-init
++      serviceAccountName: argocd-redis-secret-init
++      terminationGracePeriodSeconds: 30
++  ttlSecondsAfterFinished: 60
++status: {}

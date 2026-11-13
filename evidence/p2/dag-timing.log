@@ -1,0 +1,12 @@
+# transcript: P2 DAG: job start/finish times of pipeline #4
+# recorded: 2026-11-05T23:41:05Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ export GL_TOKEN="$(cat ~/.lab-secrets/gitlab-root-token)"
+
+$ curl -s -H "PRIVATE-TOKEN: $GL_TOKEN" "http://localhost:8929/api/v4/projects/1/pipelines/4/jobs" | jq -r 'sort_by(.id)[] | "\(.name)\tstarted=\(.started_at // "-" | .[11:19])\tfinished=\(.finished_at // "-" | .[11:19])\tstatus=\(.status)"' | column -t -s $'\t'
+lint         started=23:38:13  finished=23:38:36  status=success
+test         started=23:38:12  finished=23:38:41  status=success
+build-image  started=23:38:42  finished=23:38:57  status=success
+deploy-dev   started=23:38:58  finished=23:39:12  status=success
+deploy-prod  started=          finished=          status=manual
+

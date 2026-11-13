@@ -1,0 +1,29 @@
+# transcript: P10: after hardening - load generator and telemetry pipeline still work
+# recorded: 2026-11-06T10:14:13Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl get pods -n observability
+NAME                              READY   STATUS    RESTARTS   AGE
+lgtm-5856cbbc7f-p5tdj             1/1     Running   0          2m10s
+otel-collector-6485b95575-qjxbt   1/1     Running   0          6h14m
+
+$ kubectl get pods -n loadgen
+NAME                 READY   STATUS    RESTARTS   AGE
+k6-f4c54b87c-l5xfq   1/1     Running   0          107s
+
+$ q() { curl -s "http://127.0.0.1:9090/api/v1/query" --data-urlencode "query=$1" | jq -r ".data.result[] | \"\(.metric.namespace): \(.value[1] | tonumber | . * 100 | round / 100) req/s\""; }
+
+$ q "sum by (namespace) (rate(http_requests_total{namespace=~\"dev|prod\", route=~\"/api/.*\"}[1m]))"
+dev: 3.91 req/s
+prod: 10.05 req/s
+
+$ G=http://127.0.0.1:3001/api/datasources/proxy/uid
+
+$ curl -s -G "$G/tempo/api/search" --data-urlencode "q={resource.service.name=\"demo-api\" && resource.deployment.environment.name=\"dev\"}" --data-urlencode "limit=3" --data-urlencode "start=$(( $(date +%s) - 120 ))" --data-urlencode "end=$(date +%s)" | jq -r ".traces[] | \"trace \(.traceID): \(.rootTraceName) \(.durationMs // 0) ms\""
+trace aa3249cddaa41ef93f819228a6eaf06: POST /api/v1/orders 3 ms
+trace 49484e34e85b28ab8b65858bacbba49: GET /api/v1/info 2 ms
+trace 84a4b4c622b3e5e7637a2d3b6783afa: POST /api/v1/orders 201 ms
+
+$ curl -s -G "$G/loki/loki/api/v1/query_range" --data-urlencode "query={service_name=\"demo-api\"}" --data-urlencode "limit=2" --data-urlencode "start=$(( $(date +%s) - 120 ))000000000" | jq -r ".data.result[].values[] | .[1][0:100]" | head -2
+order created
+request
+

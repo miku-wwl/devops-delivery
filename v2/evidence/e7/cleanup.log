@@ -1,0 +1,44 @@
+# transcript: E7 end state
+# recorded: 2026-11-09T23:44:54Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# E7 end state: the rebuilt cluster (R2) with every experiment removed
+$ kubectl get nodes --no-headers | awk '{print $1, $2}'
+ent-control-plane Ready
+ent-worker Ready
+ent-worker2 Ready
+ent-worker3 Ready
+
+$ kubectl -n argocd get applications --no-headers | awk '{print $2 "/" $3}' | sort | uniq -c
+     35 Synced/Healthy
+
+$ kubectl get pods -A --no-headers | awk '$4 != "Running" && $4 != "Completed"' | wc -l
+0
+
+$ kubectl get ns --no-headers | awk '{print $1}' | grep -c '^e7-' || true
+0
+
+$ kubectl -n data get clusters.postgresql.cnpg.io --no-headers
+pg-main   22m   3     3     Cluster in healthy state   pg-main-1
+
+$ kubectl -n data get pods --no-headers | grep -cE 'drill-writer|s3-' || true
+0
+
+$ for n in ent-worker ent-worker2 ent-worker3; do echo "$n: $(docker exec $n sh -c 'iptables -S 2>/dev/null | grep -c E7' )"; done
+ent-worker: 0
+ent-worker2: 0
+ent-worker3: 0
+
+$ kubectl -n data exec -i pg-main-1 -c postgres -- psql -U postgres -tA < /mnt/c/Users/weila/AppData/Local/Temp/claude/6ff893509394a9ed/216f0e85-2cba-4879-98ea-42d820e7fcc2/scratchpad/sync.sql
+ANY 1 ("pg-main-2","pg-main-3","pg-main-1") | pg-main-3=quorum pg-main-2=quorum
+
+$ kubectl -n secrets exec openbao-0 -- bao status -format=json | jq -c '{initialized, sealed}'
+{"initialized":true,"sealed":false}
+
+$ kubectl get --raw /api/v1/namespaces/monitoring/services/kps-prometheus:9090/proxy/api/v1/alerts | jq -r '[.data.alerts[] | select(.state == "firing") | .labels.alertname] | unique | join(" ")'
+AlertmanagerClusterCrashlooping Watchdog
+
+$ for n in ent-worker ent-worker2 ent-worker3; do echo "$n $(kubectl describe node $n | sed -n '/Allocated resources/,/Events/p' | awk '$1 == "memory" {print $2, $3}')"; done
+ent-worker 2746Mi (86%)
+ent-worker2 2946Mi (92%)
+ent-worker3 2570Mi (80%)
+

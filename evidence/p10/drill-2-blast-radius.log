@@ -1,0 +1,51 @@
+# transcript: P10 part B: timeline, stable pods after the abort, and the blast radius
+# recorded: 2026-11-06T13:39:36Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# Timeline from the Kubernetes events of the Rollout (UTC).
+$ kubectl -n prod get events --field-selector involvedObject.kind=Rollout,involvedObject.name=demo-api-prod --sort-by=.lastTimestamp -o custom-columns=TIME:.lastTimestamp,REASON:.reason,MESSAGE:.message --no-headers | awk "\$1 >= \"2026-11-06T13:36\"" | cut -c1-190
+2026-11-06T13:37:14Z   RolloutUpdated         Rollout updated to revision 9
+2026-11-06T13:37:14Z   NewReplicaSetCreated   Created ReplicaSet demo-api-prod-8bf588ddc (revision 9)
+2026-11-06T13:38:26Z   AnalysisRunFailed      Background Analysis Run 'demo-api-prod-8bf588ddc-9' Status New: 'Failed' Previous: 'Running'
+2026-11-06T13:38:26Z   RolloutAborted         Rollout aborted update to revision 9: Background analysis phase error/failed: Metric "p95-latency-seconds" assessed Failed due to failed (2) > f
+
+# P6 erratum check: every pod and the latency fault it really runs with. The stable pod created during the abort must say 0.
+$ kubectl get pods -n prod -l app.kubernetes.io/name=demo-api -o custom-columns=POD:.metadata.name,CREATED:.metadata.creationTimestamp,HASH:.metadata.labels.rollouts-pod-template-hash,FAULT_LATENCY_MS:".spec.containers[0].env[?(@.name==\"FAULT_LATENCY_MS\")].value"
+POD                              CREATED                HASH         FAULT_LATENCY_MS
+demo-api-prod-56ffb56667-gr7cz   2026-11-06T13:34:53Z   56ffb56667   0
+demo-api-prod-56ffb56667-kdrzz   2026-11-06T13:30:47Z   56ffb56667   0
+demo-api-prod-56ffb56667-klpxl   2026-11-06T13:33:40Z   56ffb56667   0
+demo-api-prod-56ffb56667-nl8wl   2026-11-06T13:38:26Z   56ffb56667   0
+demo-api-prod-56ffb56667-nqlv6   2026-11-06T13:33:40Z   56ffb56667   0
+
+$ kubectl get rs -n prod -l app.kubernetes.io/name=demo-api -o custom-columns=RS:.metadata.name,DESIRED:.spec.replicas,FAULT_LATENCY_MS:".spec.template.spec.containers[0].env[?(@.name==\"FAULT_LATENCY_MS\")].value" | grep -E "RS|8bf588ddc|56ffb56667"
+RS                         DESIRED   FAULT_LATENCY_MS
+demo-api-prod-56ffb56667   5         0
+demo-api-prod-8bf588ddc    0         800
+
+$ sleep 240
+
+$ q() { curl -s "http://127.0.0.1:9090/api/v1/query" --data-urlencode "query=$1" | jq -r ".data.result[] | \"  \(.metric.rollouts_pod_template_hash // .metric.pod // \"all\"): \(.value[1] | tonumber | . * 100 | round / 100)\""; }
+
+$ date -u +"measured at %FT%TZ"
+measured at 2026-11-06T13:43:37Z
+
+$ echo "slower than 0.5 s, last 4 min (after the abort), by ReplicaSet:"; q "sum by (rollouts_pod_template_hash) (increase(http_request_duration_seconds_count{namespace=\"prod\", route=~\"/api/.*\"}[4m])) - sum by (rollouts_pod_template_hash) (increase(http_request_duration_seconds_bucket{namespace=\"prod\", route=~\"/api/.*\", le=\"0.5\"}[4m]))"
+slower than 0.5 s, last 4 min (after the abort), by ReplicaSet:
+  56ffb56667: 0
+
+$ echo "all API requests, last 12 min, by ReplicaSet:"; q "sum by (rollouts_pod_template_hash) (increase(http_request_duration_seconds_count{namespace=\"prod\", route=~\"/api/.*\"}[12m]))"
+all API requests, last 12 min, by ReplicaSet:
+  745d56f9d4: 1412.59
+  56ffb56667: 5594.67
+  8bf588ddc: 137.67
+
+$ echo "slower than 0.5 s, last 12 min (whole drill), by ReplicaSet:"; q "sum by (rollouts_pod_template_hash) (increase(http_request_duration_seconds_count{namespace=\"prod\", route=~\"/api/.*\"}[12m])) - sum by (rollouts_pod_template_hash) (increase(http_request_duration_seconds_bucket{namespace=\"prod\", route=~\"/api/.*\", le=\"0.5\"}[12m]))"
+slower than 0.5 s, last 12 min (whole drill), by ReplicaSet:
+  745d56f9d4: 0
+  56ffb56667: 0
+  8bf588ddc: 90.67
+
+$ echo "5xx, last 12 min:"; q "sum(increase(http_requests_total{namespace=\"prod\", route=~\"/api/.*\", status=~\"5..\"}[12m])) or vector(0)"
+5xx, last 12 min:
+  all: 0
+

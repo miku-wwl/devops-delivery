@@ -1,0 +1,11 @@
+== 10:16:33 10 000 pods Running, QPS limits disabled
+  etcd db size MiB: 89.3398 (in use 89.3047)
+  objects: events=0 nodes=0 pods=0 leases=0
+  resident memory MiB by component: kube-apiserver=953.922 prometheus=123.457 kube-controller-manager=232.492 kwok-controller=83.375 etcd=100.754 kube-scheduler=237.801
+  docker: kwok-scale-prometheus 115.2MiB / 384MiB 0.54%
+  docker: kwok-scale-kube-scheduler 229.7MiB / 768MiB 0.37%
+  docker: kwok-scale-kwok-controller 71.99MiB / 256MiB 0.04%
+  docker: kwok-scale-kube-controller-manager 216.7MiB / 512MiB 2.26%
+  docker: kwok-scale-kube-apiserver 939.5MiB / 1.5GiB 12.18%
+  docker: kwok-scale-etcd 80.35MiB / 512MiB 2.10%
+  WSL available MiB: 2702

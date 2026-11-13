@@ -1,0 +1,8 @@
+== 23:51:26 delete the two historical failed jobs (pods follow by background propagation)
+  job.batch "openbao-snapshot-29905757" deleted from secrets namespace
+  job.batch "openbao-snapshot-29905817" deleted from secrets namespace
+  remaining pods of the two jobs: 1; pods not Running/Completed cluster-wide: 0
+  CronJob still there: openbao-snapshot schedule 17 * * * * suspend false last success 2026-11-10T23:17:06Z
+  jobs now: e11-snapshot-check Complete;openbao-snapshot-29905877 Complete;
+  Garage platform-snapshots/openbao/: 22 objects; newest: openbao/20261110T111704Z.snap (38425 B), openbao/20261110T223920Z.snap (30233 B), openbao/20261110T231703Z.snap (30233 B)
+  note: the count of 1 above matched openbao-snapshot-29905877 (the successful 23:17 job, prefix 299058) - the six Init:Error pods are gone (0 pods not Running/Completed)

@@ -1,0 +1,14 @@
+# transcript: E6 errors50-resilient: how fast did the order failures stop after the fault was removed at 13:24:13 (hypothesis D4; rates over 30 s, every 15 s)
+# recorded: 2026-11-09T13:27:46Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e4/series.sh 2026-11-09T13:23:45Z 2026-11-09T13:25:30Z 15 'gw_5xx/s=sum(rate(http_server_requests_total{namespace="storefront",service="gateway",code=~"5.."}[30s]))' 'breaker_rejects/s=sum(rate(upstream_rejected_total{namespace="storefront",reason="circuit_open"}[30s]))' 'orders_req/s=sum(rate(http_server_requests_total{namespace="storefront",service="orders"}[30s]))'
+time gw_5xx/s breaker_rejects/s orders_req/s
+13:23:45  10.78  11.51  0.58
+13:24:00  7.23   9.76   3
+13:24:15  10.19  11.08  0.73
+13:24:30  7.35   8.95   3.07
+13:24:45  0      0      9.8
+13:25:00  0      0      9.76
+13:25:15  0      0      8.87
+13:25:30  0      0      11.04
+

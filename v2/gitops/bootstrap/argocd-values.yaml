@@ -1,0 +1,142 @@
+# Values of the argo-cd chart (version: platform/apps/argocd.yaml). Installed once with helm by
+# bootstrap.sh; after that everything comes from Git through the root application (root.yaml) - Argo CD
+# itself too (E11: the application argocd).
+global:
+  domain: argocd.ent.local
+dex: {enabled: false}
+# E8 (chapter 9): deployment events. Every finished sync of a subscribed application (the storefront
+# services: annotations in platform/apps/storefront.yaml) becomes a deployment in GitLab (Deployments
+# API) on the environment <env>/<service>, with the synced commit and success/failed: GitLab links it to
+# the merge requests it contains, and the record outlives the cluster. One event per sync operation
+# (oncePer startedAt), sent when the application is healthy again. Credential: argocd-notifications-
+# secret (platform/gitops/deploy-events.sh). DORA metrics: platform/gitops/dora.py.
+notifications:
+  enabled: true
+  resources: {requests: {cpu: 10m, memory: 32Mi}, limits: {memory: 128Mi}}
+  secret: {create: false}
+  notifiers:
+    service.webhook.gitlab-deployments: |
+      url: http://gitlab:8929/api/v4/projects/root%2Fplatform-gitops
+      headers:
+        - name: PRIVATE-TOKEN
+          value: $gitlab-deployments-token
+        - name: Content-Type
+          value: application/json
+  templates:
+    template.gitlab-deployment: |
+      webhook:
+        gitlab-deployments:
+          method: POST
+          path: /deployments
+          body: |
+            {"environment": "{{index .app.metadata.labels "storefront/env"}}/{{index .app.metadata.labels "storefront/service"}}", "sha": "{{if .app.status.operationState.syncResult}}{{.app.status.operationState.syncResult.revision}}{{else}}{{.app.status.operationState.operation.sync.revision}}{{end}}", "ref": "main", "tag": false, "status": "{{if eq .app.status.operationState.phase "Succeeded"}}success{{else}}failed{{end}}"}
+  triggers:
+    trigger.on-deployed: |
+      - description: a sync finished and the application is healthy
+        when: app.status.operationState != nil and app.status.operationState.phase in ['Succeeded'] and app.status.health.status == 'Healthy'
+        oncePer: app.status.operationState.startedAt
+        send: [gitlab-deployment]
+    trigger.on-sync-failed: |
+      - description: a sync failed
+        when: app.status.operationState != nil and app.status.operationState.phase in ['Error', 'Failed']
+        oncePer: app.status.operationState.startedAt
+        send: [gitlab-deployment]
+configs:
+  params:
+    server.insecure: true          # reached through kubectl port-forward only
+    # fewer applications reconciled in parallel (defaults 20/10): lower peak memory, and this
+    # cluster has only ~16 applications
+    controller.status.processors: 10
+    controller.operation.processors: 5
+  cm:
+    timeout.reconciliation: 60s    # poll Git every minute (production: a Git webhook)
+    # E8 (chapter 9): Argo CD applies each project's changes as the project's own service account
+    # (AppProject destinationServiceAccounts), so Kubernetes RBAC checks them too
+    application.sync.impersonation.enabled: "true"
+    # Health of child Applications, so that sync waves in the app-of-apps wait for each wave
+    # to be Healthy (Argo CD stopped assessing Application health by default in v1.8).
+    resource.customizations.health.argoproj.io_Application: |
+      hs = {}
+      hs.status = "Progressing"
+      hs.message = ""
+      if obj.status ~= nil and obj.status.health ~= nil then
+        hs.status = obj.status.health.status
+        if obj.status.health.message ~= nil then
+          hs.message = obj.status.health.message
+        end
+      end
+      return hs
+  # E5 (chapter 6): who may do what in Argo CD - the same groups as in Kubernetes. In production
+  # they come from the identity provider (SSO); this lab has none, so the rules are verified
+  # offline with "argocd admin settings rbac can" (experiments/e5/argocd-rbac.sh). No default role.
+  rbac:
+    policy.default: ""
+    scopes: "[groups]"
+    policy.csv: |
+      p, role:team-shop, applications, get, storefront/*, allow
+      p, role:team-shop, applications, sync, storefront/*, allow
+      p, role:team-shop, logs, get, storefront/*, allow
+      p, role:team-shop, projects, get, storefront, allow
+      p, role:team-insight, applications, *, insight/*, allow
+      p, role:team-insight, logs, get, insight/*, allow
+      p, role:team-insight, projects, get, insight, allow
+      p, role:auditor, applications, get, */*, allow
+      p, role:auditor, projects, get, *, allow
+      p, role:auditor, clusters, get, *, allow
+      p, role:auditor, repositories, get, *, allow
+      g, team-shop, role:team-shop
+      g, team-insight, role:team-insight
+      g, auditors, role:auditor
+      g, platform-sre, role:admin
+controller:
+  # E1: 425 MiB at rest, but OOM-killed three times at 768 Mi (anon-rss 783 MB) while
+  # refreshing every application at once. The controller caches every watched resource of the
+  # cluster, so its memory follows the cluster (CRDs, objects), not the number of apps.
+  # E6: evicted at 538 MiB (request 512Mi) during a rollout - evidence/e6/incident-1.log
+  resources: {requests: {cpu: 100m, memory: 640Mi}, limits: {memory: 1Gi}}
+  env:
+    - {name: GOMEMLIMIT, value: "850MiB"}   # GC hard before the kernel limit, not after
+  # E9 (chapter 10): argocd_app_info and argocd_app_sync_total for the alerts on failing syncs and on
+  # a root application out of sync (platform/manifests/alerts/platform-alerts.yaml)
+  metrics:
+    enabled: true
+    serviceMonitor: {enabled: true}
+repoServer:
+  resources: {requests: {cpu: 50m, memory: 128Mi}, limits: {memory: 512Mi}}
+server:
+  resources: {requests: {cpu: 20m, memory: 64Mi}, limits: {memory: 256Mi}}
+redis:
+  resources: {requests: {cpu: 10m, memory: 32Mi}, limits: {memory: 128Mi}}
+applicationSet:
+  resources: {requests: {cpu: 10m, memory: 48Mi}, limits: {memory: 256Mi}}
+# E8: the accounts Argo CD impersonates for the platform (chapter 9). Part of this release, not of Git:
+# with impersonation on, an application syncs only once its project's account holds its rights - and
+# these rights would otherwise have to be synced by the very applications that need them.
+#   argocd-root      project "root" (bootstrap/root.yaml): the root application writes nothing but
+#                    Argo CD's own objects (Applications, ApplicationSets, AppProjects) in argocd;
+#   argocd-platform  project "platform": operators, CRDs, everything cluster-wide.
+# The project "default" has no account: with impersonation on, nothing in it can sync.
+extraObjects:
+  - apiVersion: v1
+    kind: ServiceAccount
+    metadata: {name: argocd-root, namespace: argocd}
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: Role
+    metadata: {name: argocd-root, namespace: argocd}
+    rules:
+      - apiGroups: [argoproj.io]
+        resources: [applications, applicationsets, appprojects]
+        verbs: [get, list, watch, create, update, patch, delete]
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    metadata: {name: argocd-root, namespace: argocd}
+    subjects: [{kind: ServiceAccount, name: argocd-root, namespace: argocd}]
+    roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: argocd-root}
+  - apiVersion: v1
+    kind: ServiceAccount
+    metadata: {name: argocd-platform, namespace: argocd}
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata: {name: argocd-platform}
+    subjects: [{kind: ServiceAccount, name: argocd-platform, namespace: argocd}]
+    roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: cluster-admin}

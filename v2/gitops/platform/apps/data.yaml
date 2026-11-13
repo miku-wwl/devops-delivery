@@ -1,0 +1,60 @@
+# Data services in namespace "data": NATS JetStream, Valkey and the PostgreSQL cluster, all in wave -2
+# (E8, chapter 9: were -1 and 0) - after the CloudNativePG operator and its Barman Cloud plugin
+# (wave -3), before the storefront (wave -1).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nats
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-2"}
+spec:
+  project: platform
+  sources:
+    - repoURL: https://nats-io.github.io/k8s/helm/charts
+      chart: nats
+      targetRevision: 2.15.2
+      helm: {releaseName: nats, valueFiles: [$values/platform/values/nats.yaml]}
+    - {repoURL: "http://gitlab:8929/root/platform-gitops.git", targetRevision: main, ref: values}
+  destination: {server: "https://kubernetes.default.svc", namespace: data}
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    syncOptions: [CreateNamespace=true]
+    retry: {limit: 10, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: valkey
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-2"}
+spec:
+  project: platform
+  source:
+    repoURL: http://gitlab:8929/root/platform-gitops.git
+    targetRevision: main
+    path: platform/manifests/valkey
+  destination: {server: "https://kubernetes.default.svc", namespace: data}
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    syncOptions: [CreateNamespace=true]
+    retry: {limit: 10, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: pg-main
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-2"}
+spec:
+  project: platform
+  source:
+    repoURL: http://gitlab:8929/root/platform-gitops.git
+    targetRevision: main
+    path: platform/manifests/data
+  destination: {server: "https://kubernetes.default.svc", namespace: data}
+  syncPolicy:
+    automated: {prune: false, selfHeal: true}   # never let a Git mistake prune the database
+    # E7: the ObjectStore kind comes from the barman-cloud application; on a fresh cluster the
+    # first sync may run before its CRD exists (retried)
+    syncOptions: [CreateNamespace=true, SkipDryRunOnMissingResource=true]
+    retry: {limit: 10, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}

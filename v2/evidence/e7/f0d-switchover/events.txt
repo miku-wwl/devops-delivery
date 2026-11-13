@@ -1,0 +1,8 @@
+2026-11-09T14:36:08Z Pod/drill-writer-f0d-switchover Pulled: Container image "ghcr.io/cloudnative-pg/postgresql:18.6-system-trixie" already present on machine and can be accessed by the pod
+2026-11-09T14:36:08Z Pod/drill-writer-f0d-switchover Created: Container created
+2026-11-09T14:36:08Z Pod/drill-writer-f0d-switchover Started: Container started
+2026-11-09T14:36:42Z Pod/pg-main-1 BackOff: Back-off restarting failed container postgres in pod pg-main-1_data(ef18f42b-3104-4282-9d84-ff88b136df20)
+2026-11-09T14:36:44Z Pod/pg-main-1 Started: Container started
+2026-11-09T14:36:44Z Pod/pg-main-1 Created: Container created
+2026-11-09T14:36:44Z Pod/pg-main-1 Pulled: Container image "ghcr.io/cloudnative-pg/postgresql:18.6-system-trixie" already present on machine and can be accessed by the pod
+2026-11-09T14:37:25Z Pod/drill-writer-f0d-switchover Killing: Stopping container writer

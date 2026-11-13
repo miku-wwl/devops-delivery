@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 176" width="640" height="176" font-family="'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="10.0" y="22.0" width="110.0" height="44.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="65.0" y="47.8" font-size="10.5" fill="#1b2430" text-anchor="middle" font-weight="600">公共请求</text>
+<rect x="10.0" y="106.0" width="110.0" height="50.0" rx="5.0" fill="#ffffff" stroke="#b9c6d4" stroke-width="1.2" stroke-dasharray="3 3"/>
+<text x="65.0" y="127.8" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="600">测试人员</text>
+<text x="65.0" y="141.4" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">带预览请求头</text>
+<rect x="196.0" y="54.0" width="132.0" height="68.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="262.0" y="78.0" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">入口 Gateway</text>
+<text x="262.0" y="91.6" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">HTTPRoute</text>
+<text x="262.0" y="105.2" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">两条规则</text>
+<rect x="500.0" y="14.0" width="130.0" height="56.0" rx="5.0" fill="#fff4e0" stroke="#d9730d" stroke-width="1.2"/>
+<text x="565.0" y="38.8" font-size="10" fill="#6b3b05" text-anchor="middle" font-weight="600">金丝雀版本</text>
+<text x="565.0" y="52.4" font-size="9.5" fill="#6b3b05" text-anchor="middle" font-weight="normal">gateway-canary</text>
+<rect x="500.0" y="110.0" width="130.0" height="56.0" rx="5.0" fill="#e6f4ea" stroke="#2e8b57" stroke-width="1.2"/>
+<text x="565.0" y="134.8" font-size="10" fill="#1d5c38" text-anchor="middle" font-weight="600">稳定版本</text>
+<text x="565.0" y="148.4" font-size="9.5" fill="#1d5c38" text-anchor="middle" font-weight="normal">gateway</text>
+<polyline points="120.0,44.0 158.0,44.0 158.0,74.4 191.0,74.4" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="196.0,74.4 187.1,70.4 187.1,78.4" fill="#5b6776"/>
+<polyline points="120.0,131.0 158.0,131.0 158.0,101.6 191.0,101.6" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 4"/>
+<polygon points="196.0,101.6 187.1,97.6 187.1,105.6" fill="#5b6776"/>
+<polyline points="328.0,66.0 392.0,66.0 392.0,30.0 495.0,30.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 4"/>
+<polygon points="500.0,30.0 491.1,26.0 491.1,34.0" fill="#5b6776"/>
+<rect x="376.2" y="16.5" width="119.5" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="436.0" y="25.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">规则 1：带预览头 → 100%</text>
+<polyline points="328.0,88.0 414.0,88.0 414.0,54.0 495.0,54.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="500.0,54.0 491.1,50.0 491.1,58.0" fill="#5b6776"/>
+<rect x="419.8" y="55.5" width="74.4" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="457.0" y="64.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">规则 2：权重 5</text>
+<polyline points="328.0,110.0 414.0,110.0 414.0,138.0 495.0,138.0" fill="none" stroke="#0f8a7e" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="500.0,138.0 489.9,133.2 489.9,142.8" fill="#0f8a7e"/>
+<rect x="417.2" y="124.5" width="79.6" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="457.0" y="133.0" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">规则 2：权重 95</text>
+</svg>

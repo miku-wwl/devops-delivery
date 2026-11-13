@@ -1,0 +1,22 @@
+# transcript: P10 SLO rules: error ratios return 0 instead of no data
+# recorded: 2026-11-06T09:46:46Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl apply -f observability/alerts/demo-api-slo.yaml
+prometheusrule.monitoring.coreos.com/demo-api-slo configured
+
+$ sleep 75
+
+$ curl -s -G http://127.0.0.1:9090/api/v1/query --data-urlencode 'query={__name__=~"demo_api:sli_.*:ratio_rate(5m|1h|6h)"}' | jq -r '.data.result[] | "\(.metric.__name__) \(.metric.namespace) = \(.value[1] | tonumber | . * 10000 | floor / 100)%"' | sort
+demo_api:sli_errors:ratio_rate6h dev = 0.28%
+demo_api:sli_slow:ratio_rate1h dev = 0.01%
+demo_api:sli_slow:ratio_rate1h prod = 0%
+demo_api:sli_slow:ratio_rate5m dev = 0.08%
+demo_api:sli_slow:ratio_rate5m prod = 0%
+demo_api:sli_slow:ratio_rate6h dev = 0.94%
+demo_api:sli_slow:ratio_rate6h prod = 1.05%
+
+$ curl -s http://127.0.0.1:9090/api/v1/rules | jq -r '.data.groups[] | select(.name|test("demo-api.sl")) | "\(.name): \(.rules|length) rules, health=\([.rules[].health]|unique|join(","))"'
+demo-api.slo: 4 rules, health=ok
+demo-api.sli: 11 rules, health=unknown
+demo-api.slo-burn: 4 rules, health=ok
+

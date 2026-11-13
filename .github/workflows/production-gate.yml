@@ -1,0 +1,51 @@
+name: production-gate
+# Human approval for production through a GitHub Deployment Environment.
+# The job targets environment "production", which has a required reviewer: GitHub
+# holds the job in "Waiting" until that person approves (or rejects) it. After
+# approval the job verifies the candidate's build provenance and records the
+# decision; the rollout itself is a GitOps promotion of the approved digest.
+
+on:
+  push:
+    branches: [main, "p6/**"]
+    paths:
+      - delivery/release/candidate.yaml
+      - .github/workflows/production-gate.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-gate
+  cancel-in-progress: false
+
+jobs:
+  approve:
+    name: approve production release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      attestations: read
+    environment:
+      name: production
+      url: https://github.com/${{ github.repository }}/attestations
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Verify the approved candidate and record the decision
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          image=$(yq -r .image delivery/release/candidate.yaml)
+          digest=$(yq -r .digest delivery/release/candidate.yaml)
+          gh attestation verify "oci://${image}@${digest}" --repo "${GITHUB_REPOSITORY}" \
+            --format json --jq '.[0].verificationResult.statement.predicateType'
+          {
+            echo "### Approved for production"
+            echo "- image: \`${image}@${digest}\`"
+            echo "- approved via environment \`production\` in run ${GITHUB_RUN_ID}"
+            echo "- next step: promote this digest in the GitOps configuration repository"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,4 @@
+# istio/cni 1.31.4: the node agent that redirects an ambient pod's traffic to ztunnel
+# (default request 100m/100Mi on every node)
+profile: ambient
+resources: {requests: {cpu: 10m, memory: 48Mi}, limits: {memory: 192Mi}}

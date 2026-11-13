@@ -1,0 +1,4 @@
+# Control node (pip, inside a virtual environment): see ansible/README.md
+ansible-core==2.20.11
+# docker SDK for the community.docker.docker_container module (runs on localhost)
+docker==7.2.0

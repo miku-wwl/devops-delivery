@@ -1,0 +1,10 @@
+# transcript: P1 cache scope: PR #2 first run cannot read PR #1 caches
+# recorded: 2026-11-05T23:09:22Z | host: jiejie | user: weila | cwd: /d/workshop/nov/devops-delivery
+
+$ gh run view 42126751852 --log 2>/dev/null | grep -E 'Cache (restored|saved|not found)|not found for input keys' | sed -E 's/^([^\t]+)\t([^\t]+)\t[0-9T:.-]+Z /\1 | /' | head -6
+python / lint | Cache saved with the key: setup-python-Linux-x64-24.04-Ubuntu-python-3.13.18-pip-954275a2989d8237e4e240c9c02dc6b72a007976e9e344b42ff767a41c14e12c
+
+$ gh run view 42126982421 --log 2>/dev/null | grep -cE '#[0-9]+ CACHED'
+0
+[exit 1]
+

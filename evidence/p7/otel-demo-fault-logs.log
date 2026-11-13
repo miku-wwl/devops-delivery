@@ -1,0 +1,14 @@
+# transcript: P7 OpenTelemetry Demo: the same failure in the logs (OpenSearch), joined by trace id
+# recorded: 2026-11-06T03:47:50Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ docker exec opensearch curl -s 'localhost:9200/_cat/indices/otel*?h=index,docs.count'
+otel-logs-2026-11-06 135
+
+$ docker exec opensearch curl -s 'localhost:9200/otel-logs-*/_search?size=5&sort=@timestamp:desc' -H 'Content-Type: application/json' -d '{"query":{"term":{"traceId":"5244d16d21d3d6d814e9f70f7322234c"}}}' | jq -r '.hits.total.value as $n | "log records with this trace id: \($n)", (.hits.hits[]._source | "\(.resource.service.name // .resource["service.name"] // "?") | \(.severityText // "-") | \(.body | tostring | .[0:150])")'
+log records with this trace id: 37
+load-generator | - | Multi-item checkout completed for user c8616b90-d994-11f1-8c02-aaaf773dcce4
+load-generator | - | Multi-item checkout completed for user c8616b90-d994-11f1-8c02-aaaf773dcce4
+frontend | - | Checkout payment declined
+payment | - | Payment request failed. Invalid token. demo.user_context.loyalty_level=gold
+payment | - | Charge request received.
+

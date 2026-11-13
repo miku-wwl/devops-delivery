@@ -1,0 +1,73 @@
+# transcript: E4 start: memory, node usage, requests and scheduling objects before the experiments
+# recorded: 2026-11-09T01:49:12Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ free -m | head -2
+               total        used        free      shared  buff/cache   available
+Mem:           15642        9642         571         596        6264        5999
+
+$ docker stats --no-stream --format "{{.Name}} {{.CPUPerc}} {{.MemUsage}}" | sort
+ent-ccm 0.00% 44.07MiB / 15.28GiB
+ent-control-plane 48.81% 1.841GiB / 15.28GiB
+ent-worker 56.77% 1.869GiB / 3GiB
+ent-worker2 18.37% 2.165GiB / 3GiB
+ent-worker3 42.59% 1.707GiB / 3GiB
+gitlab 1.32% 2.115GiB / 15.28GiB
+gitlab-runner 0.36% 23.85MiB / 15.28GiB
+kind-registry 0.00% 22.69MiB / 15.28GiB
+kindccm-7c5080a249c3 2.09% 39.8MiB / 15.28GiB
+mirror-docker 0.00% 19.49MiB / 15.28GiB
+mirror-ghcr 0.00% 14.66MiB / 15.28GiB
+mirror-k8s 0.00% 14.23MiB / 15.28GiB
+mirror-quay 0.00% 13.5MiB / 15.28GiB
+
+$ kubectl top nodes
+NAME                CPU(cores)   CPU(%)   MEMORY(bytes)   MEMORY(%)   
+ent-control-plane   424m         2%       1882Mi          12%         
+ent-worker          314m         8%       1832Mi          68%         
+ent-worker2         374m         9%       2249Mi          84%         
+ent-worker3         448m         11%      1748Mi          65%         
+
+$ kubectl describe nodes -l '!node-role.kubernetes.io/control-plane' | grep -E "^Name:|^  cpu |^  memory |Allocatable:|cpu:|memory:" | head -30
+Name:               ent-worker
+  cpu:                16
+  memory:             16017488Ki
+Allocatable:
+  cpu:                3750m
+  memory:             2730064Ki
+  cpu                710m (18%)    0 (0%)
+  memory             2258Mi (84%)  4352Mi (163%)
+Name:               ent-worker2
+  cpu:                16
+  memory:             16017488Ki
+Allocatable:
+  cpu:                3750m
+  memory:             2730064Ki
+  cpu                850m (22%)    2 (53%)
+  memory             2122Mi (79%)  6016Mi (225%)
+Name:               ent-worker3
+  cpu:                16
+  memory:             16017488Ki
+Allocatable:
+  cpu:                3750m
+  memory:             2730064Ki
+  cpu                825m (22%)    0 (0%)
+  memory             1914Mi (71%)  6Gi (230%)
+
+$ kubectl get pods -A -o custom-columns=NS:.metadata.namespace,POD:.metadata.name,NODE:.spec.nodeName,CPU_REQ:.spec.containers[*].resources.requests.cpu,CPU_LIM:.spec.containers[*].resources.limits.cpu --no-headers | grep storefront
+storefront           catalog-cdb4f59b9-cb767                            ent-worker2         50m         <none>
+storefront           catalog-cdb4f59b9-ktzjq                            ent-worker3         50m         <none>
+storefront           gateway-fcbf876d9-9c2jd                            ent-worker3         50m         <none>
+storefront           gateway-fcbf876d9-twsgl                            ent-worker          50m         <none>
+storefront           inventory-7f7684694c-8qfxf                         ent-worker3         50m         <none>
+storefront           inventory-7f7684694c-z4lz4                         ent-worker          50m         <none>
+storefront           notifier-7c54d54fc4-p28cf                          ent-worker3         50m         <none>
+storefront           orders-5cd5d8df65-bhcp2                            ent-worker3         50m         <none>
+storefront           orders-5cd5d8df65-tvqsm                            ent-worker          50m         <none>
+storefront           payments-856b5fddf8-7dgmd                          ent-worker2         50m         <none>
+storefront           payments-856b5fddf8-pr5dq                          ent-worker          50m         <none>
+storefront           waypoint-6c97c95658-x7x82                          ent-worker2         100m        2
+
+$ kubectl get priorityclass,resourcequota,limitrange,hpa -A --no-headers
+priorityclass.scheduling.k8s.io/system-cluster-critical   2000000000   false   46h   PreemptLowerPriority
+priorityclass.scheduling.k8s.io/system-node-critical      2000001000   false   46h   PreemptLowerPriority
+

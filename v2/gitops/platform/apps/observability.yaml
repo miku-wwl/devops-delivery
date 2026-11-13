@@ -1,0 +1,97 @@
+# Wave -1: traces (Tempo), logs (Loki) and the OTLP gateway collector, in namespace observability.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tempo
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-2"}
+spec:
+  project: platform
+  sources:
+    - repoURL: https://grafana.github.io/helm-charts
+      chart: tempo
+      targetRevision: 1.24.4
+      helm: {releaseName: tempo, valueFiles: [$values/platform/values/tempo.yaml]}
+    - {repoURL: "http://gitlab:8929/root/platform-gitops.git", targetRevision: main, ref: values}
+  destination: {server: "https://kubernetes.default.svc", namespace: observability}
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    syncOptions: [CreateNamespace=true]
+    retry: {limit: 10, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: loki
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-2"}
+spec:
+  project: platform
+  sources:
+    - repoURL: https://grafana.github.io/helm-charts
+      chart: loki
+      targetRevision: 7.5.0
+      helm: {releaseName: loki, valueFiles: [$values/platform/values/loki.yaml]}
+    - {repoURL: "http://gitlab:8929/root/platform-gitops.git", targetRevision: main, ref: values}
+  destination: {server: "https://kubernetes.default.svc", namespace: observability}
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    syncOptions: [CreateNamespace=true]
+    retry: {limit: 10, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: otel-collector
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-2"}
+spec:
+  project: platform
+  sources:
+    - repoURL: https://open-telemetry.github.io/opentelemetry-helm-charts
+      chart: opentelemetry-collector
+      targetRevision: 0.178.2
+      helm: {releaseName: otel-collector, valueFiles: [$values/platform/values/otel-collector.yaml]}
+    - {repoURL: "http://gitlab:8929/root/platform-gitops.git", targetRevision: main, ref: values}
+  destination: {server: "https://kubernetes.default.svc", namespace: observability}
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    syncOptions: [CreateNamespace=true]
+    retry: {limit: 10, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dashboards
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-2"}
+spec:
+  project: platform
+  source:
+    repoURL: http://gitlab:8929/root/platform-gitops.git
+    targetRevision: main
+    path: platform/manifests/dashboards
+  destination: {server: "https://kubernetes.default.svc", namespace: monitoring}
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+---
+# E9 (chapter 10): node-level logs (values/node-logs.yaml)
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: node-logs
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-2"}
+spec:
+  project: platform
+  sources:
+    - repoURL: https://fluent.github.io/helm-charts
+      chart: fluent-bit
+      targetRevision: 0.58.3
+      helm: {releaseName: node-logs, valueFiles: [$values/platform/values/node-logs.yaml]}
+    - {repoURL: "http://gitlab:8929/root/platform-gitops.git", targetRevision: main, ref: values}
+  destination: {server: "https://kubernetes.default.svc", namespace: observability}
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    syncOptions: [CreateNamespace=true]
+    retry: {limit: 10, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}

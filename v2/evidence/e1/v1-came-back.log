@@ -1,0 +1,35 @@
+# transcript: E1: the paused v1 cluster came back after a WSL reboot
+# recorded: 2026-11-07T07:05:01Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ uptime -s
+2026-11-07 20:03:06
+
+$ docker ps --filter "name=^lab-" --format "{{.Names}}  {{.Status}}"
+lab-worker2  Up 42 seconds
+lab-worker  Up 42 seconds
+
+$ docker inspect -f "{{.Name}} restart={{.HostConfig.RestartPolicy.Name}}:{{.HostConfig.RestartPolicy.MaximumRetryCount}}" lab-control-plane lab-worker lab-worker2
+/lab-control-plane restart=on-failure:1
+/lab-worker restart=on-failure:1
+/lab-worker2 restart=on-failure:1
+
+$ free -m | sed -n 2p
+Mem:           15642        1860       10322          98        3791       13781
+
+$ time bash v2/platform/cluster/v1-lab.sh stop
+lab-control-plane
+lab-worker
+lab-worker2
+
+real	0m1.479s
+user	0m0.048s
+sys	0m0.083s
+
+$ docker inspect -f "{{.Name}} restart={{.HostConfig.RestartPolicy.Name}} running={{.State.Running}}" lab-control-plane lab-worker lab-worker2
+/lab-control-plane restart=no running=false
+/lab-worker restart=no running=false
+/lab-worker2 restart=no running=false
+
+$ free -m | sed -n 2p
+Mem:           15642        1742       10430          75        3782       13899
+

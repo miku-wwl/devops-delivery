@@ -1,0 +1,22 @@
+# transcript: E2: istio-cni enrolling running pods (no restart)
+# recorded: 2026-11-07T07:57:35Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ for p in $(kubectl -n istio-system get pods -l k8s-app=istio-cni-node -o name); do kubectl -n istio-system logs $p --since=40m 2>/dev/null | grep -E "Namespace storefront is (enabled|disabled)|sending pod add to ztunnel.*namespace=storefront" | head -4 | sed -E "s/conn_uuid=[a-f0-9-]+//" | cut -c1-200; done
+2026-11-07T07:31:12.670043Z	info	cni-agent	Namespace storefront is disabled from ambient mesh
+2026-11-07T07:35:50.582136Z	info	cni-agent	Namespace storefront is enabled in ambient mesh
+2026-11-07T07:35:51.484259Z	info	cni-agent	sending pod add to ztunnel	uid=2f05555d-b46d-44ee-b882-240f902ed9f4 name=catalog-7f9b4d4c77-trxzq namespace=storefront serviceAccount=catalog 
+2026-11-07T07:35:52.693067Z	info	cni-agent	sending pod add to ztunnel	uid=f59d128d-3efe-4344-848e-4ee76d292537 name=gateway-5476f9c8fb-rh4wf namespace=storefront serviceAccount=gateway 
+2026-11-07T07:31:12.588089Z	info	cni-agent	Namespace storefront is disabled from ambient mesh
+2026-11-07T07:35:50.583871Z	info	cni-agent	Namespace storefront is enabled in ambient mesh
+2026-11-07T07:35:51.471571Z	info	cni-agent	sending pod add to ztunnel	uid=65de1396-ad65-47ef-8853-a739016ee096 name=payments-569c98ff59-4kbv5 namespace=storefront serviceAccount=payments 
+2026-11-07T07:35:52.615575Z	info	cni-agent	sending pod add to ztunnel	uid=49ef0ebd-f64f-4e05-816f-ef5f6639665b name=catalog-7f9b4d4c77-ntmqr namespace=storefront serviceAccount=catalog 
+2026-11-07T07:31:12.674506Z	info	cni-agent	Namespace storefront is disabled from ambient mesh
+2026-11-07T07:35:50.584087Z	info	cni-agent	Namespace storefront is enabled in ambient mesh
+2026-11-07T07:46:08.220261Z	info	cni-agent	Namespace storefront is disabled from ambient mesh
+2026-11-07T07:47:57.106292Z	info	cni-agent	Namespace storefront is enabled in ambient mesh
+2026-11-07T07:31:12.559345Z	info	cni-agent	Namespace storefront is disabled from ambient mesh
+2026-11-07T07:35:50.582390Z	info	cni-agent	Namespace storefront is enabled in ambient mesh
+2026-11-07T07:35:51.491705Z	info	cni-agent	sending pod add to ztunnel	uid=88103a3a-d7bb-4c50-8dad-16c4b592aea9 name=inventory-5ff4675997-c9rz5 namespace=storefront serviceAccount=inventory 
+2026-11-07T07:35:52.700726Z	info	cni-agent	sending pod add to ztunnel	uid=c1edd206-339e-4d75-8879-907bd4c8b8c5 name=notifier-5f4d566b9f-pmgh8 namespace=storefront serviceAccount=notifier 
+[exit 141]
+

@@ -1,0 +1,40 @@
+# transcript: pitr-2 supplement: restore to a target that is not archived yet
+# recorded: 2026-11-09T15:18:57Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# pitr-2, supplement: the message of a restore whose target is not archived yet (no accident, nothing deleted).
+# A target 2 s after a forced segment switch: the WAL after it exists only in the primary's current segment.
+$ P=$(kubectl -n data get cluster pg-main -o jsonpath='{.status.currentPrimary}'); echo "primary $P"
+primary pg-main-1
+
+$ kubectl -n data exec $P -c postgres -- psql -U postgres -tAc "select 'closed ' || pg_walfile_name(pg_switch_wal())"
+closed 0000000A00000000000000C4
+
+$ sleep 2; T=$(kubectl -n data exec $P -c postgres -- psql -U postgres -tAc "select to_char(clock_timestamp() at time zone 'UTC', 'YYYY-MM-DD HH24:MI:SS.US') || '+00'"); echo "target $T"
+target 2026-11-09 15:19:00.494228+00
+
+$ kubectl -n data exec $P -c postgres -- psql -U postgres -d drill -tAc "insert into writes (run, seq, client_ts) values ('pitr-2b', 1, now()) returning 'a commit after the target: ' || clock_timestamp()"
+a commit after the target: 2026-11-09 15:19:00.809953+00
+INSERT 0 1
+
+$ kubectl -n data exec $P -c postgres -- psql -U postgres -tAc "select 'archiver: last archived ' || last_archived_wal || ', current ' || pg_walfile_name(pg_current_wal_lsn()) from pg_stat_archiver"
+archiver: last archived 0000000A00000000000000C4, current 0000000A00000000000000C5
+
+$ IMAGE=$(kubectl -n data get cluster pg-main -o jsonpath='{.status.image}'); sed -e "s|\${IMAGE}|$IMAGE|" -e "s|\${TARGET_TIME}|$T|" v2/experiments/e7/pg-pitr.yaml.tpl | kubectl apply -f -
+cluster.postgresql.cnpg.io/pg-pitr created
+
+$ for i in $(seq 1 40); do kubectl -n data get pods -l cnpg.io/cluster=pg-pitr --no-headers 2>/dev/null | grep -q Error && break; sleep 5; done; kubectl -n data get pods -l cnpg.io/cluster=pg-pitr --no-headers
+pg-pitr-1-full-recovery-dvk8m   0/2   Error   0     66s
+
+$ kubectl -n data logs -l cnpg.io/cluster=pg-pitr --all-containers --tail=-1 > /tmp/pitr-2b.json 2>/dev/null; jq -rc 'select(.record.error_severity != null and (.record.error_severity | test("FATAL|LOG|WARNING"))) | select(.record.message | test("recovery|target|restored|archive|redo")) | "\(.record.log_time[11:23]) \(.record.error_severity): \(.record.message)"' /tmp/pitr-2b.json | tail -8
+15:20:01.620 LOG: restored log file "0000000A00000000000000C1" from archive
+15:20:02.842 LOG: restored log file "0000000A00000000000000C2" from archive
+15:20:03.191 LOG: restored log file "0000000A00000000000000C3" from archive
+15:20:04.449 LOG: restored log file "0000000A00000000000000C4" from archive
+15:20:06.014 LOG: redo in progress, elapsed time: 30.06 s, current LSN: 0/C4FEBD58
+15:20:07.303 LOG: redo done at 0/C4FFECE0 system usage: CPU: user: 2.21 s, system: 1.30 s, elapsed: 31.34 s
+15:20:07.303 FATAL: recovery ended before configured recovery target was reached
+15:20:07.329 FATAL: the database system is in recovery mode
+
+$ kubectl -n data delete cluster pg-pitr --wait=true
+cluster.postgresql.cnpg.io "pg-pitr" deleted from data namespace
+

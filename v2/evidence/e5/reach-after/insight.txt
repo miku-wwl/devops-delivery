@@ -1,0 +1,9 @@
+dns ok 53ms
+catalog timeout 3007ms
+gateway timeout 3005ms
+postgres timeout 3007ms
+valkey timeout 3011ms
+nats timeout 1905ms
+insight-api ok 17ms
+prometheus timeout 3007ms
+otel timeout 3007ms

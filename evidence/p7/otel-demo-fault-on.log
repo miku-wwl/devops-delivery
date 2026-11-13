@@ -1,0 +1,16 @@
+# transcript: P7 OpenTelemetry Demo: turn on the paymentFailure flag (50%)
+# recorded: 2026-11-06T03:45:00Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ cd ~/work/opentelemetry-demo
+
+$ jq '.flags.paymentFailure.defaultVariant = "50%"' src/flagd/demo.flagd.json > /tmp/flags.json && cat /tmp/flags.json > src/flagd/demo.flagd.json
+
+$ jq -c '.flags.paymentFailure | {defaultVariant, description}' src/flagd/demo.flagd.json
+{"defaultVariant":"50%","description":"Fail payment service charge requests n%"}
+
+$ date -u +%H:%M:%SZ
+03:45:01Z
+
+$ sleep 5; docker logs flagd --since 30s 2>&1 | grep -iE 'reload|change|configuration' | tail -3
+[exit 1]
+

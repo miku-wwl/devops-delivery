@@ -1,0 +1,23 @@
+# transcript: E4 eviction run 2, a few minutes later: memory of the WSL VM (global) and of the node containers
+# recorded: 2026-11-09T08:06:28Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ free -m
+               total        used        free      shared  buff/cache   available
+Mem:           15642       10514        1136         616        4848        5127
+Swap:           4096         980        3115
+
+$ docker stats --no-stream --format "{{.Name}} {{.MemUsage}}"
+kindccm-7c5080a249c3 32.51MiB / 15.28GiB
+ent-ccm 43.1MiB / 15.28GiB
+mirror-k8s 13.83MiB / 15.28GiB
+mirror-quay 13.22MiB / 15.28GiB
+mirror-docker 18.54MiB / 15.28GiB
+mirror-ghcr 17.88MiB / 15.28GiB
+ent-worker3 1.748GiB / 3GiB
+ent-worker 1.876GiB / 3GiB
+ent-worker2 2.314GiB / 3GiB
+ent-control-plane 1.995GiB / 15.28GiB
+gitlab 2.421GiB / 15.28GiB
+kind-registry 17.43MiB / 15.28GiB
+gitlab-runner 22.35MiB / 15.28GiB
+

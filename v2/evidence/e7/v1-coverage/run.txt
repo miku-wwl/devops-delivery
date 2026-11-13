@@ -1,0 +1,62 @@
+== 15:28:00 PVCs in data,secrets,observability,monitoring and their PV type
+  observability/storage-loki-0: hostPath
+  secrets/data-openbao-0: hostPath
+  data/nats-js-nats-1: hostPath
+  data/nats-js-nats-0: hostPath
+  data/pg-main-2: hostPath
+  observability/storage-tempo-0: hostPath
+  data/pg-main-3: hostPath
+  monitoring/prometheus-kps-prometheus-db-prometheus-kps-prometheus-0: hostPath
+  data/pg-main-1: hostPath
+  data/data-valkey-0: hostPath
+  data/nats-js-nats-2: hostPath
+== 15:28:00 backup v1-coverage (all volumes by file-system backup)
+....................................................................................................................................................................
+Backup completed with status: Completed. You may check for more information using the commands `velero backup describe v1-coverage` and `velero backup logs v1-coverage`.
+  phase Completed, items 612/612, warnings 13, errors 0, 2026-11-09T15:28:01Z - 2026-11-09T15:30:45Z
+== pod volume backups (volumes whose contents were copied)
+  data/pg-main-3 volume=plugins Completed 0 bytes
+  monitoring/alertmanager-kps-alertmanager-0 volume=alertmanager-kps-alertmanager-db Completed 0 bytes
+  data/pg-main-1 volume=plugins Completed 0 bytes
+  monitoring/alertmanager-kps-alertmanager-0 volume=config-out Completed 710 bytes
+  monitoring/kps-grafana-676885f46d-9vmhz volume=sc-dashboard-volume Completed 414534 bytes
+  data/pg-main-2 volume=shm Completed 1103152 bytes
+  data/pg-main-3 volume=shm Completed 1103152 bytes
+  monitoring/prometheus-kps-prometheus-0 volume=config-out Completed 95057 bytes
+  data/pg-main-1 volume=scratch-data Completed 65752406 bytes
+  data/pg-main-2 volume=scratch-data Completed 99306838 bytes
+  observability/tempo-0 volume=tmp Completed 2486566 bytes
+  data/pg-main-3 volume=scratch-data Completed 65752406 bytes
+  data/nats-0 volume=pid Completed 1 bytes
+  observability/loki-0 volume=tmp Completed 0 bytes
+  monitoring/kps-grafana-676885f46d-9vmhz volume=storage Completed 55030695 bytes
+  secrets/openbao-0 volume=home Completed 0 bytes
+  data/pg-main-1 volume=shm Completed 1103152 bytes
+  monitoring/kps-grafana-676885f46d-9vmhz volume=sc-datasources-volume Completed 1022 bytes
+  monitoring/kps-grafana-676885f46d-9vmhz volume=search Completed 215807 bytes
+  data/nats-1 volume=pid Completed 1 bytes
+  data/nats-2 volume=pid Completed 1 bytes
+  data/pg-main-2 volume=plugins Completed 0 bytes
+  monitoring/kps-grafana-676885f46d-9vmhz volume=tmp Completed 0 bytes
+== what the backup log says about volumes it did not copy
+     50   Skipping resource because it's excluded
+     47   Skipping item because it's already been backed up.
+      1   Volume storage in pod observability/tempo-0 is a hostPath volume which is not supported for pod volume backup, skipping
+      1   Volume storage in pod observability/loki-0 is a hostPath volume which is not supported for pod volume backup, skipping
+      1   Volume prometheus-kps-prometheus-db in pod monitoring/prometheus-kps-prometheus-0 is a hostPath volume which is not supported for pod volume backup, skipping
+      1   Volume pgdata in pod data/pg-main-3 is a hostPath volume which is not supported for pod volume backup, skipping
+      1   Volume pgdata in pod data/pg-main-2 is a hostPath volume which is not supported for pod volume backup, skipping
+      1   Volume pgdata in pod data/pg-main-1 is a hostPath volume which is not supported for pod volume backup, skipping
+      1   Volume nats-js in pod data/nats-2 is a hostPath volume which is not supported for pod volume backup, skipping
+      1   Volume nats-js in pod data/nats-1 is a hostPath volume which is not supported for pod volume backup, skipping
+      1   Volume nats-js in pod data/nats-0 is a hostPath volume which is not supported for pod volume backup, skipping
+      1   Volume data in pod secrets/openbao-0 is a hostPath volume which is not supported for pod volume backup, skipping
+      1   Volume data in pod data/valkey-0 is a hostPath volume which is not supported for pod volume backup, skipping
+      1   Summary for skipped PVs: [{\
+      1   Skipping snapshot of pv pvc-e0789447-ac0d-4547-9625-9b08bcbf03f4 because it is backed up with PodVolumeBackup.
+      1   Skipping snapshot of pv pvc-c66aecb0-1bfb-4418-817f-2caed69a655d because it is backed up with PodVolumeBackup.
+      1   Skipping snapshot of pv pvc-c4e06ad4-fd4f-4e10-a9f6-373f2520c5cd because it is backed up with PodVolumeBackup.
+      1   Skipping snapshot of pv pvc-a8698dc6-89ce-40f7-87e4-37251b3de149 because it is backed up with PodVolumeBackup.
+      1   Skipping snapshot of pv pvc-8e4abf9d-c66f-4c5b-bf52-0764595a2f7f because it is backed up with PodVolumeBackup.
+      1   Skipping snapshot of pv pvc-6dcf7188-40ba-4924-ab63-0c01d849d807 because it is backed up with PodVolumeBackup.
+== 51 objects listed in resources.txt

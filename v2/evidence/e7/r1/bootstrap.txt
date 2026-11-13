@@ -1,0 +1,21 @@
+== 22:40:05 (T0 + 162 s) bootstrap.sh
+==> 1. generated credentials in /home/devops/.lab-secrets/v2 (never printed, never committed)
+secret data/pg-backup-s3
+secret velero/velero-s3
+secret secrets/platform-snapshot-s3
+secrets: data/pg-role-{catalog,inventory,orders,drill}, storefront/db-{catalog,inventory,orders}, monitoring/grafana-admin
+==> 2. image
+localhost:5001/storefront:fd38028
+==> 3. configuration repository
+platform-gitops: pushed 35d7dd2 (bootstrap: platform and storefront fd38028)
+==> 4. Argo CD (helm chart argo-cd 10.14.0)
+NAME                                               READY   STATUS      RESTARTS   AGE
+argocd-application-controller-0                    1/1     Running     0          35s
+argocd-applicationset-controller-9bb847c8f-d6ndl   1/1     Running     0          35s
+argocd-redis-86fb5c84d-nsqqm                       1/1     Running     0          35s
+argocd-redis-secret-init-wqjt8                     0/1     Completed   0          52s
+argocd-repo-server-df9488968-kxltw                 1/1     Running     0          35s
+argocd-server-84f8c44675-9rk5f                     1/1     Running     0          35s
+==> 5. root application
+application.argoproj.io/platform-root created
+== 22:41:13 (T0 + 230 s) bootstrap.sh exit 0

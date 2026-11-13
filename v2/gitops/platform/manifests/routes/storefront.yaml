@@ -1,0 +1,18 @@
+# E8 (chapter 9): the storefront's routes on the layer-7 entrance (Gateway storefront-ingress,
+# platform/manifests/mesh/). An application of their own in the last sync wave: a route whose backend
+# Service does not exist yet is Degraded (ResolvedRefs=False, BackendNotFound), and in the
+# application mesh it held the root application in wave -2 - before the storefront's wave - on the
+# empty cluster of rebuild R3 (evidence/e8/r3/). Canaries and previews are added to this HTTPRoute.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: storefront
+  namespace: storefront
+spec:
+  parentRefs:
+    - {name: storefront-ingress, sectionName: http}
+  rules:
+    # E8: the canary of 8ef5584 ran here with a weight and a preview header (merge requests !10-!12,
+    # evidence/e8/canary-*); promoted in !13 - one backend again
+    - backendRefs:
+        - {name: gateway, port: 8080}

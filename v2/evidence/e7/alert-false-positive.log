@@ -1,0 +1,18 @@
+# transcript: E7: an alert rule that fired on an idle database
+# recorded: 2026-11-09T22:27:35Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# A false alarm of an E7 alert rule: PostgresWALArchivingStale fires on a database that has nothing to archive
+$ date -u
+Mon Nov  9 22:27:35 UTC 2026
+
+$ kubectl get --raw /api/v1/namespaces/monitoring/services/kps-prometheus:9090/proxy/api/v1/alerts | jq -r '.data.alerts[] | select(.labels.alertname == "PostgresWALArchivingStale") | "\(.labels.alertname) \(.labels.pod) \(.state) since \(.activeAt) value \(.value)"'
+PostgresWALArchivingStale pg-main-1 firing since 2026-11-09T15:34:20.29552272Z value 2.5386246591e+04
+
+$ kubectl -n data exec pg-main-1 -c postgres -- psql -U postgres -tAc "select 'last archived ' || last_archived_wal || ' at ' || last_archived_time || ', current segment ' || pg_walfile_name(pg_current_wal_lsn()) from pg_stat_archiver"
+last archived 0000000A00000000000000C5 at 2026-11-09 15:24:00.731753+00, current segment 0000000A00000000000000C6
+
+$ bash v2/experiments/e4/promq.sh $(date +%s) 'cnpg_collector_pg_wal_archive_status{value="ready"}' | sed 's/container=postgres,endpoint=metrics,instance=[0-9.:]*,job=data\/pg-main,namespace=data,//'
+  pod=pg-main-1,value=ready 0
+  pod=pg-main-2,value=ready 0
+  pod=pg-main-3,value=ready 0
+

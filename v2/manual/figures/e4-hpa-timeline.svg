@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 209" width="640" height="209" font-family="'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="12.0" y="19.0" font-size="13" fill="#1b2430" text-anchor="start" font-weight="600">台阶到 120 迭代/秒：HPA 的一次扩容与缩容（秒，从负载升高起算）</text>
+<line x1="78.6" y1="79.0" x2="78.6" y2="169.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="78.6" y="184.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">0</text>
+<line x1="151.5" y1="79.0" x2="151.5" y2="169.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="151.5" y="184.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">100</text>
+<line x1="224.4" y1="79.0" x2="224.4" y2="169.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="224.4" y="184.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">200</text>
+<line x1="297.3" y1="79.0" x2="297.3" y2="169.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="297.3" y="184.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">300</text>
+<line x1="370.2" y1="79.0" x2="370.2" y2="169.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="370.2" y="184.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">400</text>
+<line x1="443.1" y1="79.0" x2="443.1" y2="169.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="443.1" y="184.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">500</text>
+<line x1="516.0" y1="79.0" x2="516.0" y2="169.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="516.0" y="184.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">600</text>
+<line x1="588.8" y1="79.0" x2="588.8" y2="169.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="588.8" y="184.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">700</text>
+<text x="70.6" y="98.0" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">负载</text>
+<line x1="78.6" y1="109.0" x2="618.0" y2="109.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<rect x="78.6" y="85.0" width="312.2" height="18.0" fill="#8a94a3" stroke="none" stroke-width="1" rx="3"/>
+<text x="83.6" y="97.5" font-size="9.5" fill="#ffffff" text-anchor="start" font-weight="normal">120 迭代/秒（430 s）</text>
+<text x="70.6" y="128.0" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">HPA 的判断</text>
+<line x1="78.6" y1="139.0" x2="618.0" y2="139.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<rect x="78.6" y="115.0" width="236.4" height="18.0" fill="#f9e1c4" stroke="none" stroke-width="1" rx="3"/>
+<text x="83.6" y="127.5" font-size="9.5" fill="#1b2430" text-anchor="start" font-weight="normal">利用率 102%–114%：在 10% 的容差之内，不动</text>
+<rect x="316.2" y="115.0" width="4.6" height="18.0" fill="#c0392b" stroke="none" stroke-width="1" rx="3"/>
+<text x="70.6" y="158.0" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">网关副本</text>
+<line x1="78.6" y1="169.0" x2="618.0" y2="169.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<rect x="78.6" y="145.0" width="242.3" height="18.0" fill="#cfe3f6" stroke="none" stroke-width="1" rx="3"/>
+<text x="83.6" y="157.5" font-size="9.5" fill="#1b2430" text-anchor="start" font-weight="normal">2 个</text>
+<rect x="322.1" y="145.0" width="244.4" height="18.0" fill="#1f6fb2" stroke="none" stroke-width="1" rx="3"/>
+<text x="327.1" y="157.5" font-size="9.5" fill="#ffffff" text-anchor="start" font-weight="normal">3 个</text>
+<rect x="567.7" y="145.0" width="34.5" height="18.0" fill="#cfe3f6" stroke="none" stroke-width="1" rx="3"/>
+<text x="572.7" y="157.5" font-size="9.5" fill="#1b2430" text-anchor="start" font-weight="normal">2 个</text>
+<line x1="316.2" y1="76.0" x2="316.2" y2="169.0" stroke="#c0392b" stroke-width="1.1" stroke-dasharray="3 3"/>
+<rect x="317.2" y="64.0" width="110.0" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="320.2" y="73.0" font-size="10" fill="#c0392b" text-anchor="start" font-weight="600">326 s：决定扩到 3 个</text>
+<line x1="322.1" y1="61.0" x2="322.1" y2="169.0" stroke="#1f6fb2" stroke-width="1.1" stroke-dasharray="3 3"/>
+<rect x="323.1" y="49.0" width="58.0" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="326.1" y="58.0" font-size="10" fill="#1f6fb2" text-anchor="start" font-weight="600">8 s 后就绪</text>
+<line x1="567.7" y1="46.0" x2="567.7" y2="169.0" stroke="#0f8a7e" stroke-width="1.1" stroke-dasharray="3 3"/>
+<rect x="452.2" y="34.0" width="114.5" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="563.7" y="43.0" font-size="10" fill="#0f8a7e" text-anchor="end" font-weight="600">稳定窗口 300 s 后缩回</text>
+<line x1="78.6" y1="169.0" x2="618.0" y2="169.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="348.3" y="200.0" font-size="10.5" fill="#5b6776" text-anchor="middle" font-weight="normal">秒</text>
+</svg>

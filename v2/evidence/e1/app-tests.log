@@ -1,0 +1,79 @@
+# transcript: E1: storefront lint, unit and integration tests
+# recorded: 2026-11-07T03:37:55Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ cd v2/apps/storefront
+
+$ docker compose -f compose.test.yaml build tests 2>&1 | grep -E "ruff|All checks|naming to" | tail -3
+#15 [test 8/8] RUN ruff check src tests && ruff format --check src tests
+#15 0.610 All checks passed!
+#16 naming to docker.io/library/storefront-test-tests:latest done
+
+$ docker compose -f compose.test.yaml run --rm tests pytest -v --cov=storefront --cov-report=term 2>&1 | grep -vE "^\{\"ts\"" | sed -n "/test session starts/,\$p"
+============================= test session starts ==============================
+platform linux -- Python 3.13.18, pytest-9.2.0, pluggy-1.7.0 -- /usr/local/bin/python3.13
+cachedir: .pytest_cache
+rootdir: /src
+configfile: pyproject.toml
+testpaths: tests
+plugins: asyncio-1.4.1.post1, cov-7.1.0, anyio-4.16.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=function, asyncio_default_test_loop_scope=function
+collecting ... collected 26 items
+
+tests/test_integration.py::test_migrations_apply_once PASSED             [  3%]
+tests/test_integration.py::test_concurrent_reservations_never_oversell PASSED [  7%]
+tests/test_integration.py::test_an_order_flows_through_the_outbox_and_nats_to_the_notifier PASSED [ 11%]
+tests/test_resilience.py::test_backoff_grows_exponentially_up_to_the_cap_and_jitter_stays_below_it PASSED [ 15%]
+tests/test_resilience.py::test_retry_budget_limits_retries_to_a_fraction_of_requests PASSED [ 19%]
+tests/test_resilience.py::test_breaker_opens_on_failure_ratio_then_half_opens_and_closes PASSED [ 23%]
+tests/test_resilience.py::test_breaker_reopens_when_a_trial_call_fails_and_needs_min_calls PASSED [ 26%]
+tests/test_resilience.py::test_bulkhead_rejects_instead_of_queueing PASSED [ 30%]
+tests/test_services.py::test_operational_endpoints_and_injected_faults PASSED [ 34%]
+tests/test_services.py::test_catalog_cache_aside_and_degrades_when_the_cache_fails PASSED [ 38%]
+tests/test_services.py::test_payments_is_idempotent_and_refuses_a_concurrent_duplicate PASSED [ 42%]
+tests/test_services.py::test_payment_latency_model_has_the_configured_median_and_p99 PASSED [ 46%]
+tests/test_services.py::test_order_saga_happy_path_and_idempotent_replay PASSED [ 50%]
+tests/test_services.py::test_order_rejected_when_out_of_stock_or_unknown_product PASSED [ 53%]
+tests/test_services.py::test_declined_payment_releases_the_reservation PASSED [ 57%]
+tests/test_services.py::test_payments_unreachable_fails_the_order_and_compensates PASSED [ 61%]
+tests/test_services.py::test_gateway_relays_and_requires_an_idempotency_key PASSED [ 65%]
+tests/test_services.py::test_notifier_sends_once_per_event_id PASSED     [ 69%]
+tests/test_upstream.py::test_get_is_retried_after_a_503_and_the_retry_is_counted PASSED [ 73%]
+tests/test_upstream.py::test_post_without_idempotency_key_is_never_retried PASSED [ 76%]
+tests/test_upstream.py::test_post_with_idempotency_key_is_retried PASSED [ 80%]
+tests/test_upstream.py::test_timeouts_become_upstream_errors_and_4xx_pass_through PASSED [ 84%]
+tests/test_upstream.py::test_retry_budget_stops_a_retry_storm PASSED     [ 88%]
+tests/test_upstream.py::test_breaker_opens_and_then_fails_fast_without_calling PASSED [ 92%]
+tests/test_upstream.py::test_deadline_is_propagated_and_an_expired_deadline_fails_fast PASSED [ 96%]
+tests/test_upstream.py::test_naive_policy_retries_without_budget_or_breaker PASSED [100%]
+
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.13.18-final-0 _______________
+
+Name                                  Stmts   Miss Branch BrPart  Cover   Missing
+---------------------------------------------------------------------------------
+src/storefront/catalog/main.py           71      5     14      1    93%   36-38, 62->exit, 91-92
+src/storefront/common/cache.py           42      3      6      1    92%   29-30, 63
+src/storefront/common/context.py         36      2      6      0    95%   33-34
+src/storefront/common/db.py              75     16     10      2    76%   56->exit, 65-67, 76-80, 116-123, 127
+src/storefront/common/logs.py            31      2      6      1    92%   32-33
+src/storefront/common/messaging.py       17      2      0      0    88%   30, 34
+src/storefront/common/resilience.py     104      1     34      1    99%   159
+src/storefront/common/telemetry.py       38     15      4      1    57%   37-57, 61
+src/storefront/common/upstream.py        84      1     20      0    99%   82
+src/storefront/common/web.py            103      4     18      4    93%   63, 78->80, 86->exit, 109, 155, 172
+src/storefront/gateway/main.py           51      5      6      1    89%   45, 53-54, 65-66
+src/storefront/inventory/main.py         92     16     20      5    76%   53, 70-71, 74-93, 108->exit, 120->exit, 124, 152, 160
+src/storefront/notifier/main.py         107     10     22      3    90%   79-82, 95-98, 105, 143->145, 149->exit, 153
+src/storefront/orders/main.py           158     23     32      3    86%   66-67, 70-71, 85-86, 91-92, 170, 187-189, 202, 221-223, 232-235, 254-255, 274
+src/storefront/orders/outbox.py          64      5     10      0    93%   44, 73-76
+src/storefront/payments/main.py          93     13     14      3    85%   66-69, 103-105, 108-109, 129, 134, 138-139
+---------------------------------------------------------------------------------
+TOTAL                                  1225    123    222     26    89%
+
+10 files skipped due to complete coverage.
+Required test coverage of 85.0% reached. Total coverage: 89.01%
+============================= 26 passed in 36.42s ==============================
+
+$ docker compose -f compose.test.yaml down -v 2>&1 | tail -1
+ Network storefront-test_default Removed 
+

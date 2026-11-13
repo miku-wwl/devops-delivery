@@ -1,0 +1,40 @@
+# transcript: P5 drill: a known-critical dependency is blocked before release
+# recorded: 2026-11-06T00:32:16Z | host: jiejie | user: weila | cwd: /d/workshop/nov/devops-delivery
+
+$ gh pr checks 4
+GitGuardian Security Checks	fail	0	https://dashboard.gitguardian.com	
+build, scan, sign, attest	fail	52s	https://github.com/miku-wwl/devops-delivery/actions/runs/42137312207/job/127628631513	
+container image	fail	1m3s	https://github.com/miku-wwl/devops-delivery/actions/runs/42137323770/job/127628817708	
+security	fail	13s	https://github.com/miku-wwl/devops-delivery/actions/runs/42137323770/job/127628667722	
+python / lint	pass	19s	https://github.com/miku-wwl/devops-delivery/actions/runs/42137323770/job/127628668520	
+python / test	pass	18s	https://github.com/miku-wwl/devops-delivery/actions/runs/42137323770/job/127628668433	
+[exit 1]
+
+$ gh pr view 4 --json mergeStateStatus --jq '{mergeStateStatus}'
+{"mergeStateStatus":"BLOCKED"}
+
+$ gh run view --job $(gh run view 42137312207 --json jobs --jq '.jobs[0].databaseId') --log 2>/dev/null | grep -E 'pyyaml|PyYAML|CVE-2020-14343|Total: [0-9]+ \(' | sed -E 's/^[^\t]+\t[^\t]+\t[0-9T:.-]+Z //' | head -6
+#14 2.354 Collecting pyyaml==5.3.1 (from -r requirements.txt (line 25))
+#14 2.376   Downloading PyYAML-5.3.1.tar.gz (269 kB)
+#14 4.930 Building wheels for collected packages: pyyaml
+#14 4.931   Building wheel for pyyaml (pyproject.toml): started
+#14 5.129   Building wheel for pyyaml (pyproject.toml): finished with status 'done'
+#14 5.130   Created wheel for pyyaml: filename=pyyaml-5.3.1-cp313-cp313-linux_x86_64.whl size=44727 sha256=8338ceb97ebd96058897967ff10c9cc4b2ffc0a58d1090ed5e8cbece35f073ae
+
+$ gh run view 42137312207 --json jobs --jq '.jobs[0].steps[] | select(.conclusion != "skipped" or (.name | test("Push|Cosign|Attest"))) | "\(.conclusion)\t\(.name)"'
+success	Set up job
+success	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+success	Run docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069
+success	Image metadata (tags and OCI labels)
+success	Build for scanning (loaded locally, not pushed)
+success	Install Trivy (pinned, checksum-verified)
+failure	Trivy gate - an image with fixable HIGH/CRITICAL vulnerabilities is never pushed
+skipped	Push (same inputs as the scanned build - every layer comes from the cache)
+skipped	Attest build provenance (SLSA provenance, signed via Sigstore)
+skipped	Attest SBOM
+skipped	Cosign keyless signature (identity = this workflow, via GitHub OIDC)
+success	Post Build for scanning (loaded locally, not pushed)
+success	Post Run docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069
+success	Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+success	Complete job
+

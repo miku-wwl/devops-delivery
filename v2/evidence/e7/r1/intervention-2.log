@@ -1,0 +1,10 @@
+# R1 intervention 2: openbao (wave -3) is Progressing until someone initialises/unseals it, and the root application
+# starts no later wave (PostgreSQL, storefront) before it is Healthy - the planned OpenBao restore, brought forward.
+== 22:50:02 (T0 + 759 s) openbao-0: Running ready=false, root: waiting for healthy state of argoproj.io/Application/openbao
+initialised with throwaway keys, unsealed: {"initialized":true,"sealed":false}
+newest snapshot: openbao/20261109T222618Z.snap
+in the pod: 30233 bytes
+after the restore: {"initialized":true,"sealed":true}
+unsealed with the original key: {"initialized":true,"sealed":false}
+"stdout/"
+== 22:51:09 (T0 + 826 s) done

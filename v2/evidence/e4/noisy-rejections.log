@@ -1,0 +1,34 @@
+# transcript: E4 noisy neighbour: the gateway s fast rejections per phase (base 03:16:28-03:18:58, BestEffort hog 03:19:28-03:21:58, Burstable hog 03:22:28-03:24:58)
+# recorded: 2026-11-09T07:53:01Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e4/promq.sh 2026-11-09T03:18:58Z 'sum by (upstream, reason) (rate(upstream_rejected_total{namespace="storefront",service="gateway"}[150s]))'
+  reason=bulkhead_full,upstream=catalog 0
+  reason=circuit_open,upstream=catalog 0
+  reason=circuit_open,upstream=orders 0
+  reason=deadline,upstream=catalog 0
+  reason=deadline,upstream=orders 0
+  reason=retry_budget,upstream=catalog 0
+  reason=retry_budget,upstream=orders 0
+
+$ bash v2/experiments/e4/promq.sh 2026-11-09T03:21:58Z 'sum by (upstream, reason) (rate(upstream_rejected_total{namespace="storefront",service="gateway"}[150s]))'
+  reason=bulkhead_full,upstream=catalog 0
+  reason=circuit_open,upstream=catalog 0
+  reason=circuit_open,upstream=orders 0
+  reason=deadline,upstream=catalog 0
+  reason=deadline,upstream=orders 0
+  reason=retry_budget,upstream=catalog 0
+  reason=retry_budget,upstream=orders 0
+
+$ bash v2/experiments/e4/promq.sh 2026-11-09T03:24:58Z 'sum by (upstream, reason) (rate(upstream_rejected_total{namespace="storefront",service="gateway"}[150s]))'
+  reason=circuit_open,upstream=orders 14.307
+  reason=circuit_open,upstream=catalog 2.986
+  reason=retry_budget,upstream=catalog 0.252
+  reason=retry_budget,upstream=orders 0.132
+  reason=bulkhead_full,upstream=catalog 0
+  reason=deadline,upstream=catalog 0
+  reason=deadline,upstream=orders 0
+
+$ bash v2/experiments/e4/promq.sh 2026-11-09T03:24:58Z 'sum by (pod) (rate(http_server_requests_total{namespace="storefront",service="orders"}[150s]))'
+  pod=orders-5cd5d8df65-bhcp2 1.275
+  pod=orders-5cd5d8df65-tvqsm 1.096
+

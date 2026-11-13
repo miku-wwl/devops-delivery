@@ -1,0 +1,44 @@
+# transcript: E3: the cause - a 1 GiB memory ballast; removing it
+# recorded: 2026-11-07T09:25:51Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# heap profile before the fix: the largest in-use allocation and where it was made
+$ kubectl get --raw "/api/v1/namespaces/observability/services/tempo:3200/proxy/debug/pprof/heap?debug=1" | head -1
+heap profile: 64: 1078080800 [6951: 2158784616] @ heap/1048576
+[exit 141]
+
+$ kubectl -n observability get sts tempo -o jsonpath="{.spec.template.spec.containers[0].args}"; echo
+["-config.file=/conf/tempo.yaml","-mem-ballast-size-mbs=1024"]
+
+$ TAG=$(git log -1 --format=%h -- v2/apps/storefront); bash v2/platform/bootstrap/publish-gitops.sh "$TAG" "tempo: no memory ballast, GOMEMLIMIT 900MiB, no usage reporting"
+platform-gitops: pushed 4134549 (tempo: no memory ballast, GOMEMLIMIT 900MiB, no usage reporting)
+
+$ kubectl -n argocd annotate application tempo argocd.argoproj.io/refresh=normal --overwrite >/dev/null
+
+$ for i in $(seq 60); do kubectl -n observability get sts tempo -o jsonpath="{.spec.template.spec.containers[0].args}" | grep -q "ballast-size-mbs=1024" || break; sleep 5; done; kubectl -n observability get sts tempo -o jsonpath="{.spec.template.spec.containers[0].args}"; echo
+["-config.file=/conf/tempo.yaml","-mem-ballast-size-mbs=0"]
+
+$ kubectl -n observability rollout status sts/tempo --timeout=300s
+waiting for statefulset rolling update to complete 0 pods at revision tempo-6bdc688959...
+Waiting for 1 pods to be ready...
+Waiting for 1 pods to be ready...
+Waiting for 1 pods to be ready...
+statefulset rolling update complete 1 pods at revision tempo-6bdc688959...
+
+$ sleep 90
+
+$ m=$(kubectl get --raw /api/v1/namespaces/observability/services/tempo:3200/proxy/metrics); echo "$m" | grep -E "^go_gc_gomemlimit_bytes |^go_memstats_heap_alloc_bytes |^go_gc_duration_seconds_count |^process_cpu_seconds_total |^process_resident_memory_bytes "
+go_gc_duration_seconds_count 16
+go_gc_gomemlimit_bytes 9.437184e+08
+go_memstats_heap_alloc_bytes 6.7523912e+07
+process_cpu_seconds_total 5.21
+process_resident_memory_bytes 1.80350976e+08
+
+$ sleep 30; kubectl get --raw /api/v1/namespaces/observability/services/tempo:3200/proxy/metrics | grep -E "^go_gc_duration_seconds_count |^process_cpu_seconds_total "
+go_gc_duration_seconds_count 17
+process_cpu_seconds_total 6.03
+
+$ kubectl -n observability get pod tempo-0 -o jsonpath="restarts={.status.containerStatuses[0].restartCount}{\"\n\"}"; kubectl -n observability top pod tempo-0
+restarts=0
+NAME      CPU(cores)   MEMORY(bytes)   
+tempo-0   26m          111Mi           
+

@@ -1,0 +1,6 @@
+rate=180/s duration=60s iterations=10693 dropped=108
+requests=17668 (286.6/s) failed=100.00%
+browse: p50=0.0 p95=2318.6 p99=4704.0 max=5781.7 ms
+order:  p50=90.3 p95=2713.2 p99=5376.7 max=6772.8 ms
+checks: 0.00% passed
+time="2026-11-08T01:18:39+13:00" level=error msg="thresholds on metrics 'http_req_duration{kind:browse}, http_req_duration{kind:order}, http_req_failed{kind:browse}' have been crossed"

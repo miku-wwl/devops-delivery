@@ -1,0 +1,23 @@
+  API server flags: 
+== 11:04:43 K5: victim alone for 30 s
+  victim's GET: HTTP/2 200 : flow schema service-accounts, priority level workload-low
+  nominal seats: e10-low=3 workload-low=244 
+== 11:05:13 flood: 40 workers LIST all pods for 60 s; the victim keeps going
+  11:05:34 a flood request 20 s in: HTTP/2 429 : flow schema e10-flood, priority level e10-low
+    body: {
+  "kind": "Status",
+  "apiVersion": "v1",
+  "metadata": {},
+  "status": "Failure",
+  "message": "storage is (re)initializing",
+  "reason": "TooManyRequests",
+  "details": {
+    "retryAfterSeconds": 1
+  },
+  "code": 429
+}
+== 11:06:14 rejected by APF (apiserver_flowcontrol_rejected_requests_total): e10-low +0, workload-low +0
+  flood: 17875 requests, codes {'000': 13683, '403': 155, '429': 4033, '200': 4}; LIST p50 5.16 s, p99 6.87 s (200 only)
+  victim quiet: 58 GETs, codes {'200': 58}; p50 11.9 ms, p99 19.4 ms
+  victim flood: 86 GETs, codes {'200': 25, '000': 57, '403': 4}; p50 100.5 ms, p99 219.0 ms
+  kwok-scale-kube-apiserver: restarts 6, memory peak since its last start 468 MiB of 1536 MiB

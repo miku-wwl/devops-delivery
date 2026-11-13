@@ -1,0 +1,23 @@
+# transcript: P10 part A: one request id leads to the access log, the Loki entry and the trace
+# recorded: 2026-11-06T13:28:17Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# Request "p10-smoke-2" was sent at 13:27:17Z (chain-2-dev-smoke.log). Two checks there failed for reasons outside the app:
+#   kubectl logs -l <selector> prints only the last 10 lines per pod unless --tail is given;
+#   Tempo search found the trace only after ingestion (0 hits at +15 s, 1 hit two minutes later); a read by trace id has no such delay.
+$ P=$(kubectl get pods -n dev -l app.kubernetes.io/name=demo-api -o jsonpath="{.items[0].metadata.name}"); echo $P
+demo-api-dev-7cc65cccc7-ll2wb
+
+$ kubectl -n dev logs $P --since=15m --tail=-1 | grep "\"request_id\": \"p10-smoke-2\"" | jq -c "{msg, method, route, status, request_id, trace_id}"
+{"msg":"request","method":"POST","route":"/api/v1/orders","status":201,"request_id":"p10-smoke-2","trace_id":"95c27aad59b11273612c0dbd6e7956ef"}
+
+$ G=http://127.0.0.1:3001/api/datasources/proxy/uid
+
+$ curl -s -G "$G/loki/loki/api/v1/query_range" --data-urlencode "query={service_name=\"demo-api\"} | request_id=\"p10-smoke-2\"" --data-urlencode "start=$(( $(date +%s) - 1800 ))000000000" | jq -r ".data.result[] | \"loki: msg=\(.values[0][1]) trace_id=\(.stream.trace_id) pod=\(.stream.k8s_pod_name)\""
+loki: msg=request trace_id=95c27aad59b11273612c0dbd6e7956ef pod=demo-api-dev-7cc65cccc7-ll2wb
+
+$ curl -s -G "$G/tempo/api/search" --data-urlencode "q={span.request.id=\"p10-smoke-2\"}" --data-urlencode "start=$(( $(date +%s) - 1800 ))" --data-urlencode "end=$(date +%s)" | jq -r ".traces[] | \"tempo search: trace \(.traceID) \(.rootTraceName) \(.durationMs // 0) ms\""
+tempo search: trace 95c27aad59b11273612c0dbd6e7956ef POST /api/v1/orders 3 ms
+
+$ curl -s "$G/tempo/api/traces/95c27aad59b11273612c0dbd6e7956ef" | jq -r "[.batches[].scopeSpans[].spans[]] | .[] | select(.kind == \"SPAN_KIND_SERVER\") | \"server span: \(.name) \([.attributes[] | select(.key | test(\"^(request.id|http.method|http.status_code|http.route)$\")) | \"\(.key)=\(.value | to_entries[0].value)\"] | join(\" \"))\""
+server span: POST /api/v1/orders request.id=p10-smoke-2 http.method=POST http.route=/api/v1/orders http.status_code=201
+

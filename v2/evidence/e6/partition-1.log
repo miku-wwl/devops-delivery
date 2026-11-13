@@ -1,0 +1,99 @@
+# transcript: E6 [注入]: zone-a (ent-worker) cut off from zone-b and zone-c for 300 s under 30 it/s - hypotheses in partition-prediction.md
+# recorded: 2026-11-09T13:03:23Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e6/partition.sh partition-1 ent-worker 300 30
+== ent-worker (zone-a) will be cut off from: 172.20.0.10 10.240.2.0/24 172.20.0.9 10.240.3.0/24 
+== storefront pods on ent-worker: waypoint-cfd6dc8fb-qs7hx
+13:04:22 partition on
+# Warning: iptables-legacy tables present, use iptables-legacy to see them
+  -N E6PART
+  -A E6PART -s 172.20.0.10/32 -j DROP
+  -A E6PART -d 172.20.0.10/32 -j DROP
+  -A E6PART -s 10.240.2.0/24 -j DROP
+  -A E6PART -d 10.240.2.0/24 -j DROP
+  -A E6PART -s 172.20.0.9/32 -j DROP
+  -A E6PART -d 172.20.0.9/32 -j DROP
+  -A E6PART -s 10.240.3.0/24 -j DROP
+  -A E6PART -d 10.240.3.0/24 -j DROP
+13:09:11 partition off
+  requests=27558 (52.9/s) failed=0.22%
+  browse: p50=10.2 p95=17.3 p99=26.7 max=57742.5 ms
+  order:  p50=108.0 p95=246.5 p99=1149.6 max=57742.5 ms
+== timeline (lines where something changed; t = seconds after the partition started)
+  t=-58s 13:03:24 ready=True endpoints-on-node-ready=1/1 targets-down=0
+  t=12s 13:04:34 ready=True endpoints-on-node-ready=1/1 targets-down=1
+  t=14s 13:04:36 ready=True endpoints-on-node-ready=1/1 targets-down=2
+  t=16s 13:04:38 ready=True endpoints-on-node-ready=1/1 targets-down=3
+  t=19s 13:04:41 ready=True endpoints-on-node-ready=1/1 targets-down=6
+  t=21s 13:04:43 ready=True endpoints-on-node-ready=1/1 targets-down=8
+  t=24s 13:04:46 ready=True endpoints-on-node-ready=1/1 targets-down=10
+  t=290s 13:09:12 ready=True endpoints-on-node-ready=1/1 targets-down=8
+  t=292s 13:09:14 ready=True endpoints-on-node-ready=1/1 targets-down=1
+  t=295s 13:09:17 ready=True endpoints-on-node-ready=1/1 targets-down=0
+== client failures per 10 s (k6 http_req_failed)
+  t=  -50s   423 requests     0 failed    0.0 %
+  t=  -40s   512 requests     0 failed    0.0 %
+  t=  -30s   572 requests     0 failed    0.0 %
+  t=  -20s   516 requests     0 failed    0.0 %
+  t=  -10s   513 requests     0 failed    0.0 %
+  t=    0s   990 requests     2 failed    0.2 %
+  t=   10s   514 requests     3 failed    0.6 %
+  t=   20s   567 requests     4 failed    0.7 %
+  t=   30s   501 requests     3 failed    0.6 %
+  t=   40s   510 requests     1 failed    0.2 %
+  t=   50s   598 requests    28 failed    4.7 %
+  t=   60s   507 requests    10 failed    2.0 %
+  t=   70s   520 requests     0 failed    0.0 %
+  t=   80s   580 requests     1 failed    0.2 %
+  t=   90s   507 requests     0 failed    0.0 %
+  t=  100s   511 requests     1 failed    0.2 %
+  t=  110s   542 requests     1 failed    0.2 %
+  t=  120s   552 requests     0 failed    0.0 %
+  t=  130s   513 requests     1 failed    0.2 %
+  t=  140s   509 requests     0 failed    0.0 %
+  t=  150s   564 requests     0 failed    0.0 %
+  t=  160s   508 requests     0 failed    0.0 %
+  t=  170s   507 requests     0 failed    0.0 %
+  t=  180s   561 requests     1 failed    0.2 %
+  t=  190s   510 requests     0 failed    0.0 %
+  t=  200s   508 requests     1 failed    0.2 %
+  t=  210s   579 requests     0 failed    0.0 %
+  t=  220s   515 requests     0 failed    0.0 %
+  t=  230s   513 requests     1 failed    0.2 %
+  t=  240s   573 requests     0 failed    0.0 %
+  t=  250s   506 requests     0 failed    0.0 %
+  t=  260s   518 requests     0 failed    0.0 %
+  t=  270s   569 requests     2 failed    0.4 %
+  t=  280s   502 requests     0 failed    0.0 %
+  t=  290s   508 requests     0 failed    0.0 %
+  t=  300s   575 requests     0 failed    0.0 %
+  t=  310s   502 requests     0 failed    0.0 %
+  t=  320s   519 requests     0 failed    0.0 %
+  t=  330s   567 requests     0 failed    0.0 %
+  t=  340s   516 requests     0 failed    0.0 %
+  t=  350s   508 requests     0 failed    0.0 %
+  t=  360s   509 requests     0 failed    0.0 %
+  t=  370s   566 requests     0 failed    0.0 %
+  t=  380s   513 requests     0 failed    0.0 %
+  t=  390s   513 requests     0 failed    0.0 %
+  t=  400s   583 requests     0 failed    0.0 %
+  t=  410s   513 requests     0 failed    0.0 %
+  t=  420s   520 requests     0 failed    0.0 %
+  t=  430s   573 requests     0 failed    0.0 %
+  t=  440s   516 requests     0 failed    0.0 %
+  t=  450s   491 requests     0 failed    0.0 %
+  t=  460s   176 requests     0 failed    0.0 %
+== during the partition (last 270 s of it): 5xx and calls between services by outcome
+  5xx gateway 503 0/s
+  5xx inventory 503 0/s
+  5xx orders 502 0/s
+  5xx orders 503 0/s
+  5xx gateway 502 0/s
+  5xx gateway 504 0.004/s
+  5xx orders 504 0/s
+  call gateway -> orders timeout 0.251/s
+  call gateway -> catalog timeout 0.083/s
+  call orders -> inventory timeout 0.008/s
+  call orders -> payments timeout 0.058/s
+== after: pods not Running/Completed: 0
+

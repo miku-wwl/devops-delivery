@@ -1,0 +1,40 @@
+# transcript: P7 deploy the instrumented demo-api to dev (retry after a transient 403)
+# recorded: 2026-11-06T04:03:29Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash delivery/argocd/promote.sh dev image.digest=sha256:9f45ec009f30fd01ec98998c8b86f74106721346475f3847bf6911d8ab318c81 @$PWD/delivery/gitops/patches/dev-otel.yaml --merge --title "dev: OpenTelemetry-instrumented demo-api"
+ envs/dev/values.yaml | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+@@ -4,3 +4,3 @@ image:
+   tag: "0.1.1"
+-  digest: sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74
++  digest: sha256:9f45ec009f30fd01ec98998c8b86f74106721346475f3847bf6911d8ab318c81
+ # Progressive delivery for dev: automatic canary, no manual gate.
+@@ -13 +13,8 @@ rollout:
+     - pause: {duration: 30s}
++  analysis:
++    enabled: false
++# dev: export traces and logs to the OpenTelemetry Collector. dev deploys without a
++# canary gate, so faults injected for observability drills stay in place long enough
++# to be investigated (prod keeps its analysis gate).
++otel:
++  enabled: true
+merge request !16: http://localhost:8929/root/delivery-gitops/-/merge_requests/16
+merged !16 -> main @ a09cec1 by root
+
+$ bash delivery/argocd/wait-sync.sh demo-api-dev "" 420
+t+1s  revision=5e0b522 sync=Synced health=Healthy operation=Succeeded
+t+9s  revision=a09cec1 sync=Synced health=Progressing operation=Succeeded
+t+32s  revision=a09cec1 sync=Synced health=Suspended operation=Succeeded
+t+63s  revision=a09cec1 sync=Synced health=Healthy operation=Succeeded
+reached Synced/Healthy at a09cec1 after 63s
+
+$ kubectl -n dev get pods -l app.kubernetes.io/name=demo-api -o custom-columns=POD:.metadata.name,IMAGE:.status.containerStatuses[0].imageID --no-headers | sed 's#ghcr.io/miku-wwl/devops-delivery/##'
+demo-api-dev-58fb5bbb64-zxl9p   demo-api@sha256:9f45ec009f30fd01ec98998c8b86f74106721346475f3847bf6911d8ab318c81
+
+$ kubectl -n dev get rollout demo-api-dev -o jsonpath='{range .spec.template.spec.containers[0].env[*]}{.name}={.value}{"\n"}{end}'
+DEPLOY_ENV=dev
+OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector.observability.svc:4318
+POD_NAME=
+POD_NAMESPACE=
+OTEL_RESOURCE_ATTRIBUTES=k8s.pod.name=$(POD_NAME),k8s.namespace.name=$(POD_NAMESPACE)
+

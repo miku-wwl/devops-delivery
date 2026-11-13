@@ -1,0 +1,7 @@
+== 00:15:24 before: main 1d0bd871; catalog in the cluster: image storefront:fd38028, replicas 2, memory limit 256Mi, DB_POOL_MAX 10
+
+== 00:15:24 G5 catalog: database pool 10 -> 12 (compliant)
+curl: (22) The requested URL returned error: 400
+merge ! as alice (Developer): HTTP 400
+/mnt/d/workshop/nov/devops-delivery/v2/platform/gitops/mr.sh: line 64: 1: iid
+   not merged; main 1d0bd871

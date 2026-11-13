@@ -1,0 +1,13 @@
+# transcript: E5: two OpenBao facts used in chapter 6 - no file storage in OpenBao 2 (a throwaway server), and secret values in the audit log are HMACs (shown as true/false only)
+# recorded: 2026-11-09T09:53:01Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl -n default run e5-bao-file --rm -i --quiet --restart=Never --image=quay.io/openbao/openbao:2.7.2 --command -- sh -c 'printf "storage \"file\" {\n  path = \"/tmp/d\"\n}\nlistener \"tcp\" {\n  address = \"127.0.0.1:8200\"\n  tls_disable = 1\n}\n" > /tmp/c.hcl; bao server -config=/tmp/c.hcl 2>&1 | tail -2'
+2026-11-09T09:53:06.867Z [INFO]  proxy environment: http_proxy="" https_proxy="" no_proxy=""
+unknown storage type file
+
+$ kubectl -n secrets logs openbao-0 | grep '"type":"response"' | grep '"path":"secret/data/insight/api-key"' | grep '"operation":"read"' | tail -1 | jq -c '{time, display_name: .auth.display_name, path: .request.path, value_is_hmac: (.response.data.data | map_values(startswith("hmac-sha256:")))}'
+{"time":"2026-11-09T09:52:49.044005585Z","display_name":"kubernetes-insight-secrets-reader","path":"secret/data/insight/api-key","value_is_hmac":{"value":true}}
+
+$ kubectl -n secrets logs openbao-0 | grep '"type":"response"' | grep '"path":"secret/data/shop/db-password"' | grep -c 'permission denied'
+7
+

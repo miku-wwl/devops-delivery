@@ -1,0 +1,36 @@
+# transcript: P10: apply the hardened LGTM and k6 load generator to the lab cluster
+# recorded: 2026-11-06T10:12:03Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl apply -f observability/lgtm/lgtm.yaml
+namespace/observability unchanged
+deployment.apps/lgtm configured
+service/lgtm unchanged
+
+$ kubectl -n observability rollout status deploy/lgtm --timeout=300s
+Waiting for deployment "lgtm" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "lgtm" rollout to finish: 1 old replicas are pending termination...
+deployment "lgtm" successfully rolled out
+
+$ kubectl apply -f delivery/loadgen/k6-loadgen.yaml
+namespace/loadgen unchanged
+configmap/k6-script unchanged
+deployment.apps/k6 configured
+
+$ kubectl -n loadgen rollout status deploy/k6 --timeout=120s
+Waiting for deployment "k6" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "k6" rollout to finish: 1 old replicas are pending termination...
+deployment "k6" successfully rolled out
+
+$ kubectl get pods -n observability -l app=lgtm -o jsonpath="{range .items[*]}{.metadata.name} uid={.spec.securityContext.runAsUser} readOnlyRootFilesystem={.spec.containers[0].securityContext.readOnlyRootFilesystem}{\"\n\"}{end}"
+lgtm-5856cbbc7f-p5tdj uid=10001 readOnlyRootFilesystem=true
+lgtm-6df9467b7b-w7khw uid= readOnlyRootFilesystem=
+
+$ kubectl get pods -n loadgen -l app=k6 -o jsonpath="{range .items[*]}{.metadata.name} {.status.phase} readOnlyRootFilesystem={.spec.containers[0].securityContext.readOnlyRootFilesystem}{\"\n\"}{end}"
+k6-5b67b466f4-8k6lg Running readOnlyRootFilesystem=
+k6-f4c54b87c-l5xfq Running readOnlyRootFilesystem=true
+
+$ kubectl -n observability logs deploy/lgtm | grep -E "Total startup|stack are up"
+Found 2 pods, using pod/lgtm-6df9467b7b-w7khw
+Total startup time: 21 seconds
+The OpenTelemetry collector and the Grafana LGTM stack are up and running. (created /tmp/ready)
+

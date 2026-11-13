@@ -1,0 +1,58 @@
+# transcript: P3 helm template: dev vs prod
+# recorded: 2026-11-05T23:20:36Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ helm lint delivery/helm/demo-api -f delivery/helm/demo-api/values-prod.yaml --quiet
+
+$ helm template demo-api delivery/helm/demo-api -f delivery/helm/demo-api/values-dev.yaml > /tmp/dev.yaml
+
+$ helm template demo-api delivery/helm/demo-api -f delivery/helm/demo-api/values-prod.yaml > /tmp/prod.yaml
+
+$ grep -c '^kind:' /tmp/dev.yaml /tmp/prod.yaml
+/tmp/dev.yaml:5
+/tmp/prod.yaml:6
+
+# changed lines only (diff exits 1 when the files differ - that is expected here)
+$ diff -u /tmp/dev.yaml /tmp/prod.yaml | grep -E '^[-+][^-+]' | grep -v 'environment:'
++# Source: demo-api/templates/pdb.yaml
++apiVersion: policy/v1
++kind: PodDisruptionBudget
++metadata:
++  name: demo-api
++  labels:
++    helm.sh/chart: demo-api-0.1.0
++    app.kubernetes.io/name: demo-api
++    app.kubernetes.io/instance: demo-api
++    app.kubernetes.io/version: "0.1.0"
++    app.kubernetes.io/managed-by: Helm
++    app.kubernetes.io/part-of: devops-delivery
++spec:
++  minAvailable: 2
++  selector:
++    matchLabels:
++      app.kubernetes.io/name: demo-api
++      app.kubernetes.io/instance: demo-api
+-  replicas: 1
++  replicas: 3
+-        checksum/config: a4b55415d2f0b69ef9942a324f5a9b5215eb98f358df08374b60c48f71513af9
++        checksum/config: dab4d135c88383c6afcb181041914ab0cda32a8a55a6899e7b150865725570d5
+-              cpu: 250m
+-              memory: 192Mi
++              cpu: "1"
++              memory: 256Mi
+-              cpu: 25m
+-              memory: 64Mi
++              cpu: 100m
++              memory: 128Mi
++      affinity:
++        # Prefer one pod per node; built from the selector labels so it works for any release name.
++        podAntiAffinity:
++          preferredDuringSchedulingIgnoredDuringExecution:
++            - weight: 100
++              podAffinityTerm:
++                topologyKey: kubernetes.io/hostname
++                labelSelector:
++                  matchLabels:
++                    app.kubernetes.io/name: demo-api
++                    app.kubernetes.io/instance: demo-api
+[exit 1]
+

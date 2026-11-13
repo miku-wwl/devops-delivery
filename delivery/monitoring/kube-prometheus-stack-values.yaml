@@ -1,0 +1,42 @@
+# kube-prometheus-stack for the lab cluster (Prometheus Operator, Prometheus,
+# Alertmanager, Grafana, kube-state-metrics, node-exporter).
+
+# Kind runs etcd, scheduler, controller-manager and kube-proxy bound to 127.0.0.1
+# inside the node container - their targets would always be "down". Skip them.
+kubeEtcd: {enabled: false}
+kubeScheduler: {enabled: false}
+kubeControllerManager: {enabled: false}
+kubeProxy: {enabled: false}
+
+prometheus:
+  prometheusSpec:
+    retention: 2d
+    scrapeInterval: 15s
+    evaluationInterval: 15s
+    # Discover every ServiceMonitor/PodMonitor/PrometheusRule in the cluster,
+    # not only the ones labelled with this Helm release.
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+    # Exemplars link a latency sample to the trace that produced it (chapter 9).
+    enableFeatures: [exemplar-storage]
+    resources:
+      requests: {cpu: 200m, memory: 512Mi}
+      limits: {memory: 1536Mi}
+
+alertmanager:
+  alertmanagerSpec:
+    resources:
+      requests: {cpu: 20m, memory: 64Mi}
+
+grafana:
+  admin:
+    existingSecret: grafana-admin   # created by install-monitoring.sh from ~/.lab-secrets
+    userKey: admin-user
+    passwordKey: admin-password
+  persistence: {enabled: false}
+  defaultDashboardsTimezone: browser
+  sidecar:
+    dashboards:
+      enabled: true
+      searchNamespace: ALL   # pick up dashboards from ConfigMaps labelled grafana_dashboard=1

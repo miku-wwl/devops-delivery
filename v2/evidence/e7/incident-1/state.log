@@ -1,0 +1,46 @@
+# transcript: Incident E7-1: replica pg-main-3 out of replication after the F2 split brain
+# recorded: 2026-11-09T14:44:53Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# Incident E7-1: after the split brain of F2, replica pg-main-3 stopped replicating - unnoticed. State before any repair.
+$ kubectl -n data get cluster pg-main -o jsonpath='phase={.status.phase} ready={.status.readyInstances}/{.status.instances} primary={.status.currentPrimary}{"\n"}'
+phase=Cluster in healthy state ready=3/3 primary=pg-main-1
+
+$ kubectl -n data get pods -l cnpg.io/cluster=pg-main -o custom-columns=NAME:.metadata.name,READY:.status.containerStatuses[*].ready,NODE:.spec.nodeName
+NAME        READY   NODE
+pg-main-1   true    ent-worker
+pg-main-2   true    ent-worker2
+pg-main-3   true    ent-worker3
+
+$ kubectl -n data exec pg-main-1 -c postgres -- psql -U postgres -tAc "select application_name, state, sync_state from pg_stat_replication"
+pg-main-2|streaming|async
+
+$ for i in 2 3; do echo "pg-main-$i: in_recovery|replay_lsn|wal_receiver = $(kubectl -n data exec pg-main-$i -c postgres -- psql -U postgres -tAc "select pg_is_in_recovery(), pg_last_wal_replay_lsn(), coalesce((select status from pg_stat_wal_receiver), 'none')")"; done
+pg-main-2: in_recovery|replay_lsn|wal_receiver = t|0/A41F37C0|streaming
+pg-main-3: in_recovery|replay_lsn|wal_receiver = t|0/A30000A0|none
+
+# what pg-main-3 says (PostgreSQL log, de-duplicated)
+$ kubectl -n data logs pg-main-3 -c postgres --since-time=2026-11-09T14:32:00Z | jq -rc 'select(.ts < "2026-11-09T14:37:00") | select((.record.message // "") | test("timeline|history|forked|streaming|restored")) | "\(.ts[11:23]) \(.record.message)"' | awk '!seen[substr($0, 14)]++' | head -12
+14:33:05.291 started streaming WAL from primary at 0/A2000000 on timeline 5
+14:33:06.731 could not send end-of-streaming message to primary: SSL connection has been closed unexpectedly
+invalid socket
+no COPY in progress
+14:33:07.943 fetching timeline history file for timeline 6 from primary server
+14:33:07.952 could not start WAL streaming: ERROR:  requested starting point 0/A3000000 on timeline 5 is not in this server's history
+DETAIL:  This server's history forked from timeline 5 at 0/A22C21B0.
+14:33:08.485 new timeline 6 forked off current database system timeline 5 before current recovery point 0/A30000A0
+14:33:14.129 restored log file "00000006.history" from archive
+14:36:39.855 streaming replication receiver "pg-main" could not connect to the primary server: connection to server at "pg-main-rw" (10.96.105.42), port 5432 failed: Connection timed out
+	Is the server running on that host and accepting TCP/IP connections?
+14:36:41.879 restored log file "00000007.history" from archive
+
+# which node archived what (bucket pg-backups, prefix pg-main/wals): see archive.txt; the full timeline-5 segment A2 came at 14:33:13
+# the WAL receiver metric of every replica, 14:30-14:42 (1 = streaming), one sample per minute
+$ P=/api/v1/namespaces/monitoring/services/kps-prometheus:9090/proxy/api/v1; kubectl get --raw "$P/query_range?start=$(date -d 2026-11-09T14:30:00Z +%s)&end=$(date -d 2026-11-09T14:42:00Z +%s)&step=60&query=$(jq -rn --arg q 'max by (pod) (cnpg_pg_replication_is_wal_receiver_up{namespace="data"})' '$q|@uri')" | jq -r '.data.result[] | "\(.metric.pod): \([.values[] | .[1]] | join(" "))"'
+pg-main-1: 1 1 1 1 0 0 0 1 0 0 0 0
+pg-main-2: 0 0 0 0 1 1 1 0 0 0 0 1
+pg-main-3: 1 1 1 1 0 0 0 0 0 0 0 0 0
+
+# alert rules in Prometheus that look at PostgreSQL replication
+$ kubectl get --raw "$P/rules" | jq -r '[.data.groups[].rules[] | select(.query | test("cnpg_"))] | length'
+0
+

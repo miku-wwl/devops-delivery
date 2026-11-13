@@ -1,0 +1,340 @@
+== 14:30:42.558 run f2-freeze: primary pg-main-2 on ent-worker2, writer on ent-worker3, mode freeze 120
+replication: pg-main-3=streaming/async pg-main-1=streaming/async
+conn 1794234645.102 10.240.2.118/32 False
+start f2-freeze rate=50.0 deadline=2.0
+ok 1 1794234645.106 2.8
+conn 1794234649.421 10.240.2.118/32 False
+start f2-freeze-z rate=50.0 deadline=2.0
+ok 1 1794234649.422 3.9
+== 14:31:09.972 fault: freeze 120
+14:31:10.126 paused ent-worker2
+14:33:03.994 unpaused ent-worker2
+14:33:32.791 healthy again
+6276 lines -> /mnt/d/workshop/nov/devops-delivery/v2/evidence/e7/f2-freeze/writer.log
+1959 lines -> /mnt/d/workshop/nov/devops-delivery/v2/evidence/e7/f2-freeze-z/writer.log
+== report (t = seconds after the fault)
+attempts 6273: ok 6235, fail 37, unknown 1
+lost writes (acknowledged, row missing): 0
+unknown outcomes: 1, of them committed: 0, not committed: 1
+'fail' rows that exist anyway (classification error): 0
+  fail TimeoutError: 37
+  unk TimeoutError: 1
+write outages (no acknowledgement in between; >= 0.5 s):
+  14:31:10.087 (t=+0.1s) -> 14:32:28.111 (t=+78.1s): 78.0 s (seq 1326..1363)
+slowest acknowledgements: seq 1364 1032 ms at 14:32:27.079 (t=+77.1s), seq 4250 94 ms at 14:33:22.769 (t=+132.8s), seq 393 68 ms at 14:30:52.950 (t=-17.0s)
+commit latency ms: p50 2.7, p99 12.5, max 1032.4
+connections:
+  14:30:45.102 (t=-24.9s) -> 10.240.2.118/32 in_recovery=False
+  14:32:28.107 (t=+78.1s) -> 10.240.1.130/32 in_recovery=False
+== report of the direct writer (connected to the old primary's address)
+attempts 1680: ok 1116, fail 562, unknown 2
+lost writes (acknowledged, row missing): 7
+  seq 1168 acknowledged at 14:33:05.786 (t=+115.8s) in 692.8 ms
+  seq 1169 acknowledged at 14:33:06.479 (t=+116.5s) in 6.8 ms
+  seq 1170 acknowledged at 14:33:06.500 (t=+116.5s) in 2.9 ms
+  seq 1171 acknowledged at 14:33:06.519 (t=+116.6s) in 2.6 ms
+  seq 1172 acknowledged at 14:33:06.539 (t=+116.6s) in 4.0 ms
+  seq 1173 acknowledged at 14:33:06.559 (t=+116.6s) in 8.5 ms
+  seq 1174 acknowledged at 14:33:06.581 (t=+116.6s) in 2.2 ms
+  lost span: 14:33:05.786 (t=+115.8s) .. 14:33:06.581 (t=+116.6s)
+unknown outcomes: 2, of them committed: 0, not committed: 2
+'fail' rows that exist anyway (classification error): 0
+  fail 25006: 276
+  fail OperationalError: 229
+  fail TimeoutError: 57
+  unk OperationalError: 1
+  unk TimeoutError: 1
+write outages (no acknowledgement in between; >= 0.5 s):
+  14:31:10.081 (t=+0.1s) -> 14:33:06.478 (t=+116.5s): 116.4 s (seq 1110..1167)
+  14:33:06.599 (t=+116.6s) -> (no acknowledgement until the end)
+slowest acknowledgements: seq 1168 693 ms at 14:33:05.786 (t=+115.8s), seq 178 42 ms at 14:30:52.987 (t=-17.0s), seq 177 40 ms at 14:30:52.947 (t=-17.0s)
+commit latency ms: p50 2.6, p99 10.9, max 692.8
+connections:
+  14:30:49.421 (t=-20.5s) -> 10.240.2.118/32 in_recovery=False
+  14:33:06.471 (t=+116.5s) -> 10.240.2.118/32 in_recovery=False
+  14:33:31.195 (t=+141.2s) -> 10.240.2.118/32 in_recovery=True
+  14:33:31.324 (t=+141.4s) -> 10.240.2.118/32 in_recovery=True
+  14:33:31.446 (t=+141.5s) -> 10.240.2.118/32 in_recovery=True
+  14:33:31.593 (t=+141.6s) -> 10.240.2.118/32 in_recovery=True
+  14:33:31.730 (t=+141.8s) -> 10.240.2.118/32 in_recovery=True
+  14:33:31.896 (t=+141.9s) -> 10.240.2.118/32 in_recovery=True
+  14:33:32.024 (t=+142.1s) -> 10.240.2.118/32 in_recovery=True
+  14:33:32.211 (t=+142.2s) -> 10.240.2.118/32 in_recovery=True
+  14:33:32.347 (t=+142.4s) -> 10.240.2.118/32 in_recovery=True
+  14:33:32.477 (t=+142.5s) -> 10.240.2.118/32 in_recovery=True
+  14:33:32.600 (t=+142.6s) -> 10.240.2.118/32 in_recovery=True
+  14:33:32.731 (t=+142.8s) -> 10.240.2.118/32 in_recovery=True
+  14:33:32.893 (t=+142.9s) -> 10.240.2.118/32 in_recovery=True
+  14:33:33.024 (t=+143.1s) -> 10.240.2.118/32 in_recovery=True
+  14:33:33.157 (t=+143.2s) -> 10.240.2.118/32 in_recovery=True
+  14:33:33.278 (t=+143.3s) -> 10.240.2.118/32 in_recovery=True
+  14:33:33.407 (t=+143.4s) -> 10.240.2.118/32 in_recovery=True
+  14:33:33.528 (t=+143.6s) -> 10.240.2.118/32 in_recovery=True
+  14:33:33.658 (t=+143.7s) -> 10.240.2.118/32 in_recovery=True
+  14:33:33.783 (t=+143.8s) -> 10.240.2.118/32 in_recovery=True
+  14:33:33.905 (t=+143.9s) -> 10.240.2.118/32 in_recovery=True
+  14:33:34.028 (t=+144.1s) -> 10.240.2.118/32 in_recovery=True
+  14:33:32.488 (t=+142.5s) -> 10.240.2.118/32 in_recovery=True
+  14:33:32.618 (t=+142.7s) -> 10.240.2.118/32 in_recovery=True
+  14:33:32.745 (t=+142.8s) -> 10.240.2.118/32 in_recovery=True
+  14:33:32.870 (t=+142.9s) -> 10.240.2.118/32 in_recovery=True
+  14:33:32.994 (t=+143.0s) -> 10.240.2.118/32 in_recovery=True
+  14:33:33.121 (t=+143.2s) -> 10.240.2.118/32 in_recovery=True
+  14:33:33.245 (t=+143.3s) -> 10.240.2.118/32 in_recovery=True
+  14:33:33.373 (t=+143.4s) -> 10.240.2.118/32 in_recovery=True
+  14:33:33.515 (t=+143.5s) -> 10.240.2.118/32 in_recovery=True
+  14:33:33.646 (t=+143.7s) -> 10.240.2.118/32 in_recovery=True
+  14:33:33.770 (t=+143.8s) -> 10.240.2.118/32 in_recovery=True
+  14:33:33.890 (t=+143.9s) -> 10.240.2.118/32 in_recovery=True
+  14:33:34.011 (t=+144.0s) -> 10.240.2.118/32 in_recovery=True
+  14:33:34.131 (t=+144.2s) -> 10.240.2.118/32 in_recovery=True
+  14:33:34.253 (t=+144.3s) -> 10.240.2.118/32 in_recovery=True
+  14:33:34.374 (t=+144.4s) -> 10.240.2.118/32 in_recovery=True
+  14:33:34.501 (t=+144.5s) -> 10.240.2.118/32 in_recovery=True
+  14:33:34.621 (t=+144.7s) -> 10.240.2.118/32 in_recovery=True
+  14:33:34.742 (t=+144.8s) -> 10.240.2.118/32 in_recovery=True
+  14:33:34.866 (t=+144.9s) -> 10.240.2.118/32 in_recovery=True
+  14:33:34.990 (t=+145.0s) -> 10.240.2.118/32 in_recovery=True
+  14:33:35.114 (t=+145.1s) -> 10.240.2.118/32 in_recovery=True
+  14:33:35.236 (t=+145.3s) -> 10.240.2.118/32 in_recovery=True
+  14:33:35.359 (t=+145.4s) -> 10.240.2.118/32 in_recovery=True
+  14:33:35.488 (t=+145.5s) -> 10.240.2.118/32 in_recovery=True
+  14:33:35.615 (t=+145.6s) -> 10.240.2.118/32 in_recovery=True
+  14:33:35.740 (t=+145.8s) -> 10.240.2.118/32 in_recovery=True
+  14:33:35.861 (t=+145.9s) -> 10.240.2.118/32 in_recovery=True
+  14:33:35.981 (t=+146.0s) -> 10.240.2.118/32 in_recovery=True
+  14:33:36.101 (t=+146.1s) -> 10.240.2.118/32 in_recovery=True
+  14:33:36.222 (t=+146.3s) -> 10.240.2.118/32 in_recovery=True
+  14:33:36.344 (t=+146.4s) -> 10.240.2.118/32 in_recovery=True
+  14:33:36.466 (t=+146.5s) -> 10.240.2.118/32 in_recovery=True
+  14:33:36.585 (t=+146.6s) -> 10.240.2.118/32 in_recovery=True
+  14:33:36.716 (t=+146.7s) -> 10.240.2.118/32 in_recovery=True
+  14:33:36.836 (t=+146.9s) -> 10.240.2.118/32 in_recovery=True
+  14:33:36.956 (t=+147.0s) -> 10.240.2.118/32 in_recovery=True
+  14:33:37.075 (t=+147.1s) -> 10.240.2.118/32 in_recovery=True
+  14:33:37.195 (t=+147.2s) -> 10.240.2.118/32 in_recovery=True
+  14:33:37.318 (t=+147.4s) -> 10.240.2.118/32 in_recovery=True
+  14:33:37.465 (t=+147.5s) -> 10.240.2.118/32 in_recovery=True
+  14:33:37.587 (t=+147.6s) -> 10.240.2.118/32 in_recovery=True
+  14:33:37.717 (t=+147.7s) -> 10.240.2.118/32 in_recovery=True
+  14:33:37.837 (t=+147.9s) -> 10.240.2.118/32 in_recovery=True
+  14:33:37.956 (t=+148.0s) -> 10.240.2.118/32 in_recovery=True
+  14:33:38.078 (t=+148.1s) -> 10.240.2.118/32 in_recovery=True
+  14:33:38.201 (t=+148.2s) -> 10.240.2.118/32 in_recovery=True
+  14:33:38.322 (t=+148.4s) -> 10.240.2.118/32 in_recovery=True
+  14:33:38.460 (t=+148.5s) -> 10.240.2.118/32 in_recovery=True
+  14:33:38.581 (t=+148.6s) -> 10.240.2.118/32 in_recovery=True
+  14:33:38.705 (t=+148.7s) -> 10.240.2.118/32 in_recovery=True
+  14:33:38.832 (t=+148.9s) -> 10.240.2.118/32 in_recovery=True
+  14:33:38.955 (t=+149.0s) -> 10.240.2.118/32 in_recovery=True
+  14:33:39.077 (t=+149.1s) -> 10.240.2.118/32 in_recovery=True
+  14:33:39.197 (t=+149.2s) -> 10.240.2.118/32 in_recovery=True
+  14:33:39.329 (t=+149.4s) -> 10.240.2.118/32 in_recovery=True
+  14:33:39.455 (t=+149.5s) -> 10.240.2.118/32 in_recovery=True
+  14:33:39.581 (t=+149.6s) -> 10.240.2.118/32 in_recovery=True
+  14:33:39.705 (t=+149.7s) -> 10.240.2.118/32 in_recovery=True
+  14:33:39.832 (t=+149.9s) -> 10.240.2.118/32 in_recovery=True
+  14:33:39.957 (t=+150.0s) -> 10.240.2.118/32 in_recovery=True
+  14:33:40.078 (t=+150.1s) -> 10.240.2.118/32 in_recovery=True
+  14:33:40.200 (t=+150.2s) -> 10.240.2.118/32 in_recovery=True
+  14:33:40.324 (t=+150.4s) -> 10.240.2.118/32 in_recovery=True
+  14:33:40.459 (t=+150.5s) -> 10.240.2.118/32 in_recovery=True
+  14:33:40.582 (t=+150.6s) -> 10.240.2.118/32 in_recovery=True
+  14:33:40.703 (t=+150.7s) -> 10.240.2.118/32 in_recovery=True
+  14:33:40.827 (t=+150.9s) -> 10.240.2.118/32 in_recovery=True
+  14:33:40.948 (t=+151.0s) -> 10.240.2.118/32 in_recovery=True
+  14:33:41.069 (t=+151.1s) -> 10.240.2.118/32 in_recovery=True
+  14:33:41.194 (t=+151.2s) -> 10.240.2.118/32 in_recovery=True
+  14:33:41.322 (t=+151.4s) -> 10.240.2.118/32 in_recovery=True
+  14:33:41.465 (t=+151.5s) -> 10.240.2.118/32 in_recovery=True
+  14:33:41.596 (t=+151.6s) -> 10.240.2.118/32 in_recovery=True
+  14:33:41.736 (t=+151.8s) -> 10.240.2.118/32 in_recovery=True
+  14:33:41.865 (t=+151.9s) -> 10.240.2.118/32 in_recovery=True
+  14:33:41.991 (t=+152.0s) -> 10.240.2.118/32 in_recovery=True
+  14:33:42.115 (t=+152.1s) -> 10.240.2.118/32 in_recovery=True
+  14:33:42.242 (t=+152.3s) -> 10.240.2.118/32 in_recovery=True
+  14:33:42.367 (t=+152.4s) -> 10.240.2.118/32 in_recovery=True
+  14:33:42.535 (t=+152.6s) -> 10.240.2.118/32 in_recovery=True
+  14:33:42.664 (t=+152.7s) -> 10.240.2.118/32 in_recovery=True
+  14:33:42.791 (t=+152.8s) -> 10.240.2.118/32 in_recovery=True
+  14:33:42.914 (t=+152.9s) -> 10.240.2.118/32 in_recovery=True
+  14:33:43.038 (t=+153.1s) -> 10.240.2.118/32 in_recovery=True
+  14:33:43.161 (t=+153.2s) -> 10.240.2.118/32 in_recovery=True
+  14:33:43.285 (t=+153.3s) -> 10.240.2.118/32 in_recovery=True
+  14:33:43.412 (t=+153.4s) -> 10.240.2.118/32 in_recovery=True
+  14:33:43.542 (t=+153.6s) -> 10.240.2.118/32 in_recovery=True
+  14:33:43.664 (t=+153.7s) -> 10.240.2.118/32 in_recovery=True
+  14:33:43.790 (t=+153.8s) -> 10.240.2.118/32 in_recovery=True
+  14:33:43.914 (t=+153.9s) -> 10.240.2.118/32 in_recovery=True
+  14:33:44.040 (t=+154.1s) -> 10.240.2.118/32 in_recovery=True
+  14:33:44.165 (t=+154.2s) -> 10.240.2.118/32 in_recovery=True
+  14:33:44.289 (t=+154.3s) -> 10.240.2.118/32 in_recovery=True
+  14:33:44.418 (t=+154.5s) -> 10.240.2.118/32 in_recovery=True
+  14:33:44.547 (t=+154.6s) -> 10.240.2.118/32 in_recovery=True
+  14:33:44.672 (t=+154.7s) -> 10.240.2.118/32 in_recovery=True
+  14:33:44.797 (t=+154.8s) -> 10.240.2.118/32 in_recovery=True
+  14:33:44.923 (t=+155.0s) -> 10.240.2.118/32 in_recovery=True
+  14:33:45.054 (t=+155.1s) -> 10.240.2.118/32 in_recovery=True
+  14:33:45.179 (t=+155.2s) -> 10.240.2.118/32 in_recovery=True
+  14:33:45.300 (t=+155.3s) -> 10.240.2.118/32 in_recovery=True
+  14:33:45.423 (t=+155.5s) -> 10.240.2.118/32 in_recovery=True
+  14:33:45.549 (t=+155.6s) -> 10.240.2.118/32 in_recovery=True
+  14:33:45.674 (t=+155.7s) -> 10.240.2.118/32 in_recovery=True
+  14:33:45.797 (t=+155.8s) -> 10.240.2.118/32 in_recovery=True
+  14:33:45.927 (t=+156.0s) -> 10.240.2.118/32 in_recovery=True
+  14:33:46.057 (t=+156.1s) -> 10.240.2.118/32 in_recovery=True
+  14:33:46.181 (t=+156.2s) -> 10.240.2.118/32 in_recovery=True
+  14:33:46.308 (t=+156.3s) -> 10.240.2.118/32 in_recovery=True
+  14:33:46.441 (t=+156.5s) -> 10.240.2.118/32 in_recovery=True
+  14:33:46.562 (t=+156.6s) -> 10.240.2.118/32 in_recovery=True
+  14:33:46.690 (t=+156.7s) -> 10.240.2.118/32 in_recovery=True
+  14:33:46.816 (t=+156.8s) -> 10.240.2.118/32 in_recovery=True
+  14:33:46.941 (t=+157.0s) -> 10.240.2.118/32 in_recovery=True
+  14:33:47.065 (t=+157.1s) -> 10.240.2.118/32 in_recovery=True
+  14:33:47.196 (t=+157.2s) -> 10.240.2.118/32 in_recovery=True
+  14:33:47.326 (t=+157.4s) -> 10.240.2.118/32 in_recovery=True
+  14:33:47.461 (t=+157.5s) -> 10.240.2.118/32 in_recovery=True
+  14:33:47.582 (t=+157.6s) -> 10.240.2.118/32 in_recovery=True
+  14:33:47.720 (t=+157.8s) -> 10.240.2.118/32 in_recovery=True
+  14:33:47.844 (t=+157.9s) -> 10.240.2.118/32 in_recovery=True
+  14:33:47.974 (t=+158.0s) -> 10.240.2.118/32 in_recovery=True
+  14:33:48.104 (t=+158.1s) -> 10.240.2.118/32 in_recovery=True
+  14:33:48.227 (t=+158.3s) -> 10.240.2.118/32 in_recovery=True
+  14:33:48.352 (t=+158.4s) -> 10.240.2.118/32 in_recovery=True
+  14:33:48.485 (t=+158.5s) -> 10.240.2.118/32 in_recovery=True
+  14:33:48.613 (t=+158.6s) -> 10.240.2.118/32 in_recovery=True
+  14:33:48.736 (t=+158.8s) -> 10.240.2.118/32 in_recovery=True
+  14:33:48.858 (t=+158.9s) -> 10.240.2.118/32 in_recovery=True
+  14:33:48.982 (t=+159.0s) -> 10.240.2.118/32 in_recovery=True
+  14:33:49.106 (t=+159.1s) -> 10.240.2.118/32 in_recovery=True
+  14:33:49.233 (t=+159.3s) -> 10.240.2.118/32 in_recovery=True
+  14:33:49.356 (t=+159.4s) -> 10.240.2.118/32 in_recovery=True
+  14:33:49.487 (t=+159.5s) -> 10.240.2.118/32 in_recovery=True
+  14:33:49.613 (t=+159.6s) -> 10.240.2.118/32 in_recovery=True
+  14:33:49.739 (t=+159.8s) -> 10.240.2.118/32 in_recovery=True
+  14:33:49.863 (t=+159.9s) -> 10.240.2.118/32 in_recovery=True
+  14:33:49.992 (t=+160.0s) -> 10.240.2.118/32 in_recovery=True
+  14:33:50.114 (t=+160.1s) -> 10.240.2.118/32 in_recovery=True
+  14:33:50.237 (t=+160.3s) -> 10.240.2.118/32 in_recovery=True
+  14:33:50.358 (t=+160.4s) -> 10.240.2.118/32 in_recovery=True
+  14:33:50.487 (t=+160.5s) -> 10.240.2.118/32 in_recovery=True
+  14:33:50.610 (t=+160.6s) -> 10.240.2.118/32 in_recovery=True
+  14:33:50.739 (t=+160.8s) -> 10.240.2.118/32 in_recovery=True
+  14:33:50.866 (t=+160.9s) -> 10.240.2.118/32 in_recovery=True
+  14:33:50.993 (t=+161.0s) -> 10.240.2.118/32 in_recovery=True
+  14:33:51.121 (t=+161.2s) -> 10.240.2.118/32 in_recovery=True
+  14:33:51.247 (t=+161.3s) -> 10.240.2.118/32 in_recovery=True
+  14:33:51.371 (t=+161.4s) -> 10.240.2.118/32 in_recovery=True
+  14:33:51.497 (t=+161.5s) -> 10.240.2.118/32 in_recovery=True
+  14:33:51.624 (t=+161.7s) -> 10.240.2.118/32 in_recovery=True
+  14:33:51.758 (t=+161.8s) -> 10.240.2.118/32 in_recovery=True
+  14:33:51.886 (t=+161.9s) -> 10.240.2.118/32 in_recovery=True
+  14:33:52.017 (t=+162.0s) -> 10.240.2.118/32 in_recovery=True
+  14:33:52.142 (t=+162.2s) -> 10.240.2.118/32 in_recovery=True
+  14:33:52.263 (t=+162.3s) -> 10.240.2.118/32 in_recovery=True
+  14:33:52.386 (t=+162.4s) -> 10.240.2.118/32 in_recovery=True
+  14:33:52.514 (t=+162.5s) -> 10.240.2.118/32 in_recovery=True
+  14:33:52.638 (t=+162.7s) -> 10.240.2.118/32 in_recovery=True
+  14:33:52.760 (t=+162.8s) -> 10.240.2.118/32 in_recovery=True
+  14:33:52.883 (t=+162.9s) -> 10.240.2.118/32 in_recovery=True
+  14:33:53.015 (t=+163.0s) -> 10.240.2.118/32 in_recovery=True
+  14:33:53.140 (t=+163.2s) -> 10.240.2.118/32 in_recovery=True
+  14:33:53.262 (t=+163.3s) -> 10.240.2.118/32 in_recovery=True
+  14:33:53.391 (t=+163.4s) -> 10.240.2.118/32 in_recovery=True
+  14:33:53.523 (t=+163.6s) -> 10.240.2.118/32 in_recovery=True
+  14:33:53.648 (t=+163.7s) -> 10.240.2.118/32 in_recovery=True
+  14:33:53.770 (t=+163.8s) -> 10.240.2.118/32 in_recovery=True
+  14:33:53.891 (t=+163.9s) -> 10.240.2.118/32 in_recovery=True
+  14:33:54.017 (t=+164.0s) -> 10.240.2.118/32 in_recovery=True
+  14:33:54.147 (t=+164.2s) -> 10.240.2.118/32 in_recovery=True
+  14:33:54.282 (t=+164.3s) -> 10.240.2.118/32 in_recovery=True
+  14:33:54.407 (t=+164.4s) -> 10.240.2.118/32 in_recovery=True
+  14:33:54.535 (t=+164.6s) -> 10.240.2.118/32 in_recovery=True
+  14:33:54.660 (t=+164.7s) -> 10.240.2.118/32 in_recovery=True
+  14:33:54.784 (t=+164.8s) -> 10.240.2.118/32 in_recovery=True
+  14:33:54.908 (t=+164.9s) -> 10.240.2.118/32 in_recovery=True
+  14:33:55.036 (t=+165.1s) -> 10.240.2.118/32 in_recovery=True
+  14:33:55.161 (t=+165.2s) -> 10.240.2.118/32 in_recovery=True
+  14:33:55.285 (t=+165.3s) -> 10.240.2.118/32 in_recovery=True
+  14:33:55.408 (t=+165.4s) -> 10.240.2.118/32 in_recovery=True
+  14:33:55.537 (t=+165.6s) -> 10.240.2.118/32 in_recovery=True
+  14:33:55.660 (t=+165.7s) -> 10.240.2.118/32 in_recovery=True
+  14:33:55.783 (t=+165.8s) -> 10.240.2.118/32 in_recovery=True
+  14:33:55.904 (t=+165.9s) -> 10.240.2.118/32 in_recovery=True
+  14:33:56.029 (t=+166.1s) -> 10.240.2.118/32 in_recovery=True
+  14:33:56.153 (t=+166.2s) -> 10.240.2.118/32 in_recovery=True
+  14:33:56.279 (t=+166.3s) -> 10.240.2.118/32 in_recovery=True
+  14:33:56.410 (t=+166.4s) -> 10.240.2.118/32 in_recovery=True
+  14:33:56.536 (t=+166.6s) -> 10.240.2.118/32 in_recovery=True
+  14:33:56.669 (t=+166.7s) -> 10.240.2.118/32 in_recovery=True
+  14:33:56.795 (t=+166.8s) -> 10.240.2.118/32 in_recovery=True
+  14:33:56.918 (t=+167.0s) -> 10.240.2.118/32 in_recovery=True
+  14:33:57.040 (t=+167.1s) -> 10.240.2.118/32 in_recovery=True
+  14:33:57.167 (t=+167.2s) -> 10.240.2.118/32 in_recovery=True
+  14:33:57.287 (t=+167.3s) -> 10.240.2.118/32 in_recovery=True
+  14:33:57.421 (t=+167.5s) -> 10.240.2.118/32 in_recovery=True
+  14:33:57.551 (t=+167.6s) -> 10.240.2.118/32 in_recovery=True
+  14:33:57.676 (t=+167.7s) -> 10.240.2.118/32 in_recovery=True
+  14:33:57.801 (t=+167.8s) -> 10.240.2.118/32 in_recovery=True
+  14:33:57.920 (t=+168.0s) -> 10.240.2.118/32 in_recovery=True
+  14:33:58.046 (t=+168.1s) -> 10.240.2.118/32 in_recovery=True
+  14:33:58.170 (t=+168.2s) -> 10.240.2.118/32 in_recovery=True
+  14:33:58.291 (t=+168.3s) -> 10.240.2.118/32 in_recovery=True
+  14:33:58.420 (t=+168.5s) -> 10.240.2.118/32 in_recovery=True
+  14:33:58.554 (t=+168.6s) -> 10.240.2.118/32 in_recovery=True
+  14:33:58.678 (t=+168.7s) -> 10.240.2.118/32 in_recovery=True
+  14:33:58.800 (t=+168.8s) -> 10.240.2.118/32 in_recovery=True
+  14:33:58.924 (t=+169.0s) -> 10.240.2.118/32 in_recovery=True
+  14:33:59.052 (t=+169.1s) -> 10.240.2.118/32 in_recovery=True
+  14:33:59.179 (t=+169.2s) -> 10.240.2.118/32 in_recovery=True
+  14:33:59.308 (t=+169.3s) -> 10.240.2.118/32 in_recovery=True
+  14:33:59.440 (t=+169.5s) -> 10.240.2.118/32 in_recovery=True
+  14:33:59.560 (t=+169.6s) -> 10.240.2.118/32 in_recovery=True
+  14:33:59.682 (t=+169.7s) -> 10.240.2.118/32 in_recovery=True
+  14:33:59.809 (t=+169.8s) -> 10.240.2.118/32 in_recovery=True
+  14:33:59.931 (t=+170.0s) -> 10.240.2.118/32 in_recovery=True
+  14:34:00.056 (t=+170.1s) -> 10.240.2.118/32 in_recovery=True
+  14:34:00.178 (t=+170.2s) -> 10.240.2.118/32 in_recovery=True
+  14:34:00.303 (t=+170.3s) -> 10.240.2.118/32 in_recovery=True
+  14:34:00.427 (t=+170.5s) -> 10.240.2.118/32 in_recovery=True
+  14:34:00.554 (t=+170.6s) -> 10.240.2.118/32 in_recovery=True
+  14:34:00.678 (t=+170.7s) -> 10.240.2.118/32 in_recovery=True
+  14:34:00.800 (t=+170.8s) -> 10.240.2.118/32 in_recovery=True
+  14:34:00.927 (t=+171.0s) -> 10.240.2.118/32 in_recovery=True
+  14:34:01.054 (t=+171.1s) -> 10.240.2.118/32 in_recovery=True
+  14:34:01.183 (t=+171.2s) -> 10.240.2.118/32 in_recovery=True
+  14:34:01.309 (t=+171.3s) -> 10.240.2.118/32 in_recovery=True
+  14:34:01.434 (t=+171.5s) -> 10.240.2.118/32 in_recovery=True
+  14:34:01.562 (t=+171.6s) -> 10.240.2.118/32 in_recovery=True
+  14:34:01.688 (t=+171.7s) -> 10.240.2.118/32 in_recovery=True
+  14:34:01.818 (t=+171.9s) -> 10.240.2.118/32 in_recovery=True
+  14:34:01.944 (t=+172.0s) -> 10.240.2.118/32 in_recovery=True
+  14:34:02.073 (t=+172.1s) -> 10.240.2.118/32 in_recovery=True
+  14:34:02.194 (t=+172.2s) -> 10.240.2.118/32 in_recovery=True
+  14:34:02.318 (t=+172.4s) -> 10.240.2.118/32 in_recovery=True
+  14:34:02.469 (t=+172.5s) -> 10.240.2.118/32 in_recovery=True
+  14:34:02.595 (t=+172.6s) -> 10.240.2.118/32 in_recovery=True
+  14:34:02.725 (t=+172.8s) -> 10.240.2.118/32 in_recovery=True
+  14:34:02.852 (t=+172.9s) -> 10.240.2.118/32 in_recovery=True
+  14:34:02.980 (t=+173.0s) -> 10.240.2.118/32 in_recovery=True
+  14:34:03.102 (t=+173.1s) -> 10.240.2.118/32 in_recovery=True
+  14:34:03.228 (t=+173.3s) -> 10.240.2.118/32 in_recovery=True
+  14:34:03.356 (t=+173.4s) -> 10.240.2.118/32 in_recovery=True
+  14:34:03.504 (t=+173.5s) -> 10.240.2.118/32 in_recovery=True
+  14:34:03.629 (t=+173.7s) -> 10.240.2.118/32 in_recovery=True
+  14:34:03.754 (t=+173.8s) -> 10.240.2.118/32 in_recovery=True
+  14:34:03.890 (t=+173.9s) -> 10.240.2.118/32 in_recovery=True
+  14:34:04.030 (t=+174.1s) -> 10.240.2.118/32 in_recovery=True
+  14:34:04.159 (t=+174.2s) -> 10.240.2.118/32 in_recovery=True
+  14:34:04.284 (t=+174.3s) -> 10.240.2.118/32 in_recovery=True
+  14:34:04.426 (t=+174.5s) -> 10.240.2.118/32 in_recovery=True
+== timeline (lines where something changed)
+  14:30:51 Cluster_in_healthy_state cur=pg-main-2 tgt=pg-main-2 [1:T:r:worker 2:T:p:worker2 3:T:r:worker3] rw=10.240.2.118 
+  14:32:00 Cluster_in_healthy_state cur=pg-main-2 tgt=pg-main-2 [1:T:r:worker 2:F:p:worker2 3:T:r:worker3] rw=none notready=ent-worker2:NotReady 
+  14:32:01 Failing_over cur=pg-main-2 tgt=pg-main-1 [1:T:r:worker 2:F:u:worker2 3:T:r:worker3] rw=none notready=ent-worker2:NotReady 
+  14:32:22 Failing_over cur=pg-main-1 tgt=pg-main-1 [1:T:r:worker 2:F:u:worker2 3:T:r:worker3] rw=none notready=ent-worker2:NotReady 
+  14:32:27 Failing_over cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:F:r:worker2 3:T:r:worker3] rw=10.240.1.130 notready=ent-worker2:NotReady 
+  14:33:13 Failing_over cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:F:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+  14:33:31 Failing_over cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:T:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+  14:33:33 Cluster_in_healthy_state cur=pg-main-1 tgt=pg-main-1 [1:T:p:worker 2:T:r:worker2 3:T:r:worker3] rw=10.240.1.130 
+== 21 events, 28 operator log lines; primary now pg-main-1

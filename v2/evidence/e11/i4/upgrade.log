@@ -1,0 +1,23 @@
+== 14:07:25 publish: chart 10.17.1
+MR !45 (mr/20261110-140726-root, by root) pipeline 88: success after 31 s; diff: platform/apps/argocd.yaml
+merge !45 as root (Maintainer): HTTP 200 merged
+platform-gitops: merged !45 (E11: Argo CD chart 10.14.0 -> 10.17.1)
+== 14:08:00 watching
+  +0 s 14:08:00: chart 10.14.0 Synced Healthy Succeeded; 6/6 pods ready
+  +244 s 14:12:04: chart 10.17.1 OutOfSync Healthy Running; 6/6 pods ready
+  +254 s 14:12:14: chart 10.17.1 OutOfSync Healthy Running; 6/7 pods ready
+  +257 s 14:12:17: chart 10.17.1 OutOfSync Healthy Running; 6/6 pods ready
+  +267 s 14:12:27: chart 10.17.1 OutOfSync Healthy Succeeded; 4/9 pods ready
+  +273 s 14:12:33: chart 10.17.1 OutOfSync Healthy Succeeded; 5/8 pods ready
+  +290 s 14:12:50: chart 10.17.1 Synced Progressing Succeeded; 5/7 pods ready
+  +293 s 14:12:53: chart 10.17.1 Synced Progressing Succeeded; 6/6 pods ready
+  +315 s 14:13:15: chart 10.17.1 Synced Healthy Succeeded; 6/6 pods ready
+  operation: successfully synced (all tasks run) (started 2026-11-10T14:12:03Z, finished 2026-11-10T14:12:27Z)
+    argocd-application-controller-0 started 2026-11-10T14:12:29Z restarts 0
+    argocd-applicationset-controller-c6c868767-xvrmx started 2026-11-10T14:12:26Z restarts 0
+    argocd-notifications-controller-66c84b4bc4-95pbj started 2026-11-10T14:12:29Z restarts 0
+    argocd-redis-86fb5c84d-xk7b8 started 2026-11-10T05:53:58Z restarts 2
+    argocd-redis-secret-init-65fkr started 2026-11-10T14:12:13Z restarts 0
+    argocd-repo-server-7977ff6455-6xz5h started 2026-11-10T14:12:27Z restarts 0
+    argocd-server-7467f566d6-qfxxg started 2026-11-10T14:12:26Z restarts 0
+  applications:  4 Synced/Degraded; 35 Synced/Healthy;

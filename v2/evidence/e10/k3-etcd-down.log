@@ -1,0 +1,25 @@
+== 10:32:55 3. down: compacted and defragmented at 10 000, 5000 and 0 pods
+  10:32:55 start: revision 131661, db size 68.91 MiB, in use 54.46 MiB; pods 10000, events 16127; available MiB 2743
+  10:33:09 compact --physical to revision 132578: compacted revision 132578
+  10:33:10 defragmentation: Finished defragmenting etcd member[127.0.0.1:2379]. took 472.98876ms
+  10:33:10 10000 pods, compacted and defragmented: revision 132610, db size 54.14 MiB, in use 54.14 MiB; pods 10000, events 16127; available MiB 2380
+  10:43:36 stopped by the 600 s timeout while deleting by name: 7134 pods left (2866 deleted in about 590 s); continued with 16 parallel deletes
+== 10:43:36 3. down: compacted and defragmented at 10 000, 5000 and 0 pods
+  10:43:36 start: revision 154062, db size 84.66 MiB, in use 63.48 MiB; pods 7134, events 16127; available MiB 2662
+  10:43:48 compact --physical to revision 154077: compacted revision 154077
+  10:43:49 defragmentation: Finished defragmenting etcd member[127.0.0.1:2379]. took 410.377408ms
+  10:43:50 10000 pods, compacted and defragmented: revision 154081, db size 43.62 MiB, in use 43.62 MiB; pods 7134, events 16127; available MiB 2644
+  note: the line of 10:43:50 carries the old label "10000 pods" - 7134 pods, as the line itself counts; the run was stopped at 10:54 during the named deletion (6969 pods left); continued with the corrected script:
+== 10:54:45 3. down: compacted and defragmented at the start, at 5000 and at 0 pods
+  10:54:46 start: revision 168440, db size 52.14 MiB, in use 50.62 MiB; pods 6969, events 16127; available MiB 2713
+  10:55:00 compact --physical to revision 168505: compacted revision 168505
+  10:55:01 defragmentation: Finished defragmenting etcd member[127.0.0.1:2379]. took 476.569942ms
+  10:55:01 compacted and defragmented: revision 168526, db size 43.02 MiB, in use 43.02 MiB; pods 6969, events 16127; available MiB 2855
+  10:56:01 5000 pods left (the deletions are new revisions): revision 175878, db size 59.46 MiB, in use 59.46 MiB; pods 5000, events 16127; available MiB 2732
+  10:56:13 compact --physical to revision 176459: compacted revision 176459
+  10:56:14 defragmentation: Finished defragmenting etcd member[127.0.0.1:2379]. took 594.527698ms
+  10:56:15 5000 pods, compacted and defragmented: revision 176463, db size 35.85 MiB, in use 35.85 MiB; pods 5000, events 16127; available MiB 2707
+  10:57:30 0 pods: revision 192591, db size 75.4 MiB, in use 75.39 MiB; pods 0, events 16127; available MiB 2482
+  10:57:38 compact --physical to revision 192756: compacted revision 192756
+  10:57:40 defragmentation: Finished defragmenting etcd member[127.0.0.1:2379]. took 406.227134ms
+  10:57:41 0 pods, compacted and defragmented: revision 192897, db size 17.65 MiB, in use 17.65 MiB; pods 0, events 16127; available MiB 2633

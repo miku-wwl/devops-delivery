@@ -1,0 +1,14 @@
+  e10-low: {"borrowingLimitPercent":0,"lendablePercent":0,"limitResponse":{"queuing":{"handSize":1,"queueLengthLimit":5,"queues":1},"type":"Queue"},"nominalConcurrencyShares":1}; workload-low lendablePercent 90
+  API server flags: 
+== 11:27:55 K5: victim alone for 30 s
+  victim's GET: HTTP/2 200 : flow schema service-accounts, priority level workload-low
+  nominal seats: e10-low=3 workload-low=244 
+== 11:28:26 flood: 40 workers LIST all pods for 60 s; the victim keeps going
+  11:28:46 a flood request 20 s in: no answer (connection failed)
+== 11:29:31 rejected by APF (apiserver_flowcontrol_rejected_requests_total): e10-low +0, workload-low +0
+  flood: 15394 requests, codes {'429': 4025, '000': 11196, '403': 161, '200': 12}; LIST p50 5.59 s, p99 9.04 s (200 only)
+  429 by message: {'text:Too_many_requests,_please_try_again_later.': 3375, '_storage_is_(re)initializing_': 650}
+  victim quiet: 58 GETs, codes {'200': 58}; p50 12.1 ms, p99 20.7 ms
+  victim flood: 84 GETs, codes {'200': 36, '000': 44, '403': 4}; p50 78.7 ms, p99 436.9 ms
+  kwok-scale-kube-apiserver: restarts 5, memory peak since its last start 443 MiB of 1536 MiB
+  OOM kills of this container in the kernel log: 5

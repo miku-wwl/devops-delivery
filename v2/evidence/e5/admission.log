@@ -1,0 +1,35 @@
+# transcript: E5: admission policy - Kyverno (webhook) and a ValidatingAdmissionPolicy (built in): decisions, latency, a Kyverno restart, generated tenant defaults
+# recorded: 2026-11-09T09:15:30Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e5/admission.sh
+== 1. who decides (image localhost:5001/storefront:fd38028)
+-- shop-dev
+  valid pod                          admitted (resources after admission: {"limits":{"memory":"64Mi"},"requests":{"cpu":"10m","memory":"32Mi"}})
+  image from docker.io               error when creating "STDIN": admission webhook "validate.kyverno.svc-fail" denied the request:   resource Pod/shop-dev/foreign was blocked due to the following policies   tenant-pods:   images-from-the-platform-registry-with-a-tag
+  tag :latest                        error when creating "STDIN": admission webhook "validate.kyverno.svc-fail" denied the request:   resource Pod/shop-dev/latest was blocked due to the following policies   tenant-pods:   images-from-the-platform-registry-with-a-tag:
+  no tag                             error when creating "STDIN": admission webhook "validate.kyverno.svc-fail" denied the request:   resource Pod/shop-dev/notag was blocked due to the following policies   tenant-pods:   images-from-the-platform-registry-with-a-tag: 
+  no resources stated                admitted (resources after admission: {"limits":{"memory":"128Mi"},"requests":{"cpu":"50m","memory":"64Mi"}})
+  no securityContext                 error when creating "STDIN": pods "nosc" is forbidden: violates PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "c" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities 
+-- e5-native
+  valid pod                          admitted (resources after admission: {"limits":{"memory":"64Mi"},"requests":{"cpu":"10m","memory":"32Mi"}})
+  image from docker.io               The pods "foreign" is invalid: : ValidatingAdmissionPolicy 'e5-native-images' with binding 'e5-native-images' denied request: Images must be localhost:5001/<name>:<tag> - the platform registry, a fixed tag, not :latest.
+  tag :latest                        The pods "latest" is invalid: : ValidatingAdmissionPolicy 'e5-native-images' with binding 'e5-native-images' denied request: Images must be localhost:5001/<name>:<tag> - the platform registry, a fixed tag, not :latest.
+  no tag                             The pods "notag" is invalid: : ValidatingAdmissionPolicy 'e5-native-images' with binding 'e5-native-images' denied request: Images must be localhost:5001/<name>:<tag> - the platform registry, a fixed tag, not :latest.
+  no resources stated                admitted (resources after admission: {})
+  no securityContext                 error when creating "STDIN": pods "nosc" is forbidden: violates PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "c" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities 
+== 2. admission time: 40 valid pods per namespace, means from the API server's metrics
+  admission_webhook_admission_duration_seconds name="monitor-webhooks.kyverno.svc",operation="UPDATE",rejected="false",type="admit": 2 calls, mean 1.61 ms
+  admission_webhook_admission_duration_seconds name="validate.kyverno.svc-fail",operation="CREATE",rejected="false",type="validating": 80 calls, mean 4.04 ms
+== 3. the Kyverno admission controller restarts; a valid pod every second in three namespaces
+  09:15:54.049 deleting kyverno-admission-controller-5df689c86f-st2ph
+  09:15:54 shop-dev=FAIL(failed calling webhook "validate.kyverno.svc-fail") storefront=FAIL(failed calling webhook "validate.kyverno.svc-fail") e5-native=FAIL(failed calling webhook "validate.kyverno.svc-fail")
+  09:16:28 shop-dev=ok storefront=ok e5-native=ok
+  (75 samples; lines are printed when a result changes)
+  new admission controller kyverno-admission-controller-5df689c86f-mx9l6, started 2026-11-09T09:15:54Z, ready 2026-11-09T09:16:24Z
+== 4. a new tenant namespace: how fast the generated defaults appear
+  4 of 4 objects after 1.5 s
+  NetworkPolicy   allow-dns-and-same-namespace   kyverno
+  NetworkPolicy   default-deny                   kyverno
+  ResourceQuota   tenant                         kyverno
+  LimitRange      tenant-defaults                kyverno
+

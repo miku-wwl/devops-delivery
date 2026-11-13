@@ -1,0 +1,46 @@
+# transcript: P10 part A: human gate passed, the canary goes to 100 %
+# recorded: 2026-11-06T13:33:40Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# Decision basis: analysis 5/5 successful (success rate 1, canary p95 4.75 ms), no 5xx, dev verified (chain-3).
+$ kubectl argo rollouts promote demo-api-prod -n prod
+rollout 'demo-api-prod' promoted
+
+$ bash delivery/rollouts/watch-rollout.sh prod demo-api-prod Healthy 420
+t+0s  phase=Progressing step=2 updated=1 available=5 analysis=Running message="more replicas need to be updated"
+t+3s  phase=Progressing step=2 updated=3 available=4 analysis=Running message="more replicas need to be updated"
+t+10s  phase=Progressing step=2 updated=3 available=5 analysis=Running message="more replicas need to be updated"
+t+16s  phase=Paused step=3 updated=3 available=6 analysis=Running message="CanaryPauseStep"
+t+76s  phase=Progressing step=4 updated=4 available=4 analysis=Running message="more replicas need to be updated"
+t+82s  phase=Paused step=5 updated=4 available=5 analysis=Running message="CanaryPauseStep"
+t+110s  phase=Progressing step=6 updated=5 available=4 analysis=Running message="updated replicas are still becoming available"
+t+120s  phase=Healthy step=6 updated=5 available=5 analysis=- message="-"
+
+$ AR=$(kubectl -n prod get analysisrun --sort-by=.metadata.creationTimestamp -o jsonpath="{.items[-1:].metadata.name}")
+
+$ kubectl -n prod get analysisrun "$AR" -o json | jq -r "\"\(.metadata.name): \(.status.phase) \(.status.message // \"\")\", (.status.metricResults[] | \"  \(.name): phase=\(.phase) successful=\(.successful // 0) failed=\(.failed // 0)\")"
+demo-api-prod-56ffb56667-8: Successful Run Terminated
+  success-rate: phase=Successful successful=12 failed=0
+  p95-latency-seconds: phase=Successful successful=12 failed=0
+
+$ kubectl argo rollouts get rollout demo-api-prod -n prod | sed -E "s/\x1b\[[0-9;]*m//g" | sed -n "1,9p"
+Name:            demo-api-prod
+Namespace:       prod
+Status:          ✔ Healthy
+Strategy:        Canary
+  Step:          6/6
+  SetWeight:     100
+  ActualWeight:  100
+Images:          ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:4bb4aac303ab48d036af1808c98312c16acbe8eef3c8f6fcdc42dc4f77711f38 (stable)
+Replicas:
+
+$ kubectl get pods -n prod -l app.kubernetes.io/name=demo-api -o custom-columns=POD:.metadata.name,HASH:.metadata.labels.rollouts-pod-template-hash,LATENCY_MS:".spec.containers[0].env[?(@.name==\"FAULT_LATENCY_MS\")].value" --no-headers
+demo-api-prod-56ffb56667-gr7cz   56ffb56667   0
+demo-api-prod-56ffb56667-kdrzz   56ffb56667   0
+demo-api-prod-56ffb56667-klpxl   56ffb56667   0
+demo-api-prod-56ffb56667-nqlv6   56ffb56667   0
+demo-api-prod-56ffb56667-qm6bv   56ffb56667   0
+
+$ bash delivery/argocd/wait-sync.sh demo-api-prod "" 60
+t+1s  revision=f49539c sync=Synced health=Healthy operation=Succeeded
+reached Synced/Healthy at f49539c after 1s
+

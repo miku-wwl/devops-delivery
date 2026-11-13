@@ -1,0 +1,60 @@
+# E5 RBAC test matrix: what each lab user may do, decided before the test (rbac-matrix.sh).
+# user	verb	resource (res:sub = subresource, res/name = one object)	namespace (- = cluster scope, * = all namespaces)	expected	why
+alice	get	pods	storefront	yes	team-shop reads its prod namespace
+alice	get	pods:log	storefront	yes	logs are part of reading
+alice	create	pods:exec	storefront	no	no shell in prod
+alice	delete	pods	storefront	no	prod changes go through Git
+alice	patch	deployments	storefront	no	prod changes go through Git
+alice	get	secrets	storefront	no	nobody but break-glass reads Secrets
+alice	create	deployments	shop-dev	yes	developer in the dev namespace
+alice	create	pods:exec	shop-dev	yes	debugging in dev
+alice	get	pods:exec	shop-dev	yes	WebSocket exec is authorized as get (added after who-1)
+alice	get	pods:exec	storefront	no	no shell in prod, by either protocol
+alice	get	secrets	shop-dev	no	no Secrets, even in dev
+alice	create	secrets	shop-dev	no	Secrets come from the platform
+alice	update	resourcequotas	shop-dev	no	guard rails belong to the platform
+alice	delete	networkpolicies	shop-dev	no	guard rails belong to the platform
+alice	create	rolebindings	shop-dev	yes	delegated access management
+alice	bind	clusterroles/tenant-viewer	shop-dev	yes	may grant the tenant roles
+alice	bind	clusterroles/cluster-admin	shop-dev	no	may not grant anything else
+alice	create	serviceaccounts:token	shop-dev	no	no tokens for service accounts
+alice	get	pods	insight	no	another team's namespace
+alice	list	namespaces	-	no	cluster scope
+alice	list	nodes	-	no	cluster scope
+alice	create	clusterrolebindings	-	no	cluster scope
+alice	impersonate	users	-	no	no impersonation
+alice	delete	namespaces/shop-dev	-	no	cannot delete its own namespace
+bob	get	pods	insight	yes	developer in insight
+bob	create	deployments	insight	yes	developer in insight
+bob	get	pods	storefront	no	another team's namespace
+bob	get	pods	shop-dev	no	another team's namespace
+bob	get	secrets	insight	no	no Secrets
+bob	create	networkpolicies	insight	no	guard rails belong to the platform
+bob	create	externalsecrets	insight	yes	the team chooses which secrets to copy (added with OpenBao)
+bob	create	secretstores	insight	no	the store and its login are the platform's (added with OpenBao)
+bob	get	secrets	insight	no	still no Secrets, also not the copied ones (added with OpenBao)
+carol	list	pods	*	yes	platform-wide read
+carol	create	pods:exec	storefront	yes	operator: shell for diagnosis
+carol	get	pods:exec	storefront	yes	WebSocket exec is authorized as get (added after who-1)
+carol	delete	pods	storefront	yes	operator: restart a pod
+carol	create	pods:eviction	storefront	yes	operator: drain a node
+carol	patch	nodes	-	yes	operator: cordon a node
+carol	patch	deployments	storefront	yes	operator: scale or restart
+carol	update	deployments	storefront	no	full rewrites go through Git
+carol	create	networkpolicies	insight	yes	the platform owns the guard rails
+carol	get	secrets	storefront	no	no Secrets without break-glass
+carol	get	secrets	data	no	no Secrets without break-glass
+carol	create	clusterrolebindings	-	no	RBAC changes go through Git
+carol	create	namespaces	-	no	namespaces come from Git
+carol-breakglass	get	secrets	storefront	yes	break-glass: cluster-admin for one hour
+carol-breakglass	create	clusterrolebindings	-	yes	break-glass: cluster-admin for one hour
+dave	list	pods	*	yes	auditor reads everything
+dave	get	pods:log	storefront	yes	auditor reads logs
+dave	list	clusterrolebindings	-	yes	auditor reads RBAC
+dave	list	rolebindings	*	yes	auditor reads RBAC
+dave	list	nodes	-	yes	auditor reads cluster objects
+dave	get	secrets	storefront	no	auditors do not read Secrets
+dave	list	secrets	*	no	auditors do not read Secrets
+dave	create	pods:exec	storefront	no	read only
+dave	delete	pods	storefront	no	read only
+dave	patch	nodes	-	no	read only

@@ -1,0 +1,27 @@
+# transcript: E4 eviction run 2, afterwards: the node container s own cgroup counters (memory.max hits, kernel OOM kills since the container started) and cleanup
+# recorded: 2026-11-09T08:02:27Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ docker inspect ent-worker --format '{{.State.StartedAt}}'
+2026-11-07T07:04:19.777017495Z
+
+$ docker exec ent-worker sh -c 'echo "memory.max $(cat /sys/fs/cgroup/memory.max)"; cat /sys/fs/cgroup/memory.events; grep -E "^(anon|file|active_file|inactive_file) " /sys/fs/cgroup/memory.stat'
+memory.max 3221225472
+low 0
+high 0
+max 18382
+oom 6
+oom_kill 12
+oom_group_kill 6
+anon 1493880832
+file 661753856
+inactive_file 218898432
+active_file 240578560
+
+$ kubectl get ns e4-evict 2>&1 | tail -1
+Error from server (NotFound): namespaces "e4-evict" not found
+[exit 1]
+
+$ kubectl get node ent-worker -o jsonpath='{range .status.conditions[*]}{.type}={.status} {end}{"\n"}taints={.spec.taints}{"\n"}'
+MemoryPressure=False DiskPressure=False PIDPressure=False Ready=True 
+taints=
+

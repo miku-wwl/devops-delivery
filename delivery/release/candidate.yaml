@@ -1,0 +1,8 @@
+# Release candidate proposed for production. Changing this file starts the
+# production-gate workflow, which waits for a required reviewer of the "production"
+# GitHub environment, then verifies the candidate's provenance and records the
+# decision. The rollout itself happens through the GitOps configuration repository.
+image: ghcr.io/miku-wwl/devops-delivery/demo-api
+digest: sha256:7826c3b200f29420237e75169e25d4780192439e9ca01c5d1b17988e513b2559
+source_commit: 5f72652ac86939d716c45d7a6d6869d6b8caf17c
+evidence: canary analysis demo-api-prod-6bdb67694c-3.1 Successful (12/12 per metric)

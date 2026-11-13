@@ -1,0 +1,3 @@
+$ manual/.venv/Scripts/python.exe manual/tools/webshot.py --url "http://127.0.0.1:3000/d/storefront-slo/x?orgId=1&from=1794294900000&to=1794301200000&kiosk" --out v2/evidence/e9/screens/grafana-slo-incident.png --width 1600 --height 1300 --wait-until load --wait-ms 6000
+v2\evidence\e9\screens\grafana-slo-incident.png
+# derived for the book (Pillow): rows 1 (traffic, alerts) and 3 (checkout) of grafana-slo-incident.png (crops 0,0-2400,545 and 0,1003-2400,1455) -> grafana-slo-incident-checkout.png

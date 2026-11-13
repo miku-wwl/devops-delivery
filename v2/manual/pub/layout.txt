@@ -1,0 +1,16 @@
+# Page make-up of the Publication Edition (applied by build_pub.py to the derived sources, never to the chapters).
+#   text in the figure block => n        let the next n blocks of text come before the figure (they fill the page end)
+#   text in the figure block => max NN   cap the figure's height at NN mm so that it still fits under its paragraph
+# Tune with: manual/.venv/Scripts/python.exe v2/manual/pub/tools/gaps.py <pdf>
+事故演练期间的 SLO 看板 => 3
+一个 exemplar 打开的链路 => 1
+平台从 Git 引导（app-of-apps）：手工 => 2
+同一个 CPU 消耗者，声明不同的 CPU 请求 => 1
+同一个故障，两种模式打到故障依赖上的负载 => 2
+R2 与 R4：根应用第一次同步之后的时间线 => 1
+漂移实验：注入三处改动之后 => 2
+storefront 的服务与数据：同步调用（实线） => 2
+ambient 模式的数据路径 => 1
+# the two figures of the canary experiment follow the paragraph that reads them (the screenshot's rule comes first)
+金丝雀的一次完整经历 => 1
+金丝雀实验的四个数字 => 1

@@ -1,0 +1,28 @@
+2026-11-09T15:00:15.346636173Z Current primary isn't healthy, initiating a failover  
+2026-11-09T15:00:15.375698274Z Cluster has become unhealthy  
+2026-11-09T15:00:15.403185787Z Setting primary label to unhealthy in the old primary during failover  
+2026-11-09T15:00:15.492197737Z Waiting for the new primary to notice the promotion request  
+2026-11-09T15:00:15.588816148Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T15:00:15.663967635Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T15:00:16.736850088Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T15:00:17.814169365Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T15:00:18.892705467Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T15:00:19.959642037Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T15:00:21.032079527Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T15:00:22.106217251Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T15:00:23.187325797Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T15:00:24.260905538Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T15:00:24.674992805Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T15:00:25.741337513Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T15:00:26.85078523Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T15:00:27.939055132Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T15:00:28.989849097Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T15:00:30.045164072Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T15:00:31.108003856Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T15:00:32.178093229Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T15:00:33.24151355Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T15:00:34.306052608Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T15:00:35.377783507Z There is a switchover or a failover in progress, waiting for the operation to complete pg-main-2 pg-main-1
+2026-11-09T15:00:38.214029094Z Setting primary label  
+2026-11-09T15:01:23.915056549Z An old primary pod has been detected. Awaiting its recognition of the new role  
+2026-11-09T15:01:24.51593122Z An old primary pod has been detected. Awaiting its recognition of the new role  

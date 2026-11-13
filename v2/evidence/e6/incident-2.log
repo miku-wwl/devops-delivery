@@ -1,0 +1,57 @@
+# transcript: E6 incident 2: after the node failure the replacement metrics-server (system-cluster-critical) preempted Prometheus on ent-worker2; Prometheus, pinned by its volume, could not return - room made by hand
+# recorded: 2026-11-09T11:00:34Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl -n monitoring get events --field-selector involvedObject.name=prometheus-kps-prometheus-0 -o custom-columns=TIME:.lastTimestamp,REASON:.reason,MSG:.message --no-headers | grep -E "Preempted|FailedScheduling" | cut -c1-230
+2026-11-09T10:29:49Z   FailedScheduling   0/4 nodes are available: 2 Insufficient memory, 2 node(s) had untolerated taint(s). preemption: 0/4 nodes are available: 2 No preemption victims found for incoming pod, 2 Preemption is not
+2026-11-09T10:54:55Z   Preempted          Preempted by pod c0807979-a181-4678-b687-914f59154ae6 on node ent-worker2
+2026-11-09T10:56:12Z   FailedScheduling   0/4 nodes are available: 2 Insufficient memory, 2 node(s) had untolerated taint(s). preemption: 0/4 nodes are available: 2 No preemption victims found for incoming pod, 2 Preemption is not
+2026-11-09T10:56:33Z   FailedScheduling   0/4 nodes are available: 1 node(s) didn't match PersistentVolume's node affinity, 1 node(s) had untolerated taint(s), 2 Insufficient memory. preemption: 0/4 nodes are available: 2 No preem
+
+$ kubectl get pods -A --field-selector spec.nodeName=ent-worker2 -o json | jq -r '.items[] | select(.metadata.creationTimestamp >= "2026-11-09T10:54:00Z") | "new on ent-worker2 since the node failure: \(.metadata.namespace)/\(.metadata.name) priority \(.spec.priority // 0) \(.spec.priorityClassName // "-")"'
+new on ent-worker2 since the node failure: keda/keda-operator-bd4b87784-n77rj priority 0 -
+new on ent-worker2 since the node failure: kube-system/metrics-server-76558b4bb9-9t4vl priority 2000000000 system-cluster-critical
+new on ent-worker2 since the node failure: kyverno/kyverno-background-controller-85d56dc94d-jh6zf priority 0 -
+new on ent-worker2 since the node failure: monitoring/kps-grafana-676885f46d-ghn6b priority 0 -
+new on ent-worker2 since the node failure: storefront/inventory-7f7684694c-9dzfr priority 0 -
+new on ent-worker2 since the node failure: storefront/orders-5cd5d8df65-n94vv priority 0 -
+
+$ kubectl get priorityclass --no-headers
+system-cluster-critical   2000000000   false   2d7h   PreemptLowerPriority
+system-node-critical      2000001000   false   2d7h   PreemptLowerPriority
+
+$ for n in ent-worker ent-worker2 ent-worker3; do echo "$n: $(kubectl describe node $n | grep -E '^  memory ' | awk '{print $2, $3}') requested"; done
+ent-worker: 1258Mi (47%) requested
+ent-worker2: 2642Mi (99%) requested
+ent-worker3: 2666Mi (99%) requested
+
+$ kubectl -n kube-system delete pod -l k8s-app=metrics-server --wait=true
+pod "metrics-server-76558b4bb9-9t4vl" deleted from kube-system namespace
+
+$ kubectl -n argocd delete pod argocd-application-controller-0 --wait=true
+pod "argocd-application-controller-0" deleted from argocd namespace
+
+$ kubectl -n storefront delete pod $(kubectl -n storefront get pods --field-selector spec.nodeName=ent-worker2 -o jsonpath='{.items[*].metadata.name}') --wait=true
+pod "inventory-7f7684694c-9dzfr" deleted from storefront namespace
+pod "orders-5cd5d8df65-n94vv" deleted from storefront namespace
+
+$ kubectl -n monitoring wait --for=condition=Ready pod/prometheus-kps-prometheus-0 --timeout=600s
+error: timed out waiting for the condition on pods/prometheus-kps-prometheus-0
+[exit 1]
+
+$ kubectl get pods -A -o wide --no-headers | awk '$2 ~ /^(metrics-server|argocd-application-controller|prometheus-kps|inventory|orders)/ {print $1 "/" $2, $8}'
+argocd/argocd-application-controller-0 ent-worker
+kube-system/metrics-server-76558b4bb9-bj7mv ent-worker
+monitoring/prometheus-kps-prometheus-0 <none>
+storefront/inventory-7f7684694c-ptvn7 ent-worker3
+storefront/inventory-7f7684694c-wx2nh ent-worker2
+storefront/orders-5cd5d8df65-lsmph ent-worker2
+storefront/orders-5cd5d8df65-z45rb ent-worker3
+
+$ for n in ent-worker ent-worker2 ent-worker3; do echo "$n: $(kubectl describe node $n | grep -E '^  memory ' | awk '{print $2, $3}') requested"; done
+ent-worker: 2098Mi (78%) requested
+ent-worker2: 1802Mi (67%) requested
+ent-worker3: 2666Mi (99%) requested
+
+$ kubectl get pods -A --no-headers | grep -vcE 'Running|Completed'
+1
+

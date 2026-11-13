@@ -1,0 +1,16 @@
+# transcript: E5: (A) a connection that predates the policy survives it; (B) behind a waypoint - again with the corrected probe
+# recorded: 2026-11-09T08:52:59Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e5/mesh-np-diag2.sh
+== A: a connection that predates the policy (namespace e5-a)
+  A1 no policy                                               client->server: ok 97ms
+    conntrack: src=10.240.3.86 dst=10.240.2.76 sport=43798 dport=15008 src=10.240.2.76 dst=10.240.3.86 sport=15008 dport=43798 ESTABLISHED
+  A2 default-deny ingress, same client pod                   client->server: ok 30ms
+    conntrack: src=10.240.3.86 dst=10.240.2.76 sport=43798 dport=15008 src=10.240.2.76 dst=10.240.3.86 sport=15008 dport=43798 ESTABLISHED
+  A3 client pod recreated (new HBONE connection)             client->server: timeout 3051ms
+== B: with a waypoint, policies before the first request (namespace e5-b)
+  waypoint pod on ent-worker
+  B1 deny + client->waypoint + client->server                client->server: timeout 3118ms
+  B2 + waypoint->server on 15008                             client->server: ok 60ms
+    conntrack: src=10.240.1.87 dst=10.240.2.77 sport=52090 dport=15008 src=10.240.2.77 dst=10.240.1.87 sport=15008 dport=52090 ESTABLISHED
+

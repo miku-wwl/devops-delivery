@@ -1,0 +1,94 @@
+# transcript: P12: what a digest is, and why the same commit gave two digests
+# recorded: 2026-11-06T19:26:04Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# Two images built from the same commit 70ae35c by release runs 42195568852 (A) and 42196846132 (C), chapter 11
+$ R=miku-wwl/devops-delivery/demo-api; A=sha256:27919359a4612728dc047402d739252c02dabaa50108eea3ff78cda3825a4dae; C=sha256:e17b82f121c7fa78165acd064dcae8b9c3453d8c4779c4684c99c200fab413c7
+
+$ T=$(curl -s "https://ghcr.io/token?scope=repository:$R:pull" | jq -r .token); echo "anonymous pull token: ${#T} characters"
+anonymous pull token: 76 characters
+
+$ for D in $A $C; do curl -s -H "Authorization: Bearer $T" -H "Accept: application/vnd.oci.image.manifest.v1+json,application/vnd.docker.distribution.manifest.v2+json" "https://ghcr.io/v2/$R/manifests/$D" -o /tmp/manifest-${D:7:8}.json; done
+
+# 1. A digest is the SHA-256 of the manifest bytes - nothing more
+$ for D in $A $C; do echo "${D:0:19}...  sha256 of the bytes we received: $(sha256sum /tmp/manifest-${D:7:8}.json | cut -c1-12)..."; done
+sha256:27919359a461...  sha256 of the bytes we received: 27919359a461...
+sha256:e17b82f121c7...  sha256 of the bytes we received: e17b82f121c7...
+
+$ jq '{schemaVersion, mediaType, config: {mediaType: .config.mediaType, digest: .config.digest[0:19], size: .config.size}, layers: (.layers | length)}' /tmp/manifest-27919359.json
+{
+  "schemaVersion": 2,
+  "mediaType": "application/vnd.oci.image.manifest.v1+json",
+  "config": {
+    "mediaType": "application/vnd.oci.image.config.v1+json",
+    "digest": "sha256:70010f3c44ae",
+    "size": 9817
+  },
+  "layers": 8
+}
+
+# 2. Which parts differ? Layers, compared position by position (= same, x = different)
+$ paste <(jq -r '.layers[] | .digest[7:19]' /tmp/manifest-27919359.json) <(jq -r '.layers[] | .digest[7:19]' /tmp/manifest-e17b82f1.json) <(jq -r '.layers[].size' /tmp/manifest-e17b82f1.json) | awk '{printf "layer %d  %s %s  %s  %d bytes\n", NR, $1, $2, ($1==$2 ? "=" : "x"), $3}'
+layer 1  37fb86c2a767 37fb86c2a767  =  29856132 bytes
+layer 2  0069ea31add0 0069ea31add0  =  1289780 bytes
+layer 3  faa890a31e98 faa890a31e98  =  11924001 bytes
+layer 4  f7a79299dedd f7a79299dedd  =  248 bytes
+layer 5  17994bce077a e21dab08e91d  x  1423 bytes
+layer 6  ec16f00a796b ec16f00a796b  =  9057387 bytes
+layer 7  ee87ed2cfa8a d0a8ad443e61  x  93 bytes
+layer 8  aa63f5e612b4 87ece70496f5  x  5246 bytes
+
+# 3. The config blobs: build history and metadata
+$ for D in 27919359 e17b82f1; do CD=$(jq -r .config.digest /tmp/manifest-$D.json); curl -sL -H "Authorization: Bearer $T" "https://ghcr.io/v2/$R/blobs/$CD" -o /tmp/config-$D.json; echo "config of $D: $(sha256sum /tmp/config-$D.json | cut -c1-12)... (declared ${CD:7:12}...)"; done
+config of 27919359: 70010f3c44ae... (declared 70010f3c44ae...)
+config of e17b82f1: 7127d5d60061... (declared 7127d5d60061...)
+
+$ diff <(jq -S '{created, env: .config.Env, labels: .config.Labels}' /tmp/config-27919359.json) <(jq -S '{created, env: .config.Env, labels: .config.Labels}' /tmp/config-e17b82f1.json)
+2c2
+<   "created": "2026-11-06T09:33:45.034130175Z",
+---
+>   "created": "2026-11-06T09:44:10.891584237Z",
+12c12
+<     "APP_VERSION=p9/synthetic-gate-6",
+---
+>     "APP_VERSION=p9/synthetic-gate-8",
+16c16
+<     "org.opencontainers.image.created": "2026-11-06T09:33:35.297Z",
+---
+>     "org.opencontainers.image.created": "2026-11-06T09:44:03.074Z",
+[exit 1]
+
+# 4. Map layers to Dockerfile instructions (history entries without empty_layer produce a layer)
+$ jq -r '[.history[] | select(.empty_layer != true)] | to_entries[] | "layer \(.key + 1)  \(.value.created[0:19])  \(.value.created_by | split(" ") | map(select(. != "")) | join(" ") | .[0:100])"' /tmp/config-e17b82f1.json
+layer 1  2026-11-04T21:23:39  # debian.sh --arch 'amd64' out/ 'trixie' '@1793827419'
+layer 2  2026-11-05T07:52:02  RUN /bin/sh -c set -eux; 	apt-get update; 	apt-get install -y --no-install-recommends 		ca-certifica
+layer 3  2026-11-05T08:02:05  RUN /bin/sh -c set -eux; 		savedAptMark="$(apt-mark showmanual)"; 	apt-get update; 	apt-get install 
+layer 4  2026-11-05T08:02:05  RUN /bin/sh -c set -eux; 	for src in idle3 pip3 pydoc3 python3 python3-config; do 		dst="$(echo "$sr
+layer 5  2026-11-06T09:44:10  RUN |2 APP_VERSION=p9/synthetic-gate-8 GIT_SHA=70ae35cdc334e6c72a99ab380ba7ff2870e3ba46 /bin/sh -c u
+layer 6  2026-11-06T09:44:10  COPY /install /usr/local # buildkit
+layer 7  2026-11-06T09:44:10  WORKDIR /app
+layer 8  2026-11-06T09:44:10  COPY src/ ./src/ # buildkit
+
+# 5. Inside layers 7 and 8: same files and contents, different modification times?
+$ for D in 27919359 e17b82f1; do for n in 7 8; do L=$(jq -r ".layers[$((n-1))].digest" /tmp/manifest-$D.json); curl -sL -H "Authorization: Bearer $T" "https://ghcr.io/v2/$R/blobs/$L" -o /tmp/layer-$D-$n.tgz; done; done
+
+$ for n in 7 8; do echo "== layer $n: tar listings (permissions, owner, size, mtime, path) of A vs C"; diff <(tar -tvzf /tmp/layer-27919359-$n.tgz) <(tar -tvzf /tmp/layer-e17b82f1-$n.tgz) | head -8; done
+== layer 7: tar listings (permissions, owner, size, mtime, path) of A vs C
+1c1
+< drwxr-xr-x 0/0               0 2026-11-06 22:33 app/
+---
+> drwxr-xr-x 0/0               0 2026-11-06 22:44 app/
+== layer 8: tar listings (permissions, owner, size, mtime, path) of A vs C
+1,10c1,10
+< drwxr-xr-x 0/0               0 2026-11-06 22:33 app/
+< drwxr-xr-x 0/0               0 2026-11-06 22:33 app/src/
+< drwxr-xr-x 0/0               0 2026-11-06 22:33 app/src/demo_api/
+< -rw-r--r-- 0/0              95 2026-11-06 22:33 app/src/demo_api/__init__.py
+< -rw-r--r-- 0/0            1297 2026-11-06 22:33 app/src/demo_api/config.py
+< -rw-r--r-- 0/0            1598 2026-11-06 22:33 app/src/demo_api/logs.py
+< -rw-r--r-- 0/0            5478 2026-11-06 22:33 app/src/demo_api/main.py
+[exit 1]
+
+$ for D in 27919359 e17b82f1; do echo "layer 8 of $D: sha256 of the concatenated file contents = $(tar -xzOf /tmp/layer-$D-8.tgz | sha256sum | cut -c1-16)"; done
+layer 8 of 27919359: sha256 of the concatenated file contents = d6830502de4aabf0
+layer 8 of e17b82f1: sha256 of the concatenated file contents = d6830502de4aabf0
+

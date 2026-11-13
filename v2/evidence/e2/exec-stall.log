@@ -1,0 +1,18 @@
+# transcript: E2: does kubectl exec stall the application in the pod?
+# recorded: 2026-11-07T08:23:26Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e2/exec-stall.sh
+probe started 08:23:29; target payments-5fbcb59cc9-gbdnd (10.240.1.21)
+exec into payments-5fbcb59cc9-gbdnd at 08:23:49.786
+        done at 08:23:50.093
+exec into payments-5fbcb59cc9-gbdnd at 08:24:05.101
+        done at 08:24:05.372
+exec into payments-5fbcb59cc9-gbdnd at 08:24:20.379
+        done at 08:24:20.665
+--- probe output
+08:23:30  n=418 p50=2.8 ms  max=23.2 ms
+08:23:40  n=416 p50=2.8 ms  max=15.9 ms
+08:23:50  n=424 p50=2.6 ms  max=14.3 ms
+08:24:00  n=419 p50=2.7 ms  max=23.7 ms
+08:24:10  n=420 p50=2.8 ms  max=12.8 ms
+

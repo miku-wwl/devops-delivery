@@ -1,0 +1,37 @@
+# transcript: P5 consumer-side Cosign verification and a published-image scan (lab)
+# recorded: 2026-11-06T00:19:44Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ export IMG="ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74"
+
+# the signature must come from release.yml in this repository, via GitHub's OIDC issuer
+$ cosign verify "$IMG" --certificate-identity-regexp '^https://github.com/miku-wwl/devops-delivery/\.github/workflows/release\.yml@refs/heads/' --certificate-oidc-issuer https://token.actions.githubusercontent.com 2>&1 | grep -vE '^\s*$' | head -6
+Verification for ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74 --
+The following checks were performed on each of these signatures:
+  - The cosign claims were validated
+  - Existence of the claims in the transparency log was verified offline
+  - The code-signing certificate was verified using trusted certificate authority certificates
+[{"critical":{"identity":{"docker-reference":"ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74"},"image":{"docker-manifest-digest":"sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74"},"type":"https://sigstore.dev/cosign/sign/v1"},"optional":{}},{"critical":{"identity":{"docker-reference":"ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74"},"image":{"docker-manifest-digest":"sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74"},"type":"https://slsa.dev/provenance/v1"},"optional":{}},{"critical":{"identity":{"docker-reference":"ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74"},"image":{"docker-manifest-digest":"sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74"},"type":"https://spdx.dev/Document/v2.3"},"optional":{}}]
+
+# negative: same image, but we demand a different signer workflow
+$ cosign verify "$IMG" --certificate-identity-regexp '^https://github.com/miku-wwl/devops-delivery/\.github/workflows/ci\.yml@' --certificate-oidc-issuer https://token.actions.githubusercontent.com 2>&1 | tail -2
+failed to verify certificate identity: no matching CertificateIdentity found, last error: expected SAN value to match regex "^https://github.com/miku-wwl/devops-delivery/\.github/workflows/ci\.yml@", got "https://github.com/miku-wwl/devops-delivery/.github/workflows/release.yml@refs/heads/p5/supply-chain"
+failed to verify certificate identity: no matching CertificateIdentity found, last error: expected SAN value to match regex "^https://github.com/miku-wwl/devops-delivery/\.github/workflows/ci\.yml@", got "https://github.com/miku-wwl/devops-delivery/.github/workflows/release.yml@refs/heads/p5/supply-chain"
+[exit 1]
+
+# what is attached to the image in the registry (signature and attestations live next to it)
+$ oras version >/dev/null 2>&1 || true
+
+$ curl -s "https://ghcr.io/v2/miku-wwl/devops-delivery/demo-api/referrers/sha256:a0a4f18b1749f946d63f8af795f1001e7d06a190f2e70f0adf3e54d7c5ac9c74" -H "Authorization: Bearer $(curl -s 'https://ghcr.io/token?scope=repository:miku-wwl/devops-delivery/demo-api:pull' | jq -r .token)" | jq -r '.manifests[]? | "\(.artifactType)  \(.digest[0:19])…"'
+
+# the published image passes the same gate
+$ trivy image --quiet --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 --format table "$IMG" | grep -E '^(Total|Report Summary)|python-pkg|debian' | head -6
+Report Summary
+│ ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:a0a4f18b1749f946d63f8af795f100- │   debian   │        0        │    -    │
+│ 1e7d06a190f2e70f0adf3e54d7c5ac9c74 (debian 13.7)                                 │            │                 │         │
+│ usr/local/lib/python3.13/site-packages/annotated_doc-0.0.5.dist-info/METADATA    │ python-pkg │        0        │    -    │
+│ usr/local/lib/python3.13/site-packages/annotated_types-0.8.0.dist-info/METADATA  │ python-pkg │        0        │    -    │
+│ usr/local/lib/python3.13/site-packages/anyio-4.16.0.dist-info/METADATA           │ python-pkg │        0        │    -    │
+
+$ echo "trivy gate exit: $?"
+trivy gate exit: 0
+

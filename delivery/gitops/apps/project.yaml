@@ -1,0 +1,22 @@
+# AppProject: the guard rails for everything deployed from the config repository.
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: delivery
+  namespace: argocd
+spec:
+  description: demo-api environments managed by GitOps
+  # Only this repository may be used as a source ...
+  sourceRepos:
+    - http://gitlab:8929/root/delivery-gitops.git
+  # ... and only these namespaces of this cluster may be targets.
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: dev
+    - server: https://kubernetes.default.svc
+      namespace: prod
+  # No cluster-scoped objects (Namespaces, CRDs, ClusterRoles ...) from this project.
+  clusterResourceWhitelist: []
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"

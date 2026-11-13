@@ -1,0 +1,10 @@
+== 15:34:53 rehearsal OpenBao (0.30.7) in e7-bao-restore
+== 15:35:04 restore
+initialised with throwaway keys, unsealed: {"initialized":true,"sealed":false}
+newest snapshot: openbao/20261109T152716Z.snap
+in the pod: 42521 bytes
+after the restore: {"initialized":true,"sealed":true}
+unsealed with the original key: {"initialized":true,"sealed":false}
+== 15:35:27 secret insight/api-key, sha256 prefix: production 1251145cb0ed8b54, restored 1251145cb0ed8b54
+== 15:35:28 the throwaway root token after the restore: rejected
+== 15:35:28 rehearsal done in 35 s; removing it

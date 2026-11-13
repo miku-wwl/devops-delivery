@@ -1,0 +1,21 @@
+# transcript: E4: the gateway s fast rejections (bulkhead, breaker) in the same two windows
+# recorded: 2026-11-09T07:52:01Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e4/promq.sh 2026-11-09T03:05:00Z 'sum by (upstream, reason) (rate(upstream_rejected_total{namespace="storefront",service="gateway"}[12m]))'
+  reason=circuit_open,upstream=catalog 2.064
+  reason=bulkhead_full,upstream=catalog 1.183
+  reason=circuit_open,upstream=orders 0.626
+  reason=retry_budget,upstream=orders 0.058
+  reason=retry_budget,upstream=catalog 0.052
+  reason=deadline,upstream=orders 0.004
+  reason=deadline,upstream=catalog 0
+
+$ bash v2/experiments/e4/promq.sh 2026-11-09T03:40:40Z 'sum by (upstream, reason) (rate(upstream_rejected_total{namespace="storefront",service="gateway"}[12m]))'
+  reason=circuit_open,upstream=catalog 4.336
+  reason=circuit_open,upstream=orders 1.174
+  reason=bulkhead_full,upstream=catalog 0.953
+  reason=retry_budget,upstream=catalog 0.416
+  reason=retry_budget,upstream=orders 0.131
+  reason=deadline,upstream=catalog 0.026
+  reason=deadline,upstream=orders 0.009
+

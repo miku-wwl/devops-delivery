@@ -1,0 +1,8 @@
+{
+  "datadogSite": "datadoghq.com",
+  "files": ["synthetic/datadog/*.synthetics.json"],
+  "tunnel": true,
+  "failOnCriticalErrors": true,
+  "failOnMissingTests": true,
+  "failOnTimeout": true
+}

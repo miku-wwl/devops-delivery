@@ -1,0 +1,7 @@
+== 23:55:56 test of openbao-key-backup.sh with a DUMMY key file (not the real key), unattended passphrase file (test mode)
+  verified: the encrypted copy decrypts to exactly the key file
+  written: <tmp>/out/openbao-init-20261110T235556Z.json.gpg
+  sha256 of the encrypted file: <sha256>
+  encrypted file contains the plaintext marker: 0
+  a wrong passphrase is refused: yes
+  the real key file was not touched: mode 400, modified 2026-11-10T22:38:41Z

@@ -1,0 +1,30 @@
+== 23:54:28 ent-worker3: memory requests and usage per pod (MiB), largest requests first
+    1024 req    904 use  monitoring/prometheus-kps-prometheus-0                     StatefulSet platform-critical
+     640 req    234 use  observability/tempo-0                                      StatefulSet platform-critical
+     256 req    144 use  data/pg-main-3                                             Cluster platform-critical
+     160 req     84 use  istio-system/istiod-94db8467c-2bd9d                        ReplicaSet -
+      96 req     72 use  secrets/openbao-0                                          StatefulSet platform-critical
+      96 req     68 use  storefront/orders-7c7557755f-4nhmj                         ReplicaSet -
+      96 req     66 use  storefront/notifier-589f647cf7-bn9xc                       ReplicaSet -
+      96 req     35 use  data/nats-2                                                StatefulSet platform-critical
+      64 req     45 use  monitoring/kps-operator-bcddcd6dc-sc8j5                    ReplicaSet -
+      64 req     40 use  argocd/argocd-server-7467f566d6-qfxxg                      ReplicaSet -
+      50 req     25 use  kube-system/kindnet-94qc6                                  DaemonSet system-node-critical
+      48 req     49 use  argocd/argocd-applicationset-controller-c6c868767-xvrmx    ReplicaSet -
+  23 running pods: requests 3066 MiB, usage 2107 MiB
+== 23:54:52 peak working set over the retained window (Prometheus, max_over_time 30h)
+error: Internal error occurred: Internal error occurred: error executing command in container: failed to exec in container: failed to start exec "065af93f77cc8173709b9ad9de8e373725cd1c83b653c0775fad4b14bfb6801b": OCI runtime exec failed: exec failed: unable to start container process: exec: "wget": executable file not found in $PATH
+  oldest sample age:  h
+error: Internal error occurred: Internal error occurred: error executing command in container: failed to exec in container: failed to start exec "d9623a451d8a19925ec2f4078adf305870826631cea7967061a0b4dfef8b7c6e": OCI runtime exec failed: exec failed: unable to start container process: exec: "wget": executable file not found in $PATH
+error: Internal error occurred: Internal error occurred: error executing command in container: failed to exec in container: failed to start exec "5e3327581d71c7646ba8ae48e413c87e6c903c87e0a81f69dc0e4fb692ea808d": OCI runtime exec failed: exec failed: unable to start container process: exec: "wget": executable file not found in $PATH
+== 23:55:04 second attempt through the API server pod proxy (the prometheus image has no wget)
+  retained window: prometheus-kps-prometheus-017 h
+  tempo-0: peak 424
+422
+443 MiB, now 234 MiB
+  prometheus-kps-prometheus-0: peak 1030
+1156
+1137 MiB, now 903 MiB
+  pg-main-3: peak 110
+117
+203 MiB, now 116 MiB

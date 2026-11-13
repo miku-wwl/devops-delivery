@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 296" width="640" height="296" font-family="'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<line x1="86.0" y1="48.0" x2="86.0" y2="286.0" stroke="#9aa5b1" stroke-width="1.0" stroke-dasharray="4 4"/>
+<line x1="242.0" y1="48.0" x2="242.0" y2="286.0" stroke="#9aa5b1" stroke-width="1.0" stroke-dasharray="4 4"/>
+<line x1="398.0" y1="48.0" x2="398.0" y2="286.0" stroke="#9aa5b1" stroke-width="1.0" stroke-dasharray="4 4"/>
+<line x1="554.0" y1="48.0" x2="554.0" y2="286.0" stroke="#9aa5b1" stroke-width="1.0" stroke-dasharray="4 4"/>
+<rect x="27.0" y="8.0" width="118.0" height="40.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="86.0" y="31.8" font-size="10.5" fill="#1b2430" text-anchor="middle" font-weight="normal">开发者</text>
+<rect x="183.0" y="8.0" width="118.0" height="40.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="242.0" y="31.8" font-size="10.5" fill="#1b2430" text-anchor="middle" font-weight="normal">GitLab</text>
+<rect x="339.0" y="8.0" width="118.0" height="40.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="398.0" y="31.8" font-size="10.5" fill="#1b2430" text-anchor="middle" font-weight="normal">Argo CD</text>
+<rect x="495.0" y="8.0" width="118.0" height="40.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="554.0" y="24.7" font-size="10.5" fill="#1b2430" text-anchor="middle" font-weight="normal">argocd</text>
+<text x="554.0" y="38.8" font-size="10.5" fill="#1b2430" text-anchor="middle" font-weight="normal">命名空间</text>
+<polyline points="86.0,81.0 237.0,81.0" fill="none" stroke="#3a4553" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="242.0,81.0 233.2,77.0 233.2,85.0" fill="#3a4553"/>
+<rect x="90.0" y="66.5" width="151.4" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="93.0" y="75.0" font-size="9.5" fill="#1b2430" text-anchor="start" font-weight="normal">!45：chart 10.14.0 → 10.17.1</text>
+<polyline points="242.0,94.0 268.0,94.0 268.0,110.0 247.0,110.0" fill="none" stroke="#3a4553" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="242.0,110.0 250.8,114.0 250.8,106.0" fill="#3a4553"/>
+<rect x="272.0" y="96.5" width="148.0" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="275.0" y="105.0" font-size="9.5" fill="#1b2430" text-anchor="start" font-weight="normal">流水线：渲染新 chart（31 秒）</text>
+<polyline points="86.0,141.0 237.0,141.0" fill="none" stroke="#3a4553" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="242.0,141.0 233.2,137.0 233.2,145.0" fill="#3a4553"/>
+<rect x="90.0" y="126.5" width="82.0" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="93.0" y="135.0" font-size="9.5" fill="#1b2430" text-anchor="start" font-weight="normal">合并（计时起点）</text>
+<rect x="333.2" y="154.0" width="129.6" height="23.0" rx="5.0" fill="#fffbe6" stroke="#d4b106" stroke-width="1.2"/>
+<text x="398.0" y="168.9" font-size="9.5" fill="#5c4a00" text-anchor="middle" font-weight="normal">+244 秒：轮询看到新版本</text>
+<polyline points="398.0,205.0 549.0,205.0" fill="none" stroke="#3a4553" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="554.0,205.0 545.2,201.0 545.2,209.0" fill="#3a4553"/>
+<rect x="402.0" y="190.5" width="69.2" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="405.0" y="199.0" font-size="9.5" fill="#1b2430" text-anchor="start" font-weight="normal">同步（24 秒）</text>
+<polyline points="554.0,218.0 580.0,218.0 580.0,234.0 559.0,234.0" fill="none" stroke="#3a4553" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="554.0,234.0 562.8,238.0 562.8,230.0" fill="#3a4553"/>
+<rect x="456.6" y="220.5" width="92.5" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="546.0" y="229.0" font-size="9.5" fill="#1b2430" text-anchor="end" font-weight="normal">6 个工作负载滚动，</text>
+<rect x="448.0" y="233.5" width="101.0" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="546.0" y="242.0" font-size="9.5" fill="#1b2430" text-anchor="end" font-weight="normal">应用控制器最后被替换</text>
+<polyline points="398.0,273.0 91.0,273.0" fill="none" stroke="#3a4553" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 4"/>
+<polygon points="86.0,273.0 94.8,277.0 94.8,269.0" fill="#3a4553"/>
+<rect x="259.3" y="258.5" width="134.7" height="13.5" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="391.0" y="267.0" font-size="9.5" fill="#1b2430" text-anchor="end" font-weight="normal">+315 秒：Synced / Healthy</text>
+</svg>

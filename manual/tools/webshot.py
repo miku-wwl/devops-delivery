@@ -65,6 +65,8 @@ def main() -> None:
     ap.add_argument("--clip", help="CSS selector of the element to capture")
     ap.add_argument("--mask", action="append", default=[], help="CSS selector to black out")
     ap.add_argument("--insecure", action="store_true", help="ignore TLS errors (local self-signed UIs)")
+    ap.add_argument("--wait-until", default="networkidle", choices=["load", "domcontentloaded", "networkidle"],
+                    help="navigation event to wait for; UIs that poll forever (Prometheus) never reach networkidle")
     args = ap.parse_args()
 
     out = Path(args.out)
@@ -80,7 +82,7 @@ def main() -> None:
         page = context.new_page()
         if args.steps:
             run_steps(page, json.loads(Path(args.steps).read_text(encoding="utf-8")))
-        page.goto(args.url, wait_until="networkidle")
+        page.goto(args.url, wait_until=args.wait_until)
         if args.wait_for:
             page.wait_for_selector(args.wait_for, timeout=60_000)
         page.wait_for_timeout(args.wait_ms)

@@ -1,0 +1,24 @@
+# transcript: E4: gateway HPA under a load step 30 -> 120 -> 30 it/s (scale-up and scale-down timeline)
+# recorded: 2026-11-09T01:54:46Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e4/hpa-timeline.sh hpa-1
+== settings that bound the reaction time
+  metrics-server "--kubelet-preferred-address-types=InternalIP
+  metrics-server "--kubelet-use-node-status-port"
+  metrics-server "--metric-resolution=15s"
+  metrics-server "--kubelet-insecure-tls"]
+  (absent = defaults: HPA sync every 15 s, 10 % tolerance, scale-down stabilization 300 s)
+  spec:
+    maxReplicas: 6
+    metrics:
+    - resource:
+        name: cpu
+        target:
+          averageUtilization: 100
+          type: Utilization
+      type: Resource
+== k6 start 01:54:47; load step to 120 it/s at 01:57:17, back to 30 at 02:04:27
+v2/experiments/e4/hpa-timeline.sh: line 29: syntax error near unexpected token `)'
+v2/experiments/e4/hpa-timeline.sh: line 29: `T1)) +%T), back to $LOW at $(date -u -d @$((t0 + 30 + T1 + 10 + T2)) +%T)"'
+[exit 2]
+

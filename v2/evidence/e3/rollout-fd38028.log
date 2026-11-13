@@ -1,0 +1,32 @@
+# transcript: E3: roll out storefront fd38028 through GitOps
+# recorded: 2026-11-07T13:00:22Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/platform/bootstrap/publish-gitops.sh fd38028 "storefront fd38028: plain-ASGI middleware, sniffio pin (E3)"
+platform-gitops: pushed 2848ba4 (storefront fd38028: plain-ASGI middleware, sniffio pin (E3))
+
+$ kubectl -n argocd annotate application storefront-gateway-prod argocd.argoproj.io/refresh=normal --overwrite
+application.argoproj.io/storefront-gateway-prod annotated
+
+$ for d in gateway catalog orders inventory payments notifier; do kubectl -n storefront rollout status deploy/$d --timeout=300s; done
+deployment "gateway" successfully rolled out
+deployment "catalog" successfully rolled out
+deployment "orders" successfully rolled out
+deployment "inventory" successfully rolled out
+deployment "payments" successfully rolled out
+deployment "notifier" successfully rolled out
+
+$ kubectl -n storefront get pods -o custom-columns=POD:.metadata.name,NODE:.spec.nodeName,IMAGE:.spec.containers[0].image,READY:.status.containerStatuses[0].ready
+POD                          NODE          IMAGE                                       READY
+catalog-5486d76849-8bh5g     ent-worker    localhost:5001/storefront:f3d9043           true
+catalog-5486d76849-gnjfl     ent-worker2   localhost:5001/storefront:f3d9043           true
+gateway-778cc68bb5-fdhx7     ent-worker2   localhost:5001/storefront:f3d9043           true
+gateway-778cc68bb5-qm2pv     ent-worker    localhost:5001/storefront:f3d9043           true
+inventory-868559bc67-8hj95   ent-worker    localhost:5001/storefront:f3d9043           true
+inventory-868559bc67-dgkrb   ent-worker3   localhost:5001/storefront:f3d9043           true
+notifier-9bff59886-8nlbx     ent-worker    localhost:5001/storefront:f3d9043           true
+orders-65d744d8fc-2tpwm      ent-worker    localhost:5001/storefront:f3d9043           true
+orders-65d744d8fc-jj6rs      ent-worker2   localhost:5001/storefront:f3d9043           true
+payments-7b7bb7b75d-mfkxb    ent-worker    localhost:5001/storefront:f3d9043           true
+payments-7b7bb7b75d-rlnst    ent-worker3   localhost:5001/storefront:f3d9043           true
+waypoint-6c97c95658-x7x82    ent-worker2   docker.io/istio/proxyv2:1.31.4-distroless   true
+

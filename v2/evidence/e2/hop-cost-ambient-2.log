@@ -1,0 +1,16 @@
+# transcript: E2: round-trip cost through ambient - kept-alive, new connection, 16 in parallel
+# recorded: 2026-11-07T07:44:43Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e2/hop-cost.sh ambient
+image localhost:5001/storefront:82acb8a; http target catalog pod 10.240.2.8:8080; valkey pod 10.240.3.6:6379 (ent-worker3)
+== client in namespace storefront (in the mesh)
+http      n=2000  p50=   1623 us  p90=   3083 us  p99=   7560 us  mean=   1986 us
+valkey    n=2000  p50=    356 us  p90=    471 us  p99=   1449 us  mean=    406 us
+http-new  n=500  p50=  10872 us  p90=  16996 us  p99=  25170 us  mean=  11674 us
+http-x16  n=4000  p50=  11996 us  p90=  19658 us  p99=  29291 us  mean=  13751 us
+== client in namespace e2-bench (outside the mesh)
+http      n=2000  p50=   1082 us  p90=   2090 us  p99=   5365 us  mean=   1339 us
+valkey    n=2000  p50=    174 us  p90=    230 us  p99=    361 us  mean=    190 us
+http-new  n=500  p50=  10872 us  p90=  13831 us  p99=  24691 us  mean=  11461 us
+http-x16  n=4000  p50=  13776 us  p90=  18646 us  p99=  25993 us  mean=  13951 us
+

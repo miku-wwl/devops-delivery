@@ -1,0 +1,11 @@
+# transcript: E4: hpa-2 - load per gateway pod after the scale-out (do new pods get traffic?)
+# recorded: 2026-11-09T02:33:13Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ P=/api/v1/namespaces/monitoring/services/kps-prometheus:9090/proxy/api/v1; for t in 2026-11-09T02:21:00Z 2026-11-09T02:22:30Z 2026-11-09T02:23:30Z; do echo "== 60 s before $t: requests/s, CPU (cores) and 5xx/s per gateway pod"; for q in "sum by (pod)(rate(http_server_requests_total{namespace=\"storefront\",service=\"gateway\"}[60s]))" "sum by (pod)(rate(container_cpu_usage_seconds_total{namespace=\"storefront\",pod=~\"gateway-.*\",container=\"app\"}[60s]))" "sum by (pod)(rate(http_server_requests_total{namespace=\"storefront\",service=\"gateway\",code=~\"5..\"}[60s]))"; do kubectl get --raw "$P/query?time=$(date -d $t +%s)&query=$(jq -rn --arg q "$q" '$q|@uri')" | jq -r '.data.result[] | "\(.metric.pod) \(.value[1] | tonumber | . * 100 | round / 100)"' | sort; echo; done | paste - - - - - - - - - - - - - - - | head -3; done
+== 60 s before 2026-11-09T02:21:00Z: requests/s, CPU (cores) and 5xx/s per gateway pod
+gateway-7b844f9fc9-gm44w 143.27	gateway-7b844f9fc9-qhww7 145.42		gateway-7b844f9fc9-gm44w 0.75	gateway-7b844f9fc9-j72rh 0.01	gateway-7b844f9fc9-qhww7 0.74		gateway-7b844f9fc9-gm44w 0	gateway-7b844f9fc9-qhww7 0						
+== 60 s before 2026-11-09T02:22:30Z: requests/s, CPU (cores) and 5xx/s per gateway pod
+gateway-7b844f9fc9-gm44w 147.04	gateway-7b844f9fc9-qhww7 142.24		gateway-7b844f9fc9-d5j6r 0.01	gateway-7b844f9fc9-gm44w 0.79	gateway-7b844f9fc9-j72rh 0.01	gateway-7b844f9fc9-qhww7 0.92		gateway-7b844f9fc9-gm44w 35.98	gateway-7b844f9fc9-qhww7 21.44					
+== 60 s before 2026-11-09T02:23:30Z: requests/s, CPU (cores) and 5xx/s per gateway pod
+gateway-7b844f9fc9-gm44w 141.24	gateway-7b844f9fc9-qhww7 147.8		gateway-7b844f9fc9-d5j6r 0.01	gateway-7b844f9fc9-gm44w 0.79	gateway-7b844f9fc9-j72rh 0.01	gateway-7b844f9fc9-qhww7 0.8		gateway-7b844f9fc9-gm44w 10.47	gateway-7b844f9fc9-qhww7 25.38					
+

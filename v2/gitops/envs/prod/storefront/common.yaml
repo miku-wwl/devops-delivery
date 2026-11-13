@@ -1,0 +1,10 @@
+# Values shared by every storefront service in prod (namespace "storefront").
+image:
+  repository: localhost:5001/storefront
+  tag: "IMAGE_TAG"   # replaced by publish.sh with the built commit; one image for all services
+resilienceMode: resilient
+otelEndpoint: http://otel-collector.observability.svc:4318
+# E3: 10 % head sampling (tracing cost, chapter 4). E9 (chapter 10): every request is traced again and
+# the collector's tail sampling decides (errors, > 1 s, 10 % of the rest) - with head sampling it only
+# ever saw a tenth of the requests: 84 error traces for 670 failed checkouts in the incident drill
+tracesSampleRatio: "1.0"

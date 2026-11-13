@@ -1,0 +1,139 @@
+# kube-prometheus-stack 92.22.0 (Prometheus Operator, Prometheus, Alertmanager, Grafana,
+# kube-state-metrics, node-exporter). Sized for the 3 x 3 GiB worker budget (chapter 1).
+fullnameOverride: kps
+crds:
+  enabled: true
+alertmanager:
+  alertmanagerSpec:
+    resources: {requests: {cpu: 10m, memory: 32Mi}, limits: {memory: 128Mi}}
+  # E9 (chapter 10): where alerts go. Everything leaves the cluster through the alert bridge
+  # (platform/alerting/bridge.py, a container next to GitLab): critical -> a GitLab incident (page),
+  # warning -> a GitLab issue (ticket), Watchdog -> the bridge's dead man's switch, which opens an
+  # incident of its own when the heartbeat stops (monitoring is not in the failure domain it watches).
+  config:
+    global: {resolve_timeout: 5m}
+    route:
+      receiver: "null"
+      group_by: [alertname, namespace, slo]
+      group_wait: 30s
+      group_interval: 2m
+      repeat_interval: 12h
+      routes:
+        - matchers: ['alertname = "Watchdog"']
+          receiver: deadman
+          group_wait: 0s
+          group_interval: 30s
+          repeat_interval: 30s
+        - matchers: ['alertname = "InfoInhibitor"']
+          receiver: "null"
+        - matchers: ['severity = "critical"']
+          receiver: incident
+        # E9, action item 3: an SLO ticket waits 5 minutes, so that the page of the same SLO - often a
+        # minute behind it - inhibits it before it is sent (in the drill the ticket went out first)
+        - matchers: ['slo_severity = "ticket"']
+          receiver: ticket
+          group_wait: 5m
+        - matchers: ['severity = "warning"']
+          receiver: ticket
+    inhibit_rules:
+      - source_matchers: ['alertname = "InfoInhibitor"']   # the stack's own: info alerts are context
+        target_matchers: ['severity = "info"']
+        equal: [namespace]
+      - source_matchers: ['slo_severity = "page"']         # a page for an SLO makes its ticket redundant
+        target_matchers: ['slo_severity = "ticket"']
+        equal: [slo]
+      - source_matchers: ['severity = "critical"']         # the critical variant of an alert outranks the warning
+        target_matchers: ['severity = "warning"']
+        equal: [alertname, namespace]
+      - source_matchers: ['alertname = "PostgresPrimaryMissingReplicas"']   # the cause of the next one
+        target_matchers: ['alertname = "PostgresReplicaNotStreaming"']
+        equal: [namespace]
+      # E12/P1, incident E11-1 action item 5: a sealed OpenBao is the cause, these are its symptoms (54
+      # incidents in 9 hours). OpenBaoSealed has no namespace label (max() drops it) - hence no "equal".
+      - source_matchers: ['alertname = "OpenBaoSealed"']
+        target_matchers: ['namespace = "secrets"', 'alertname =~ "KubeJobFailed|KubeContainerWaiting"']
+      - source_matchers: ['alertname = "OpenBaoSealed"']
+        target_matchers: ['alertname = "ArgoCDAppDegraded"', 'name =~ "backup-jobs|insight|tenants|platform-root"']
+    receivers:
+      - name: "null"
+      - name: deadman
+        webhook_configs: [{url: "http://alert-bridge:9095/watchdog", send_resolved: false}]
+      - name: incident
+        webhook_configs: [{url: "http://alert-bridge:9095/alertmanager?kind=incident", send_resolved: true}]
+      - name: ticket
+        webhook_configs: [{url: "http://alert-bridge:9095/alertmanager?kind=ticket", send_resolved: true}]
+# E9: AlertmanagerClusterCrashlooping counts changes(process_start_time_seconds); in this WSL VM the
+# kernel's boot time moves back by about 1 s every 27 s (the monotonic clock runs 3.7 % fast and the
+# wall clock is corrected), so the start time "changes" 13 times in 10 minutes without a restart and
+# the critical alert never stops (evidence/e9/clock-drift.log). Replaced by a rule on real restarts
+# (platform/manifests/alerts/platform-alerts.yaml).
+defaultRules:
+  disabled:
+    AlertmanagerClusterCrashlooping: true
+prometheus:
+  prometheusSpec:
+    retention: 3d
+    priorityClassName: platform-critical   # E6: pinned to its node by the volume (incident-2)
+    retentionSize: 3GB
+    scrapeInterval: 15s
+    evaluationInterval: 15s
+    enableRemoteWriteReceiver: true          # Tempo's metrics generator pushes span metrics
+    enableFeatures: [exemplar-storage]       # exemplars link a latency bucket to a trace (E9)
+    resources: {requests: {cpu: 200m, memory: 1Gi}, limits: {memory: 1536Mi}}   # E1: 526 MiB; E6: 941 MiB and evicted first (evidence/e6/incident-1.log) - request raised to the real use
+    serviceMonitorSelectorNilUsesHelmValues: false   # scrape every ServiceMonitor/PodMonitor
+    podMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: [ReadWriteOnce]
+          resources: {requests: {storage: 5Gi}}
+prometheusOperator:
+  resources: {requests: {cpu: 20m, memory: 64Mi}, limits: {memory: 256Mi}}
+kube-state-metrics:
+  resources: {requests: {cpu: 10m, memory: 48Mi}, limits: {memory: 192Mi}}
+prometheus-node-exporter:
+  resources: {requests: {cpu: 10m, memory: 24Mi}, limits: {memory: 64Mi}}
+# control-plane components bind 0.0.0.0 in this cluster (platform/cluster/create.sh)
+kubeControllerManager:
+  serviceMonitor: {https: true, insecureSkipVerify: true}
+kubeScheduler:
+  serviceMonitor: {https: true, insecureSkipVerify: true}
+kubeEtcd:
+  service: {port: 2381, targetPort: 2381}
+  serviceMonitor: {scheme: http}
+kubeProxy:
+  service: {port: 10249, targetPort: 10249}
+grafana:
+  admin:
+    existingSecret: grafana-admin            # created by bootstrap.sh, never in Git
+    userKey: admin-user
+    passwordKey: admin-password
+  resources: {requests: {cpu: 50m, memory: 320Mi}, limits: {memory: 512Mi}}   # E1: 297 MiB
+  # Lab only: read-only anonymous access, so screenshots need no password. Grafana is reached
+  # through kubectl port-forward on 127.0.0.1 and is not exposed otherwise.
+  grafana.ini:
+    auth.anonymous: {enabled: true, org_role: Viewer}
+  sidecar:
+    resources: {requests: {cpu: 5m, memory: 96Mi}, limits: {memory: 192Mi}}     # E1: 77-80 MiB each
+    dashboards: {enabled: true, searchNamespace: ALL}
+    # E9 (chapter 10): an exemplar's trace_id opens the trace in Tempo
+    datasources:
+      exemplarTraceIdDestinations: {datasourceUid: tempo, traceIdLabelName: trace_id}
+  additionalDataSources:
+    - name: Tempo
+      type: tempo
+      uid: tempo
+      url: http://tempo.observability:3200
+      jsonData:
+        tracesToLogsV2: {datasourceUid: loki, filterByTraceID: true, spanStartTimeShift: "-5m", spanEndTimeShift: "5m"}
+        tracesToMetrics: {datasourceUid: prometheus}
+        serviceMap: {datasourceUid: prometheus}
+        nodeGraph: {enabled: true}
+    - name: Loki
+      type: loki
+      uid: loki
+      url: http://loki.observability:3100
+      jsonData:
+        derivedFields:
+          - {name: TraceID, matcherType: label, matcherRegex: trace_id, datasourceUid: tempo, url: "$${__value.raw}"}

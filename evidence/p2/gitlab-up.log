@@ -1,0 +1,18 @@
+==> docker compose up
+==> waiting for GitLab (first boot takes several minutes)
+ready (container healthy, sign-in page 200)
+token check: user=root
+==> project root/devops-delivery
+==> runner
+Runtime platform                                    arch=amd64 os=linux pid=27 revision=66ad5002 version=19.5.2
+Running in system-mode.                            
+                                                   
+Verifying runner... is valid                        correlation_id=01M6Q0WF02GTN5GRGNGWWY2X3H runner=YbBiJLG4Z runner_name=9d58f01b84a5
+Runner registered successfully. Feel free to start it, but if it's running already the config should be automatically reloaded!
+ 
+Configuration (with the authentication token) was saved in "/etc/gitlab-runner/config.toml" 
+Runtime platform                                    arch=amd64 os=linux pid=51 revision=66ad5002 version=19.5.2
+Listing configured runners                          ConfigFile=/etc/gitlab-runner/config.toml
+9d58f01b84a5                                        Executor=docker Token=<redacted> URL=http://gitlab:8929
+GitLab lab ready: http://localhost:8929  (user root, password in /home/devops/.lab-secrets/gitlab-root-password)
+exit=0 elapsed=4s

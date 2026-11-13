@@ -1,0 +1,21 @@
+# transcript: E2: the same 10-second capture without and with the ambient mesh
+# recorded: 2026-11-07T07:37:57Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# without the mesh (capture taken at 07:34 UTC) and with storefront enrolled in ambient (07:37 UTC)
+$ bash v2/experiments/e2/capture.sh none --summary-only
+== packets on ent-worker eth0 by destination port (10 s)
+  501 packets to port 8080
+== plaintext HTTP request lines on the wire
+  north-south (public /api/... paths, from the load balancer): 68
+  east-west (service-to-service paths):                         140
+         76 GET /products/{id} HTTP/1.1
+         64 POST /reservations HTTP/1.1
+
+$ bash v2/experiments/e2/capture.sh ambient --summary-only
+== packets on ent-worker eth0 by destination port (10 s)
+  342 packets to port 15008
+  234 packets to port 8080
+== plaintext HTTP request lines on the wire
+  north-south (public /api/... paths, from the load balancer): 56
+  east-west (service-to-service paths):                         0
+

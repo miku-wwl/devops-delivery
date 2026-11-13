@@ -1,0 +1,45 @@
+# Team insight's service (E5). A minimal HTTP server on the storefront image's Python: it exists to
+# test the isolation between tenants, not to do anything useful. Deployed by the Argo CD project
+# "insight", which may only create these kinds in the namespace insight.
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: insight-api, labels: {app: insight-api, team: insight}}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: insight-api}}
+  template:
+    metadata: {labels: {app: insight-api}}
+    spec:
+      securityContext: {runAsNonRoot: true, runAsUser: 10001, seccompProfile: {type: RuntimeDefault}}
+      containers:
+        - name: api
+          image: localhost:5001/storefront:IMAGE_TAG
+          command: ["python", "-m", "http.server", "8080", "--directory", "/srv"]
+          ports: [{containerPort: 8080, name: http}]
+          resources: {requests: {cpu: 20m, memory: 48Mi}, limits: {memory: 96Mi}}
+          # E8: the release policies (policies/release/) require one; the first run of the new
+          # pipeline found this Deployment without it
+          readinessProbe: {httpGet: {path: /, port: 8080}, periodSeconds: 10}
+          securityContext: {allowPrivilegeEscalation: false, capabilities: {drop: [ALL]}, readOnlyRootFilesystem: true}
+          volumeMounts: [{name: srv, mountPath: /srv}]
+      volumes: [{name: srv, emptyDir: {}}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: insight-api}
+spec:
+  selector: {app: insight-api}
+  ports: [{port: 8080, targetPort: http, name: http}]
+---
+# E5: the team's API key, copied from OpenBao (secret/insight/api-key) into the Secret
+# insight-api-key every 30 s. The team decides what to copy; the store is the platform's.
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata: {name: insight-api-key}
+spec:
+  refreshInterval: 30s
+  secretStoreRef: {name: openbao, kind: SecretStore}
+  target: {name: insight-api-key, creationPolicy: Owner}
+  data:
+    - secretKey: api-key
+      remoteRef: {key: insight/api-key, property: value}

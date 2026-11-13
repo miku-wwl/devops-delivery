@@ -1,0 +1,16 @@
+# transcript: E5: OpenBao after a restart (audit device now in the config): sealed again - unsealed and configured by the same script
+# recorded: 2026-11-09T09:44:18Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/platform/secrets/openbao-init.sh
+unsealed
+status: {"initialized":true,"sealed":false,"version":"2.7.2","storage_type":"raft"}
+configured: 1 kv store, auth "kubernetes/", policies default insight-read shop-read root , audit "stdout/"
+"stdout/"
+
+$ stat -c "%A %n" ~/.lab-secrets/v2/openbao ~/.lab-secrets/v2/openbao/init.json | sed "s|$HOME|~|"
+drwx------ ~/.lab-secrets/v2/openbao
+-rw------- ~/.lab-secrets/v2/openbao/init.json
+
+$ kubectl -n secrets get pod openbao-0 --no-headers
+openbao-0   0/1   Running   0     16s
+

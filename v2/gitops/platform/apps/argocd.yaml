@@ -1,0 +1,32 @@
+# E11 (chapter 12): Argo CD manages its own installation. bootstrap.sh installs it once with helm (the
+# chicken and the egg); from then on this application holds the chart version and the values, and an
+# upgrade of Argo CD is a merge request like any other change - E8's only failure of the release
+# process came from a helm upgrade outside of it. Adopted in steps: first without automated sync (look
+# at the difference between the chart and what runs), then automated. prune stays off: a resource the
+# chart drops is removed by hand, not by Argo CD deleting parts of itself. Server-side apply: the CRDs
+# of Argo CD are too large for the last-applied annotation of a client-side apply.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-9"}
+spec:
+  project: platform
+  sources:
+    - repoURL: https://argoproj.github.io/argo-helm
+      chart: argo-cd
+      targetRevision: 10.17.1   # E11: upgraded from 10.14.0 through a merge request (Argo CD v3.6.1 both)
+      helm:
+        releaseName: argocd
+        valueFiles: [$values/bootstrap/argocd-values.yaml]
+    - repoURL: http://gitlab:8929/root/platform-gitops.git
+      targetRevision: main
+      ref: values
+  destination: {server: https://kubernetes.default.svc, namespace: argocd}
+  # step 2 (E11, after the first look): the chart at 10.14.0 differed from what helm installed only in
+  # Argo CD's tracking annotations and the hook job argocd-redis-secret-init (a server-side dry run of
+  # the same render: 1 object of 59 differed) - automated from here on
+  syncPolicy:
+    automated: {prune: false, selfHeal: true}
+    syncOptions: [ServerSideApply=true]

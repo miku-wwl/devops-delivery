@@ -1,0 +1,177 @@
+"""HTTP API of demo-api."""
+
+from __future__ import annotations
+
+import asyncio
+import logging
+import random
+import re
+import time
+import uuid
+from datetime import datetime
+from decimal import Decimal
+
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
+from opentelemetry import trace
+from pydantic import BaseModel, Field
+
+from .config import Settings
+from .logs import configure_logging
+from .metrics import Metrics
+from .orders import OrderStore, UnknownSkuError, price_order
+from .telemetry import configure_telemetry
+
+log = logging.getLogger("demo_api")
+# A proxy until a TracerProvider is installed; without one every span is a no-op.
+tracer = trace.get_tracer("demo_api")
+
+QUIET_ROUTES = {"/healthz", "/readyz", "/metrics"}
+
+REQUEST_ID_HEADER = "X-Request-ID"
+# A caller's request id is reused only if it is short and plain. Anything else is
+# replaced, so clients cannot put arbitrary text into our logs and spans.
+_SAFE_REQUEST_ID = re.compile(r"[A-Za-z0-9._-]{1,64}")
+
+
+def request_id_for(request: Request) -> str:
+    """Reuse the caller's X-Request-ID when it is safe, otherwise make a new one."""
+    incoming = request.headers.get(REQUEST_ID_HEADER, "")
+    if _SAFE_REQUEST_ID.fullmatch(incoming):
+        return incoming
+    return uuid.uuid4().hex
+
+
+class OrderIn(BaseModel):
+    sku: str = Field(min_length=1, max_length=32, examples=["BOOK-001"])
+    quantity: int = Field(ge=1, le=100, examples=[2])
+
+
+class OrderOut(BaseModel):
+    id: int
+    sku: str
+    quantity: int
+    unit_price: Decimal
+    total: Decimal
+    created_at: datetime
+
+
+def create_app(settings: Settings | None = None) -> FastAPI:
+    settings = settings or Settings.from_env()
+    app = FastAPI(title="demo-api", version=settings.version)
+    store = OrderStore()
+    metrics = Metrics(settings)
+    app.state.settings = settings
+    app.state.metrics = metrics
+    app.state.telemetry = configure_telemetry(app, settings)
+
+    @app.middleware("http")
+    async def observe_requests(request: Request, call_next):
+        start = time.perf_counter()
+        status = 500
+        # One id per request: returned to the caller, written to the access log and
+        # put on the server span, so a support ticket quoting it leads to both.
+        request_id = request_id_for(request)
+        trace.get_current_span().set_attribute("request.id", request_id)
+        try:
+            response = await call_next(request)
+            status = response.status_code
+            response.headers[REQUEST_ID_HEADER] = request_id
+            return response
+        finally:
+            elapsed = time.perf_counter() - start
+            route = request.scope.get("route")
+            template = getattr(route, "path", "unmatched")
+            metrics.observe(request.method, template, status, elapsed)
+            if template not in QUIET_ROUTES:
+                log.info(
+                    "request",
+                    extra={
+                        "method": request.method,
+                        "route": template,
+                        "status": status,
+                        "duration_ms": round(elapsed * 1000, 1),
+                        "version": settings.version,
+                        "request_id": request_id,
+                    },
+                )
+
+    async def inject_faults() -> None:
+        # Not cryptographic randomness - this only decides whether to simulate a failure.
+        if settings.fault_error_rate and random.random() < settings.fault_error_rate:  # noqa: S311
+            span = trace.get_current_span()
+            span.add_event(
+                "fault.injected", {"fault.type": "error", "fault.rate": settings.fault_error_rate}
+            )
+            log.warning("injected fault: failing request", extra={"fault_type": "error"})
+            raise HTTPException(status_code=500, detail="injected fault (FAULT_ERROR_RATE)")
+
+    @app.get("/healthz")
+    async def healthz() -> dict:
+        return {"status": "ok"}
+
+    @app.get("/readyz")
+    async def readyz() -> dict:
+        return {"status": "ready"}
+
+    @app.get("/api/v1/info", dependencies=[Depends(inject_faults)])
+    async def info() -> dict:
+        return {
+            "service": settings.service_name,
+            "version": settings.version,
+            "commit": settings.commit,
+        }
+
+    @app.post(
+        "/api/v1/orders",
+        status_code=201,
+        response_model=OrderOut,
+        dependencies=[Depends(inject_faults)],
+    )
+    async def create_order(body: OrderIn):
+        # Child spans make the trace show *where* the time of a request goes.
+        with tracer.start_as_current_span("pricing.calculate") as span:
+            span.set_attribute("order.sku", body.sku)
+            span.set_attribute("order.quantity", body.quantity)
+            if settings.fault_latency_ms:
+                # Simulates a slow pricing dependency (used by the canary and tracing drills).
+                span.add_event(
+                    "fault.injected",
+                    {"fault.type": "latency", "fault.latency_ms": settings.fault_latency_ms},
+                )
+                await asyncio.sleep(settings.fault_latency_ms / 1000)
+            try:
+                unit_price, total = price_order(body.sku, body.quantity)
+            except UnknownSkuError:
+                raise HTTPException(status_code=422, detail=f"unknown SKU: {body.sku}") from None
+        with tracer.start_as_current_span("orders.store"):
+            order = store.create(body.sku, body.quantity, unit_price, total)
+        metrics.orders_created.inc()
+        log.info(
+            "order created", extra={"order_id": order.id, "sku": order.sku, "total": str(total)}
+        )
+        return order
+
+    @app.get(
+        "/api/v1/orders/{order_id}",
+        response_model=OrderOut,
+        dependencies=[Depends(inject_faults)],
+    )
+    async def get_order(order_id: int):
+        order = store.get(order_id)
+        if order is None:
+            raise HTTPException(status_code=404, detail="order not found")
+        return order
+
+    @app.get("/api/v1/orders", response_model=list[OrderOut], dependencies=[Depends(inject_faults)])
+    async def list_orders():
+        return store.list()
+
+    @app.get("/metrics")
+    async def prometheus_metrics() -> Response:
+        return Response(metrics.render(), media_type="text/plain; version=0.0.4; charset=utf-8")
+
+    return app
+
+
+configure_logging()
+app = create_app()

@@ -1,0 +1,33 @@
+== 22:38:15 owner approved: re-initialise, keep the old data
+== 22:38:15 keep the sealed data: PV pvc-a98749bd-0275-4dee-b6f0-5ff0092094db reclaim policy Delete -> Retain
+  now: Retain; data on ent-worker:/var/local-path-provisioner/pvc-a98749bd-0275-4dee-b6f0-5ff0092094db_secrets_data-openbao-0 (9.5M)
+  the emptied key file kept as init.json.truncated-20261110T134403Z (0 bytes)
+== 22:38:16 release the claim (the volume and its data stay), new pod with a fresh volume
+  22:38:32 new pod running since 2026-11-10T22:38:29Z; new PVC -> pvc-5b1b4148-56d9-4237-8d3a-ef6d15f7584e; old PV: Released Retain
+== 22:38:33 openbao-init.sh (fixed)
+  initialised (one key share; key and root token in ~/.lab-secrets/v2/openbao/init.json, read-only, and a copy)
+  unsealed
+  status: {"initialized":true,"sealed":false,"version":"2.7.2","storage_type":"raft"}
+  Success! Enabled the kv-v2 secrets engine at: secret/
+  Success! Enabled kubernetes auth method at: kubernetes/
+  configured: 1 kv store, auth "kubernetes/", policies default insight-read raft-snapshot shop-read root , audit "stdout/"
+  "stdout/"
+  -rw------- 393 init-throwaway.json
+  -r-------- 393 init.json
+  -r-------- 393 init.json.copy
+  -rw------- 0 init.json.truncated-20261110T134403Z
+== 22:39:14 re-seed the E5 test values
+  command terminated with exit code 2
+  secret/insight/api-key written (6d03813fa62c...)
+  command terminated with exit code 2
+  secret/shop/db-password written (3ba0f2b4cf41...)
+== 22:39:15 External Secrets: stores and the ExternalSecret re-checked
+  stores insight Valid, shop-dev Valid; ExternalSecret insight-api-key SecretSynced (after ~3 s)
+  Secret insight-api-key now holds 6d03813fa62c... (hash)
+== 22:39:17 a snapshot with the new key: a job from the CronJob openbao-snapshot
+  job complete
+  -rw-------    1 openbao  openbao      30233 Nov 10 22:39 /backup/openbao.snap
+  uploaded openbao/20261110T223920Z.snap 30233 bytes
+== 22:39:39 applications:  39 Synced/Healthy;
+  alert bridge since the re-initialisation: 
+opened between 13:47 and 22:41 UTC: 56 {'OpenBaoSealed': 1, 'ArgoCDAppDegraded': 16, 'KubeJobFailed': 10, 'ArgoCDRootNotSynced': 1, 'ArgoCDSyncFailing': 1, 'KubeContainerWaiting': 27}

@@ -1,0 +1,210 @@
+== 2026-11-10T04:02:12Z (since 2026-11-10T03:57:53Z)
+-- argocd-cm application.sync.impersonation.enabled: 'true'
+-- the projects' accounts (destinationServiceAccounts)
+  PROJECT      NAMESPACES    ACCOUNT
+  default      <none>        <none>
+  insight      insight       argocd-insight
+  platform     *             argocd:argocd-platform
+  storefront   storefront*   argocd-storefront
+-- what the accounts may do (kubectl auth can-i)
+  argocd:argocd-application-controller     create secrets -n storefront   yes
+  argocd:argocd-application-controller     patch deployments -n storefront yes
+  argocd:argocd-application-controller     patch deployments -n insight   yes
+  argocd:argocd-application-controller     get namespaces                 Warning: resource 'namespaces' is not namespace scoped
+
+yes
+  argocd:argocd-platform                   create secrets -n storefront   yes
+  argocd:argocd-platform                   patch deployments -n storefront yes
+  argocd:argocd-platform                   patch deployments -n insight   yes
+  argocd:argocd-platform                   get namespaces                 Warning: resource 'namespaces' is not namespace scoped
+
+yes
+  storefront:argocd-storefront             create secrets -n storefront   no
+  storefront:argocd-storefront             patch deployments -n storefront yes
+  storefront:argocd-storefront             patch deployments -n insight   no
+  storefront:argocd-storefront             get namespaces                 Warning: resource 'namespaces' is not namespace scoped
+
+no
+  insight:argocd-insight                   create secrets -n storefront   no
+  insight:argocd-insight                   patch deployments -n storefront no
+  insight:argocd-insight                   patch deployments -n insight   yes
+  insight:argocd-insight                   get namespaces                 Warning: resource 'namespaces' is not namespace scoped
+
+no
+  argocd-application-controller impersonate serviceaccounts -n storefront: yes
+-- applications whose last sync finished since 2026-11-10T03:57:53Z (name, sync, health, phase, finished, message)
+  e8-probe OutOfSync Healthy Failed 2026-11-10T04:01:21Z one or more objects failed to apply (dry run) (retried 5 times).
+  e8-probe-ns OutOfSync Healthy Failed 2026-11-10T04:01:06Z one or more synchronization tasks are not valid: resource :Namespace is not permitted in project storefront (retried 5 times).
+  platform-root OutOfSync Healthy Running 2026-11-10T04:01:03Z no matching service account found for destination server https://kubernetes.default.svc and namespace argocd. Retrying attempt #4 at 2026-11-10T04:01:43Z.
+-- all applications (sync/health: count)
+        3 OutOfSync/Healthy
+       34 Synced/Healthy
+-- the probe objects
+  secret e8-probe: created Error from server (NotFound): secrets "e8-probe" not found, written-by: ''
+  configmap e8-probe-ns: created Error from server (NotFound): configmaps "e8-probe-ns" not found, write: ''
+-- audit log
+  requests on e8-probe e8-probe-ns since 2026-11-10T03:57:53Z:
+    2026-11-10T03:58:26.013 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe-ns 200
+    2026-11-10T03:58:26.059 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe-ns 200
+    2026-11-10T03:58:26.072 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe-ns 200
+    2026-11-10T03:58:35.507 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:58:35.514 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:58:40.683 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:58:40.689 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:58:41.010 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe 200
+    2026-11-10T03:58:41.047 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe 200
+    2026-11-10T03:58:41.134 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe 200
+    2026-11-10T03:58:45.841 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:58:45.848 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:58:49.568 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:58:49.574 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:58:54.724 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:58:54.731 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:58:59.884 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:58:59.891 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:59:05.069 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:59:05.079 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:59:10.234 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:59:10.240 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:59:15.393 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:59:15.401 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:59:19.178 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:59:19.186 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:59:24.344 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:59:24.349 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:59:29.507 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:59:29.513 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:59:34.694 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:59:34.700 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:59:39.847 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:59:39.854 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:59:45.017 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:59:45.024 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:59:48.758 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:59:48.767 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:59:53.931 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:59:53.937 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T03:59:59.098 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T03:59:59.105 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T04:00:04.315 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T04:00:04.321 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T04:00:09.467 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T04:00:09.474 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T04:00:14.671 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T04:00:14.679 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T04:00:19.833 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T04:00:19.839 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T04:00:23.521 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T04:00:23.528 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T04:00:28.695 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T04:00:28.702 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T04:00:33.872 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T04:00:33.880 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T04:00:39.110 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T04:00:39.117 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T04:00:44.274 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T04:00:44.281 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T04:00:49.467 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T04:00:49.477 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T04:00:53.299 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T04:00:53.307 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T04:00:58.471 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T04:00:58.478 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T04:01:03.640 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T04:01:03.647 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T04:01:06.011 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe-ns 200
+    2026-11-10T04:01:06.097 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe-ns 200
+    2026-11-10T04:01:08.811 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T04:01:08.818 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T04:01:13.978 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T04:01:13.988 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T04:01:19.145 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T04:01:19.151 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T04:01:21.008 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe 200
+    2026-11-10T04:01:21.144 system:serviceaccount:argocd:argocd-application-controller as=- patch applications argocd/e8-probe 200
+    2026-11-10T04:01:22.961 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T04:01:22.970 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T04:01:28.162 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T04:01:28.169 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T04:01:33.347 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T04:01:33.355 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T04:01:38.515 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T04:01:38.523 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T04:01:43.697 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T04:01:43.707 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T04:01:48.883 kubernetes-admin as=- get applications argocd/e8-probe 200
+    2026-11-10T04:01:48.899 kubernetes-admin as=- get applications argocd/e8-probe-ns 200
+    2026-11-10T04:01:52.690 kubernetes-admin as=- delete secrets storefront/e8-probe 200
+    2026-11-10T04:01:52.703 kubernetes-admin as=- get secrets storefront/e8-probe 404
+    2026-11-10T04:01:52.835 kubernetes-admin as=- delete configmaps storefront/e8-probe-ns 200
+    2026-11-10T04:01:52.844 kubernetes-admin as=- get configmaps storefront/e8-probe-ns 404
+    2026-11-10T04:02:16.345 kubernetes-admin as=- get secrets storefront/e8-probe 404
+    2026-11-10T04:02:16.490 kubernetes-admin as=- get secrets storefront/e8-probe 404
+    2026-11-10T04:02:16.648 kubernetes-admin as=- get configmaps storefront/e8-probe-ns 404
+    2026-11-10T04:02:16.790 kubernetes-admin as=- get configmaps storefront/e8-probe-ns 404
+  writes with impersonation since 2026-11-10T03:57:53Z (impersonated user, verb, resource, namespace, code, applied/dry-run: count):
+    system:serviceaccount:argocd:argocd-platform patch alertmanagers monitoring 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch apiservices - 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch backupstoragelocations velero 200 dry-run: 2
+    system:serviceaccount:argocd:argocd-platform patch certificates cnpg-system 200 dry-run: 2
+    system:serviceaccount:argocd:argocd-platform patch clusterrolebindings - 200 dry-run: 30
+    system:serviceaccount:argocd:argocd-platform patch clusterroles - 200 dry-run: 45
+    system:serviceaccount:argocd:argocd-platform patch configmaps cnpg-system 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch configmaps kyverno 200 dry-run: 2
+    system:serviceaccount:argocd:argocd-platform patch configmaps monitoring 200 dry-run: 32
+    system:serviceaccount:argocd:argocd-platform patch configmaps velero 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch customresourcedefinitions - 200 dry-run: 107
+    system:serviceaccount:argocd:argocd-platform patch daemonsets monitoring 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch daemonsets velero 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch deployments cert-manager 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch deployments cnpg-system 200 dry-run: 2
+    system:serviceaccount:argocd:argocd-platform patch deployments external-secrets 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch deployments keda 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch deployments kyverno 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch deployments monitoring 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch deployments velero 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch issuers cnpg-system 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch mutatingwebhookconfigurations - 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch poddisruptionbudgets kyverno 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch podmonitors cnpg-system 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch prometheuses monitoring 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch prometheusrules monitoring 200 dry-run: 35
+    system:serviceaccount:argocd:argocd-platform patch rolebindings cert-manager 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch rolebindings cnpg-system 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch rolebindings external-secrets 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch rolebindings keda 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch rolebindings kube-system 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch rolebindings kyverno 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch rolebindings velero 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch roles cert-manager 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch roles cnpg-system 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch roles external-secrets 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch roles keda 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch roles kube-system 200 dry-run: 2
+    system:serviceaccount:argocd:argocd-platform patch roles kyverno 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch roles velero 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch schedules velero 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch secrets external-secrets 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch secrets monitoring 200 dry-run: 2
+    system:serviceaccount:argocd:argocd-platform patch serviceaccounts cert-manager 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch serviceaccounts cnpg-system 200 dry-run: 2
+    system:serviceaccount:argocd:argocd-platform patch serviceaccounts external-secrets 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch serviceaccounts keda 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch serviceaccounts kyverno 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch serviceaccounts monitoring 200 dry-run: 6
+    system:serviceaccount:argocd:argocd-platform patch serviceaccounts velero 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch servicemonitors keda 200 dry-run: 2
+    system:serviceaccount:argocd:argocd-platform patch servicemonitors kyverno 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch servicemonitors monitoring 200 dry-run: 13
+    system:serviceaccount:argocd:argocd-platform patch servicemonitors velero 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch services cert-manager 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch services cnpg-system 200 dry-run: 2
+    system:serviceaccount:argocd:argocd-platform patch services external-secrets 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch services keda 200 dry-run: 3
+    system:serviceaccount:argocd:argocd-platform patch services kube-system 200 dry-run: 5
+    system:serviceaccount:argocd:argocd-platform patch services kyverno 200 dry-run: 4
+    system:serviceaccount:argocd:argocd-platform patch services monitoring 200 dry-run: 6
+    system:serviceaccount:argocd:argocd-platform patch services velero 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch validatingadmissionpolicies - 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch validatingadmissionpolicybindings - 200 dry-run: 1
+    system:serviceaccount:argocd:argocd-platform patch validatingwebhookconfigurations - 200 dry-run: 6

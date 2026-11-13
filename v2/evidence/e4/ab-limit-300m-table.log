@@ -1,0 +1,10 @@
+# transcript: E4: the limit-300m window per pod (corrected table: p99 and the throttled share; the run log printed p99 under a p95 header)
+# recorded: 2026-11-09T03:15:15Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e4/pod-table.sh gateway 2026-11-09T03:11:24Z 2026-11-09T03:13:50Z
+window 2026-11-09T03:11:24Z .. 2026-11-09T03:13:50Z
+pod                                node         limit    req/s  cores ms CPU/req   p50 ms   p99 ms   lag p99  throttled
+gateway-7b844f9fc9-gm44w           ent-worker3            39.9  0.288       7.22     16.4    263.0       7.1          -
+gateway-7b844f9fc9-qhww7           ent-worker             27.3  0.207       7.58     16.4    261.6       5.4          -
+gateway-limited-788f6c7b94-qkbg7   ent-worker2  300m      37.3  0.282       7.55     21.9    474.9      95.5       67 %
+

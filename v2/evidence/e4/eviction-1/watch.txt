@@ -1,0 +1,3 @@
+03:43:42 ws=2346MiB pressure=False be-hog:Pending burst-hog:Pending guaranteed:Failed/OutOfmemory 
+03:43:44 ws=2353MiB pressure=False be-hog:Running burst-hog:Running guaranteed:Failed/OutOfmemory 
+03:43:46 ws=2353MiB pressure=False be-hog:Running burst-hog:Running guaranteed:Failed/OutOfmemory 

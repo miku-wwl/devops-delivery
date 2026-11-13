@@ -1,0 +1,32 @@
+load balancer container: kindccm-7c5080a249c3 (http://172.20.0.8:8080)
+envoy pid 5395, open files now: 109
+Max open files            1024                 1048576              files     
+window 2026-11-07T12:21:55Z .. 2026-11-07T12:23:21Z
+envoy crashes during the run: 7
+first events:
+[2026-11-07 12:22:00.398][5403][error][envoy_bug] [source/common/network/socket_interface_impl.cc:89] envoy bug failure: false. Details: socket(2) failed, got e
+[2026-11-07 12:22:00.399][5403][critical][backtrace] [./source/server/backtrace.h:129] Caught Segmentation fault, suspect faulting address 0x0
+[2026-11-07 12:22:01.851][5449][info][main] [source/server/server.cc:1001] starting main dispatch loop
+[2026-11-07 12:22:04.902][5465][error][envoy_bug] [source/common/network/socket_interface_impl.cc:89] envoy bug failure: false. Details: socket(2) failed, got e
+k6 summary:
+rate=180/s duration=40s iterations=7093 dropped=106
+requests=11765 (176.5/s) failed=99.97%
+browse: p50=0.0 p95=2386.5 p99=2997.8 max=4107.0 ms
+order:  p50=328.8 p95=2649.4 p99=3682.8 max=4577.9 ms
+checks: 0.03% passed
+time="2026-11-08T01:23:03+13:00" level=error msg="thresholds on metrics 'http_req_duration{kind:browse}, http_req_duration{kind:order}, http_req_failed{kind:browse}' have been crossed"
+k6 network errors: 10755
+   9208 error="Get \
+   1546 error="Post \
+      1 error="unexpected EOF
+readiness (R = ready, - = not ready), every 2 s:
+12:22:05 catalog/w1=- catalog/w2=- orders/w2=- 
+12:22:12 catalog/w1=- catalog/w2=- inventory/w1=- orders/w1=- orders/w2=- payments/w1=- 
+12:22:36 inventory/w1=- orders/w1=- payments/w1=- 
+12:22:38 orders/w1=- 
+12:22:41 
+ztunnel on ent-worker: 1668 lines, 2 with error=, by error:
+      2 error="attempted recursive call to ourselves"
+ztunnel on ent-worker2: 1638 lines, 1 with error=, by error:
+      1 error="attempted recursive call to ourselves"
+ztunnel on ent-worker3: 18 lines, 0 with error=, by error:

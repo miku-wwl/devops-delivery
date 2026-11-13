@@ -1,0 +1,15 @@
+2026-11-09T14:58:01Z Pod/drill-writer-f4-cut-freeze-sync Scheduled: Successfully assigned data/drill-writer-f4-cut-freeze-sync to ent-worker3
+2026-11-09T14:58:02Z Pod/drill-writer-f4-cut-freeze-sync Pulled: Container image "ghcr.io/cloudnative-pg/postgresql:18.6-system-trixie" already present on machine and can be accessed by the pod
+2026-11-09T14:58:02Z Pod/drill-writer-f4-cut-freeze-sync Created: Container created
+2026-11-09T14:58:02Z Pod/drill-writer-f4-cut-freeze-sync Started: Container started
+2026-11-09T15:00:13Z Pod/nats-1 NodeNotReady: Node is not ready
+2026-11-09T15:00:13Z Pod/pg-main-2 NodeNotReady: Node is not ready
+2026-11-09T15:00:15Z Cluster/pg-main FailoverTarget: Failing over from pg-main-2 to pg-main-1
+2026-11-09T15:00:15Z Cluster/pg-main FailingOver: Current primary isn't healthy, initiating a failover from pg-main-2
+2026-11-09T15:01:29Z Pod/pg-main-2 Started: Container started
+2026-11-09T15:01:29Z Pod/pg-main-2 Created: Container created
+2026-11-09T15:01:29Z Pod/pg-main-2 Pulled: Container image "ghcr.io/cloudnative-pg/postgresql:18.6-system-trixie" already present on machine and can be accessed by the pod
+2026-11-09T15:01:36Z Pod/pg-main-2 TaintManagerEviction: Cancelling deletion of Pod data/pg-main-2
+2026-11-09T15:01:36Z Pod/nats-1 TaintManagerEviction: Cancelling deletion of Pod data/nats-1
+2026-11-09T15:01:38Z Pod/pg-main-2 Unhealthy: Startup probe failed: HTTP probe failed with statuscode: 500
+2026-11-09T15:02:21Z Pod/drill-writer-f4-cut-freeze-sync Killing: Stopping container writer

@@ -1,0 +1,30 @@
+# nats 2.15.2: a three-node JetStream cluster (Raft), one node per [模拟] zone.
+config:
+  cluster:
+    enabled: true
+    replicas: 3
+  jetstream:
+    enabled: true
+    fileStore:
+      pvc: {size: 2Gi}
+  monitor: {enabled: true}          # :8222, read by the exporter and by KEDA (E4)
+container:
+  merge:
+    resources: {requests: {cpu: 50m, memory: 64Mi}, limits: {memory: 256Mi}}
+reloader:
+  merge:
+    resources: {requests: {cpu: 5m, memory: 16Mi}, limits: {memory: 64Mi}}
+natsBox: {enabled: false}
+promExporter:
+  enabled: true
+  merge:
+    resources: {requests: {cpu: 5m, memory: 16Mi}, limits: {memory: 64Mi}}
+  podMonitor: {enabled: true}
+podTemplate:
+  # E7: pinned to its volume, may preempt a pod that took its place (chapter 7, incident 2)
+  merge:
+    spec: {priorityClassName: platform-critical}
+  topologySpreadConstraints:
+    topology.kubernetes.io/zone:
+      maxSkew: 1
+      whenUnsatisfiable: DoNotSchedule

@@ -1,0 +1,38 @@
+# transcript: R1 verification, part 2
+# recorded: 2026-11-09T22:59:31Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+# R1 verification, part 2
+$ T0=$(cat v2/evidence/e7/r1/t0); echo "T0 $(date -u -d @$T0 +%T)"
+T0 22:37:23
+
+$ kubectl -n data exec pg-main-1 -c postgres -- psql -U postgres -d orders -tAc "select format('orders created before T0: %s, newest %s', count(*), max(created_at)) from orders where created_at < to_timestamp($T0)"
+orders created before T0: 211935, newest 2026-11-09 15:18:14.990849+00
+
+$ grep -E "orders \(|orders:" v2/evidence/e7/r1/before.txt
+  orders: 
+  orders (22:29:14, query fixed): 211935, newest 2026-11-09 15:18:14.990849+00
+
+$ kubectl -n data exec pg-main-1 -c postgres -- psql -U postgres -d drill -tAc "select format('drill rows of r1: %s, newest client time %s', count(*), max(client_ts)) from writes where run = 'r1'"
+drill rows of r1: 15521, newest client time 2026-11-09 22:34:00.48067+00
+
+# the recovery: job pod and what PostgreSQL logged
+$ kubectl -n data get events --sort-by=.lastTimestamp -o custom-columns=T:.lastTimestamp,OBJ:.involvedObject.name,R:.reason --no-headers | grep -E "full-recovery|pg-main-1 " | grep -E "Scheduled|Started|Completed|SuccessfulCreate" | head -6
+2026-11-09T22:51:58Z   pg-main-1-full-recovery          SuccessfulCreate
+2026-11-09T22:52:03Z   pg-main-1-full-recovery-wk4sk    Scheduled
+2026-11-09T22:52:07Z   pg-main-1-full-recovery-wk4sk    Started
+2026-11-09T22:52:19Z   pg-main-1-full-recovery-wk4sk    Started
+2026-11-09T22:52:20Z   pg-main-1-full-recovery-wk4sk    Started
+2026-11-09T22:53:36Z   pg-main-1                        Scheduled
+
+$ kubectl -n data get cluster pg-main -o jsonpath='{.status.conditions[?(@.type=="ContinuousArchiving")].status} {.status.conditions[?(@.type=="ContinuousArchiving")].message}{"\n"}'
+True Continuous archiving is working
+
+$ kubectl -n data get backups.postgresql.cnpg.io -o custom-columns=NAME:.metadata.name,PHASE:.status.phase,SERVER:.status.serverName,STARTED:.status.startedAt --no-headers
+pg-main-nightly-20261109225157   completed   <none>   2026-11-09T22:53:55Z
+
+$ kubectl -n data exec pg-main-1 -c postgres -- psql -U postgres -tAc "select format('timeline %s, archived %s at %s', (select timeline_id from pg_control_checkpoint()), last_archived_wal, last_archived_time) from pg_stat_archiver"
+timeline 11, archived 0000000B00000000000000CF.00000028.backup at 2026-11-09 22:55:11.548669+00
+
+$ kubectl -n argocd get applications --no-headers | awk '{print $2 "/" $3}' | sort | uniq -c
+     34 Synced/Healthy
+

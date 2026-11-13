@@ -1,0 +1,11 @@
+== 22:57:22 (T0 + 1199 s) users (new cluster CA)
+  alice             /O=team-shop/CN=alice                until 2026-11-16T22:52:22Z  sha256 371F98868A0F51FC
+  bob               /O=team-insight/CN=bob               until 2026-11-16T22:52:23Z  sha256 4C5E03A1C383D987
+  carol             /O=platform-sre/CN=carol             until 2026-11-16T22:52:24Z  sha256 4520CD3F848E91E5
+  dave              /O=auditors/CN=dave                  until 2026-11-16T22:52:25Z  sha256 FB106DF52A9FD47C
+== 22:57:26 load balancer limits set
+== 22:57:27 (T0 + 1204 s) first orders against http://172.20.0.12:8080 (k6, 60 s, 5 it/s)
+requests=509 (8.9/s) failed=0.00%
+browse: p50=12.4 p95=21.8 p99=53.5 max=191.1 ms
+order:  p50=134.8 p95=284.2 p99=377.0 max=522.8 ms
+== 22:58:25 (T0 + 1262 s) first order after T0: 2026-11-09 22:57:27.644138+00

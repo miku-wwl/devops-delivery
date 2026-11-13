@@ -1,0 +1,36 @@
+service: notifier
+replicas: 1
+podDisruptionBudget: null
+env:
+  NATS_URL: nats://nats.data.svc:4222
+  VALKEY_URL: redis://valkey.data.svc:6379/2
+  VALKEY_TIMEOUT_S: "1.0"          # store of record, not a cache (chapter 2)
+  # E4 (chapter 5): a slow provider - 200 ms per notification, 2 at a time = 10 per second per
+  # pod (was 20 ms x 16) - so that one pod cannot keep up with the order stream of a load test
+  NOTIFY_WORK_MS: "200"
+  NOTIFIER_CONCURRENCY: "2"
+# E4: scale on the backlog of the JetStream consumer, not on CPU (the notifier mostly waits).
+# KEDA aims at lagThreshold pending messages per replica. The monitoring endpoint is the
+# headless service: in a NATS cluster the scaler asks the consumer's leader node by name.
+keda:
+  enabled: true
+  minReplicas: 2   # E6: one replica was a single point of failure (node-1)
+  maxReplicas: 5
+  pollingInterval: 10
+  triggers:
+    - type: nats-jetstream
+      metadata:
+        natsServerMonitoringEndpoint: nats-headless.data.svc.cluster.local:8222
+        account: $G
+        stream: ORDERS
+        consumer: notifier
+        lagThreshold: "50"
+    # E4 fix for the oscillation: the backlog says how much is waiting, not how fast it arrives -
+    # once drained it reads ~0 and the replicas go away under a steady load. A second trigger on
+    # the arrival rate (one event per confirmed order) holds the steady-state count; KEDA uses
+    # whichever trigger asks for more replicas, the backlog trigger still handles bursts.
+    - type: prometheus
+      metadata:
+        serverAddress: http://kps-prometheus.monitoring.svc:9090
+        query: sum(rate(orders_total{namespace="storefront",status="CONFIRMED"}[1m]))
+        threshold: "8"            # events per second per replica: 80 % of one replica (10/s)

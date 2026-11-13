@@ -15,6 +15,7 @@ node_modules/
 
 # Manual build intermediates
 manual/build/
+v2/manual/build/
 
 # Secrets and local lab state - never commit these
 .env
@@ -27,3 +28,13 @@ kubeconfig*
 # OS
 .DS_Store
 Thumbs.db
+
+# Ansible collections are installed from ansible/collections/requirements.yml
+ansible/collections/ansible_collections/
+
+# OpenTofu working directories and plan files (the lock file .terraform.lock.hcl is committed)
+v2/iac/**/.terraform/
+v2/iac/**/*.tfplan
+
+# Publication Edition: derived chapter sources (v2/manual/pub/build_pub.py)
+v2/manual/.pubsrc/

@@ -1,0 +1,172 @@
+/* Publication Edition of volume 2: the book's visual system, layered over manual/assets/manual.css.
+   One palette, one figure frame with a kind tag (concept / measured data / screenshot / terminal record),
+   chapter openers, quiet evidence markers. Volume 1 does not load this file. */
+:root {
+  --ink: #1b2430; --muted: #5b6776; --accent: #0b5cad; --accent-2: #0f766e; --rule: #d7dee6;
+  --code-bg: #f5f7fa; --head-bg: #eaf1f8; --navy: #0b2545; --mint: #2ec4b6;
+}
+html { font-size: 10.4pt; line-height: 1.82; }
+p { margin-bottom: 2.8mm; }
+strong { color: #10202f; }
+
+/* ---------- cover ---------- */
+.cover { padding-top: 58mm; }
+.cover-edition {
+  position: absolute; top: 21mm; left: 22mm; font-size: 9pt; letter-spacing: 2.2px; text-transform: uppercase;
+  color: #0b2545; background: var(--mint); padding: 1.2mm 4mm; border-radius: 1mm; font-weight: 700;
+}
+.cover-title { font-size: 33pt; margin: 6mm 0 9mm; }
+.cover-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4mm; margin-top: 12mm; }
+.cover-grid div { border-top: 2px solid var(--mint); padding-top: 3mm; }
+.cover-grid b { display: block; font-size: 21pt; line-height: 1.15; color: #fff; }
+.cover-grid span { font-size: 9pt; color: #b9cde6; line-height: 1.5; display: block; margin-top: 1mm; }
+
+/* ---------- table of contents ---------- */
+.toc-title { letter-spacing: 3px; }
+#TOC > ul > li > a { color: var(--navy); border-bottom: 1px solid var(--rule); padding-bottom: .6mm; }
+#TOC > ul > li > a .fill { border-bottom: none; }
+
+/* ---------- chapter opening ---------- */
+main h1 {
+  font-size: 24pt; color: var(--navy); line-height: 1.3; padding-bottom: 4.5mm; margin-bottom: 6mm;
+  /* the rule under the title is a border image: a block ::after here doubled the heading's text in the PDF outline */
+  border-bottom: 3px solid var(--accent);
+  border-image: linear-gradient(90deg, var(--accent) 0 26%, var(--mint) 26% 32%, var(--rule) 32%) 1;
+}
+/* the chapter label sits on its own line. It is drawn by ::before from the counter: making the number span a block
+   changes the heading's text in the PDF outline, and build.py matches outline titles to find the page numbers. */
+main h1 .header-section-number {
+  display: inline-block; width: 100%; font-size: 10.5pt; letter-spacing: 3px; color: var(--accent-2); margin: 0 0 1.5mm;
+}
+.lead { font-size: 10.9pt; line-height: 1.86; color: #2a3848; border-left: none; padding-left: 0; margin-bottom: 5mm; }
+main h2 { font-size: 14.6pt; color: var(--navy); margin-top: 9mm; border-left-color: var(--accent); }
+main h3 { font-size: 12.2pt; color: var(--accent-2); }
+
+/* opener: the engineering question (left) and what was measured (right) */
+div.opener {
+  display: grid; grid-template-columns: 0.92fr 1.3fr; border-radius: 6px; overflow: hidden; margin: 4mm 0 7mm;
+  break-inside: avoid; font-size: 9.5pt; line-height: 1.68; border: 1px solid #c9d6e4;
+}
+div.opener > div { padding: 4mm 5mm 2.5mm; }
+div.opener > .q { background: var(--navy); color: #e6eef8; }
+div.opener > .q strong { color: #fff; }
+div.opener > .k { background: #f5f8fc; }
+div.opener > div > p:first-child { font-size: 8.4pt; letter-spacing: 2.5px; font-weight: 700; margin-bottom: 1.6mm; }
+div.opener > .q > p:first-child { color: var(--mint); }
+div.opener > .k > p:first-child { color: var(--accent); }
+div.opener ul { padding-left: 4.4mm; margin-bottom: 1mm; }
+div.opener li { margin: .9mm 0; }
+div.opener p { text-align: left; margin-bottom: 1.8mm; }
+
+/* how real the chapter's experiments are */
+div.realness {
+  border: 1px dashed #9db4cc; border-radius: 5px; padding: 2.6mm 4mm 1mm; margin: 4mm 0 5mm; font-size: 9.3pt;
+  line-height: 1.7; background: #fbfcfe; break-inside: avoid;
+}
+div.realness::before { content: "实验性质"; display: block; font-size: 8.2pt; letter-spacing: 2px; font-weight: 700; color: var(--accent); margin-bottom: .8mm; }
+
+/* ---------- evidence markers: superscript numbers, listed per chapter in the appendix ---------- */
+sup.ev { font-size: 6.6pt; color: var(--accent-2); margin: 0 .2mm; line-height: 0; font-family: "Segoe UI", sans-serif; }
+sup.ev a { color: inherit; }
+.evlist { columns: 2; column-gap: 8mm; font-size: 7.5pt; line-height: 1.55; margin: 1.5mm 0 5mm; }
+.evlist p { margin: 0; break-inside: avoid; text-align: left; padding-left: 7.5mm; text-indent: -7.5mm; }
+.evlist code { background: none; padding: 0; font-size: 7.2pt; }
+.evlist .n { display: inline-block; width: 7.5mm; text-indent: 0; color: var(--accent-2); font-weight: 700; }
+
+/* a paragraph that held only evidence files, under a table or a figure */
+p.evsrc { text-align: right; font-size: 7.6pt; color: var(--muted); margin: -2.4mm 0 3.2mm; line-height: 1.4; break-before: avoid; }
+p.evsrc sup.ev { font-size: 7.6pt; vertical-align: baseline; line-height: inherit; }
+figure + p.evsrc { margin-top: -4.4mm; }
+
+/* ---------- code ---------- */
+/* long inline code may break (codebreak.lua adds break points after separators; this is the fallback) */
+p code, li code, dd code { overflow-wrap: anywhere; }
+/* table cells: manual.css breaks code anywhere (break-all), which cut paths in the middle of a word although a
+   separator was a few characters away; here the break points of codebreak.lua come first */
+td code, th code { word-break: normal; overflow-wrap: anywhere; }
+/* a Mermaid diagram sits in a <pre>: do not inherit the code block's break-anywhere rule into its labels */
+figure.diagram pre.mermaid { word-break: normal; overflow-wrap: normal; }
+pre { background: var(--code-bg); border: 1px solid #e1e7ee; border-left: 3px solid #9db4cc; border-radius: 4px; font-size: 8.2pt; }
+pre.console, div.sourceCode pre.console { border-left-color: var(--mint); }
+code { background: #eef2f6; }
+
+/* ---------- tables: horizontal rules only ---------- */
+table { border-top: 1.6px solid #2a3f55; border-bottom: 1.2px solid #2a3f55; font-size: 9pt; }
+th, td { border: none; border-bottom: 1px solid #e3e9ef; padding: 1.6mm 2.5mm; }
+thead th { background: var(--head-bg); border-bottom: 1px solid #9db4cc; color: #12263a; }
+tbody tr:nth-child(even) td { background: #fafbfd; }
+tbody tr:last-child td { border-bottom: none; }
+
+/* ---------- figures: one frame, a tag that says what kind of picture it is ---------- */
+figure {
+  margin: 5mm 0 6mm; padding: 8mm 4mm 2.6mm; border: 1px solid var(--rule); border-radius: 6px; background: #fdfefe;
+  position: relative;
+}
+figure img { border: none; border-radius: 3px; max-height: 150mm; }
+figure.diagram svg { max-height: 132mm; }
+figure.diagram.tall svg { max-height: 190mm; }
+figcaption {
+  text-align: left; font-size: 8.8pt; line-height: 1.62; color: #46525f; border-top: 1px solid var(--rule);
+  margin-top: 3mm; padding-top: 2mm;
+}
+figcaption::before { color: var(--accent); }
+figure::before {
+  /* a tab inside the frame: a tag hanging above the box can be left behind on the previous page */
+  content: "示意图"; position: absolute; top: 0; left: 0; font-size: 7.3pt; font-weight: 700; letter-spacing: 1px;
+  padding: .3mm 3mm; border-radius: 5px 0 5px 0; background: #eaf1f8; color: #0b5cad; border: 1px solid #c5d6ea;
+  border-top: none; border-left: none; line-height: 1.6;
+}
+figure.data::before, figure:has(img.data)::before { content: "实测数据"; background: #e4f3f0; color: #0b6b62; border-color: #b5dcd5; }
+figure:has(img.shot)::before { content: "真实截图"; background: #fff1dc; color: #8a4b08; border-color: #f0d3a6; }
+figure:has(img.term)::before { content: "终端记录"; background: #1b2430; color: #e6edf3; border-color: #1b2430; }
+figure.model::before, figure:has(img.model)::before { content: "模型曲线"; background: #f1ecfb; color: #4b2f8f; border-color: #d6c9f0; }
+/* front matter: figures without a chapter number */
+figure.nonum figcaption::before, figure:has(img.nonum) figcaption::before { content: ""; }
+
+/* ---------- callouts ---------- */
+div.tip, div.note, div.warning, div.danger, div.principle, div.faq, div.exercise, div.why, div.takeaway {
+  border-left-width: 3px; border-radius: 0 5px 5px 0; font-size: 9.7pt;
+}
+div.tip::before, div.note::before, div.warning::before, div.danger::before, div.principle::before, div.faq::before,
+div.exercise::before, div.why::before, div.takeaway::before { font-size: 8.4pt; letter-spacing: 2px; }
+div.why, div.takeaway { border-left: 3px solid; padding: 2.4mm 4mm 1mm; margin: 3.4mm 0 4mm; break-inside: avoid; }
+div.why::before, div.takeaway::before { display: block; font-weight: 700; margin-bottom: 1mm; }
+div.why { background: #f3f7fc; border-color: var(--accent); }
+div.why::before { content: "为什么会这样"; color: var(--accent); }
+div.takeaway { background: #eef8f6; border-color: var(--accent-2); }
+div.takeaway::before { content: "工程启示"; color: var(--accent-2); }
+/* lab versus production: a table with its own heading colour */
+div.prod table { border-top-color: var(--accent-2); border-bottom-color: var(--accent-2); }
+div.prod thead th { background: #e4f3f0; border-bottom-color: #8fcabf; color: #0b4f48; }
+
+/* ---------- appendices ---------- */
+main h1.unnumbered { font-size: 22pt; }
+.small { font-size: 8.8pt; color: var(--muted); }
+dl.glossary dt { font-weight: 700; color: var(--navy); margin-top: 1.6mm; }
+dl.glossary dd { margin: 0 0 0 0; font-size: 9.4pt; }
+.glossary-cols { columns: 2; column-gap: 9mm; font-size: 8.8pt; line-height: 1.52; }
+.glossary-cols p { margin: 0 0 1.25mm; break-inside: avoid; text-align: left; }
+/* appendix C: thirteen short tables, set a little tighter than the chapters */
+div.codeindex h2 { margin: 6mm 0 2mm; font-size: 13pt; }
+div.codeindex table { margin: 2mm 0 2.6mm; }
+div.codeindex p { margin-bottom: 1.6mm; }
+.glossary-cols strong { color: var(--navy); }
+div.realness p { text-align: left; }
+
+/* ---------- page make-up: height caps set by v2/manual/pub/layout.txt ---------- */
+figure.diagram.h60 svg, figure img.h60 { max-height: 60mm; } figure.diagram.h65 svg, figure img.h65 { max-height: 65mm; }
+figure.diagram.h70 svg, figure img.h70 { max-height: 70mm; } figure.diagram.h75 svg, figure img.h75 { max-height: 75mm; }
+figure.diagram.h80 svg, figure img.h80 { max-height: 80mm; } figure.diagram.h85 svg, figure img.h85 { max-height: 85mm; }
+figure.diagram.h90 svg, figure img.h90 { max-height: 90mm; } figure.diagram.h95 svg, figure img.h95 { max-height: 95mm; }
+figure.diagram.h100 svg, figure img.h100 { max-height: 100mm; } figure.diagram.h105 svg, figure img.h105 { max-height: 105mm; }
+figure.diagram.h110 svg, figure img.h110 { max-height: 110mm; } figure.diagram.h115 svg, figure img.h115 { max-height: 115mm; }
+figure.diagram.h120 svg, figure img.h120 { max-height: 120mm; } figure.diagram.h125 svg, figure img.h125 { max-height: 125mm; }
+figure.diagram.h130 svg, figure img.h130 { max-height: 130mm; }
+
+/* the exercise box: its label must not be left alone at the foot of a page */
+div.exercise > :first-child { break-before: avoid; }
+div.exercise li:first-child { break-before: avoid; }
+
+/* appendix C: the intro paragraph ends in the repository path; left-aligned so that the line before it is not spread
+   (review round 3, F3-02) */
+h1#app-code + p { text-align: left; }

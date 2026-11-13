@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 296" width="640" height="296" font-family="'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="8.0" y="8.0" width="172.0" height="132.0" rx="7" fill="#f7f9fc" stroke="#b9c6d4" stroke-width="1"/>
+<text x="17.0" y="23.0" font-size="10" fill="#46525f" text-anchor="start" font-weight="600">变更的来源</text>
+<rect x="20.0" y="34.0" width="148.0" height="40.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="94.0" y="50.8" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">源码与配置</text>
+<text x="94.0" y="64.4" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">GitHub</text>
+<rect x="20.0" y="88.0" width="148.0" height="44.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="94.0" y="106.8" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">GitLab：合并请求门禁</text>
+<text x="94.0" y="120.4" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">第 9、12 章</text>
+<polyline points="94.0,74.0 94.0,83.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="94.0,88.0 98.0,79.1 90.0,79.1" fill="#5b6776"/>
+<rect x="8.0" y="162.0" width="172.0" height="48.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="94.0" y="182.8" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">Argo CD：把集群拉向 Git</text>
+<text x="94.0" y="196.4" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">第 2、9、12 章</text>
+<polyline points="94.0,132.0 94.0,157.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="94.0,162.0 98.0,153.1 90.0,153.1" fill="#5b6776"/>
+<rect x="200.0" y="8.0" width="300.0" height="220.0" rx="7" fill="#f0f8f6" stroke="#a9d6cd" stroke-width="1"/>
+<text x="209.0" y="23.0" font-size="10" fill="#0b4f48" text-anchor="start" font-weight="600">实验集群 ent　第 1 章</text>
+<text x="209.0" y="37.0" font-size="9.5" fill="#46525f" text-anchor="start" font-weight="normal">1 个控制面 + 3 个工作节点，模拟三个可用区</text>
+<rect x="210.0" y="48.0" width="136.0" height="50.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="278.0" y="69.8" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">storefront：6 个服务</text>
+<text x="278.0" y="83.4" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">第 2 章</text>
+<rect x="354.0" y="48.0" width="136.0" height="50.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="422.0" y="69.8" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">服务网格 Istio ambient</text>
+<text x="422.0" y="83.4" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">第 3 章</text>
+<rect x="210.0" y="108.0" width="136.0" height="50.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="278.0" y="129.8" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">PostgreSQL · Valkey · NATS</text>
+<text x="278.0" y="143.4" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">第 2、8 章</text>
+<rect x="354.0" y="108.0" width="136.0" height="50.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="422.0" y="129.8" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">HPA · KEDA · 调度与驱逐</text>
+<text x="422.0" y="143.4" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">第 5 章</text>
+<rect x="210.0" y="168.0" width="136.0" height="50.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="278.0" y="189.8" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">租户、策略、密钥</text>
+<text x="278.0" y="203.4" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">第 6 章</text>
+<rect x="354.0" y="168.0" width="136.0" height="50.0" rx="5.0" fill="#eaf2fb" stroke="#3d7cc9" stroke-width="1.2"/>
+<text x="422.0" y="189.8" font-size="10" fill="#1b2430" text-anchor="middle" font-weight="600">指标、日志、链路</text>
+<text x="422.0" y="203.4" font-size="9.5" fill="#1b2430" text-anchor="middle" font-weight="normal">第 4、10 章</text>
+<polyline points="180.0,186.0 195.0,186.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="200.0,186.0 191.1,182.0 191.1,190.0" fill="#5b6776"/>
+<rect x="520.0" y="8.0" width="112.0" height="40.0" rx="5.0" fill="#ffffff" stroke="#b9c6d4" stroke-width="1.2" stroke-dasharray="3 3"/>
+<text x="576.0" y="24.8" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="600">k6 负载</text>
+<text x="576.0" y="38.4" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">第 4 章</text>
+<rect x="520.0" y="56.0" width="112.0" height="40.0" rx="5.0" fill="#fdecea" stroke="#c0392b" stroke-width="1.2"/>
+<text x="576.0" y="72.8" font-size="10" fill="#7a1f16" text-anchor="middle" font-weight="600">故障注入</text>
+<text x="576.0" y="86.4" font-size="9.5" fill="#7a1f16" text-anchor="middle" font-weight="normal">第 7 章</text>
+<rect x="520.0" y="104.0" width="112.0" height="40.0" rx="5.0" fill="#ffffff" stroke="#b9c6d4" stroke-width="1.2" stroke-dasharray="3 3"/>
+<text x="576.0" y="120.8" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="600">能力考核</text>
+<text x="576.0" y="134.4" font-size="9.5" fill="#5b6776" text-anchor="middle" font-weight="normal">第 13 章</text>
+<polyline points="520.0,28.0 505.0,28.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="500.0,28.0 508.9,32.0 508.9,24.0" fill="#5b6776"/>
+<polyline points="520.0,76.0 505.0,76.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 4"/>
+<polygon points="500.0,76.0 508.9,80.0 508.9,72.0" fill="#5b6776"/>
+<polyline points="520.0,124.0 505.0,124.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 4"/>
+<polygon points="500.0,124.0 508.9,128.0 508.9,120.0" fill="#5b6776"/>
+<rect x="520.0" y="152.0" width="112.0" height="36.0" rx="5.0" fill="#e8f5f2" stroke="#0f8a7e" stroke-width="1.2"/>
+<text x="576.0" y="173.4" font-size="9.5" fill="#0b4f48" text-anchor="middle" font-weight="normal">集群外的备份　第 8 章</text>
+<rect x="520.0" y="194.0" width="112.0" height="36.0" rx="5.0" fill="#e8f5f2" stroke="#0f8a7e" stroke-width="1.2"/>
+<text x="576.0" y="215.4" font-size="9.5" fill="#0b4f48" text-anchor="middle" font-weight="normal">告警桥 → 事故　第 10 章</text>
+<polyline points="500.0,170.0 515.0,170.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="520.0,170.0 511.1,166.0 511.1,174.0" fill="#5b6776"/>
+<polyline points="500.0,212.0 515.0,212.0" fill="none" stroke="#5b6776" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="520.0,212.0 511.1,208.0 511.1,216.0" fill="#5b6776"/>
+<rect x="200.0" y="242.0" width="300.0" height="46.0" rx="5.0" fill="#f4f5f7" stroke="#8a94a3" stroke-width="1.2" stroke-dasharray="4 3"/>
+<text x="350.0" y="261.8" font-size="10" fill="#3a4553" text-anchor="middle" font-weight="600">另一个集群：真实的控制面</text>
+<text x="350.0" y="275.4" font-size="9.5" fill="#3a4553" text-anchor="middle" font-weight="normal">1000 个虚拟节点、10 000 个虚拟 Pod　第 11 章</text>
+<text x="8.0" y="240.0" font-size="9.5" fill="#5b6776" text-anchor="start" font-weight="normal">箭头向内：从外部施加的负载、故障与考核</text>
+<text x="8.0" y="254.0" font-size="9.5" fill="#5b6776" text-anchor="start" font-weight="normal">箭头向外：离开集群的备份与告警</text>
+<text x="8.0" y="268.0" font-size="9.5" fill="#5b6776" text-anchor="start" font-weight="normal">第 12 章：OpenTofu 管理 GitLab 的门禁</text>
+</svg>

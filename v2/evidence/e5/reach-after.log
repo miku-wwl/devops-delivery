@@ -1,0 +1,12 @@
+# transcript: E5: who can reach whom with the platform NetworkPolicies, compared with reach-expected.tsv (written before the policies)
+# recorded: 2026-11-09T08:59:33Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash v2/experiments/e5/reach.sh reach-after v2/experiments/e5/reach-expected.tsv
+source      dns  catalog  gateway  postgres  valkey   nats     insight-api  prometheus  otel
+insight     ok   timeout  timeout  timeout   timeout  timeout  ok           timeout     timeout
+shop-dev    ok   timeout  timeout  timeout   timeout  timeout  timeout      timeout     timeout
+storefront  ok   ok       ok       ok        ok       ok       timeout      ok          ok
+e5-outside  ok   timeout  ok       timeout   timeout  timeout  timeout      ok          ok
+monitoring  ok   ok       ok       timeout   timeout  timeout  timeout      ok          ok
+== 45 cells compared with reach-expected.tsv: 45 as expected, 0 mismatches
+

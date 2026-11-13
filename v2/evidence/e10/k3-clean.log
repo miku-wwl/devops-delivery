@@ -1,0 +1,26 @@
+== 10:18:59 before deleting (after the K5 re-run)
+  etcd db size MiB: 92.4844 (in use 92.4648)
+  objects: events=11002 nodes=1000 pods=10000 leases=1003
+  resident memory MiB by component: kube-apiserver=446.344 prometheus=130.332 kube-controller-manager=62.125 kwok-controller=85.3359 etcd=222.484 kube-scheduler=187.875
+  docker: kwok-scale-prometheus 144.1MiB / 384MiB 0.83%
+  docker: kwok-scale-kube-scheduler 175.8MiB / 768MiB 0.26%
+  docker: kwok-scale-kwok-controller 88.43MiB / 256MiB 5.74%
+  docker: kwok-scale-kube-controller-manager 68.12MiB / 512MiB 17.60%
+  docker: kwok-scale-kube-apiserver 396.4MiB / 1.5GiB 19.46%
+  docker: kwok-scale-etcd 217MiB / 512MiB 2.24%
+  WSL available MiB: 3473
+== 10:19:02 delete all pods
+  0 pods after 119 s
+== 10:21:36 after deleting the pods
+  etcd db size MiB: 172.656 (in use 172.656)
+  objects: events=12004 nodes=1000 pods=2646 leases=1003
+  resident memory MiB by component: kube-apiserver=961.031 prometheus=127.27 kube-controller-manager=176.148 kwok-controller=97.3203 etcd=161.918 kube-scheduler=89.1875
+  docker: kwok-scale-prometheus 127.7MiB / 384MiB 0.53%
+  docker: kwok-scale-kube-scheduler 80.98MiB / 768MiB 0.35%
+  docker: kwok-scale-kwok-controller 94.54MiB / 256MiB 0.08%
+  docker: kwok-scale-kube-controller-manager 149.5MiB / 512MiB 1.79%
+  docker: kwok-scale-kube-apiserver 919.3MiB / 1.5GiB 3.68%
+  docker: kwok-scale-etcd 107.9MiB / 512MiB 1.64%
+  WSL available MiB: 3186
+  10:21:39 defragmentation: Failed to defragment etcd member[127.0.0.1:2379]. took 5.004020744s. (context deadline exceeded)
+  etcd db size MiB after defrag: 173.09

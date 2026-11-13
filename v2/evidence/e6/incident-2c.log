@@ -1,0 +1,27 @@
+# transcript: E6 incident 2, resolved: Prometheus with PriorityClass platform-critical preempted Grafana on its own node; JetStream after the notifier outage of node-1
+# recorded: 2026-11-09T12:46:18Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ kubectl get priorityclass platform-critical -o custom-columns=NAME:.metadata.name,VALUE:.value,PREEMPTION:.preemptionPolicy --no-headers
+platform-critical   1000000   PreemptLowerPriority
+
+$ kubectl get events -A --field-selector reason=Preempted -o custom-columns=TIME:.lastTimestamp,NS:.metadata.namespace,POD:.involvedObject.name,MSG:.message --no-headers | tail -2
+
+$ kubectl get pods -A -o wide --no-headers | awk '$2 ~ /^(prometheus-kps|kps-grafana)/ {print $1 "/" $2, $4, $8}'
+monitoring/kps-grafana-676885f46d-kxb6x Running ent-worker
+monitoring/prometheus-kps-prometheus-0 Running ent-worker2
+
+$ kubectl -n monitoring get pod prometheus-kps-prometheus-0 -o jsonpath='prometheus: priority {.spec.priority}, started {.status.startTime}{"\n"}'
+prometheus: priority 1000000, started 2026-11-09T11:21:38Z
+
+$ kubectl -n data exec nats-1 -c nats -- wget -qO- "http://localhost:8222/jsz?consumers=true" | jq -c '.account_details[0].stream_detail[] | select(.name == "ORDERS") | {stream_last_seq: .state.last_seq, consumers: [.consumer_detail[] | {name, delivered: .delivered.stream_seq, ack_floor: .ack_floor.stream_seq, num_pending, num_ack_pending, num_redelivered}]}'
+{"stream_last_seq":193792,"consumers":[{"name":"notifier","delivered":193792,"ack_floor":193792,"num_pending":0,"num_ack_pending":0,"num_redelivered":0}]}
+
+$ for n in ent-worker ent-worker2 ent-worker3; do echo "$n: $(kubectl describe node $n | grep -E '^  memory ' | awk '{print $2, $3}') requested"; done
+ent-worker: 2610Mi (97%) requested
+ent-worker2: 2314Mi (86%) requested
+ent-worker3: 2666Mi (99%) requested
+
+$ kubectl get pods -A --no-headers | grep -vcE 'Running|Completed'
+0
+[exit 1]
+

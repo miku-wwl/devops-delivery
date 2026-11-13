@@ -1,0 +1,31 @@
+# E8 (chapter 9): the gate of the configuration repository. For every merge request (and every
+# commit on main) the pipeline renders what Argo CD will deploy and applies the release policies
+# with the Kyverno CLI - the engine of the cluster's admission policies (chapter 6). The project
+# merges a merge request only when this pipeline succeeded (platform/gitops/setup.sh).
+default:
+  image: localhost:5001/ci-tools:helm4.3.1-kyverno1.19.2   # platform/gitops/ci-tools/
+stages: [render, policy]
+render:
+  stage: render
+  script: [sh ci/render.sh]
+  artifacts: {paths: [rendered/], expire_in: 1 week}
+release-policies:
+  stage: policy
+  needs: [render]
+  script:
+    - kyverno apply policies/release/common/ policies/release/prod/ --resource rendered/prod/ --remove-color
+    - kyverno apply policies/release/common/ --resource rendered/tenants/ --remove-color
+# E8: change freeze, the first key. During a GitLab deploy freeze (project settings, CI/CD, Deploy
+# freezes; the pipeline then has CI_DEPLOY_FREEZE) a merge request passes only as an emergency change:
+# "[emergency]" in its commit message, which stays in the history. The second key, Argo CD's sync
+# windows (platform/apps/00-projects.yaml), holds back what is merged anyway.
+freeze:
+  stage: render
+  rules:
+    - if: $CI_DEPLOY_FREEZE && $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+  script:
+    - |
+      case "$CI_COMMIT_MESSAGE" in
+        *"[emergency]"*) echo "deploy freeze active - emergency change, allowed: $CI_COMMIT_TITLE" ;;
+        *) echo "deploy freeze active - only emergency changes ([emergency] in the commit message) may merge"; exit 1 ;;
+      esac

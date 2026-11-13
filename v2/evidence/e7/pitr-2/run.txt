@@ -1,0 +1,45 @@
+== 15:13:16.541 run pitr-2: primary pg-main-1, k6 5 it/s, accident noticed after 60 s
+== 15:14:17.334 before: 211642 orders, newest 2026-11-09 15:14:16.791629+00
+   archiver: last archived 0000000A00000000000000BD at 2026-11-09 15:11:00.714112+00, current 0000000A00000000000000BE
+   closed segment 0000000A00000000000000BE right before the accident
+== 15:14:19.235 the cleanup job (as role orders)
+   job start 2026-11-09 15:14:19.648672+00
+   deleted 141
+   wal written meanwhile 12 kB
+   recovery target = job start = 2026-11-09 15:14:19.648672+00; rows deleted: 141 (ids-before: 211643)
+== 15:15:19.874 accident noticed; orders now: 211567
+   archiver: last archived 0000000A00000000000000BE at 2026-11-09 15:14:20.574776+00, current 0000000A00000000000000BF
+15:15:21.194 [attempt-1] pg-pitr created, target 2026-11-09 15:14:19.648672+00
+15:16:24.752 [attempt-1] restore failed after 64 s (phase: Setting up primary)
+  pg-pitr-1-full-recovery-28sn5   0/2   Error   0     63s
+  2026-11-09T15:16:20.115036954Z[11:23] terminating any other active server processes
+  2026-11-09T15:16:20.125840833Z[11:23] shutting down due to startup process failure
+  2026-11-09T15:16:20.148179412Z[11:23] database system is shut down
+  2026-11-09T15:16:21.64032051Z[11:23] pg_ctl: no server running
+  
+  2026-11-09T15:16:21.640382603Z[11:23] Error while deactivating instance
+  2026-11-09T15:16:21.640496278Z[11:23] Exited log pipe
+  2026-11-09T15:16:21.640561364Z[11:23] Exited log pipe
+  2026-11-09T15:16:21.640609362Z[11:23] Exited log pipe
+  2026-11-09T15:16:21.640525412Z[11:23] Error while restoring a backup
+  2026-11-09T15:16:21.641651321Z[11:23] Webserver exited
+  2026-11-09T15:16:21.642029472Z[11:23] restore error
+== 15:16:25.177 forcing a WAL switch on the primary: 0000000A00000000000000BF is closed and archived next
+   archiver: last archived 0000000A00000000000000BF at 2026-11-09 15:16:26.707112+00
+15:16:29.484 [attempt-2] pg-pitr created, target 2026-11-09 15:14:19.648672+00
+15:18:04.815 [attempt-2] pg-pitr healthy after 95 s
+== 15:18:04.831 in pg-pitr: 211644 orders, newest 2026-11-09 15:14:18.988899+00
+   ids before the accident missing in pg-pitr: 0
+== 15:18:05.784 copy back (staging table, existing ids untouched)
+NOTICE:  table "orders_restored" does not exist, skipping
+COPY 211644
+   inserted: 141
+== 15:18:13.557 after: 211932 orders
+   ids before the accident missing now: 0
+   orders created after the accident (kept): 289
+   restored orders by status: CONFIRMED=204484 FAILED=2999 PAYMENT_DECLINED=4112 PENDING=49
+   of them PENDING and created in the last 60 s before the accident: 0
+   time from noticing to the rows being back: 173 s
+   requests=2554 (8.6/s) failed=0.08%
+   browse: p50=10.3 p95=18.1 p99=27.1 max=1462.6 ms
+   order:  p50=116.5 p95=261.3 p99=383.7 max=1673.1 ms

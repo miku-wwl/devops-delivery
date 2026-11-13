@@ -1,0 +1,36 @@
+# transcript: P6 bad canary: exact blast radius, then git revert
+# recorded: 2026-11-06T01:15:03Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ q() { curl -s 'http://127.0.0.1:9090/api/v1/query' --data-urlencode "query=$1" | jq -r '.data.result[0].value[1] // "0" | tonumber | . * 10 | floor / 10'; }
+
+$ echo "bad canary (ReplicaSet d44d997ff): requests=$(q 'sum(increase(http_request_duration_seconds_count{namespace="prod", rollouts_pod_template_hash="d44d997ff", route=~"/api/.*"}[10m]))') slower_than_0.5s=$(q 'sum(increase(http_request_duration_seconds_count{namespace="prod", rollouts_pod_template_hash="d44d997ff", route=~"/api/.*"}[10m])) - sum(increase(http_request_duration_seconds_bucket{namespace="prod", rollouts_pod_template_hash="d44d997ff", route=~"/api/.*", le="0.5"}[10m]))')"
+bad canary (ReplicaSet d44d997ff): requests=121.3 slower_than_0.5s=85.3
+
+$ echo "all prod API requests in the same 10 min: $(q 'sum(increase(http_request_duration_seconds_count{namespace="prod", route=~"/api/.*"}[10m]))')"
+all prod API requests in the same 10 min: 5933.4
+
+# Git still declares the bad config - roll it back where it belongs
+$ bash delivery/argocd/revert.sh 5234a32 --merge
+e355f6a Revert "Merge branch 'change/prod-20261106141121' into 'main'"
+
+ envs/prod/values.yaml | 2 --
+ 1 file changed, 2 deletions(-)
+merge request !14: http://localhost:8929/root/delivery-gitops/-/merge_requests/14
+merged !14 -> main @ d6225fa by root
+
+$ bash delivery/argocd/wait-sync.sh demo-api-prod "" 300
+t+0s  revision=5234a32 sync=Synced health=Degraded operation=Succeeded
+t+126s  revision=d6225fa sync=Synced health=Healthy operation=Succeeded
+reached Synced/Healthy at d6225fa after 126s
+
+$ kubectl argo rollouts get rollout demo-api-prod -n prod | sed -E 's/\x1b\[[0-9;]*m//g' | sed -n '1,9p'
+Name:            demo-api-prod
+Namespace:       prod
+Status:          ✔ Healthy
+Strategy:        Canary
+  Step:          6/6
+  SetWeight:     100
+  ActualWeight:  100
+Images:          ghcr.io/miku-wwl/devops-delivery/demo-api@sha256:7826c3b200f29420237e75169e25d4780192439e9ca01c5d1b17988e513b2559 (stable)
+Replicas:
+

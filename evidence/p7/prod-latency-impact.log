@@ -1,0 +1,26 @@
+# transcript: P7 unexpected alert: impact of the poisoned stable pod, then mitigation
+# recorded: 2026-11-06T04:14:47Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ P=demo-api-prod-6bdb67694c-pw772
+
+$ q() { curl -s -G http://127.0.0.1:9090/api/v1/query --data-urlencode "query=$1" | jq -r '.data.result[0].value[1] // "0" | tonumber | floor'; }
+
+$ echo "pod $P (started 01:14:11Z), POST /api/v1/orders served: $(q "sum(increase(http_request_duration_seconds_count{namespace=\"prod\",pod=\"$P\",route=\"/api/v1/orders\"}[4h]))"), slower than 0.5 s: $(q "sum(increase(http_request_duration_seconds_count{namespace=\"prod\",pod=\"$P\",route=\"/api/v1/orders\"}[4h])) - sum(increase(http_request_duration_seconds_bucket{namespace=\"prod\",pod=\"$P\",route=\"/api/v1/orders\",le=\"0.5\"}[4h]))")"
+pod demo-api-prod-6bdb67694c-pw772 (started 01:14:11Z), POST /api/v1/orders served: 15662, slower than 0.5 s: 15662
+
+$ echo "all prod POST /api/v1/orders in the same 4 h: $(q 'sum(increase(http_request_duration_seconds_count{namespace="prod",route="/api/v1/orders"}[4h]))')"
+all prod POST /api/v1/orders in the same 4 h: 86680
+
+# mitigation: replace the pod; the ReplicaSet recreates it and the new container reads today's ConfigMap (0)
+$ kubectl -n prod delete pod $P
+pod "demo-api-prod-6bdb67694c-pw772" deleted from prod namespace
+
+$ kubectl -n prod wait --for=condition=Ready pod -l app.kubernetes.io/name=demo-api,role=stable --timeout=120s >/dev/null && echo "stable pods ready"
+stable pods ready
+
+$ for p in $(kubectl -n prod get pods -l app.kubernetes.io/name=demo-api,role=stable -o name); do echo "${p#pod/} FAULT_LATENCY_MS=$(kubectl -n prod exec $p -- printenv FAULT_LATENCY_MS)"; done
+demo-api-prod-6bdb67694c-2nnx7 FAULT_LATENCY_MS=0
+demo-api-prod-6bdb67694c-2qnp2 FAULT_LATENCY_MS=0
+demo-api-prod-6bdb67694c-9x5wg FAULT_LATENCY_MS=0
+demo-api-prod-6bdb67694c-bfsxz FAULT_LATENCY_MS=0
+

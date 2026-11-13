@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 299" width="640" height="299" font-family="'Segoe UI','Microsoft YaHei','Noto Sans SC',sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="12.0" y="19.0" font-size="13" fill="#1b2430" text-anchor="start" font-weight="600">事故演练的时间线（秒，从合并请求 !37 合并起算）</text>
+<line x1="76.5" y1="79.0" x2="76.5" y2="259.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="76.5" y="274.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">0</text>
+<line x1="158.5" y1="79.0" x2="158.5" y2="259.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="158.5" y="274.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">50</text>
+<line x1="240.6" y1="79.0" x2="240.6" y2="259.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="240.6" y="274.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">100</text>
+<line x1="322.6" y1="79.0" x2="322.6" y2="259.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="322.6" y="274.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">150</text>
+<line x1="404.7" y1="79.0" x2="404.7" y2="259.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="404.7" y="274.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">200</text>
+<line x1="486.7" y1="79.0" x2="486.7" y2="259.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="486.7" y="274.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">250</text>
+<line x1="568.8" y1="79.0" x2="568.8" y2="259.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<text x="568.8" y="274.0" font-size="10" fill="#5b6776" text-anchor="middle" font-weight="normal">300</text>
+<text x="68.5" y="98.0" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">下单失败</text>
+<line x1="76.5" y1="109.0" x2="618.0" y2="109.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<rect x="124.1" y="85.0" width="441.8" height="18.0" fill="#c0392b" stroke="none" stroke-width="1" rx="3"/>
+<text x="129.1" y="97.5" font-size="9.5" fill="#ffffff" text-anchor="start" font-weight="normal">08:24:10 – 08:28:40：约 4.5 分钟</text>
+<text x="68.5" y="128.0" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">检测</text>
+<line x1="76.5" y1="139.0" x2="618.0" y2="139.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<rect x="124.1" y="115.0" width="210.5" height="18.0" fill="#d9730d" stroke="none" stroke-width="1" rx="3"/>
+<text x="129.1" y="127.5" font-size="9.5" fill="#ffffff" text-anchor="start" font-weight="normal">2 分 08 秒：燃烧率越过呼叫线</text>
+<text x="68.5" y="158.0" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">升级</text>
+<line x1="76.5" y1="169.0" x2="618.0" y2="169.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<rect x="335.8" y="145.0" width="59.5" height="18.0" fill="#7353ba" stroke="none" stroke-width="1" rx="3"/>
+<text x="401.5" y="157.5" font-size="9.5" fill="#1b2430" text-anchor="start" font-weight="normal">37 s 分组等待</text>
+<text x="68.5" y="188.0" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">响应</text>
+<line x1="76.5" y1="199.0" x2="618.0" y2="199.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<rect x="396.5" y="175.0" width="112.0" height="18.0" fill="#1f6fb2" stroke="none" stroke-width="1" rx="3"/>
+<text x="514.7" y="187.5" font-size="9.5" fill="#1b2430" text-anchor="start" font-weight="normal">69 s：确认、定位、撤回</text>
+<text x="68.5" y="218.0" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">撤回生效</text>
+<line x1="76.5" y1="229.0" x2="618.0" y2="229.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<rect x="509.7" y="205.0" width="56.2" height="18.0" fill="#0f8a7e" stroke="none" stroke-width="1" rx="3"/>
+<text x="68.5" y="248.0" font-size="10.5" fill="#1b2430" text-anchor="end" font-weight="normal">告警未解除</text>
+<line x1="76.5" y1="259.0" x2="618.0" y2="259.0" stroke="#e6ebf0" stroke-width="1.0"/>
+<rect x="567.1" y="235.0" width="49.7" height="18.0" fill="#e9edf2" stroke="none" stroke-width="1" rx="3"/>
+<text x="623.0" y="247.5" font-size="9.5" fill="#1b2430" text-anchor="start" font-weight="normal">直到 08:57：恢复之后 28.5 分钟</text>
+<line x1="76.5" y1="76.0" x2="76.5" y2="259.0" stroke="#8a94a3" stroke-width="1.1" stroke-dasharray="3 3"/>
+<rect x="77.5" y="64.0" width="48.0" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="80.5" y="73.0" font-size="10" fill="#8a94a3" text-anchor="start" font-weight="600">合并 !37</text>
+<line x1="335.8" y1="61.0" x2="335.8" y2="259.0" stroke="#c0392b" stroke-width="1.1" stroke-dasharray="3 3"/>
+<rect x="336.8" y="49.0" width="26.0" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="339.8" y="58.0" font-size="10" fill="#c0392b" text-anchor="start" font-weight="600">呼叫</text>
+<line x1="396.5" y1="46.0" x2="396.5" y2="259.0" stroke="#7353ba" stroke-width="1.1" stroke-dasharray="3 3"/>
+<rect x="397.5" y="34.0" width="48.0" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="400.5" y="43.0" font-size="10" fill="#7353ba" text-anchor="start" font-weight="600">事故 #12</text>
+<line x1="509.7" y1="76.0" x2="509.7" y2="259.0" stroke="#0f8a7e" stroke-width="1.1" stroke-dasharray="3 3"/>
+<rect x="510.7" y="64.0" width="46.0" height="14.0" fill="#ffffff" stroke="none" stroke-width="1" rx="2" opacity="0.86"/>
+<text x="513.7" y="73.0" font-size="10" fill="#0f8a7e" text-anchor="start" font-weight="600">撤回合并</text>
+<line x1="76.5" y1="259.0" x2="618.0" y2="259.0" stroke="#9aa5b1" stroke-width="1.0"/>
+<text x="347.2" y="290.0" font-size="10.5" fill="#5b6776" text-anchor="middle" font-weight="normal">合并之后的秒数</text>
+</svg>

@@ -1,0 +1,36 @@
+== 05:49:52 W3: writes with impersonation since the cluster was created (audit log), W4: GitLab deployments since T0
+  argocd-insight         HTTP 201:     3 applied writes, first at 2026-11-10T05:33:44
+  argocd-platform        HTTP 200:   816 applied writes, first at 2026-11-10T04:45:36
+  argocd-platform        HTTP 201:   566 applied writes, first at 2026-11-10T04:45:36
+  argocd-platform        HTTP 400:     8 applied writes, first at 2026-11-10T04:45:36
+  argocd-platform        HTTP 404:    23 applied writes, first at 2026-11-10T04:45:36
+  argocd-root            HTTP 200:    20 applied writes, first at 2026-11-10T04:05:28
+  argocd-root            HTTP 201:    33 applied writes, first at 2026-11-10T04:05:28
+  argocd-storefront      HTTP 200:     6 applied writes, first at 2026-11-10T03:55:24
+  argocd-storefront      HTTP 201:    31 applied writes, first at 2026-11-10T03:55:24
+  #13 prod/inventory success b40dead821ed created 2026-11-10T05:34:27.880Z
+  #14 prod/payments success b40dead821ed created 2026-11-10T05:34:28.866Z
+  #15 prod/catalog success b40dead821ed created 2026-11-10T05:34:31.298Z
+  #16 prod/orders success b40dead821ed created 2026-11-10T05:34:31.736Z
+  #17 prod/notifier success b40dead821ed created 2026-11-10T05:34:35.336Z
+  #18 prod/gateway success b40dead821ed created 2026-11-10T05:34:43.071Z
+  catalog first sync after the rebuild: 2026-11-10T05:33:41Z - 2026-11-10T05:33:43Z rev b40dead821ed7ed2c0b2a19ed8d0d6c7180b9316
+== 05:50:05 W3 again, only writes since the new cluster exists (create.sh done 04:55:40; the audit log is on the host and survived the rebuild)
+  argocd-insight         HTTP 201:     3 writes, first at 2026-11-10T05:33:44
+  argocd-platform        HTTP 200:   816 writes, first at 2026-11-10T04:57:36
+  argocd-platform        HTTP 201:   565 writes, first at 2026-11-10T04:57:36
+  argocd-platform        HTTP 400:     8 writes, first at 2026-11-10T04:57:36
+  argocd-platform        HTTP 404:    23 writes, first at 2026-11-10T04:57:36
+  argocd-root            HTTP 201:    33 writes, first at 2026-11-10T04:57:33
+  argocd-storefront      HTTP 201:    31 writes, first at 2026-11-10T05:33:41
+  refused: argocd-platform 400 clusterpolicies  8
+  refused: argocd-platform 404 certificates NotFound 4
+  refused: argocd-platform 404 clusterrolebindings NotFound 1
+  refused: argocd-platform 404 clusterroles NotFound 1
+  refused: argocd-platform 404 configmaps NotFound 2
+  refused: argocd-platform 404 deployments NotFound 2
+  refused: argocd-platform 404 issuers NotFound 2
+  refused: argocd-platform 404 rolebindings NotFound 3
+  refused: argocd-platform 404 roles NotFound 3
+  refused: argocd-platform 404 serviceaccounts NotFound 3
+  refused: argocd-platform 404 services NotFound 2

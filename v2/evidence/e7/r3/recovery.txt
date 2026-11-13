@@ -1,0 +1,28 @@
+== 05:31:14 (T0 + 2252 s) recovery: the fix as a merge request
+merge !25 as root (Maintainer): HTTP 200 merged
+platform-gitops: merged !25 (e8: R3 fixes - route in the last wave, Kyverno leaves the Git tenants alone)
+== 05:32:29 Kyverno-generated copies of the Git tenants objects, deleted (Argo CD recreates them from Git):
+limitrange "tenant-defaults" deleted from insight namespace
+resourcequota "tenant" deleted from insight namespace
+networkpolicy.networking.k8s.io "allow-dns-and-same-namespace" deleted from insight namespace
+networkpolicy.networking.k8s.io "default-deny" deleted from insight namespace
+limitrange "tenant-defaults" deleted from shop-dev namespace
+resourcequota "tenant" deleted from shop-dev namespace
+networkpolicy.networking.k8s.io "allow-dns-and-same-namespace" deleted from shop-dev namespace
+networkpolicy.networking.k8s.io "default-deny" deleted from shop-dev namespace
+== 05:32:29 wait-apps.sh
+timeout after 900s
+t+ 117s  28/36 Synced+Healthy; not yet: policies=OutOfSync/Healthy storefront-catalog-prod=Synced/Progressing storefront-gateway-prod=Synced/Degraded storefront-inventory-prod=Synced/Progressing storefront-notifier-prod=Synced/Degraded storefront-orders-prod=Synced/Progressing storefront-payments-prod=Synced/Progressing tenants=OutOfSync/Healthy 
+t+ 123s  32/36 Synced+Healthy; not yet: policies=OutOfSync/Healthy storefront-gateway-prod=Synced/Degraded storefront-notifier-prod=Synced/Degraded tenants=OutOfSync/Healthy 
+t+ 128s  33/36 Synced+Healthy; not yet: policies=OutOfSync/Healthy storefront-gateway-prod=Synced/Degraded tenants=OutOfSync/Healthy 
+t+ 133s  34/36 Synced+Healthy; not yet: policies=OutOfSync/Healthy tenants=OutOfSync/Healthy 
+== 05:47:33 done
+== 05:48:31 Kyverno refuses the changed generate rule (immutable): delete the policy, Argo CD recreates it from Git
+error when patching "/dev/shm/1830968617": admission webhook "validate-policy.kyverno.svc" denied the request: changes of immutable fields of a rule spec in a generate rule is disallowed
+
+Warning: kyverno.io/v1 ClusterPolicy is deprecated and will be removed in a future release; migrate to ValidatingPolicy, MutatingPolicy, GeneratingPolicy or ImageValidatingPolicy (policies.kyverno.io), see https://kyverno.io/docs/guides/migration-to-cel/
+clusterpolicy.kyverno.io "tenant-namespace-defaults" deleted
+== 05:49:29 applications not Synced/Healthy: 0
+Warning: kyverno.io/v1 ClusterPolicy is deprecated and will be removed in a future release; migrate to ValidatingPolicy, MutatingPolicy, GeneratingPolicy or ImageValidatingPolicy (policies.kyverno.io), see https://kyverno.io/docs/guides/migration-to-cel/
+  policy recreated 2026-11-10T05:49:24Z, rule 1 selector: {"matchExpressions":[{"key":"tenant","operator":"Exists"},{"key":"tenant-defaults","operator":"DoesNotExist"}]}
+     36 Synced/Healthy

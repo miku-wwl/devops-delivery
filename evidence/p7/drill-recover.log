@@ -1,0 +1,30 @@
+# transcript: P7 incident drill: revert the change and watch the alerts resolve
+# recorded: 2026-11-06T04:10:54Z | host: jiejie | user: devops | cwd: /mnt/d/workshop/nov/devops-delivery
+
+$ bash delivery/argocd/revert.sh fa135cf --merge
+9260cb2 Revert "Merge branch 'change/dev-20261106170532' into 'main'"
+
+ envs/dev/values.yaml | 3 ---
+ 1 file changed, 3 deletions(-)
+merge request !18: http://localhost:8929/root/delivery-gitops/-/merge_requests/18
+merged !18 -> main @ 9d2430c by root
+
+$ bash delivery/argocd/wait-sync.sh demo-api-dev "" 420
+t+1s  revision=fa135cf sync=Synced health=Healthy operation=Succeeded
+t+59s  revision=9d2430c sync=Synced health=Progressing operation=Running
+t+63s  revision=9d2430c sync=Synced health=Progressing operation=Succeeded
+t+72s  revision=9d2430c sync=Synced health=Suspended operation=Succeeded
+t+103s  revision=9d2430c sync=Synced health=Healthy operation=Succeeded
+reached Synced/Healthy at 9d2430c after 103s
+
+# alerts for dev clear once the 1-minute rates recover
+$ for i in $(seq 1 60); do n=$(curl -s http://127.0.0.1:9090/api/v1/alerts | jq '[.data.alerts[] | select(.labels.alertname|test("DemoApi")) | select(.labels.namespace=="dev")] | length'); [ "$n" -eq 0 ] && break; sleep 5; done
+
+$ echo "active dev alerts: $n at $(date -u +%H:%M:%SZ)"
+active dev alerts: 0 at 04:13:27Z
+
+$ curl -s -G http://127.0.0.1:9090/api/v1/query --data-urlencode 'query=demo_api:request_error_ratio:rate1m{namespace="dev"}' | jq -r '.data.result[] | "error ratio dev: \(.value[1] | tonumber * 100 | floor)%"'
+
+$ curl -s -G http://127.0.0.1:9090/api/v1/query --data-urlencode 'query=demo_api:request_duration_seconds:p95_1m{namespace="dev"}' | jq -r '.data.result[] | "p95 dev: \(.value[1] | tonumber * 1000 | floor) ms"'
+p95 dev: 4 ms
+

@@ -1,0 +1,22 @@
+== 2026-11-10T23:10:55Z final state of the lab after E12
+  kubectl context: kind-ent
+  Argo CD applications (sync/health):  39 Synced/Healthy;
+  OpenBao: {"initialized":true,"sealed":false}
+  assessment leftovers: AuthorizationPolicy e12-quarantine 0, untracked policies in storefront 0
+  kwok containers: 0
+  WSL available MiB: 3985
+  catalog                    localhost:5001/storefront:05a04fe
+  gateway                    localhost:5001/storefront:05a04fe
+  inventory                  localhost:5001/storefront:05a04fe
+  notifier                   localhost:5001/storefront:05a04fe
+  orders                     localhost:5001/storefront:05a04fe
+  payments                   localhost:5001/storefront:05a04fe
+  storefront-ingress-istio   docker.io/istio/proxyv2:1.31.4-distroless
+  waypoint                   docker.io/istio/proxyv2:1.31.4-distroless
+== worker memory requests (of allocatable)
+  ent-worker 2610Mi (82%)
+  ent-worker2 2730Mi (85%)
+  ent-worker3 3130Mi (98%)
+== pods not Running/Completed: 6
+== newest PostgreSQL base backup: pg-main-nightly-20261110055945 completed
+== 23:11:36 not cleaned up: the two snapshot jobs that failed while OpenBao was sealed (openbao-snapshot-29905757, openbao-snapshot-29905817, 6 pods Init:Error; the CronJob keeps 2 failed jobs). Deleting them was stopped by the session's permission check (interfering with workloads) - left for the owner: kubectl -n secrets delete job openbao-snapshot-29905757 openbao-snapshot-29905817. Until then their KubeJobFailed/KubeContainerWaiting tickets stay open; the hourly job itself succeeds again (manual run 22:39, CronJob last success 22:39:23).
