@@ -89,10 +89,12 @@ manual/                handbook sources, styles, build and QA tools, built PDF
 
 ## Open items
 
-These need the repository owner and were deliberately not done by automation. The integration plan is in [docs/RELEASE_v1.0.md](https://github.com/miku-wwl/devops-delivery/blob/v1.0.0/docs/RELEASE_v1.0.md) (tag `v1.0.0`):
+The repository has a single branch, `main`, consolidated on 2026-11-13 ([docs/REPOSITORY-CLEANUP.md](docs/REPOSITORY-CLEANUP.md)). It contains every phase of volume 1 and volume 2 with its Publication Edition. The releases are the tags `v1.0.0`, `v2.0.0` and `v2.1.0`; the two drill branches are kept as the tags `archive/p1-drill-bulk-discount` and `archive/p5-drill-vulnerable-dep` and must never be merged. The v1.0 integration plan ([RELEASE_v1.0.md at tag `v1.0.0`](https://github.com/miku-wwl/devops-delivery/blob/v1.0.0/docs/RELEASE_v1.0.md)) is done: #1, #3 and #5 are merged through #6, and the drill PR #2 is closed.
 
-1. Merge **only** the integration PR `release/v1.0` → `main` (it contains every phase and the v1.0 fixes; the `v1.0.0` tag marks the same commit). Close #1 and #3 as superseded and **do not merge #2**, which is the P1 failure-drill branch. Then add the `security` and `manual QA` checks to the `protect-main` ruleset.
-2. Approve or reject the waiting production-gate run 42142945642.
+These need the repository owner and were deliberately not done by automation:
+
+1. The `security` job of `ci` (not a required check) fails on `main`: its repository scan reports 15 misconfigurations in volume 2's lab manifests and recorded evidence (details and options in [docs/REPOSITORY-CLEANUP.md](docs/REPOSITORY-CLEANUP.md), section 8). Decide how to handle them before adding `security` and `manual QA` to the required checks of `protect-main`; consider a tag ruleset for `v*` and `archive/*`.
+2. Approve or reject the waiting production-gate runs: 42142945642 (P6) and 43399941575 (started by the consolidation of `main`).
 3. Mark the GitGuardian finding from P2 as a false positive.
 4. Do the official GitHub Skills exercise "Hello GitHub Actions".
 5. Datadog Learning Center: log in to the lab trial account, finish the web parts of the two Agent labs, fill in the course surveys; the certification exam is optional.

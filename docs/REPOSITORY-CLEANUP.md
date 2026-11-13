@@ -2,7 +2,7 @@
 
 目标：GitHub 仓库只保留 `main` 一个分支，`main` 包含第二册出版版（标签 `v2.1.0`）；按实际引用关系审计全部文件，删除真正的冗余，不损害教材、证据与复现链。
 
-本报告分两次提交：第 1–5 节随整理的合并请求一起提交（合并之前已经确定的事实）；第 6–8 节在合并、分支清理与验证完成之后补全。
+本报告分两次提交：第 1–5 节随整合请求 #6 一起提交（合并之前已经确定的事实）；第 6–8 节在合并、分支清理与验证完成之后由 #7 补全。
 
 ## 1. 整理前的基线
 
@@ -85,12 +85,67 @@
 
 ## 6. 合并与分支清理的结果
 
-（合并之后补全）
+**合并。**合并请求 #6（`v2/publication` → `main`）的 3 项必需检查通过之后，以 merge commit 合并：`main` = `792edd2`，父提交为 `be0efaa`（原来的 `main`）和 `89286b6`（整理后的 `v2/publication`）。`v1.0.0`、`v2.0.0`、`v2.1.0` 都是 `main` 的祖先，所以书和证据引用的每一个提交都在 `main` 的历史中。`main` 与 `v2.1.0` 的差别只有本次整理：增加 1 个文件、删除 41 个、修改 12 个。出版版 PDF 与 `v2.1.0` 中的是同一个 Git 对象。
 
-## 7. 验证结果
+**规则集。**`protect-main` 只允许 squash，又没有人能绕过；squash 会让 `v2.1.0` 不再是 `main` 的祖先。所有者批准后，临时在允许的合并方式中加入 merge，用它合并 #6 和加入本报告的 #7，之后恢复为只允许 squash。整个过程中其他规则不变：必须经合并请求，3 项必需检查，禁止删除与非快进推送，无人可以绕过。
 
-（合并之后补全）
+**合并请求。**#1、#3、#5：#6 合并之后，它们的提交已经在 `main` 中，GitHub 自动把它们标记为已合并。#2（演练）关闭，不合并。#4 早已关闭。现在没有开放的合并请求。
+
+**归档标签（带注释，说明用途和“不得合并”）：**`archive/p1-drill-bulk-discount` → `926e632`（#2 的两个提交），`archive/p5-drill-vulnerable-dep` → `fb70b45`。删除分支之前逐个核对过：其余 15 个分支的末端提交都是 `main` 的祖先，两个演练分支的末端提交各有一个归档标签指向它。
+
+**分支。**
+
+| | 远端分支 |
+|---|---|
+| 整理前（18 个） | `main`、`p1/ci-pipeline`、`p1/drill-bulk-discount`、`p2/gitlab-ci`、`p3/helm`、`p4/gitops`、`p5/drill-vulnerable-dep`、`p5/supply-chain`、`p6/progressive-delivery`、`p7/observability`、`p8/datadog-learning`、`p9/synthetic-gate`、`p10/closed-loop`、`p11/ansible`、`p12/manual`、`release/v1.0`、`v2/enterprise`、`v2/publication` |
+| 整理后（1 个） | `main`（GitHub API `repos/miku-wwl/devops-delivery/branches` 只返回 `main`；`git ls-remote --heads` 只有 `refs/heads/main`） |
+
+本地分支只剩 `main`，失效的远端跟踪引用已经清理。#7 使用的临时分支在合并后立即删除。
+
+**标签（未移动、未改写）。**
+
+| 标签 | 标签对象 | 指向的提交 |
+|---|---|---|
+| `v1.0.0` | `0284fce69a39` | `b062e7841026` |
+| `v2.0.0` | `b7485fdc1902` | `84c55998f829` |
+| `v2.1.0` | `0ec9f88cd2c6` | `affabe06698a` |
+| `archive/p1-drill-bulk-discount`（新增） | `44e80ad4cc3c` | `926e632a6fb8` |
+| `archive/p5-drill-vulnerable-dep`（新增） | `1c31d27ce18d` | `fb70b451b354` |
+
+**工作树。**整理前 1668 个文件，88.0 MiB；整理后 1628 个文件，74.6 MiB（删除 41 个、14 087 200 字节；新增本报告）。
+
+## 7. 验证结果（`main` = `792edd2`）
+
+本地验证与 CI 针对的是同一个文件树：`792edd2` 的树与已在本地检查过的 `89286b6` 相同。
+
+| # | 检查 | 结果 |
+|---|---|---|
+| 1 | 出版版 PDF 存在并能打开 | **PASS**：217 页，18 个顶层书签 |
+| 2 | PDF 与 `v2.1.0` 一致 | **PASS**：SHA-256 `5042fb2e38a42c66988924beb822a6e6453569fb23564cb67ca0e8f7f81f6cd6`，与标签中的是同一个 Git 对象，未重新生成 |
+| 3 | 目录、书签、13 章与附录 | **PASS**：书签依次为阅读指南、13 章、附录 A–D。从 `main` 的源文件重新构建（输出到临时目录）：217 页，目录 329/329，两遍排版页数一致，图与提交的逐字节相同 |
+| 4 | `verify_evidence.py --root v2` | **PASS**：572 项抽查等 8 类检查（第一册的 `verify_evidence.py` 同样 PASS） |
+| 5 | `figures.py --check` | **PASS**：63 幅图，255 个数值；重新生成的图与提交的逐字节相同 |
+| 6 | `pubcheck.py` | **PASS** |
+| 7 | `figcheck.py` | **PASS**：78 幅图，印刷后最小 7.1 pt |
+| 8 | `layout_check.py` | **PASS**：第一册与出版版都通过（出版版 1 处经审查接受的留白，未扩大） |
+| 9 | `test_qa_tools.py` | **PASS**：11/11（本地，以及 `main` 上的 `manual-qa`） |
+| 10 | 文档引用、资源路径与脚本入口 | **PASS**：Markdown 中 419 个相对链接按大小写精确核对，418 个有效，余下 1 个即第 4 节说明的构建目录相对路径；附录 D 的 226 个证据文件全部存在；复现文档引用的路径全部存在 |
+| 11 | `main` 上的 GitHub Actions（`792edd2`） | `ci`：`python / lint`、`python / test`、`container image` **通过**，`security` **失败**（第 8 节）。`manual-qa` **通过**（含新增的第二册检查）。`release` **通过**（合成门禁 → 构建、扫描、签名、证明；按设计推送了 `ghcr.io/miku-wwl/devops-delivery/demo-api:main` 和 `:sha-792edd2`）。`production-gate`：等待 `production` 环境的审批（所有者），不是自动检查 |
+| 12 | 密钥、凭据与内部环境配置 | **PASS**：全树按强特征扫描（GitLab/GitHub/Vault 令牌、私钥、AWS 密钥、解封密钥字段、kubeconfig 凭据），0 命中；没有 `.env`、私钥、kubeconfig 或 `init.json` 一类的文件；证据核验的秘密扫描为 0（第二册 850 项） |
+
+**合并请求上的检查。**#6 第一次运行时，`container image` 和 `manual QA` 失败，原因与修复见第 4 节（镜像中的 zlib1g，报告中的证据路径写法），之后两项都通过。本报告所在的 #7 只改动文档，它的检查结果见 GitHub。
 
 ## 8. 未解决的问题与接受的风险
 
-（合并之后补全）
+1. **`ci` 的 `security` 作业在 `main` 上失败（不是必需检查）。**Trivy 的仓库扫描报告 15 项配置问题，都在第二册中，没有漏洞，也没有泄露的秘密：
+   - 3 个证据快照（实验时用 `kubectl` 导出的 Deployment，规则 KSV-0118）：证据不得修改；
+   - 租户 RBAC：`rbac.yaml` 中 `platform-reader` 可以读取全部资源（KSV-0046），`platform-operator` 和 `tenant-developer` 有 `pods/exec` 权限并能管理网络资源（KSV-0053、KSV-0056）；`argocd-deployers.yaml` 中同类问题 2 项。这些角色是第 6 章实验研究的对象；
+   - 上游的 metrics-server 清单（KSV-0118）、E0 的冒烟测试 Deployment（KSV-0014、KSV-0118）、GitLab 门禁用的 CI 工具镜像的 Dockerfile（1 项）。
+
+   这个作业原来只扫描过第一册，第二册的内容是第一次被它扫描。要让它通过，只能修改证据、改变实验的设计，或者加一份忽略清单；这三种做法都不符合本次整理的约束，所以都没有做。可选的处理由所有者决定：为每一项写明理由的忽略清单；把仓库扫描限定在第一册的目录；或者加固第二册的清单（会与已记录的实验不一致）。在此之前，不宜把 `security` 设为必需检查。
+2. **生产环境审批。**`production-gate` 的两次运行在等待所有者审批：P6 时的 42142945642，以及合并到 `main` 触发的 43399941575。
+3. **镜像中的 zlib1g 升级是临时措施。**等固定的 `python:3.13-slim` 摘要包含修复版本之后，删除这一步（Dependabot 未启用）。
+4. **出版版 PDF 中提到分支 `v2/publication`**（封面、阅读指南、附录 C）。这个分支已经合并并删除，它的最终状态就是标签 `v2.1.0`，`v2/README.md` 中作了说明。PDF 没有修改：改动它需要重新发布并重新验收。
+5. **沿用的所有者事项**（原来在 `RELEASE_v1.0.md` 中，现在在根目录 README 的 Open items）：GitGuardian 中 P2 的误报，Dependabot 与代码扫描，`v*` 与 `archive/*` 标签的保护规则，GitHub Skills 与 Datadog 学习事项。
+6. **出版版验收中的风险不变**（见 `v2/docs/publication/ACCEPTANCE.md`）：OpenBao 解封密钥没有虚拟机之外的备份（ACCEPTED_RISK），节点内存容量（ACCEPTED_RISK），证书与令牌的到期，没有第三方的独立复现。
+7. **本次整理没有启动实验环境**，也没有重跑 E0–E12 的任何实验或故障注入。
