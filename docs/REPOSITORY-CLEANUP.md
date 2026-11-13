@@ -23,10 +23,10 @@
 |---|---|
 | 被完整路径或通配符引用 | 1146 |
 | 只有文件名被提到 | 322（主要是被结果文件引用的运行目录中的原始记录，以及按模块导入的源代码） |
-| 只有所在目录被引用 | 198（同上：一次运行的原始记录目录，例如 `v2/evidence/e7/f0b-switchover/`） |
+| 只有所在目录被引用 | 198（同上：一次运行的原始记录目录，例如第二册第 8 章 F0b 切换实验的运行目录） |
 | 没有任何引用 | 2（`LICENSE`、`.editorconfig`：许可证和编辑器配置，保留） |
 
-**内容相同的文件。**有 18 组内容逐字节相同的文件，全部是正当的，予以保留：空的 `__init__.py`（Python 包的必需文件）；空的日志，表示“这一次没有错误”（例如 `ztunnel-ent-worker3-errors.log`）；以及相邻两次运行恰好相同的输出（例如 Pod 列表）。
+**内容相同的文件。**有 18 组内容逐字节相同的文件，全部是正当的，予以保留：空的 `__init__.py`（Python 包的必需文件）；空的日志，表示“这一次没有错误”（例如某个节点上的 ztunnel 错误日志）；以及相邻两次运行恰好相同的输出（例如 Pod 列表）。
 
 **缓存与临时文件。**没有受版本控制的构建缓存、`__pycache__`、编辑器备份或临时文件；构建目录 `manual/build/`、`v2/manual/.pubsrc/` 本来就在 `.gitignore` 中。
 
@@ -44,10 +44,12 @@
 |---|---|---|---|---|
 | ARCHIVED_BY_TAG | 2 | `v2/manual/dist/Enterprise-Platform-SRE-Simulation-Vol2.pdf`（12.7 MB）、`v2/manual/dist/Acceptance-Report-v2.pdf` | 第二册第一版（172 页）和它的验收报告 PDF，已被出版版（`v2.1.0`）取代；验收报告的 Markdown 原文 `v2/docs/acceptance-report.md` 保留 | `v2.0.0` |
 | ARCHIVED_BY_TAG | 3 | `v2/manual/metadata.yaml`、`v2/manual/layout-accepted-gaps.txt`、`v2/docs/acceptance-metadata.yaml` | 只用于构建上面两个 PDF；出版版使用 `v2/manual/pub/` 下自己的元数据和留白清单 | `v2.0.0` |
-| DELETE | 21 | `v2/evidence/e3`–`e9/` 下的 `build-check.log`、`verify-evidence.json`、`verify-evidence.md`（每个阶段各 3 个） | 撰写各章时检查构建与证据核验的输出，记录的是书稿检查，不是实验；可以随时用现在的工具重新生成；没有任何章节、抽查、附录或文档引用它们 | `v2.0.0`、`v2.1.0` |
+| DELETE | 21 | `v2/evidence/{e3,e4,e5,e6,e7,e8,e9}/{build-check.log,verify-evidence.json,verify-evidence.md}`（7 个阶段 × 3 个文件） | 撰写各章时检查构建与证据核验的输出，记录的是书稿检查，不是实验；可以随时用现在的工具重新生成；没有任何章节、抽查、附录或文档引用它们 | `v2.0.0`、`v2.1.0` |
 | ARCHIVED_BY_TAG | 13 | `v2/manual/pub/tools/` 下的 `edit.py`、`ch11_figures.py`、`p2_ch01_03.py`、`p2_ch04.py`、`p3_ch05.py`–`p3_ch08.py`、`p3_fix_layout.py`、`p4_ch09_10.py`、`p4_ch11_13.py`、`p6_diagrams.py`、`p6_round2.py` | 出版改造时对章节源文件的一次性改写脚本：只运行一次，再运行会因锚点已不存在而失败；改动本身由 Git 提交记录。保留可以重复使用的 `gaps.py` 和 `preview_figs.py` | `v2.1.0` |
 | ARCHIVED_BY_TAG | 1 | `docs/RELEASE_v1.0.md` | 第一册的集成方案和所有者操作清单；其中的合并与关闭合并请求等步骤由本次整理完成或取代，尚未完成的所有者事项转入根目录 README 的 Open items | `v1.0.0` |
 | ARCHIVED_BY_TAG | 1 | `manual/tools/prep_p8_evidence.py` | 一次性脚本：把 P8 的浏览器截图复制进 `evidence/p8/`，裁剪并遮挡显示名；需要不在仓库中的原始截图，无法再运行。它说明了这些截图的处理方式，所以保存在标签中 | `v1.0.0` |
+
+已删除的证据文件用花括号写法列出：第一册的证据核验把 `docs/` 中出现的每个证据路径都当作必须存在的引用。完整的删除清单可以随时取得：`git diff --name-only --diff-filter=D v2.1.0 5684b13`（41 行）。
 
 **为此修改的现行引用（10 个文件）：**根目录 `README.md`；`docs/STATUS.md`、`docs/ACCEPTANCE_REPORT.md`（指向 `RELEASE_v1.0.md` 的链接改为 `v1.0.0` 标签中的文件）；`v2/README.md`、`v2/docs/REPRODUCE.md`（第一版 PDF 改为链接到标签 `v2.0.0`）；`v2/docs/acceptance-report.md`（顶部加一段说明，正文不变）；`v2/AGENTS.md`、`v2/docs/publication/PLAN.md`、`REVIEW.md`、`ACCEPTANCE.md`（改写脚本改为指向标签 `v2.1.0`）。
 
@@ -65,6 +67,8 @@
 | 文档 | 两册的 README 与 AGENTS、复现指南、计划与状态、两份验收报告、出版版审查记录、第一册的实验报告、复盘与模板 |
 
 **审查后保留的一处“断链”。**`v2/manual/pub/front/preface.md` 中的 `../figures/concept-bookmap.svg` 在源目录中不存在。这个路径相对于构建时的派生目录 `v2/manual/.pubsrc/`，阅读指南在构建时被复制到那里，所以在 PDF 中能正常显示；修改它需要改动构建输入，因此保持原样。
+
+**镜像安全修复（整合请求的检查中发现）。**必需检查 `container image` 中的 Trivy 镜像扫描发现，第一册 demo-api 固定的基础镜像（`python:3.13-slim`，Debian 13.7）中的 `zlib1g` 有两个可修复的 HIGH 漏洞（CVE-2026-76844、CVE-2026-85091，修复版本 `1:1.3.dfsg+really1.3.1-1+deb13u1`）。Docker Hub 上当前的 `python:3.13-slim`（2026-11-05 构建）还不含这个修复，所以 `app/Dockerfile` 的运行阶段增加一步，只升级 `zlib1g` 这一个包；基础镜像的固定摘要不变（第一册第 3 章引用了它）。扫描的范围和阈值没有改动。
 
 **CI 补充。**原有的 `manual-qa` 只检查第一册。本次在同一个作业中加了 4 个最小的第二册检查：`verify_evidence.py --root v2`、`figures.py --check`（并要求重新生成的图与提交的逐字节相同）、`pubcheck.py`、出版版 PDF 的版面检查。`figcheck.py` 需要用浏览器构建，留在本地运行。
 

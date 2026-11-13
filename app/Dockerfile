@@ -25,6 +25,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app/src \
     APP_VERSION=${APP_VERSION} \
     GIT_SHA=${GIT_SHA}
+# Debian security update newer than the pinned base image (2026-11-13): zlib1g CVE-2026-76844 and
+# CVE-2026-85091 (HIGH, fixed in 1:1.3.dfsg+really1.3.1-1+deb13u1). The image gate blocks fixable
+# HIGH findings; drop this step once the pinned python:3.13-slim digest ships the fixed package.
+RUN apt-get update \
+ && apt-get install --yes --no-install-recommends --only-upgrade zlib1g \
+ && rm -rf /var/lib/apt/lists/*
 RUN useradd --uid 10001 --no-create-home --shell /usr/sbin/nologin app \
  # pip is only needed at build time. Its vendored copies of urllib3, msgpack and
  # setuptools were flagged by Trivy (HIGH, fix available); removing pip from the
