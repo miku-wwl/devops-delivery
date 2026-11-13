@@ -4,6 +4,9 @@ name: manual-qa
 #   verify_evidence.py  images, evidence files, run IDs, digests, links, secrets, exercises,
 #                       and key numbers compared verbatim with the evidence
 #   layout_check.py     the committed PDF: no overflow, no blank page, no unreviewed gap
+# Volume 2, Publication Edition (v2/docs/publication/ACCEPTANCE.md): the same evidence and layout checks
+# with --root v2 and the edition's PDF, plus the figure provenance check (the committed figures must equal
+# what the registry regenerates) and the structure check. figcheck.py needs a browser build: run locally.
 # No paths filter on purpose: a required check must report on every pull request, or the
 # PR waits forever for it (chapter 3, FAQ Q1). The run takes a few minutes.
 
@@ -47,7 +50,20 @@ jobs:
         run: >-
           python manual/tools/layout_check.py manual/dist/DevOps-Delivery-Observability-Handbook.pdf
           --accept-gaps-file manual/layout-accepted-gaps.txt
+      - name: Volume 2 - evidence verification (spot checks against the evidence)
+        run: python manual/tools/verify_evidence.py --root v2 --out "$RUNNER_TEMP/evidence-check-v2.md"
+      - name: Volume 2 - figure provenance; regenerated figures must equal the committed ones
+        run: |
+          python v2/manual/pub/figures.py --check
+          git diff --exit-code --stat -- v2/manual/figures
+      - name: Volume 2 - chapter structure, figure placement, cover counts
+        run: python v2/manual/pub/pubcheck.py
+      - name: Volume 2 - layout check of the committed Publication Edition PDF
+        run: >-
+          python manual/tools/layout_check.py v2/manual/dist/Enterprise-Platform-SRE-Handbook-Vol2-Publication-Edition.pdf
+          --accept-gaps-file v2/manual/pub/layout-accepted-gaps.txt
       - name: Job summary
         if: always()
         run: |
           if [ -f "$RUNNER_TEMP/evidence-check.md" ]; then cat "$RUNNER_TEMP/evidence-check.md" >> "$GITHUB_STEP_SUMMARY"; fi
+          if [ -f "$RUNNER_TEMP/evidence-check-v2.md" ]; then cat "$RUNNER_TEMP/evidence-check-v2.md" >> "$GITHUB_STEP_SUMMARY"; fi

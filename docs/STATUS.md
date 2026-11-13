@@ -18,4 +18,4 @@
 | P10 | O3 交付闭环 + RCA | VALIDATED | [P10 记录](experiments/P10-closed-loop.md)、`evidence/p10/`、[RCA](rca/) | 好版本走完整条链（CI 首次在阶段分支上运行即发现并修复 7 个遗留高危配置问题）；坏配置金丝雀分析开始 65 秒后自动中止，稳定版未被污染（验证 P7 修复），Git 回滚恢复；SLO 燃烧率规则上线；两份 RCA |
 | P11 | D10 Ansible（可选） | VALIDATED | [P11 记录](experiments/P11-ansible.md)、`evidence/p11/` | 两个容器作为托管节点（`community.docker.docker` 连接）；第二次执行三台主机均 `changed=0`；人为漂移被 `--check --diff` 发现并纠正 |
 | P12 | PDF 手册整合 | VALIDATED | [验收报告](ACCEPTANCE_REPORT.md)、`manual/dist/`、`evidence/p12/` | 241 页手册：前言、13 章、附录 A–E、76 道练习与答案；6 组新实验写成“深入”章节；逐页视觉检查两轮，证据核验 8 项全部通过 |
-| v1.0 | 基线收尾与集成 | VALIDATED | [RELEASE_v1.0](RELEASE_v1.0.md)、`evidence/release-v1.0/` | 验收工具“发现问题却返回 0”的缺陷已修复（前后对照 + 11 个自测试）；新增 `manual-qa` 工作流；集成 PR #5 的三个必需检查与 `security`、`manual QA` 全部通过；合并、规则集与生产审批等待所有者 |
+| v1.0 | 基线收尾与集成 | VALIDATED | [RELEASE_v1.0](https://github.com/miku-wwl/devops-delivery/blob/v1.0.0/docs/RELEASE_v1.0.md)、`evidence/release-v1.0/` | 验收工具“发现问题却返回 0”的缺陷已修复（前后对照 + 11 个自测试）；新增 `manual-qa` 工作流；集成 PR #5 的三个必需检查与 `security`、`manual QA` 全部通过；合并、规则集与生产审批等待所有者 |

@@ -1,6 +1,6 @@
 # Publication Edition：出版方案与进度
 
-> 分支 `v2/publication`（从 `v2/enterprise` @ 7a41a89 分出）。`v1.0.0`、`v2.0.0` 标签、v2.0.0 的 PDF 与全部原始证据不改动。
+> 出版版在分支 `v2/publication`（从 `v2/enterprise` @ 7a41a89 分出）上完成，发布为标签 `v2.1.0`；之后两个分支合并进 `main` 并删除（[../../../docs/REPOSITORY-CLEANUP.md](../../../docs/REPOSITORY-CLEANUP.md)）。`v1.0.0`、`v2.0.0` 标签、v2.0.0 的 PDF 与全部原始证据不改动。
 > 本文件是恢复入口：会话中断后，从“进度”一节未勾选的第一项继续。
 
 ## 目标
@@ -17,7 +17,7 @@
 | 图的分类 | 每幅图标注：示意图 / 实测数据 / 真实截图 / 终端记录 / 模型曲线 | `pub.css`、`build_pub.py` |
 | 数据图 | 无依赖的 SVG 图表库；每幅图登记数据来源，`figures.py --check` 核对图中数字与正文、证据一致 | `v2/manual/pub/charts.py`、`figures.py`、`v2/manual/figures/` |
 | 内容 | 每章：章首导读（工程问题 + 实测结论）、机制示意图、数据图、“从实验环境到生产环境”对照；新增阅读指南、术语表、练习答案附录 | `v2/manual/chapters/`、`v2/manual/pub/front`、`back` |
-| 改写记录 | 每章的改动由脚本完成并留存 | `v2/manual/pub/tools/` |
+| 改写记录 | 每章的改动由一次性脚本完成，脚本保存在标签 `v2.1.0` 中（已从 `main` 移除） | [v2/manual/pub/tools @ v2.1.0](https://github.com/miku-wwl/devops-delivery/tree/v2.1.0/v2/manual/pub/tools) |
 | 验收 | 版面检查、证据核验（抽查基线 572 项）、图表数据核对、逐页审查记录、独立验收报告 | `v2/docs/publication/` |
 
 ## 构建
@@ -38,6 +38,7 @@ manual/.venv/Scripts/python.exe manual/tools/verify_evidence.py --root v2  # 证
 - [x] P5 阅读指南、术语表、`pubcheck.py`、版面规则（`pub/layout.txt`）；仓库文档：`v2/README.md`、`docs/REPRODUCE.md`、`AGENTS.md`、`evidence/README.md`、`docs/experiment-index.md`
 - [x] P6 全书构建、自动检查、逐页审查与修复：三轮逐页审查（234 → 226 → 217 页），34 幅示意图重画为手工布局的 SVG（`pub/diagram_defs.py`），图的字号检查 `pub/figcheck.py`，表格按内容定列宽，图文顺序检查进入 `pubcheck.py`；记录：[REVIEW.md](REVIEW.md)、[review/](review/)（检查点 `800c713`、`d4b771a`）
 - [x] P7 出版与工程验收报告：[ACCEPTANCE.md](ACCEPTANCE.md)
+- [x] P9 仓库整理（2026-11-13）：合并进 `main`；P2–P6 的改写脚本、v2.0.0 的 PDF 与其构建文件移入历史标签；其他分支删除（[../../../docs/REPOSITORY-CLEANUP.md](../../../docs/REPOSITORY-CLEANUP.md)）
 - [x] P8 发布：`v2/publication` 的最终提交，带注释的标签 `v2.1.0`（未合并 `main`，未改动 `v1.0.0`、`v2.0.0`）
 
 ## 状态（2026-11-13）

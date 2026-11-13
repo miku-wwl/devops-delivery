@@ -76,7 +76,7 @@ manual/.venv/Scripts/python.exe v2/manual/pub/figcheck.py --quiet     # 图印�
 manual/.venv/Scripts/python.exe manual/tools/layout_check.py v2/manual/dist/Enterprise-Platform-SRE-Handbook-Vol2-Publication-Edition.pdf --accept-gaps-file v2/manual/pub/layout-accepted-gaps.txt
 ```
 
-v2.0.0 的技术验收版 PDF 保持原样（`manual/dist/Enterprise-Platform-SRE-Simulation-Vol2.pdf`，标签 `v2.0.0`）。
+v2.0.0 的技术验收版 PDF 已从 `main` 移除，保存在标签 `v2.0.0` 中（[链接](https://github.com/miku-wwl/devops-delivery/blob/v2.0.0/v2/manual/dist/Enterprise-Platform-SRE-Simulation-Vol2.pdf)），构建它所用的元数据与留白清单也在那里：`git checkout v2.0.0` 之后按当时的验收报告构建。
 
 ## 7. 已知的偏差来源
 

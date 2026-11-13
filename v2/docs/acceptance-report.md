@@ -1,5 +1,7 @@
 # 第二轮最终验收报告 {#acceptance}
 
+> **2026-11-13 的说明（仓库整理）：**本报告描述 v2.0.0，正文保持当时的原样。文中提到的 `v2/manual/dist/Enterprise-Platform-SRE-Simulation-Vol2.pdf`、`v2/manual/dist/Acceptance-Report-v2.pdf`、`v2/manual/metadata.yaml`、`v2/manual/layout-accepted-gaps.txt` 和 `v2/docs/acceptance-metadata.yaml` 已从 `main` 移除，保存在标签 `v2.0.0` 中（`git checkout v2.0.0` 后即可按第 123–124 行的命令重新构建）；分支 `v2/enterprise` 已合并进 `main` 并删除。第二册的现行版本是出版版（标签 `v2.1.0`），见 [publication/ACCEPTANCE.md](publication/ACCEPTANCE.md)，其第 8 节更正了本报告中关于练习答案附录的一句话。
+
 <div class="lead">范围：第二轮（v2）的全部 13 个阶段 E0–E12。版本 v2.0.0，分支 `v2/enterprise`，目录 `v2/`，验收日期 2026-11-11。编写方式：Claude Code 在本机逐阶段实际执行实验，按真实输出、指标与截图编写，所有结论都有可追溯的执行记录。性质：这是在一台笔记本上的受控实验环境中对“设计、实施、测量和排查”能力的验证，不等于真实企业的生产经验。</div>
 
 ## 结论

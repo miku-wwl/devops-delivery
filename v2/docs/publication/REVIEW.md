@@ -22,7 +22,7 @@
 - `pubcheck.py` 检查图是否插在以冒号结尾的引导句和它引出的列表、表格、公式之间（第二轮之后加入）。
 - 重画的 34 幅示意图另外以 1.5 倍大小逐幅预览（`tools/preview_figs.py`），检查线条、箭头和文字有没有重叠。
 
-**怎样处理的。**每个发现归为三类之一：*修复*（改样式、构建、图或章节源文件；章节的改动由 `manual/pub/tools/` 下的脚本完成并留存）；*接受*（版面上无法避免，或者修改的代价大于收益，写明原因）；*更正*（审查中发现的内容缺陷）。
+**怎样处理的。**每个发现归为三类之一：*修复*（改样式、构建、图或章节源文件；章节的改动由一次性脚本完成，脚本保存在标签 `v2.1.0` 的 `v2/manual/pub/tools/` 中）；*接受*（版面上无法避免，或者修改的代价大于收益，写明原因）；*更正*（审查中发现的内容缺陷）。
 
 **页码。**本文件和笔记中的页码都是 PDF 的页码（封面为第 1 页），比页脚上印的页码大 1；笔记中的页码指那一轮的构建。
 
@@ -61,7 +61,7 @@
 ### 2.4 图文顺序与证据标注
 
 - **只含证据编号的段落**（“[4, 5, 6, 7]”“[17]”“[20, 21, 12]”）单独成行，有一处还被分到了下一页的页首（第一、二轮）。现在它们改为紧跟在表或图下方、右对齐的“原始记录 [n]”，不会与上方的内容分页。
-- **图插在引导句和它引出的内容之间**（第二轮）。图 8-1 和 9-1 是逐页阅读时发现的；随后全书扫描，又找到同类的图 2-4、3-1 和 3-3。这 5 幅图都移到了它们所说明的内容旁边，两处的段落在句末拆开（`manual/pub/tools/p6_round2.py`）。`pubcheck.py` 加入了这一项检查，现在为 0。
+- **图插在引导句和它引出的内容之间**（第二轮）。图 8-1 和 9-1 是逐页阅读时发现的；随后全书扫描，又找到同类的图 2-4、3-1 和 3-3。这 5 幅图都移到了它们所说明的内容旁边，两处的段落在句末拆开（`manual/pub/tools/p6_round2.py`，标签 `v2.1.0`）。`pubcheck.py` 加入了这一项检查，现在为 0。
 - **一页末尾放不下图，留下三分之一空白**（图 7-1，第二轮）。图移到了“两种模式”那一段之前。图 8-4 和 12-7 移到了它们所概括的表之前、所陈述的事实之后。
 
 ### 2.5 审查中发现的内容缺陷
@@ -109,7 +109,7 @@
 | 内容 | 位置 |
 |---|---|
 | 三轮的逐页笔记 | [review/round1-notes.txt](review/round1-notes.txt)、[round2-notes.txt](review/round2-notes.txt)、[round3-notes.txt](review/round3-notes.txt) |
-| 章节源文件的改动（可重复执行，已留存） | [../../manual/pub/tools/p6_diagrams.py](../../manual/pub/tools/p6_diagrams.py)、[p6_round2.py](../../manual/pub/tools/p6_round2.py)，以及出版改造时的 `p2_*`–`p4_*` |
+| 章节源文件的改动（一次性脚本，保存在标签 `v2.1.0` 中） | [p6_diagrams.py](https://github.com/miku-wwl/devops-delivery/blob/v2.1.0/v2/manual/pub/tools/p6_diagrams.py)、[p6_round2.py](https://github.com/miku-wwl/devops-delivery/blob/v2.1.0/v2/manual/pub/tools/p6_round2.py)，以及出版改造时的 `p2_*`–`p4_*`（[目录](https://github.com/miku-wwl/devops-delivery/tree/v2.1.0/v2/manual/pub/tools)） |
 | 示意图（手工布局）与数据图 | [../../manual/pub/diagram_defs.py](../../manual/pub/diagram_defs.py)、[figures.py](../../manual/pub/figures.py)，共用的登记表 [figreg.py](../../manual/pub/figreg.py) |
 | 图的字号检查 | [../../manual/pub/figcheck.py](../../manual/pub/figcheck.py) |
 | 导读、图注、图文顺序和封面数字的检查 | [../../manual/pub/pubcheck.py](../../manual/pub/pubcheck.py) |

@@ -107,4 +107,4 @@ manual/.venv/Scripts/python.exe manual/tools/contact_sheet.py manual/dist/DevOps
 
 封版后的工程审查发现，验收工具本身存在“发现问题却返回成功”的缺陷：`verify_evidence.py` 的第 7、8 项（练习与答案、31 个关键数字）发现问题时仍返回 0；`layout_check.py` 无论发现什么都返回 0；`build.py` 对可能错误的目录页码只给警告；`transcript.sh` 在 256 个失败命令时退出码回绕为 0。本报告第 4.3、4.4 节的结论不受影响（当时实际结果都是 0 个问题，第 4.3 节的 4 处留白经过人工复核），但这些工具当时不能阻断失败。
 
-修复、前后对照和自测试见 [RELEASE_v1.0](RELEASE_v1.0.md) 第 2 节与 `evidence/release-v1.0/qa-tools-before-after.log`；新的 CI 工作流 `manual-qa` 在每个 PR 上运行这些检查。教材、PDF 与证据未改动。
+修复、前后对照和自测试见 [RELEASE_v1.0](https://github.com/miku-wwl/devops-delivery/blob/v1.0.0/docs/RELEASE_v1.0.md) 第 2 节与 `evidence/release-v1.0/qa-tools-before-after.log`；新的 CI 工作流 `manual-qa` 在每个 PR 上运行这些检查。教材、PDF 与证据未改动。

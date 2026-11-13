@@ -46,7 +46,7 @@ manual/.venv/Scripts/python.exe v2/manual/pub/build_pub.py                     #
 bash v2/experiments/ops-1/check.sh                                             # 实验环境的只读健康检查（在 WSL 中）
 ```
 
-改动章节正文时，同步维护 `manual/spot-checks.json`：一条检查 = 正文中的一句话 + 证据文件中的一段原文；删掉或改写了被检查的句子，就把检查指向表达同一事实的新句子，而不是删除检查。章节的出版版改动由 `manual/pub/tools/` 下的脚本完成并留存。
+改动章节正文时，同步维护 `manual/spot-checks.json`：一条检查 = 正文中的一句话 + 证据文件中的一段原文；删掉或改写了被检查的句子，就把检查指向表达同一事实的新句子，而不是删除检查。出版版对章节的历次改动由一次性脚本完成，脚本保存在标签 `v2.1.0` 中（[v2/manual/pub/tools](https://github.com/miku-wwl/devops-delivery/tree/v2.1.0/v2/manual/pub/tools)）；以后的改动直接编辑章节源文件，由 Git 提交留痕。仓库只有 `main` 一个分支，改动经合并请求进入。
 
 ## 复现一个实验的步骤
 

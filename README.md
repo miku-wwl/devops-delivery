@@ -6,7 +6,7 @@ DevOps Delivery Engineering is an evidence-driven engineering portfolio focused 
 
 > **Status (2026-11-07):** phases P0–P12 executed in a local lab (Windows 11 + WSL2 + Kind) and GitHub Actions. Ten modules are **VALIDATED** by recorded evidence; the Datadog learning module is **PARTIAL** and the Datadog Synthetic variant is **NOT_RUN** (see the table below and [STATUS](docs/STATUS.md)). No vendor certificate or course completion is claimed. Owner actions that remain open are listed under [Open items](#open-items).
 
-> **Volume 2 (2026-11-11, tag `v2.0.0`, branch `v2/enterprise`):** an enterprise-grade simulation, phases E0–E12 (multi-service system, service mesh, capacity, elasticity, multi-tenancy, chaos, disaster recovery, release governance, observability, control plane at scale, IaC, assessment) - see [v2/README.md](v2/README.md), the Chinese handbook [v2/manual/dist/Enterprise-Platform-SRE-Simulation-Vol2.pdf](v2/manual/dist/Enterprise-Platform-SRE-Simulation-Vol2.pdf) and the [acceptance report](v2/docs/acceptance-report.md). Volume 1 below is unchanged.
+> **Volume 2 (tag `v2.1.0`, 2026-11-13):** an enterprise-grade simulation, phases E0–E12 (multi-service system, service mesh, capacity, elasticity, multi-tenancy, chaos, disaster recovery, release governance, observability, control plane at scale, IaC, assessment) - see [v2/README.md](v2/README.md) and the Chinese handbook, Publication Edition [v2/manual/dist/Enterprise-Platform-SRE-Handbook-Vol2-Publication-Edition.pdf](v2/manual/dist/Enterprise-Platform-SRE-Handbook-Vol2-Publication-Edition.pdf), with its [publication acceptance](v2/docs/publication/ACCEPTANCE.md) and the [technical acceptance of v2.0.0](v2/docs/acceptance-report.md). The first edition of volume 2 (172 pages) is kept in tag [`v2.0.0`](https://github.com/miku-wwl/devops-delivery/blob/v2.0.0/v2/manual/dist/Enterprise-Platform-SRE-Simulation-Vol2.pdf). Volume 1 below is unchanged.
 
 ## Why this repository exists
 
@@ -89,7 +89,7 @@ manual/                handbook sources, styles, build and QA tools, built PDF
 
 ## Open items
 
-These need the repository owner and were deliberately not done by automation. The integration plan is in [docs/RELEASE_v1.0.md](docs/RELEASE_v1.0.md):
+These need the repository owner and were deliberately not done by automation. The integration plan is in [docs/RELEASE_v1.0.md](https://github.com/miku-wwl/devops-delivery/blob/v1.0.0/docs/RELEASE_v1.0.md) (tag `v1.0.0`):
 
 1. Merge **only** the integration PR `release/v1.0` → `main` (it contains every phase and the v1.0 fixes; the `v1.0.0` tag marks the same commit). Close #1 and #3 as superseded and **do not merge #2**, which is the P1 failure-drill branch. Then add the `security` and `manual QA` checks to the `protect-main` ruleset.
 2. Approve or reject the waiting production-gate run 42142945642.
