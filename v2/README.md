@@ -8,7 +8,7 @@
 
 | 版本 | 是什么 | PDF | 分支 / 标签 |
 |---|---|---|---|
-| **Publication Edition** | 出版级重构：章首导读、机制示意图与实测数据图、图的分类标注、证据编号与四个附录；实验结论与 v2.0.0 相同 | [manual/dist/Enterprise-Platform-SRE-Handbook-Vol2-Publication-Edition.pdf](manual/dist/Enterprise-Platform-SRE-Handbook-Vol2-Publication-Edition.pdf) | 分支 `v2/publication` |
+| **Publication Edition** | 出版级重构：章首导读、机制示意图与实测数据图、图的分类标注、证据编号与四个附录；实验结论与 v2.0.0 相同 | [manual/dist/Enterprise-Platform-SRE-Handbook-Vol2-Publication-Edition.pdf](manual/dist/Enterprise-Platform-SRE-Handbook-Vol2-Publication-Edition.pdf) | 标签 `v2.1.0`，分支 `v2/publication` |
 | v2.0.0 | 技术验收版：E0–E12 全部通过验收时的教材与验收报告 | [manual/dist/Enterprise-Platform-SRE-Simulation-Vol2.pdf](manual/dist/Enterprise-Platform-SRE-Simulation-Vol2.pdf) | 标签 `v2.0.0`，分支 `v2/enterprise` |
 
 两次验收是分开的：[docs/acceptance-report.md](docs/acceptance-report.md) 是 v2.0.0 的技术验收；[docs/publication/ACCEPTANCE.md](docs/publication/ACCEPTANCE.md) 是出版版的出版与工程验收，其中也更正了前者的一处不实之处。

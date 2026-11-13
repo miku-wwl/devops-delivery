@@ -36,10 +36,19 @@ manual/.venv/Scripts/python.exe manual/tools/verify_evidence.py --root v2  # 证
 - [x] P3 第 5–8 章（脚本：`pub/tools/p3_ch05.py` … `p3_ch08.py`）
 - [x] P4 第 9–13 章（脚本：`pub/tools/p4_ch09_10.py`、`p4_ch11_13.py`）
 - [x] P5 阅读指南、术语表、`pubcheck.py`、版面规则（`pub/layout.txt`）；仓库文档：`v2/README.md`、`docs/REPRODUCE.md`、`AGENTS.md`、`evidence/README.md`、`docs/experiment-index.md`
-- [ ] P6 全书构建、自动检查、逐页审查与修复（记录：`REVIEW.md`）
-- [ ] P7 独立出版与工程验收报告（`ACCEPTANCE.md`），最终提交
+- [x] P6 全书构建、自动检查、逐页审查与修复：三轮逐页审查（234 → 226 → 217 页），34 幅示意图重画为手工布局的 SVG（`pub/diagram_defs.py`），图的字号检查 `pub/figcheck.py`，表格按内容定列宽，图文顺序检查进入 `pubcheck.py`；记录：[REVIEW.md](REVIEW.md)、[review/](review/)（检查点 `800c713`、`d4b771a`）
+- [x] P7 出版与工程验收报告：[ACCEPTANCE.md](ACCEPTANCE.md)
+- [x] P8 发布：`v2/publication` 的最终提交，带注释的标签 `v2.1.0`（未合并 `main`，未改动 `v1.0.0`、`v2.0.0`）
+
+## 状态（2026-11-13）
+
+**已完成。**出版版 PDF：217 页（封面 + 216），目录 329/329；全部自动检查 PASS；逐页终审无未处理的发现。验收结论、接受的风险与未验证的能力见 [ACCEPTANCE.md](ACCEPTANCE.md) 第 0 节。
+
+之后若再修改教材：先改章节源文件或 `pub/` 下的构建文件，再按 ACCEPTANCE.md 第 11 节重新构建与核验。改动可能移动分页，所以要对照 `pub/layout-accepted-gaps.txt` 重跑版面检查，并对改动过的页重新逐页查看。
 
 ## 已知事项
 
-- v2.0.0 的 PDF 不含练习答案附录（正文写着“参考答案见附录”，v2.0.0 验收报告也称附录在内）——出版版补入附录 A，并在验收报告中更正。
+- v2.0.0 的 PDF 不含练习答案附录（正文写着“参考答案见附录”，v2.0.0 验收报告也称附录在内）：出版版补入了附录 A（82 道练习的答案），并在 ACCEPTANCE.md 第 8 节中更正。
 - OpenBao 密钥的外部备份：所有者接受风险，记为 `ACCEPTED_RISK`（不是 PASS）。
+- 节点内存容量：所有者指示保留分析、不扩容，记为 `ACCEPTED_RISK`。证书与令牌：按运维清理报告中的日期轮换，本轮未轮换。
+- 端到端独立复现没有做过；本轮没有启动实验环境（不重跑 E0–E12）。

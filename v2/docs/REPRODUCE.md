@@ -72,7 +72,8 @@ manual/.venv/Scripts/python.exe v2/manual/pub/build_pub.py
 manual/.venv/Scripts/python.exe manual/tools/verify_evidence.py --root v2
 manual/.venv/Scripts/python.exe v2/manual/pub/figures.py --check
 manual/.venv/Scripts/python.exe v2/manual/pub/pubcheck.py
-manual/.venv/Scripts/python.exe manual/tools/layout_check.py <pdf> --accept-gaps-file v2/manual/pub/layout-accepted-gaps.txt
+manual/.venv/Scripts/python.exe v2/manual/pub/figcheck.py --quiet     # 图印刷后的最小字号（使用最近一次构建的 HTML）
+manual/.venv/Scripts/python.exe manual/tools/layout_check.py v2/manual/dist/Enterprise-Platform-SRE-Handbook-Vol2-Publication-Edition.pdf --accept-gaps-file v2/manual/pub/layout-accepted-gaps.txt
 ```
 
 v2.0.0 的技术验收版 PDF 保持原样（`manual/dist/Enterprise-Platform-SRE-Simulation-Vol2.pdf`，标签 `v2.0.0`）。

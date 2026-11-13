@@ -40,7 +40,8 @@
 ```bash
 manual/.venv/Scripts/python.exe manual/tools/verify_evidence.py --root v2      # 正文与证据：572 项抽查等 8 类检查
 manual/.venv/Scripts/python.exe v2/manual/pub/figures.py --check               # 图表数据与正文、证据一致
-manual/.venv/Scripts/python.exe v2/manual/pub/pubcheck.py                      # 章首导读、图注、章节结构
+manual/.venv/Scripts/python.exe v2/manual/pub/pubcheck.py                      # 章首导读、图注、章节结构、图文顺序、封面数字
+manual/.venv/Scripts/python.exe v2/manual/pub/figcheck.py --quiet              # 每幅图印刷后的最小字号不低于 6.5 pt
 manual/.venv/Scripts/python.exe v2/manual/pub/build_pub.py                     # 构建出版版 PDF
 bash v2/experiments/ops-1/check.sh                                             # 实验环境的只读健康检查（在 WSL 中）
 ```
