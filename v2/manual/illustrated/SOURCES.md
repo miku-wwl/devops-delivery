@@ -601,3 +601,10 @@
 源：`v2/manual/figures/e12-grading.svg`；SHA-256 `27b66163c8dd93801db9b0652f6a65f4a410ef3f21ff8b547ae61d0a2b2ead92`。
 
 历史数据源：['evidence/e12/t1.log', 'evidence/e12/t2.log', 'evidence/e12/t3.log', 'evidence/e12/p1.log']。新增图的机制依据见 illustrations.py 与相邻代码节选。
+
+
+## 教学设计参考
+
+高中物理·加速度，文件 `高中物理_加速度_四页样章.pdf`，4页。用户提供的教学设计参考；已阅读全文并逐页视觉审读；参考PDF保留在用户原目录。审读日期：2026-11-16；完整原文件SHA-256 `7734044f418f235d86e5b14592bccf851f3e37c4bfb7817cee3068b7788a0c44`。
+
+对照评估：`v2/docs/illustrated/REFERENCE-REVIEW.md`。该样章不是工程运行证据。

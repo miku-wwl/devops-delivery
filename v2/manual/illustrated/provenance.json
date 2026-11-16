@@ -1869,5 +1869,14 @@
       "title": "OpenTofu State and Plan Encryption：保护范围与密钥风险",
       "url": "https://opentofu.org/docs/language/state/encryption/"
     }
-  ]
+  ],
+  "design_reference": {
+    "title": "高中物理·加速度",
+    "file_name": "高中物理_加速度_四页样章.pdf",
+    "pages": 4,
+    "sha256": "7734044f418f235d86e5b14592bccf851f3e37c4bfb7817cee3068b7788a0c44",
+    "reviewed_on": "2026-11-16",
+    "role": "用户提供的教学设计参考；已阅读全文并逐页视觉审读；参考PDF保留在用户原目录",
+    "review": "v2/docs/illustrated/REFERENCE-REVIEW.md"
+  }
 }

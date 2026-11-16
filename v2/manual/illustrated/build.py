@@ -232,7 +232,8 @@ def main() -> int:
     for r in CAT['references']:
         refs.append(f'**{r["id"]}**　[{r["title"]}]({r["url"]})\n')
     refs.append('历史云迁移分析（原核对日期2026-11-10）见[仓库文档]('+link('v2/docs/cloud-migration.md')+')；本版不更新云产品支持或价格结论。\n')
-    refs.append('**材料缺口。**任务提到的《高中物理·加速度》四页样章没有随本次附件提供，未找到可读本地文件，故没有宣称阅读或复刻它。教学设计依据用户明确给出的要求独立完成。真实网页素材集中于Grafana/Tempo；GitLab状态锁、漂移与考核素材是终端记录，不是网页。\n')
+    refs.append('**教学参考。**已阅读全文并逐页审读用户提供的《高中物理·加速度》四页样章，借鉴其情境导入、图像辨析、分步计算与迁移练习；第4、5、10章据此补强了量纲、分母、控制条件与结论边界。参考件识别信息见来源索引，对照评估见仓库 `v2/docs/illustrated/REFERENCE-REVIEW.md`。\n')
+    refs.append('**界面素材边界。**真实网页素材集中于Grafana/Tempo；GitLab状态锁、漂移与考核素材是终端记录，不是网页。\n')
     refs.append('**已收紧的历史表述。**Outbox不保证任意副作用恰好一次；notifier的检查与标记非原子；支付自动对账尚未实现；RetryBudget有10令牌初始突发；同步复制零丢失仅指特定运行；归档超时不构成无条件RPO上限。旧章节与证据保持原样。\n')
     refs.append('**仍未验证。**第三方独立复现、真实多可用区容量、长期运行、未知考生的排查能力、P1真实长时密封演练、当前运行环境健康、虚拟机外密钥的恢复能力均不由本次出版建立。\n')
     (BUILD / '94-references.md').write_text('\n\n'.join(refs), encoding='utf-8')
@@ -249,9 +250,11 @@ def main() -> int:
         index_md.append(f'### {name}\n\n{f["kind"]}；{f["caption"]}\n\n源：`{f["path"]}`；SHA-256 `{f["sha256"]}`。\n\n历史数据源：'+str(f['evidence_sources'])+'。新增图的机制依据见 illustrations.py 与相邻代码节选。\n')
         if 'derived_from' in f:
             index_md.append(f'本版教学修订源于 `{f["derived_from"]}`，原图 SHA-256 `{f["original_sha256"]}`。原图保持不变；文字更正：'+json.dumps(f['label_changes'],ensure_ascii=False)+'。\n')
+    design_ref = CAT['design_reference']
+    index_md.append(f'\n## 教学设计参考\n\n{design_ref["title"]}，文件 `{design_ref["file_name"]}`，{design_ref["pages"]}页。{design_ref["role"]}。审读日期：{design_ref["reviewed_on"]}；完整原文件SHA-256 `{design_ref["sha256"]}`。\n\n对照评估：`{design_ref["review"]}`。该样章不是工程运行证据。\n')
     (HERE / 'SOURCES.md').write_text('\n'.join(index_md), encoding='utf-8')
     provenance = {'baseline':BASE,'chapters':len(body_chapters),'codes':used_codes,'shots':used_shots,'figures':used_figs,
-                  'historical_evidence':historical,'references':CAT['references']}
+                  'historical_evidence':historical,'references':CAT['references'],'design_reference':design_ref}
     (HERE / 'provenance.json').write_text(json.dumps(provenance, ensure_ascii=False, indent=2)+'\n',encoding='utf-8')
     print(f'SOURCE CHECK PASS: {len(body_chapters)} chapters, {len(used_codes)} exact excerpts, {len(used_figs)} diagrams/charts, {len(used_shots)} source captures, {sum(map(len,historical.values()))} historical evidence entries')
     if args.sources_only:

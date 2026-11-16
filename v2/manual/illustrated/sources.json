@@ -1,6 +1,15 @@
 {
   "baseline": "510ec87a9f1b0756248e00f3b53d692ca27aeada",
   "repository": "https://github.com/miku-wwl/devops-delivery",
+  "design_reference": {
+    "title":"高中物理·加速度",
+    "file_name":"高中物理_加速度_四页样章.pdf",
+    "pages":4,
+    "sha256":"7734044f418f235d86e5b14592bccf851f3e37c4bfb7817cee3068b7788a0c44",
+    "reviewed_on":"2026-11-16",
+    "role":"用户提供的教学设计参考；已阅读全文并逐页视觉审读；参考PDF保留在用户原目录",
+    "review":"v2/docs/illustrated/REFERENCE-REVIEW.md"
+  },
   "codes": {
     "node-budget": {"path":"v2/platform/cluster/create.sh","ranges":[[30,34]],"title":"节点预算由有效尺寸倒推","focus":[34]},
     "order-claim": {"path":"v2/apps/storefront/src/storefront/orders/main.py","ranges":[[73,86]],"title":"OrderStore.claim：用唯一约束占用业务键","focus":[77,78,85]},
