@@ -21,6 +21,16 @@ CAPTIONS = {
     'concept-tenant-fences.svg':'安全边界分工：身份授权、准入、网络、秘密、发布目标与审计共同约束访问；任何一层都不能替代其余层。',
     'concept-sampling.svg':'头部决定在请求开始时发生；尾部决策只能使用到达采样器的数据，迟到、丢失或已被头部丢弃的span仍可能缺失。',
     'concept-app-of-apps.svg':'E1初始GitOps布局：根Application创建分层子Application；这里的wave只描述该阶段，后续网格与安全资源扩展见第9章。',
+    'concept-api-request.svg':'创建或修改对象的简化请求路径；授权通过不代表后续检查通过。审计按配置记录请求阶段与结果，不是逐个内部函数的完整执行轨迹。',
+    'concept-list-paths.svg':'本次Kubernetes v1.37中观察的LIST与缓存路径：一致读取得revision后等待缓存追平；rv=0可使用已有视图。不同版本、分页与参数组合仍需分别核对。',
+}
+
+REDRAWINGS = {
+    'concept-outbox.svg': {'reason':'放大事务边界、发布后未标记的重复窗口和消费副作用窗口', 'sources':['v2/apps/storefront/src/storefront/orders/main.py','v2/apps/storefront/src/storefront/orders/outbox.py','v2/apps/storefront/src/storefront/notifier/main.py']},
+    'concept-resilience.svg': {'reason':'按真实执行顺序编号，分开逻辑调用与每次尝试', 'sources':['v2/apps/storefront/src/storefront/common/upstream.py','v2/apps/storefront/src/storefront/common/resilience.py']},
+    'concept-hpa-loop.svg': {'reason':'放大公式，分开目标计算、创建、Ready与实际分流', 'sources':['v2/manual/illustrated/chapters/05-scaling.md','v2/evidence/e4']},
+    'concept-api-request.svg': {'reason':'横向六小框改为两行，澄清授权、准入与审计覆盖范围', 'sources':['v2/manual/illustrated/chapters/06-security.md','v2/evidence/e5']},
+    'concept-list-paths.svg': {'reason':'分开两种LIST条件与缓存更新，避免小字号和跨版本绝对化', 'sources':['v2/manual/illustrated/chapters/11-controlplane.md','v2/evidence/e10']},
 }
 
 # Derive corrected teaching views; the historical SVGs and their generators stay intact.
@@ -137,6 +147,99 @@ def generate():
                 raise ValueError(f'Missing historical label in {name}: {old}')
             content = content.replace(old,new)
         (ASSETS/name).write_text(content,encoding='utf-8',newline='\n')
+    redraw()
+
+
+def redraw():
+    """Larger teaching views; historical SVGs remain untouched."""
+    s=SVG(420)
+    s.text(16,25,'先保住本地原子性，再面对跨系统的失败窗口',16,weight='600')
+    s.parts.append('<rect x="12" y="47" width="616" height="103" rx="5" fill="#eff7f3" stroke="#87b7a6" stroke-dasharray="5 4"/>')
+    s.text(25,69,'① 同一个PostgreSQL事务',14,color='#19796d',weight='600')
+    s.box(28,82,245,56,['订单变为CONFIRMED'])
+    s.box(367,82,245,56,['插入Outbox事件行'])
+    s.arrow([(273,110),(367,110)])
+    s.text(320,100,'一起提交',13,anchor='middle')
+    s.box(16,191,184,82,['② relay取行锁','SKIP LOCKED','读未发布事件'])
+    s.box(228,191,184,82,['③ 发布到NATS','稳定event_id','等待发布应答'])
+    s.box(440,191,184,82,['④ 标记已发布','更新published_at','随数据库事务提交'])
+    s.arrow([(488,150),(488,170),(108,170),(108,191)])
+    s.arrow([(200,231),(228,231)])
+    s.arrow([(412,231),(440,231)])
+    s.text(320,300,'③成功、④未提交就崩溃 → 再次发布同一事件',14,anchor='middle',color='#9a6226',weight='600')
+    s.box(16,324,608,70,['⑤ 消费：查去重 → 模拟副作用 → 写标记 → ACK','检查、外部效果与标记不原子；不能推出任意副作用恰好一次'],'#fff5e8','#d6b787')
+    s.save('concept-outbox.svg')
+
+    s=SVG(370)
+    s.text(16,25,'一次逻辑调用内，可能有多次尝试',16,weight='600')
+    s.box(16,58,184,86,['① 占用隔舱','满额立即拒绝','否则保留并发名额'])
+    s.box(228,58,184,86,['② 检查总期限','每次尝试都重算','已过期立即拒绝'])
+    s.box(440,58,184,86,['③ 熔断器放行','OPEN拒绝','半开限量试探'])
+    s.arrow([(200,101),(228,101)])
+    s.arrow([(412,101),(440,101)])
+    s.arrow([(532,144),(532,196)])
+    s.box(440,196,184,88,['④ 单次网络调用','timeout = 较小值','策略超时 / 剩余期限'])
+    s.box(228,196,184,88,['⑤ 记录与判断','成功就返回','失败再查幂等与次数'])
+    s.box(16,196,184,88,['⑥ 预算与退避','取不到令牌就停止','取到后退避再尝试'])
+    s.arrow([(440,240),(412,240)])
+    s.arrow([(228,240),(200,240)])
+    s.arrow([(108,196),(108,171),(320,171),(320,144)],True)
+    s.text(217,164,'重试回到②',13,anchor='middle',color='#19796d')
+    s.text(16,320,'整个循环与退避仍占①的名额；退出上下文才归还。',14,color='#19796d',weight='600')
+    s.text(16,347,'预算按进程 / Upstream持有：长期20%比例 + 默认10令牌初始突发。',13)
+    s.save('concept-resilience.svg')
+
+    s=SVG(278)
+    s.text(16,25,'先算副本目标，再等系统把容量变成现实',16,weight='600')
+    s.box(16,54,184,83,['① 指标采集','观测值与目标值','单位和分母要一致'])
+    s.box(228,54,184,83,['② HPA计算目标','经容差、窗口、策略','与副本上下限修正'])
+    s.box(440,54,184,83,['③ Deployment / RS','按新目标创建Pod','调度与启动仍需时间'])
+    s.arrow([(200,95),(228,95)])
+    s.arrow([(412,95),(440,95)])
+    s.box(440,159,184,64,['④ Pod变成Ready','现在才可接流量'])
+    s.box(16,159,396,64,['⑤ 观测实际分流与每Pod负载','请求变少后，指标再次进入控制循环'])
+    s.arrow([(532,137),(532,159)])
+    s.arrow([(440,190),(412,190)])
+    s.arrow([(108,159),(108,137)],True)
+    s.text(16,257,'Ready不保证均匀分流；有效容量还要回到每Pod CPU和业务延迟。',14,color='#19796d',weight='600')
+    s.save('concept-hpa-loop.svg')
+
+    s=SVG(325)
+    s.text(16,25,'以创建或修改对象为例：通过一关，只代表这一关通过',16,weight='600')
+    s.box(16,57,184,81,['① 请求身份','证书 / SA token / OIDC','认证：你是谁？'])
+    s.box(228,57,184,81,['② 授权','动作、资源、命名空间','RBAC：允许做吗？'])
+    s.box(440,57,184,81,['③ 修改型准入','补默认值或改写内容','如LimitRange'])
+    s.arrow([(200,98),(228,98)])
+    s.arrow([(412,98),(440,98)])
+    s.arrow([(532,138),(532,172)])
+    s.box(440,172,184,80,['④ 校验与其他检查','内容、提权等约束','仍可能拒绝请求'])
+    s.box(228,172,184,80,['⑤ 存储','对象通过检查','再持久化到etcd'])
+    s.box(16,172,184,80,['⑥ 响应','看最终状态与理由','allow不等于成功'])
+    s.arrow([(440,212),(412,212)])
+    s.arrow([(228,212),(200,212)])
+    s.text(16,287,'审计按规则记录请求阶段、身份、对象与响应；不是所有内部步骤的日志。',13,color='#19796d')
+    s.text(16,311,'图省略解码、转换等内部细节；读请求不执行这些对象变更准入。',13)
+    s.save('concept-api-request.svg')
+
+    s=SVG(357)
+    s.text(16,25,'把读取条件与缓存如何更新分开看',16,weight='600')
+    s.box(16,60,184,72,['① LIST：rv=0','允许已有缓存视图'])
+    s.box(228,60,184,72,['watch cache','读取内存对象'])
+    s.box(440,60,184,72,['编码后返回','仍有CPU、内存开销'])
+    s.arrow([(200,96),(228,96)])
+    s.arrow([(412,96),(440,96)])
+    s.box(16,160,184,72,['② 本次一致LIST','向etcd确认revision'])
+    s.box(228,160,184,72,['等待缓存追平','不必取回全部对象'])
+    s.box(440,160,184,72,['编码后返回','实验观察：v1.37'])
+    s.arrow([(200,196),(228,196)])
+    s.arrow([(412,196),(440,196)])
+    s.box(16,260,184,63,['③ etcd发生变化'])
+    s.box(228,260,184,63,['watch传递增量'])
+    s.box(440,260,184,63,['更新watch cache'])
+    s.arrow([(200,291),(228,291)])
+    s.arrow([(412,291),(440,291)])
+    s.text(16,346,'其他版本、分页和参数组合需另核对；缓存命中不等于请求没有成本。',13,color='#19796d')
+    s.save('concept-list-paths.svg')
 
 
 if __name__=='__main__':generate()

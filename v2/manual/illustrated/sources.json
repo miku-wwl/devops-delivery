@@ -2,77 +2,925 @@
   "baseline": "510ec87a9f1b0756248e00f3b53d692ca27aeada",
   "repository": "https://github.com/miku-wwl/devops-delivery",
   "design_reference": {
-    "title":"高中物理·加速度",
-    "file_name":"高中物理_加速度_四页样章.pdf",
-    "pages":4,
-    "sha256":"7734044f418f235d86e5b14592bccf851f3e37c4bfb7817cee3068b7788a0c44",
-    "reviewed_on":"2026-11-16",
-    "role":"用户提供的教学设计参考；已阅读全文并逐页视觉审读；参考PDF保留在用户原目录",
-    "review":"v2/docs/illustrated/REFERENCE-REVIEW.md"
+    "title": "高中物理·加速度",
+    "file_name": "高中物理_加速度_四页样章.pdf",
+    "pages": 4,
+    "sha256": "7734044f418f235d86e5b14592bccf851f3e37c4bfb7817cee3068b7788a0c44",
+    "reviewed_on": "2026-11-16",
+    "role": "用户提供的教学设计参考；已阅读全文并逐页视觉审读；参考PDF保留在用户原目录",
+    "review": "v2/docs/illustrated/REFERENCE-REVIEW.md"
   },
   "codes": {
-    "node-budget": {"path":"v2/platform/cluster/create.sh","ranges":[[30,34]],"title":"节点预算由有效尺寸倒推","focus":[34]},
-    "order-claim": {"path":"v2/apps/storefront/src/storefront/orders/main.py","ranges":[[73,86]],"title":"OrderStore.claim：用唯一约束占用业务键","focus":[77,78,85]},
-    "order-replay": {"path":"v2/apps/storefront/src/storefront/orders/main.py","ranges":[[199,210]],"title":"重复键返回已有订单，可能仍为 PENDING","focus":[205,209]},
-    "inventory-guard": {"path":"v2/apps/storefront/src/storefront/inventory/main.py","ranges":[[48,62]],"title":"条件更新与事务共同防止部分预留","focus":[48,54,57,62]},
-    "payment-failure": {"path":"v2/apps/storefront/src/storefront/orders/main.py","ranges":[[246,255]],"title":"结果未知仍被当前实现归为失败","focus":[250,253,255]},
-    "order-confirm": {"path":"v2/apps/storefront/src/storefront/orders/main.py","ranges":[[101,116]],"title":"OrderStore.confirm：订单与事件共享事务","focus":[104,106,111,112]},
-    "relay-publish": {"path":"v2/apps/storefront/src/storefront/orders/outbox.py","ranges":[[86,102],[104,109]],"title":"Relay.publish_once：锁行、发布、再标记","focus":[90,101,102,106]},
-    "notifier-dedup": {"path":"v2/apps/storefront/src/storefront/notifier/main.py","ranges":[[50,64],[75,82]],"title":"通知去重与 ACK 之间仍有失败窗口","focus":[60,63,64,78,82]},
-    "asgi-metrics": {"path":"v2/apps/storefront/src/storefront/common/web.py","ranges":[[117,132],[140,147]],"title":"Observe：直接包裹 ASGI send 与计时","focus":[119,120,130,131,145,147]},
-    "replica-owner": {"path":"v2/gitops/charts/storefront-service/templates/deployment.yaml","ranges":[[6,15]],"title":"Chart 让出动态 replicas 字段","focus":[7,8]},
-    "keda-rate": {"path":"v2/gitops/envs/prod/storefront/services/notifier.yaml","ranges":[[32,36]],"title":"用订单确认速率维持稳态副本数","focus":[35,36]},
-    "tenant-rbac": {"path":"v2/gitops/platform/manifests/tenants/rbac.yaml","ranges":[[10,20],[23,27]],"title":"管理工作负载的权限包含间接能力","focus":[16,17,25,26]},
-    "upstream-entry": {"path":"v2/apps/storefront/src/storefront/common/upstream.py","ranges":[[70,84]],"title":"逻辑调用在整个尝试循环中占用隔舱","focus":[74,76,78,80,82]},
-    "upstream-deadline": {"path":"v2/apps/storefront/src/storefront/common/upstream.py","ranges":[[89,100]],"title":"每次尝试先判断剩余期限与熔断","focus":[92,94,96,100]},
-    "retry-budget": {"path":"v2/apps/storefront/src/storefront/common/resilience.py","ranges":[[77,89]],"title":"令牌桶的初始值、上限与存取","focus":[80,83,86,87]},
-    "retry-decision": {"path":"v2/apps/storefront/src/storefront/common/upstream.py","ranges":[[108,122]],"title":"失败并不意味着一定重试","focus":[111,115,117,122]},
-    "breaker-allow": {"path":"v2/apps/storefront/src/storefront/common/resilience.py","ranges":[[138,147]],"title":"半开状态限制试探数量","focus":[140,142,144,146]},
-    "bulkhead": {"path":"v2/apps/storefront/src/storefront/common/resilience.py","ranges":[[174,190]],"title":"Bulkhead：满则拒绝，退出时归还","focus":[181,182,183,188,190]},
-    "writer-outcome": {"path":"v2/experiments/e7/writer.py","ranges":[[75,93]],"title":"把已确认、明确失败和未知分开记录","focus":[80,83,86,88,91]},
-    "writer-compare": {"path":"v2/experiments/e7/writer_report.py","ranges":[[32,34],[41,44]],"title":"恢复后与真实行集合比较","focus":[34,41,43]},
-    "release-gate": {"path":"v2/gitops/.gitlab-ci.yml","ranges":[[7,17]],"title":"先渲染，再检查即将部署的资源","focus":[10,11,14,16,17]},
-    "telemetry-resource": {"path":"v2/apps/storefront/src/storefront/common/telemetry.py","ranges":[[38,48],[52,56]],"title":"资源身份、批处理导出与库插桩","focus":[40,42,47,52,56]},
-    "exemplar-record": {"path":"v2/apps/storefront/src/storefront/common/web.py","ranges":[[149,157]],"title":"只把可追踪的错误或慢请求连到直方图","focus":[151,152,153,154]},
-    "message-context": {"path":"v2/apps/storefront/src/storefront/common/messaging.py","ranges":[[19,26]],"title":"消息载体显式注入与提取追踪上下文","focus":[21,26]},
-    "iac-project": {"path":"v2/iac/gitlab/main.tf","ranges":[[12,24]],"title":"已有 GitLab 项目的治理声明","focus":[17,18,22]},
-    "state-encryption": {"path":"v2/iac/gitlab/versions.tf","ranges":[[19,35]],"title":"状态与计划在客户端加密并强制使用","focus":[21,24,28,32]},
-    "assessment-policy": {"path":"v2/assessment/t3-out-of-band.sh","start":"apiVersion: security.istio.io/v1","end":"  rules: [{}]","title":"T3 的真实注入清单：阻断 payments","focus_text":["selector:","action: DENY"]},
-    "assessment-grade": {"path":"v2/assessment/t3-out-of-band.sh","start":"grade)","end":"  verdict ;;","title":"T3 同时验证原因、业务与平台状态","focus_text":["check "]},
-    "inhibition-controls": {"path":"v2/assessment/p1-inhibition.sh","ranges":[[30,37],[42,47]],"title":"正例与负对照共同验证抑制行为","focus":[35,36,43,46]}
+    "node-budget": {
+      "path": "v2/platform/cluster/create.sh",
+      "ranges": [
+        [
+          30,
+          34
+        ]
+      ],
+      "title": "节点预算由有效尺寸倒推",
+      "focus": [
+        34
+      ]
+    },
+    "order-claim": {
+      "path": "v2/apps/storefront/src/storefront/orders/main.py",
+      "ranges": [
+        [
+          73,
+          86
+        ]
+      ],
+      "title": "OrderStore.claim：用唯一约束占用业务键",
+      "focus": [
+        77,
+        78,
+        85
+      ]
+    },
+    "order-replay": {
+      "path": "v2/apps/storefront/src/storefront/orders/main.py",
+      "ranges": [
+        [
+          199,
+          210
+        ]
+      ],
+      "title": "重复键返回已有订单，可能仍为 PENDING",
+      "focus": [
+        205,
+        209
+      ]
+    },
+    "inventory-guard": {
+      "path": "v2/apps/storefront/src/storefront/inventory/main.py",
+      "ranges": [
+        [
+          48,
+          62
+        ]
+      ],
+      "title": "条件更新与事务共同防止部分预留",
+      "focus": [
+        48,
+        54,
+        57,
+        62
+      ]
+    },
+    "payment-failure": {
+      "path": "v2/apps/storefront/src/storefront/orders/main.py",
+      "ranges": [
+        [
+          246,
+          255
+        ]
+      ],
+      "title": "结果未知仍被当前实现归为失败",
+      "focus": [
+        250,
+        253,
+        255
+      ]
+    },
+    "order-confirm": {
+      "path": "v2/apps/storefront/src/storefront/orders/main.py",
+      "ranges": [
+        [
+          101,
+          116
+        ]
+      ],
+      "title": "OrderStore.confirm：订单与事件共享事务",
+      "focus": [
+        104,
+        106,
+        111,
+        112
+      ]
+    },
+    "relay-publish": {
+      "path": "v2/apps/storefront/src/storefront/orders/outbox.py",
+      "ranges": [
+        [
+          86,
+          102
+        ],
+        [
+          104,
+          109
+        ]
+      ],
+      "title": "Relay.publish_once：锁行、发布、再标记",
+      "focus": [
+        90,
+        101,
+        102,
+        106
+      ]
+    },
+    "notifier-dedup": {
+      "path": "v2/apps/storefront/src/storefront/notifier/main.py",
+      "ranges": [
+        [
+          50,
+          64
+        ],
+        [
+          75,
+          82
+        ]
+      ],
+      "title": "通知去重与 ACK 之间仍有失败窗口",
+      "focus": [
+        60,
+        63,
+        64,
+        78,
+        82
+      ]
+    },
+    "asgi-metrics": {
+      "path": "v2/apps/storefront/src/storefront/common/web.py",
+      "ranges": [
+        [
+          117,
+          132
+        ],
+        [
+          140,
+          147
+        ]
+      ],
+      "title": "Observe：直接包裹 ASGI send 与计时",
+      "focus": [
+        119,
+        120,
+        130,
+        131,
+        145,
+        147
+      ]
+    },
+    "replica-owner": {
+      "path": "v2/gitops/charts/storefront-service/templates/deployment.yaml",
+      "ranges": [
+        [
+          6,
+          15
+        ]
+      ],
+      "title": "Chart 让出动态 replicas 字段",
+      "focus": [
+        7,
+        8
+      ]
+    },
+    "keda-rate": {
+      "path": "v2/gitops/envs/prod/storefront/services/notifier.yaml",
+      "ranges": [
+        [
+          32,
+          36
+        ]
+      ],
+      "title": "用订单确认速率维持稳态副本数",
+      "focus": [
+        35,
+        36
+      ]
+    },
+    "tenant-rbac": {
+      "path": "v2/gitops/platform/manifests/tenants/rbac.yaml",
+      "ranges": [
+        [
+          10,
+          19
+        ],
+        [
+          22,
+          27
+        ]
+      ],
+      "title": "管理工作负载的权限包含间接能力",
+      "focus": [
+        16,
+        17,
+        25,
+        26
+      ]
+    },
+    "upstream-entry": {
+      "path": "v2/apps/storefront/src/storefront/common/upstream.py",
+      "ranges": [
+        [
+          73,
+          78
+        ],
+        [
+          80,
+          82
+        ]
+      ],
+      "title": "逻辑调用在整个尝试循环中占用隔舱",
+      "focus": [
+        74,
+        76,
+        78,
+        80,
+        82
+      ]
+    },
+    "upstream-deadline": {
+      "path": "v2/apps/storefront/src/storefront/common/upstream.py",
+      "ranges": [
+        [
+          89,
+          100
+        ]
+      ],
+      "title": "每次尝试先判断剩余期限与熔断",
+      "focus": [
+        92,
+        94,
+        96,
+        100
+      ]
+    },
+    "retry-budget": {
+      "path": "v2/apps/storefront/src/storefront/common/resilience.py",
+      "ranges": [
+        [
+          77,
+          89
+        ]
+      ],
+      "title": "令牌桶的初始值、上限与存取",
+      "focus": [
+        80,
+        83,
+        86,
+        87
+      ]
+    },
+    "retry-decision": {
+      "path": "v2/apps/storefront/src/storefront/common/upstream.py",
+      "ranges": [
+        [
+          108,
+          122
+        ]
+      ],
+      "title": "失败并不意味着一定重试",
+      "focus": [
+        111,
+        115,
+        117,
+        122
+      ]
+    },
+    "breaker-allow": {
+      "path": "v2/apps/storefront/src/storefront/common/resilience.py",
+      "ranges": [
+        [
+          138,
+          147
+        ]
+      ],
+      "title": "半开状态限制试探数量",
+      "focus": [
+        140,
+        142,
+        144,
+        146
+      ]
+    },
+    "bulkhead": {
+      "path": "v2/apps/storefront/src/storefront/common/resilience.py",
+      "ranges": [
+        [
+          174,
+          190
+        ]
+      ],
+      "title": "Bulkhead：满则拒绝，退出时归还",
+      "focus": [
+        181,
+        182,
+        183,
+        188,
+        190
+      ]
+    },
+    "writer-outcome": {
+      "path": "v2/experiments/e7/writer.py",
+      "ranges": [
+        [
+          75,
+          93
+        ]
+      ],
+      "title": "把已确认、明确失败和未知分开记录",
+      "focus": [
+        80,
+        83,
+        86,
+        88,
+        91
+      ]
+    },
+    "writer-compare": {
+      "path": "v2/experiments/e7/writer_report.py",
+      "ranges": [
+        [
+          32,
+          34
+        ],
+        [
+          41,
+          44
+        ]
+      ],
+      "title": "恢复后与真实行集合比较",
+      "focus": [
+        34,
+        41,
+        43
+      ]
+    },
+    "release-gate": {
+      "path": "v2/gitops/.gitlab-ci.yml",
+      "ranges": [
+        [
+          7,
+          17
+        ]
+      ],
+      "title": "先渲染，再检查即将部署的资源",
+      "focus": [
+        10,
+        11,
+        14,
+        16,
+        17
+      ]
+    },
+    "telemetry-resource": {
+      "path": "v2/apps/storefront/src/storefront/common/telemetry.py",
+      "ranges": [
+        [
+          38,
+          48
+        ],
+        [
+          52,
+          56
+        ]
+      ],
+      "title": "资源身份、批处理导出与库插桩",
+      "focus": [
+        40,
+        42,
+        47,
+        52,
+        56
+      ]
+    },
+    "exemplar-record": {
+      "path": "v2/apps/storefront/src/storefront/common/web.py",
+      "ranges": [
+        [
+          149,
+          157
+        ]
+      ],
+      "title": "只把可追踪的错误或慢请求连到直方图",
+      "focus": [
+        151,
+        152,
+        153,
+        154
+      ]
+    },
+    "message-context": {
+      "path": "v2/apps/storefront/src/storefront/common/messaging.py",
+      "ranges": [
+        [
+          19,
+          26
+        ]
+      ],
+      "title": "消息载体显式注入与提取追踪上下文",
+      "focus": [
+        21,
+        26
+      ]
+    },
+    "iac-project": {
+      "path": "v2/iac/gitlab/main.tf",
+      "ranges": [
+        [
+          12,
+          24
+        ]
+      ],
+      "title": "已有 GitLab 项目的治理声明",
+      "focus": [
+        17,
+        18,
+        22
+      ]
+    },
+    "state-encryption": {
+      "path": "v2/iac/gitlab/versions.tf",
+      "ranges": [
+        [
+          19,
+          35
+        ]
+      ],
+      "title": "状态与计划在客户端加密并强制使用",
+      "focus": [
+        21,
+        24,
+        28,
+        32
+      ]
+    },
+    "assessment-policy": {
+      "path": "v2/assessment/t3-out-of-band.sh",
+      "start": "apiVersion: security.istio.io/v1",
+      "end": "  rules: [{}]",
+      "title": "T3 的真实注入清单：阻断 payments",
+      "focus_text": [
+        "selector:",
+        "action: DENY"
+      ]
+    },
+    "assessment-grade": {
+      "path": "v2/assessment/t3-out-of-band.sh",
+      "start": "grade)",
+      "end": "  verdict ;;",
+      "title": "T3 同时验证原因、业务与平台状态",
+      "focus_text": [
+        "check "
+      ]
+    },
+    "inhibition-controls": {
+      "path": "v2/assessment/p1-inhibition.sh",
+      "ranges": [
+        [
+          30,
+          37
+        ],
+        [
+          42,
+          47
+        ]
+      ],
+      "title": "正例与负对照共同验证抑制行为",
+      "focus": [
+        35,
+        36,
+        43,
+        46
+      ]
+    }
   },
   "shots": {
-    "order-trace": {"path":"v2/evidence/e1/grafana-trace-one-order.png","kind":"真实界面局部","caption":"Tempo 的订单调用层次；历史成功订单，完整原图与 trace_tree 记录可在线查阅。","views":[{"rect":[35,1065,1430,280],"label":"① Trace 摘要与整体时间轴"},{"rect":[35,1530,1120,460],"label":"② 放大的服务与 SQL 层次"}],"reads":["① 先区分接口响应与整条异步链路总长。","② 缩进表示父子关系；SQL 和依赖调用属于相应服务 span。"]},
-    "mesh-balance": {"path":"v2/evidence/e2/grafana-balance.png","kind":"真实界面局部","caption":"inventory 每 Pod 请求速率；时间为历史 2026-11-07 07:15–08:20 UTC，约08:03后进入L7及交替阶段。","views":[{"rect":[30,550,1740,440],"label":"① 保留坐标与时间的分布趋势"},{"rect":[1815,600,540,235],"label":"② 放大原图 legend，确认各 Pod 身份","width_mm":105}],"reads":["① 先看同一时间两条线是否接近；颜色会随副本更新变化。","② legend 对应实例；不能把颜色跨发布当作永久身份。"]},
-    "ambiguous-trace": {"path":"v2/evidence/e2/grafana-trace-charged-but-failed.png","kind":"真实界面局部","caption":"结果未知事故的 Tempo 局部；不是本轮新运行。长调用与错误标记需要和支付最终状态一起读。","views":[{"rect":[40,1065,1120,190],"label":"① POST /charges 所在的关键路径"},{"rect":[1710,1110,620,95],"label":"② 原图关键路径耗时","width_mm":100}],"reads":["① 该调用在 orders 侧超时，不证明 payments 没完成。","② 关键路径约1.04秒；业务最终结果要另查支付与订单状态。"]},
-    "capacity-cpu": {"path":"v2/evidence/e3/grafana-capacity-one-replica.png","kind":"真实界面局部","caption":"单网关副本的CPU与延迟；2026-11-09 01:19–01:30 UTC，依次增压的历史运行。","views":[{"rect":[25,440,1160,500],"label":"① 每 Pod CPU，红线约一核"},{"rect":[1210,440,1160,500],"label":"② 同窗口服务 p95"}],"reads":["① 网关接近0.96核，其他服务仍低。","② 网关尾延迟跳升；节点总CPU未必已经满。"]},
-    "hpa-replicas": {"path":"v2/evidence/e4/grafana-capacity-hpa-170.png","kind":"真实界面局部","caption":"170迭代/秒台阶中的HPA与每Pod CPU；历史02:16–02:26:30 UTC窗口。","views":[{"rect":[1205,90,1160,340],"label":"① 期望数、当前数与就绪数"},{"rect":[25,440,1160,500],"label":"② 扩容后的 CPU 分布"}],"reads":["① 到4个就绪副本不等于4个都在服务。","② 两条高曲线与两个接近空载的新增网关形成对照。"]},
-    "canary-share": {"path":"v2/evidence/e8/screens/grafana-release-canary-c1-c3-top.png","kind":"真实界面局部","caption":"一次金丝雀的份额与5xx；历史01:17–01:29 UTC，尖峰包含预览请求。","views":[{"rect":[1210,85,1165,460],"label":"① 新版本请求份额"},{"rect":[25,555,1160,430],"label":"② 按版本的5xx"}],"reads":["① 100%尖峰来自预览测试，不能当作公共全量。","② 故障集中在canary；撤回后份额与错误归零。"]},
-    "incident-traffic": {"path":"v2/evidence/e9/screens/grafana-slo-incident-checkout.png","kind":"真实界面局部","caption":"支付故障演练的旅程流量；2026-11-10 07:15–09:00 UTC。","views":[{"rect":[25,95,1160,445],"label":"① 浏览与下单的总体流量"}],"reads":["① 07:47–08:13附近空白来自主机睡眠。","先限定下单旅程，再调查支付、订单和部署变化。"]},
-    "incident-windows": {"path":"v2/evidence/e9/screens/grafana-slo-incident-checkout.png","kind":"真实界面局部","caption":"同一支付故障演练的错误窗口；曲线与图例分开从同一原图放大。","views":[{"rect":[25,570,1185,435],"label":"① 不同窗口的错误比例"},{"rect":[1220,635,350,220],"label":"② 图例的原始最大值","width_mm":85}],"reads":["① 5分钟尖峰远高于1小时与6小时比例。","② 1小时最高13.5%，快组合14.4%线并未越过。"]},
-    "exemplar-critical": {"path":"v2/evidence/e9/screens/grafana-exemplar-trace.png","kind":"真实界面局部","caption":"catalog延迟注入的 exemplar→Tempo 检验；与支付事故为不同场景。","views":[{"rect":[40,1020,1140,230],"label":"① 关键调用的服务与路由"},{"rect":[1750,1130,600,80],"label":"② 原图标记的1.01秒、81.9%","width_mm":100}],"reads":["① 关键路径是orders发往catalog的GET。","② 用整条1.23秒作对照；不要把聚合服务图当单笔时序。"]},
-    "state-lock": {"path":"v2/evidence/e11/screens/gitlab-lock.png","kind":"终端记录节选","caption":"GitLab HTTP state 后端的历史锁验证；仓库原素材为终端记录排版，并非网页。","views":[{"rect":[25,245,1230,260],"label":"① 锁拒绝与持有者信息"}],"reads":["① Error acquiring说明第二个运行被挡住。","完整记录还含第二次加锁409、解除及并发计划对照。"]},
-    "drift-plan": {"path":"v2/evidence/e11/screens/drift.png","kind":"终端记录节选","caption":"漂移计划的替换提示；来自历史真实输出的排版局部，不是GitLab网页。","views":[{"rect":[25,280,1240,340],"label":"① exit 2与必须替换的分支保护"}],"reads":["① has changes与must be replaced回答不同问题。","替换会先移除原保护；运行结束无差异不抹去中间风险。"]}
+    "order-trace": {
+      "path": "v2/evidence/e1/grafana-trace-one-order.png",
+      "kind": "真实界面局部",
+      "caption": "历史E1成功订单的Tempo局部（2026-11-07）；完整原图与trace_tree记录可在线查阅。",
+      "views": [
+        {
+          "rect": [
+            35,
+            1065,
+            1430,
+            280
+          ],
+          "label": "① Trace 摘要与整体时间轴"
+        },
+        {
+          "rect": [
+            35,
+            1530,
+            1120,
+            460
+          ],
+          "label": "② 放大的服务与 SQL 层次"
+        }
+      ],
+      "reads": [
+        "① 先区分接口响应与整条异步链路总长。",
+        "② 缩进表示父子关系；SQL 和依赖调用属于相应服务 span。"
+      ]
+    },
+    "mesh-balance": {
+      "path": "v2/evidence/e2/grafana-balance.png",
+      "kind": "真实界面局部",
+      "caption": "inventory 每 Pod 请求速率；时间为历史 2026-11-07 07:15–08:20 UTC，约08:03后进入L7及交替阶段。",
+      "views": [
+        {
+          "rect": [
+            30,
+            550,
+            1740,
+            440
+          ],
+          "label": "① 保留坐标与时间的分布趋势"
+        },
+        {
+          "rect": [
+            1815,
+            600,
+            565,
+            235
+          ],
+          "label": "② 放大原图 legend，确认各 Pod 身份",
+          "width_mm": 110
+        }
+      ],
+      "reads": [
+        "① 先看同一时间两条线是否接近；颜色会随副本更新变化。",
+        "② legend 对应实例；不能把颜色跨发布当作永久身份。"
+      ]
+    },
+    "ambiguous-trace": {
+      "path": "v2/evidence/e2/grafana-trace-charged-but-failed.png",
+      "kind": "真实界面局部",
+      "caption": "历史E2结果未知事故的Tempo局部（2026-11-07）；长调用与错误需和支付最终状态一起读，非本轮运行。",
+      "views": [
+        {
+          "rect": [
+            40,
+            1065,
+            1120,
+            175
+          ],
+          "label": "① POST /charges 所在的关键路径"
+        },
+        {
+          "rect": [
+            1710,
+            1128,
+            620,
+            70
+          ],
+          "label": "② 原图关键路径耗时",
+          "width_mm": 100
+        }
+      ],
+      "reads": [
+        "① 该调用在 orders 侧超时，不证明 payments 没完成。",
+        "② 关键路径约1.04秒；业务最终结果要另查支付与订单状态。"
+      ]
+    },
+    "capacity-cpu": {
+      "path": "v2/evidence/e3/grafana-capacity-one-replica.png",
+      "kind": "真实界面局部",
+      "caption": "单网关副本的CPU与延迟；2026-11-09 01:19–01:30 UTC，依次增压的历史运行。",
+      "views": [
+        {
+          "rect": [
+            25,
+            440,
+            1160,
+            500
+          ],
+          "label": "① 每 Pod CPU，红线约一核"
+        },
+        {
+          "rect": [
+            1210,
+            440,
+            1160,
+            500
+          ],
+          "label": "② 同窗口服务 p95"
+        }
+      ],
+      "reads": [
+        "① 网关接近0.96核，其他服务仍低。",
+        "② 网关尾延迟跳升；节点总CPU未必已经满。"
+      ]
+    },
+    "hpa-replicas": {
+      "path": "v2/evidence/e4/grafana-capacity-hpa-170.png",
+      "kind": "真实界面局部",
+      "caption": "170迭代/秒台阶中的HPA与每Pod CPU；历史2026-11-09 02:16–02:26:30 UTC窗口。",
+      "views": [
+        {
+          "rect": [
+            1205,
+            90,
+            1160,
+            340
+          ],
+          "label": "① 期望数、当前数与就绪数"
+        },
+        {
+          "rect": [
+            25,
+            440,
+            1160,
+            500
+          ],
+          "label": "② 扩容后的 CPU 分布"
+        }
+      ],
+      "reads": [
+        "① 到4个就绪副本不等于4个都在服务。",
+        "② 两条高曲线与两个接近空载的新增网关形成对照。"
+      ]
+    },
+    "canary-share": {
+      "path": "v2/evidence/e8/screens/grafana-release-canary-c1-c3-top.png",
+      "kind": "真实界面局部",
+      "caption": "历史2026-11-10 01:17–01:29 UTC的金丝雀份额与5xx；尖峰包含预览请求。",
+      "views": [
+        {
+          "rect": [
+            1210,
+            85,
+            1165,
+            460
+          ],
+          "label": "① 新版本请求份额"
+        },
+        {
+          "rect": [
+            25,
+            555,
+            1160,
+            430
+          ],
+          "label": "② 按版本的5xx"
+        }
+      ],
+      "reads": [
+        "① 100%尖峰来自预览测试，不能当作公共全量。",
+        "② 故障集中在canary；撤回后份额与错误归零。"
+      ]
+    },
+    "incident-traffic": {
+      "path": "v2/evidence/e9/screens/grafana-slo-incident-checkout.png",
+      "kind": "真实界面局部",
+      "caption": "支付故障演练的旅程流量；2026-11-10 07:15–09:00 UTC。",
+      "views": [
+        {
+          "rect": [
+            25,
+            95,
+            1160,
+            445
+          ],
+          "label": "① 浏览与下单的总体流量"
+        }
+      ],
+      "reads": [
+        "① 07:47–08:13附近空白来自主机睡眠。",
+        "先限定下单旅程，再调查支付、订单和部署变化。"
+      ]
+    },
+    "incident-windows": {
+      "path": "v2/evidence/e9/screens/grafana-slo-incident-checkout.png",
+      "kind": "真实界面局部",
+      "caption": "同一支付故障演练的错误窗口（2026-11-10 07:15–09:00 UTC）；曲线与图例来自同一原图。",
+      "views": [
+        {
+          "rect": [
+            25,
+            570,
+            1185,
+            435
+          ],
+          "label": "① 不同窗口的错误比例"
+        },
+        {
+          "rect": [
+            1220,
+            635,
+            350,
+            220
+          ],
+          "label": "② 图例的原始最大值",
+          "width_mm": 85
+        }
+      ],
+      "reads": [
+        "① 5分钟尖峰远高于1小时与6小时比例。",
+        "② 1小时最高13.5%，快组合14.4%线并未越过。"
+      ]
+    },
+    "exemplar-critical": {
+      "path": "v2/evidence/e9/screens/grafana-exemplar-trace.png",
+      "kind": "真实界面局部",
+      "caption": "历史catalog延迟[注入]的exemplar→Tempo检验，2026-11-10 09:12–09:24 UTC看板窗口；与支付事故不同。",
+      "views": [
+        {
+          "rect": [
+            40,
+            1020,
+            1140,
+            230
+          ],
+          "label": "① 关键调用的服务与路由"
+        },
+        {
+          "rect": [
+            1750,
+            1130,
+            600,
+            80
+          ],
+          "label": "② 原图标记的1.01秒、81.9%",
+          "width_mm": 100
+        }
+      ],
+      "reads": [
+        "① 关键路径是orders发往catalog的GET。",
+        "② 用整条1.23秒作对照；不要把聚合服务图当单笔时序。"
+      ]
+    },
+    "state-lock": {
+      "path": "v2/evidence/e11/screens/gitlab-lock.png",
+      "kind": "终端记录节选",
+      "caption": "GitLab HTTP state后端的历史锁验证，2026-11-10 13:49 UTC，GitLab CE 19.5.3；仓库终端记录排版，并非网页。",
+      "views": [
+        {
+          "rect": [
+            25,
+            245,
+            1230,
+            260
+          ],
+          "label": "① 锁拒绝与持有者信息"
+        }
+      ],
+      "reads": [
+        "① Error acquiring说明第二个运行被挡住。",
+        "完整记录还含第二次加锁409、解除及并发计划对照。"
+      ]
+    },
+    "drift-plan": {
+      "path": "v2/evidence/e11/screens/drift.png",
+      "kind": "终端记录节选",
+      "caption": "2026-11-10 13:51 UTC的漂移计划局部；[注入]三处手工改动，终端记录排版，不是GitLab网页。",
+      "views": [
+        {
+          "rect": [
+            25,
+            280,
+            1240,
+            340
+          ],
+          "label": "① exit 2与必须替换的分支保护"
+        }
+      ],
+      "reads": [
+        "① has changes与must be replaced回答不同问题。",
+        "替换会先移除原保护；运行结束无差异不抹去中间风险。"
+      ]
+    }
   },
   "evidence": {
-    "e0":{"title":"平台基线","paths":["v2/evidence/e0/baseline.log","v2/evidence/e0/node-view-details.log","v2/evidence/e0/host.log","v2/evidence/e0/smoke.log"]},
-    "e1":{"title":"订单与首次收敛","paths":["v2/evidence/e1/one-order-trace.log","v2/evidence/e1/app-tests-3.log","v2/evidence/e1/converge.log","v2/evidence/e1/baseline-k6.txt"]},
-    "e2":{"title":"网格与模糊结果","paths":["v2/evidence/e2/mode-ambient-l7.log","v2/evidence/e2/ab-mesh.log","v2/evidence/e2/retry-matrix.log","v2/evidence/e2/ambiguous-outcome-trace.log"]},
-    "e3":{"title":"容量预测与验证","paths":["v2/evidence/e3/capacity-prediction.md","v2/evidence/e3/capacity-model.log","v2/evidence/e3/step-ramp-high.log","v2/evidence/e3/one-replica-2-analysis.log"]},
-    "e4":{"title":"弹性与调度","paths":["v2/evidence/e4/hpa-2-pods.log","v2/evidence/e4/hpa-timeline-collect.log","v2/evidence/e4/keda-compare.log","v2/evidence/e4/eviction-prediction.md"]},
-    "e5":{"title":"安全边界","paths":["v2/evidence/e5/rbac-matrix-5.log","v2/evidence/e5/reach-after.log","v2/evidence/e5/secrets.log","v2/evidence/e5/admission.log"]},
-    "e6":{"title":"韧性与故障传播","paths":["v2/evidence/e6/node-failure-prediction.md","v2/evidence/e6/node-2-analysis.log","v2/evidence/e6/errors-naive.log","v2/evidence/e6/partition-1-analysis.log"]},
-    "e7":{"title":"数据恢复","paths":["v2/evidence/e7/failover-results.md","v2/evidence/e7/pitr-results.md","v2/evidence/e7/r1/results.md","v2/evidence/e7/r2/results.md"]},
-    "e8":{"title":"发布治理","paths":["v2/evidence/e8/canary-prediction.md","v2/evidence/e8/waves-prediction.md","v2/evidence/e8/impersonation-prediction.md","v2/evidence/e8/gate-prediction.md"]},
-    "e9":{"title":"观测与事故","paths":["v2/evidence/e9/incident/postmortem.md","v2/evidence/e9/incident-prediction.md","v2/evidence/e9/tracing-cost.log","v2/evidence/e9/clock-drift.log"]},
-    "e10":{"title":"虚拟规模与APF","paths":["v2/evidence/e10/scale-results.md","v2/evidence/e10/scale-prediction.md","v2/evidence/e10/incident-1.md"]},
-    "e11":{"title":"IaC与密钥事故","paths":["v2/evidence/e11/iac-results.md","v2/evidence/e11/i2-lock-gitlab.log","v2/evidence/e11/i3-plan-drift.log","v2/evidence/e11/incident-1.md"]},
-    "e12":{"title":"真实考核记录","paths":["v2/evidence/e12/"]}
+    "e0": {
+      "title": "平台基线",
+      "paths": [
+        "v2/evidence/e0/baseline.log",
+        "v2/evidence/e0/node-view-details.log",
+        "v2/evidence/e0/host.log",
+        "v2/evidence/e0/smoke.log"
+      ]
+    },
+    "e1": {
+      "title": "订单与首次收敛",
+      "paths": [
+        "v2/evidence/e1/one-order-trace.log",
+        "v2/evidence/e1/app-tests-3.log",
+        "v2/evidence/e1/converge.log",
+        "v2/evidence/e1/baseline-k6.txt"
+      ]
+    },
+    "e2": {
+      "title": "网格与模糊结果",
+      "paths": [
+        "v2/evidence/e2/mode-ambient-l7.log",
+        "v2/evidence/e2/ab-mesh.log",
+        "v2/evidence/e2/retry-matrix.log",
+        "v2/evidence/e2/ambiguous-outcome-trace.log"
+      ]
+    },
+    "e3": {
+      "title": "容量预测与验证",
+      "paths": [
+        "v2/evidence/e3/capacity-prediction.md",
+        "v2/evidence/e3/capacity-model.log",
+        "v2/evidence/e3/step-ramp-high.log",
+        "v2/evidence/e3/one-replica-2-analysis.log"
+      ]
+    },
+    "e4": {
+      "title": "弹性与调度",
+      "paths": [
+        "v2/evidence/e4/hpa-2-pods.log",
+        "v2/evidence/e4/hpa-timeline-collect.log",
+        "v2/evidence/e4/keda-compare.log",
+        "v2/evidence/e4/eviction-prediction.md"
+      ]
+    },
+    "e5": {
+      "title": "安全边界",
+      "paths": [
+        "v2/evidence/e5/rbac-matrix-5.log",
+        "v2/evidence/e5/reach-after.log",
+        "v2/evidence/e5/secrets.log",
+        "v2/evidence/e5/admission.log"
+      ]
+    },
+    "e6": {
+      "title": "韧性与故障传播",
+      "paths": [
+        "v2/evidence/e6/node-failure-prediction.md",
+        "v2/evidence/e6/node-2-analysis.log",
+        "v2/evidence/e6/errors-naive.log",
+        "v2/evidence/e6/partition-1-analysis.log"
+      ]
+    },
+    "e7": {
+      "title": "数据恢复",
+      "paths": [
+        "v2/evidence/e7/failover-results.md",
+        "v2/evidence/e7/pitr-results.md",
+        "v2/evidence/e7/r1/results.md",
+        "v2/evidence/e7/r2/results.md"
+      ]
+    },
+    "e8": {
+      "title": "发布治理",
+      "paths": [
+        "v2/evidence/e8/canary-prediction.md",
+        "v2/evidence/e8/waves-prediction.md",
+        "v2/evidence/e8/impersonation-prediction.md",
+        "v2/evidence/e8/gate-prediction.md"
+      ]
+    },
+    "e9": {
+      "title": "观测与事故",
+      "paths": [
+        "v2/evidence/e9/incident/postmortem.md",
+        "v2/evidence/e9/incident-prediction.md",
+        "v2/evidence/e9/tracing-cost.log",
+        "v2/evidence/e9/clock-drift.log"
+      ]
+    },
+    "e10": {
+      "title": "虚拟规模与APF",
+      "paths": [
+        "v2/evidence/e10/scale-results.md",
+        "v2/evidence/e10/scale-prediction.md",
+        "v2/evidence/e10/incident-1.md"
+      ]
+    },
+    "e11": {
+      "title": "IaC与密钥事故",
+      "paths": [
+        "v2/evidence/e11/iac-results.md",
+        "v2/evidence/e11/i2-lock-gitlab.log",
+        "v2/evidence/e11/i3-plan-drift.log",
+        "v2/evidence/e11/incident-1.md"
+      ]
+    },
+    "e12": {
+      "title": "真实考核记录",
+      "paths": [
+        "v2/evidence/e12/"
+      ]
+    }
   },
   "references": [
-    {"id":"R1","title":"Kubernetes Horizontal Pod Autoscaling：算法、缺失指标与稳定窗口","url":"https://kubernetes.io/docs/concepts/workloads/autoscaling/horizontal-pod-autoscale/"},
-    {"id":"R2","title":"Istio Ambient data plane：ztunnel与waypoint职责","url":"https://istio.io/latest/docs/ambient/architecture/data-plane/"},
-    {"id":"R3","title":"PostgreSQL 18 Continuous Archiving and PITR","url":"https://www.postgresql.org/docs/18/continuous-archiving.html"},
-    {"id":"R4","title":"OpenTofu State and Plan Encryption：保护范围与密钥风险","url":"https://opentofu.org/docs/language/state/encryption/"}
+    {
+      "id": "R1",
+      "title": "Kubernetes Horizontal Pod Autoscaling：算法、缺失指标与稳定窗口",
+      "url": "https://kubernetes.io/docs/concepts/workloads/autoscaling/horizontal-pod-autoscale/"
+    },
+    {
+      "id": "R2",
+      "title": "Istio Ambient data plane：ztunnel与waypoint职责",
+      "url": "https://istio.io/latest/docs/ambient/architecture/data-plane/"
+    },
+    {
+      "id": "R3",
+      "title": "PostgreSQL 18 Continuous Archiving and PITR",
+      "url": "https://www.postgresql.org/docs/18/continuous-archiving.html"
+    },
+    {
+      "id": "R4",
+      "title": "OpenTofu State and Plan Encryption：保护范围与密钥风险",
+      "url": "https://opentofu.org/docs/language/state/encryption/"
+    }
   ]
 }

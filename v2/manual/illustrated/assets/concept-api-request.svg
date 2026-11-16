@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="325" viewBox="0 0 640 325"><defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#638391"/></marker></defs><rect width="640" height="325" fill="white"/>
+<text x="16" y="25" font-size="16" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="start" font-weight="600">以创建或修改对象为例：通过一关，只代表这一关通过</text>
+<rect x="16" y="57" width="184" height="81" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="108.0" y="81" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">① 请求身份</text>
+<text x="108.0" y="102" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">证书 / SA token / OIDC</text>
+<text x="108.0" y="123" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">认证：你是谁？</text>
+<rect x="228" y="57" width="184" height="81" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="320.0" y="81" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">② 授权</text>
+<text x="320.0" y="102" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">动作、资源、命名空间</text>
+<text x="320.0" y="123" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">RBAC：允许做吗？</text>
+<rect x="440" y="57" width="184" height="81" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="532.0" y="81" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">③ 修改型准入</text>
+<text x="532.0" y="102" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">补默认值或改写内容</text>
+<text x="532.0" y="123" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">如LimitRange</text>
+<polyline points="200,98 228,98" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<polyline points="412,98 440,98" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<polyline points="532,138 532,172" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<rect x="440" y="172" width="184" height="80" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="532.0" y="196" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">④ 校验与其他检查</text>
+<text x="532.0" y="217" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">内容、提权等约束</text>
+<text x="532.0" y="238" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">仍可能拒绝请求</text>
+<rect x="228" y="172" width="184" height="80" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="320.0" y="196" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">⑤ 存储</text>
+<text x="320.0" y="217" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">对象通过检查</text>
+<text x="320.0" y="238" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">再持久化到etcd</text>
+<rect x="16" y="172" width="184" height="80" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="108.0" y="196" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">⑥ 响应</text>
+<text x="108.0" y="217" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">看最终状态与理由</text>
+<text x="108.0" y="238" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">allow不等于成功</text>
+<polyline points="440,212 412,212" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<polyline points="228,212 200,212" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="16" y="287" font-size="13" font-family="Microsoft YaHei, sans-serif" fill="#19796d" text-anchor="start" font-weight="400">审计按规则记录请求阶段、身份、对象与响应；不是所有内部步骤的日志。</text>
+<text x="16" y="311" font-size="13" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="start" font-weight="400">图省略解码、转换等内部细节；读请求不执行这些对象变更准入。</text></svg>

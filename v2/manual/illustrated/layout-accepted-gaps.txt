@@ -1,7 +1,9 @@
-# Final PDF 7a82ca9eeed764d70898f80e8eab3c65c4443995980a2dd6d7a98e070bc48174
+# Final PDF 24328dba559c48258a1bdf6c5f80a74656acac2b60978953eb8b2ddb910c238e
 # Physical PDF page numbers, including the cover. Reviewed 2026-11-16.
-# 26: capacity definitions stay together; the model curve starts the next page.
-# 30: measured queue cost and optimization introduction precede one intact code panel.
-# 80: state encryption and its limits stay together; the lock timeline starts the next page.
-# 85: the assessment opens with the symptoms before revealing the diagnostic tree.
-26,30,80,85
+# 15: intact Saga sequence and compensation interpretation; the next code panel stays whole.
+# 18: intact Outbox transaction/publication diagram; relay source starts on the next page.
+# 28: chapter scenario, units and model conditions precede the intact queueing curve.
+# 48: resilience scenario and business targets are established before the control-flow spread.
+# 49: full call/retry diagram and interpretation precede two intact, linked source panels.
+# 93: assessment symptoms and task stay before the competing-hypothesis diagram, without revealing the answer.
+15,18,28,48,49,93

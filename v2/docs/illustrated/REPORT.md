@@ -1,5 +1,7 @@
 # Illustrated Edition 编辑与教学质量报告
 
+> 本文件保留106页初版的历史记录。后续最终出版精修的页码、检查结果和剩余限制以 [REFINEMENT-QA.md](REFINEMENT-QA.md) 和 [REFINEMENT-CHANGES.md](REFINEMENT-CHANGES.md) 为准；精修轮次没有推送GitHub。
+
 2026-11-16。源码与历史材料基线：`510ec87a9f1b0756248e00f3b53d692ca27aeada`；独立工作分支：`v2/illustrated-edition`。
 
 ## 交付结果

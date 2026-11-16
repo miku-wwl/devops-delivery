@@ -18,6 +18,52 @@
       "file_sha256": "35878192a1e0af97548b4d83f8ee777909a56ab79bd3b0605cd124a355992928",
       "excerpt_sha256": "7c1604bf456cf35b1da44abd7071b6d087a6c3baebcac97268966f3ace1bd157",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/platform/cluster/create.sh#L30-L34",
+      "common_indent_omitted": 0,
+      "display_lines": [
+        {
+          "line": 30,
+          "fragments": [
+            "NODE_CPUS=4 NODE_MEM_MI=3584 EVICT_MARGIN_MI=150 ",
+            "KUBE_RES=\"cpu=250m,memory=256Mi\""
+          ]
+        },
+        {
+          "line": 31,
+          "fragments": [
+            "HOST_CPUS=$(nproc)"
+          ]
+        },
+        {
+          "line": 32,
+          "fragments": [
+            "MEMTOTAL_MI=$(awk '/^MemTotal:/ {print int($2/1024)}' /proc/meminfo)"
+          ]
+        },
+        {
+          "line": 33,
+          "fragments": [
+            "PHANTOM_CPU=$((HOST_CPUS - NODE_CPUS))"
+          ]
+        },
+        {
+          "line": 34,
+          "fragments": [
+            "EVICT_MI=$((MEMTOTAL_MI - NODE_MEM_MI + EVICT_MARGIN_MI))"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          30,
+          30,
+          "先声明每节点的目标预算；它不等于宿主机总内存。"
+        ],
+        [
+          32,
+          34,
+          "读取宿主可见内存，再反算驱逐阈值；还要核对节点实际生效值。"
+        ]
+      ],
       "excerpt_lines": 5
     },
     "order-claim": {
@@ -38,6 +84,111 @@
       "file_sha256": "12363f357bf91ce68e3e0be848ff9aa21077a44c84db3452c913d55214d53e24",
       "excerpt_sha256": "560232ef01bb58771a874226c0e8c21e1668b29199ec023fa95f362011acf6d1",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/apps/storefront/src/storefront/orders/main.py#L73-L86",
+      "common_indent_omitted": 4,
+      "display_lines": [
+        {
+          "line": 73,
+          "fragments": [
+            "async def claim(self, order_id: uuid.UUID, key: str, req: OrderRequest) -> bool:"
+          ]
+        },
+        {
+          "line": 74,
+          "fragments": [
+            "    try:"
+          ]
+        },
+        {
+          "line": 75,
+          "fragments": [
+            "        async with self.db.connection() as c:"
+          ]
+        },
+        {
+          "line": 76,
+          "fragments": [
+            "            await c.execute("
+          ]
+        },
+        {
+          "line": 77,
+          "fragments": [
+            "                \"INSERT INTO orders (id, idempotency_key, customer_id,",
+            " status, items) \""
+          ]
+        },
+        {
+          "line": 78,
+          "fragments": [
+            "                \"VALUES ($1, $2, $3, 'PENDING', $4)\","
+          ]
+        },
+        {
+          "line": 79,
+          "fragments": [
+            "                order_id,"
+          ]
+        },
+        {
+          "line": 80,
+          "fragments": [
+            "                key,"
+          ]
+        },
+        {
+          "line": 81,
+          "fragments": [
+            "                req.customer_id,"
+          ]
+        },
+        {
+          "line": 82,
+          "fragments": [
+            "                json.dumps([i.model_dump() for i in req.items]),"
+          ]
+        },
+        {
+          "line": 83,
+          "fragments": [
+            "            )"
+          ]
+        },
+        {
+          "line": 84,
+          "fragments": [
+            "        return True"
+          ]
+        },
+        {
+          "line": 85,
+          "fragments": [
+            "    except asyncpg.UniqueViolationError:"
+          ]
+        },
+        {
+          "line": 86,
+          "fragments": [
+            "        return False"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          77,
+          82,
+          "用同一业务键插入PENDING；并发仲裁由数据库唯一约束执行。"
+        ],
+        [
+          85,
+          86,
+          "若发生唯一冲突就返回False，调用方转入已有订单的重放路径。"
+        ],
+        [
+          84,
+          84,
+          "若插入成功则返回True；只表示占键，库存、支付和确认尚未完成。"
+        ]
+      ],
       "excerpt_lines": 14
     },
     "order-replay": {
@@ -57,6 +208,101 @@
       "file_sha256": "12363f357bf91ce68e3e0be848ff9aa21077a44c84db3452c913d55214d53e24",
       "excerpt_sha256": "01e9abd54b895cf8ae2dd39779791269d199ce3efbd0a243b942c51a54a464d1",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/apps/storefront/src/storefront/orders/main.py#L199-L210",
+      "common_indent_omitted": 4,
+      "display_lines": [
+        {
+          "line": 199,
+          "fragments": [
+            "@app.post(\"/orders\", status_code=201)"
+          ]
+        },
+        {
+          "line": 200,
+          "fragments": [
+            "async def place_order(req: OrderRequest,",
+            " idempotency_key: str = Header(...)) -> JSONResponse:"
+          ]
+        },
+        {
+          "line": 201,
+          "fragments": [
+            "    if not _KEY.fullmatch(idempotency_key):"
+          ]
+        },
+        {
+          "line": 202,
+          "fragments": [
+            "        raise HTTPException(400, \"Idempotency-Key must be 8-64 characters ",
+            "[A-Za-z0-9._-]\")"
+          ]
+        },
+        {
+          "line": 203,
+          "fragments": [
+            "    span = trace.get_current_span()"
+          ]
+        },
+        {
+          "line": 204,
+          "fragments": [
+            "    order_id = uuid.uuid4()"
+          ]
+        },
+        {
+          "line": 205,
+          "fragments": [
+            "    if not await store.claim(order_id, idempotency_key, req):"
+          ]
+        },
+        {
+          "line": 206,
+          "fragments": [
+            "        existing = await store.by_key(idempotency_key)"
+          ]
+        },
+        {
+          "line": 207,
+          "fragments": [
+            "        results.labels(\"replayed\").inc()"
+          ]
+        },
+        {
+          "line": 208,
+          "fragments": [
+            "        return JSONResponse("
+          ]
+        },
+        {
+          "line": 209,
+          "fragments": [
+            "            order_json(existing), status_code=200,",
+            " headers={\"Idempotent-Replayed\": \"true\"}"
+          ]
+        },
+        {
+          "line": 210,
+          "fragments": [
+            "        )"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          200,
+          202,
+          "接收并校验调用方的稳定键；重试时不能换键。"
+        ],
+        [
+          205,
+          206,
+          "未占到键就查询原订单，不再创建第二笔订单。"
+        ],
+        [
+          208,
+          210,
+          "返回原状态与重放标记；200仍可能携带PENDING。"
+        ]
+      ],
       "excerpt_lines": 12
     },
     "inventory-guard": {
@@ -78,6 +324,118 @@
       "file_sha256": "9de7dd5bd5278bfbd1d91769e8e1e7e39661ea7886beb09949c967ecdc500d69",
       "excerpt_sha256": "8b38eab34bba1f84359efd5ea05974903d064cc384ef8db7377e7d9082b0cdb7",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/apps/storefront/src/storefront/inventory/main.py#L48-L62",
+      "common_indent_omitted": 12,
+      "display_lines": [
+        {
+          "line": 48,
+          "fragments": [
+            "async with self.db.connection() as c, c.transaction():"
+          ]
+        },
+        {
+          "line": 49,
+          "fragments": [
+            "    existing = await c.fetchval("
+          ]
+        },
+        {
+          "line": 50,
+          "fragments": [
+            "        \"SELECT status FROM reservations WHERE order_id = $1 ",
+            "FOR UPDATE\", order_id"
+          ]
+        },
+        {
+          "line": 51,
+          "fragments": [
+            "    )"
+          ]
+        },
+        {
+          "line": 52,
+          "fragments": [
+            "    if existing:"
+          ]
+        },
+        {
+          "line": 53,
+          "fragments": [
+            "        return existing, True"
+          ]
+        },
+        {
+          "line": 54,
+          "fragments": [
+            "    for it in sorted(items, key=lambda i: i.product_id):"
+          ]
+        },
+        {
+          "line": 55,
+          "fragments": [
+            "        left = await c.fetchval("
+          ]
+        },
+        {
+          "line": 56,
+          "fragments": [
+            "            \"UPDATE stock SET available = available - $2,",
+            " reserved = reserved + $2 \""
+          ]
+        },
+        {
+          "line": 57,
+          "fragments": [
+            "            \"WHERE product_id = $1 AND available >= $2 RETURNING available\","
+          ]
+        },
+        {
+          "line": 58,
+          "fragments": [
+            "            it.product_id,"
+          ]
+        },
+        {
+          "line": 59,
+          "fragments": [
+            "            it.qty,"
+          ]
+        },
+        {
+          "line": 60,
+          "fragments": [
+            "        )"
+          ]
+        },
+        {
+          "line": 61,
+          "fragments": [
+            "        if left is None:"
+          ]
+        },
+        {
+          "line": 62,
+          "fragments": [
+            "            raise OutOfStockError(it.product_id)"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          48,
+          54,
+          "同一事务内检查已有预留，再按固定商品顺序获取更新锁。"
+        ],
+        [
+          56,
+          60,
+          "把库存条件与扣减放在同一条UPDATE，避免先读后写的窗口。"
+        ],
+        [
+          61,
+          62,
+          "没有返回行就抛异常，使本事务之前的商品更新一起回滚。"
+        ]
+      ],
       "excerpt_lines": 15
     },
     "payment-failure": {
@@ -98,6 +456,88 @@
       "file_sha256": "12363f357bf91ce68e3e0be848ff9aa21077a44c84db3452c913d55214d53e24",
       "excerpt_sha256": "6ba0916888b1ddc0724bfb21365ab9f17e2d45a0be7d0d3f796f2a7543dfe3cd",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/apps/storefront/src/storefront/orders/main.py#L246-L255",
+      "common_indent_omitted": 8,
+      "display_lines": [
+        {
+          "line": 246,
+          "fragments": [
+            "except UpstreamError as e:"
+          ]
+        },
+        {
+          "line": 247,
+          "fragments": [
+            "    await release(order_id)"
+          ]
+        },
+        {
+          "line": 248,
+          "fragments": [
+            "    await fail(order_id, \"FAILED\", f\"payments {e.kind}\", 503, total)"
+          ]
+        },
+        {
+          "line": 249,
+          "fragments": [
+            "    raise"
+          ]
+        },
+        {
+          "line": 250,
+          "fragments": [
+            "if p.status_code == 402:"
+          ]
+        },
+        {
+          "line": 251,
+          "fragments": [
+            "    await release(order_id)"
+          ]
+        },
+        {
+          "line": 252,
+          "fragments": [
+            "    return await fail(order_id, \"PAYMENT_DECLINED\",",
+            " \"declined by provider\", 402, total)"
+          ]
+        },
+        {
+          "line": 253,
+          "fragments": [
+            "if p.status_code != 201:  # 409: another attempt with this key is still running"
+          ]
+        },
+        {
+          "line": 254,
+          "fragments": [
+            "    await release(order_id)"
+          ]
+        },
+        {
+          "line": 255,
+          "fragments": [
+            "    return await fail(order_id, \"FAILED\",",
+            " f\"payments HTTP {p.status_code}\", 503, total)"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          246,
+          249,
+          "调用异常：尝试释放库存并标记FAILED；这不证明支付未执行。"
+        ],
+        [
+          250,
+          252,
+          "402是明确拒付，采用PAYMENT_DECLINED分支。"
+        ],
+        [
+          253,
+          255,
+          "其余非201也转FAILED；409仍可能是支付处理中，缺口见状态图。"
+        ]
+      ],
       "excerpt_lines": 10
     },
     "order-confirm": {
@@ -119,6 +559,119 @@
       "file_sha256": "12363f357bf91ce68e3e0be848ff9aa21077a44c84db3452c913d55214d53e24",
       "excerpt_sha256": "0ee1ecc29c5a83debf5142a019f5361fc6a8b883551cc3d0c6c64f65866e18b6",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/apps/storefront/src/storefront/orders/main.py#L101-L116",
+      "common_indent_omitted": 4,
+      "display_lines": [
+        {
+          "line": 101,
+          "fragments": [
+            "async def confirm("
+          ]
+        },
+        {
+          "line": 102,
+          "fragments": [
+            "    self, order_id: uuid.UUID, total: int, event: dict[str, Any],",
+            " headers: dict[str, str]"
+          ]
+        },
+        {
+          "line": 103,
+          "fragments": [
+            ") -> None:"
+          ]
+        },
+        {
+          "line": 104,
+          "fragments": [
+            "    async with self.db.connection() as c, c.transaction():"
+          ]
+        },
+        {
+          "line": 105,
+          "fragments": [
+            "        await c.execute("
+          ]
+        },
+        {
+          "line": 106,
+          "fragments": [
+            "            \"UPDATE orders SET status = 'CONFIRMED', total_cents = $2,",
+            " updated_at = now() WHERE id = $1\","
+          ]
+        },
+        {
+          "line": 107,
+          "fragments": [
+            "            order_id,"
+          ]
+        },
+        {
+          "line": 108,
+          "fragments": [
+            "            total,"
+          ]
+        },
+        {
+          "line": 109,
+          "fragments": [
+            "        )"
+          ]
+        },
+        {
+          "line": 110,
+          "fragments": [
+            "        await c.execute("
+          ]
+        },
+        {
+          "line": 111,
+          "fragments": [
+            "            \"INSERT INTO outbox (event_id, subject, payload, headers) \""
+          ]
+        },
+        {
+          "line": 112,
+          "fragments": [
+            "            \"VALUES ($1, 'orders.confirmed', $2, $3)\","
+          ]
+        },
+        {
+          "line": 113,
+          "fragments": [
+            "            uuid.UUID(event[\"event_id\"]),"
+          ]
+        },
+        {
+          "line": 114,
+          "fragments": [
+            "            json.dumps(event),"
+          ]
+        },
+        {
+          "line": 115,
+          "fragments": [
+            "            json.dumps(headers),"
+          ]
+        },
+        {
+          "line": 116,
+          "fragments": [
+            "        )"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          104,
+          106,
+          "进入一个本地事务，先把订单更新为CONFIRMED。"
+        ],
+        [
+          110,
+          116,
+          "在同一事务插入事件与上下文；提交后两者一起可见，尚未包含NATS。"
+        ]
+      ],
       "excerpt_lines": 16
     },
     "relay-publish": {
@@ -144,6 +697,169 @@
       "file_sha256": "5beaaaccbf751b88eba5aa2948e8826029e9ee220ae9388e42d18ef99eb994b4",
       "excerpt_sha256": "df3a606bef2f3085f437a141d260b01d87692f869aab47c605f08b9cf836e376",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/apps/storefront/src/storefront/orders/outbox.py#L86-L109",
+      "common_indent_omitted": 4,
+      "display_lines": [
+        {
+          "line": 86,
+          "fragments": [
+            "async def publish_once(self) -> int:"
+          ]
+        },
+        {
+          "line": 87,
+          "fragments": [
+            "    async with self.db.connection() as c, c.transaction():"
+          ]
+        },
+        {
+          "line": 88,
+          "fragments": [
+            "        rows = await c.fetch("
+          ]
+        },
+        {
+          "line": 89,
+          "fragments": [
+            "            \"SELECT id, event_id, subject, payload, headers,",
+            " created_at FROM outbox \""
+          ]
+        },
+        {
+          "line": 90,
+          "fragments": [
+            "            \"WHERE published_at IS NULL ORDER BY id LIMIT $1 ",
+            "FOR UPDATE SKIP LOCKED\","
+          ]
+        },
+        {
+          "line": 91,
+          "fragments": [
+            "            self.batch,"
+          ]
+        },
+        {
+          "line": 92,
+          "fragments": [
+            "        )"
+          ]
+        },
+        {
+          "line": 93,
+          "fragments": [
+            "        for r in rows:"
+          ]
+        },
+        {
+          "line": 94,
+          "fragments": [
+            "            parent = messaging.extract(json.loads(r[\"headers\"]))"
+          ]
+        },
+        {
+          "line": 95,
+          "fragments": [
+            "            with tracer.start_as_current_span("
+          ]
+        },
+        {
+          "line": 96,
+          "fragments": [
+            "                f\"send {r['subject']}\","
+          ]
+        },
+        {
+          "line": 97,
+          "fragments": [
+            "                context=parent,"
+          ]
+        },
+        {
+          "line": 98,
+          "fragments": [
+            "                kind=trace.SpanKind.PRODUCER,"
+          ]
+        },
+        {
+          "line": 99,
+          "fragments": [
+            "                attributes=messaging.messaging_attributes(r[\"subject\"],",
+            " str(r[\"event_id\"]), \"send\"),"
+          ]
+        },
+        {
+          "line": 100,
+          "fragments": [
+            "            ):"
+          ]
+        },
+        {
+          "line": 101,
+          "fragments": [
+            "                headers = messaging.inject({\"Nats-Msg-Id\": str(r[\"event_id\"])})"
+          ]
+        },
+        {
+          "line": 102,
+          "fragments": [
+            "                await self.js.publish(r[\"subject\"], r[\"payload\"].encode(),",
+            " headers=headers, timeout=2)"
+          ]
+        },
+        {
+          "line": 104,
+          "fragments": [
+            "        if rows:"
+          ]
+        },
+        {
+          "line": 105,
+          "fragments": [
+            "            await c.execute("
+          ]
+        },
+        {
+          "line": 106,
+          "fragments": [
+            "                \"UPDATE outbox SET published_at = now() WHERE id = ",
+            "ANY($1::bigint[])\","
+          ]
+        },
+        {
+          "line": 107,
+          "fragments": [
+            "                [r[\"id\"] for r in rows],"
+          ]
+        },
+        {
+          "line": 108,
+          "fragments": [
+            "            )"
+          ]
+        },
+        {
+          "line": 109,
+          "fragments": [
+            "            self.published.inc(len(rows))"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          87,
+          92,
+          "事务中锁住待发批次；SKIP LOCKED让其他relay跳过这些行。"
+        ],
+        [
+          101,
+          102,
+          "沿用event_id作为消息去重键，等待JetStream发布应答。"
+        ],
+        [
+          104,
+          109,
+          "然后标记已发布；发布与事务提交之间崩溃仍可能重发。"
+        ]
+      ],
       "excerpt_lines": 23
     },
     "notifier-dedup": {
@@ -170,6 +886,166 @@
       "file_sha256": "65d70651ed5d5a6c34735ccac92023db8a74574a70e09955a17c7c8104ff9122",
       "excerpt_sha256": "8d5c7160cfc26706dab87004fadc7c7b2302f4cb7256c731aebccb2033e493e6",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/apps/storefront/src/storefront/notifier/main.py#L50-L82",
+      "common_indent_omitted": 4,
+      "display_lines": [
+        {
+          "line": 50,
+          "fragments": [
+            "async def handle(self, subject: str, data: bytes, headers: dict[str,",
+            " str] | None) -> str:"
+          ]
+        },
+        {
+          "line": 51,
+          "fragments": [
+            "    event = json.loads(data)"
+          ]
+        },
+        {
+          "line": 52,
+          "fragments": [
+            "    event_id = (headers or {}).get(\"Nats-Msg-Id\", event.get(\"event_id\", \"\"))"
+          ]
+        },
+        {
+          "line": 53,
+          "fragments": [
+            "    with tracer.start_as_current_span("
+          ]
+        },
+        {
+          "line": 54,
+          "fragments": [
+            "        f\"process {subject}\","
+          ]
+        },
+        {
+          "line": 55,
+          "fragments": [
+            "        context=messaging.extract(headers),"
+          ]
+        },
+        {
+          "line": 56,
+          "fragments": [
+            "        kind=trace.SpanKind.CONSUMER,"
+          ]
+        },
+        {
+          "line": 57,
+          "fragments": [
+            "        attributes=messaging.messaging_attributes(subject, event_id, \"process\"),"
+          ]
+        },
+        {
+          "line": 58,
+          "fragments": [
+            "    ):"
+          ]
+        },
+        {
+          "line": 59,
+          "fragments": [
+            "        done = f\"notifier:done:{event_id}\""
+          ]
+        },
+        {
+          "line": 60,
+          "fragments": [
+            "        if await self.cache.exists(done):"
+          ]
+        },
+        {
+          "line": 61,
+          "fragments": [
+            "            self.messages.labels(\"duplicate\").inc()"
+          ]
+        },
+        {
+          "line": 62,
+          "fragments": [
+            "            return \"duplicate\""
+          ]
+        },
+        {
+          "line": 63,
+          "fragments": [
+            "        await asyncio.sleep(self.work_ms / 1000)  # the simulated provider call"
+          ]
+        },
+        {
+          "line": 64,
+          "fragments": [
+            "        await self.cache.set(done, \"1\", ex=86_400)"
+          ]
+        },
+        {
+          "line": 75,
+          "fragments": [
+            "async def _one(self, msg: Any) -> None:"
+          ]
+        },
+        {
+          "line": 76,
+          "fragments": [
+            "    try:"
+          ]
+        },
+        {
+          "line": 77,
+          "fragments": [
+            "        await self.handle(msg.subject, msg.data, msg.headers)"
+          ]
+        },
+        {
+          "line": 78,
+          "fragments": [
+            "        await msg.ack()"
+          ]
+        },
+        {
+          "line": 79,
+          "fragments": [
+            "    except Exception:  # noqa: BLE001 - nak: JetStream redelivers ",
+            "after the delay"
+          ]
+        },
+        {
+          "line": 80,
+          "fragments": [
+            "        self.messages.labels(\"failed\").inc()"
+          ]
+        },
+        {
+          "line": 81,
+          "fragments": [
+            "        log.exception(\"notification failed\")"
+          ]
+        },
+        {
+          "line": 82,
+          "fragments": [
+            "        await msg.nak(delay=1)"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          59,
+          64,
+          "先查完成标记，再执行模拟工作，最后保存24小时标记；三步不原子。"
+        ],
+        [
+          77,
+          78,
+          "handle成功才ACK；已存在标记时也能安全完成消息确认。"
+        ],
+        [
+          79,
+          82,
+          "异常则NAK延迟重投；真实外部副作用仍需自己的幂等契约。"
+        ]
+      ],
       "excerpt_lines": 23
     },
     "asgi-metrics": {
@@ -197,6 +1073,174 @@
       "file_sha256": "781e193439b892d6a8dc948dce6d8cf2292f67ab416e100f4efdd5e714d6c999",
       "excerpt_sha256": "7be502c6a74031e4c3887de0e337a77e10e841d711e209f18cc0382e1f336be9",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/apps/storefront/src/storefront/common/web.py#L117-L147",
+      "common_indent_omitted": 8,
+      "display_lines": [
+        {
+          "line": 117,
+          "fragments": [
+            "async def send_with_id(message: Message) -> None:"
+          ]
+        },
+        {
+          "line": 118,
+          "fragments": [
+            "    nonlocal status, trace_id"
+          ]
+        },
+        {
+          "line": 119,
+          "fragments": [
+            "    if message[\"type\"] == \"http.response.start\":"
+          ]
+        },
+        {
+          "line": 120,
+          "fragments": [
+            "        status = message[\"status\"]"
+          ]
+        },
+        {
+          "line": 121,
+          "fragments": [
+            "        trace_id = current_trace_id()  # the request's span is current ",
+            "while it answers"
+          ]
+        },
+        {
+          "line": 122,
+          "fragments": [
+            "        message[\"headers\"] = [*message.get(\"headers\", ()), rid_header,",
+            " self.version_header]"
+          ]
+        },
+        {
+          "line": 123,
+          "fragments": [
+            "    await send(message)"
+          ]
+        },
+        {
+          "line": 124,
+          "fragments": [
+            ""
+          ]
+        },
+        {
+          "line": 125,
+          "fragments": [
+            "# operational requests are not counted: a scrape of /metrics would ",
+            "otherwise always see"
+          ]
+        },
+        {
+          "line": 126,
+          "fragments": [
+            "# itself in flight (E3 found the gauge never below 1 - useless for Little's law)"
+          ]
+        },
+        {
+          "line": 127,
+          "fragments": [
+            "if scope[\"path\"].startswith(OPERATIONAL):"
+          ]
+        },
+        {
+          "line": 128,
+          "fragments": [
+            "    await self.app(scope, receive, send_with_id)"
+          ]
+        },
+        {
+          "line": 129,
+          "fragments": [
+            "    return"
+          ]
+        },
+        {
+          "line": 130,
+          "fragments": [
+            "metrics, started = self.metrics, time.perf_counter()"
+          ]
+        },
+        {
+          "line": 131,
+          "fragments": [
+            "metrics.inflight.inc()"
+          ]
+        },
+        {
+          "line": 132,
+          "fragments": [
+            "try:"
+          ]
+        },
+        {
+          "line": 140,
+          "fragments": [
+            "        await self.app(scope, receive, send_with_id)"
+          ]
+        },
+        {
+          "line": 141,
+          "fragments": [
+            "except Exception:"
+          ]
+        },
+        {
+          "line": 142,
+          "fragments": [
+            "    status = status or 500  # the server's error handler answers 500 if ",
+            "nothing was sent"
+          ]
+        },
+        {
+          "line": 143,
+          "fragments": [
+            "    raise"
+          ]
+        },
+        {
+          "line": 144,
+          "fragments": [
+            "finally:"
+          ]
+        },
+        {
+          "line": 145,
+          "fragments": [
+            "    metrics.inflight.dec()"
+          ]
+        },
+        {
+          "line": 146,
+          "fragments": [
+            "    if status is not None:"
+          ]
+        },
+        {
+          "line": 147,
+          "fragments": [
+            "        self._record(scope, status, time.perf_counter() - started, trace_id)"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          119,
+          123,
+          "在ASGI响应起始时获取真实状态与trace_id，再转发消息。"
+        ],
+        [
+          127,
+          131,
+          "排除运维路径，业务请求才计时并增加在途数。"
+        ],
+        [
+          140,
+          147,
+          "无论成功或异常都归还在途计数；有状态时记录同一计时区间。"
+        ]
+      ],
       "excerpt_lines": 24
     },
     "replica-owner": {
@@ -216,6 +1260,81 @@
       "file_sha256": "0a55b07570103f48c19d6fd858f0dfc266577639b7b6108db151c59ae3c2cec3",
       "excerpt_sha256": "9b2c064d59d8dc24888e879a4e4d13a02faec50f9cc80b9e5529f9abd0d0ab68",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/gitops/charts/storefront-service/templates/deployment.yaml#L6-L15",
+      "common_indent_omitted": 0,
+      "display_lines": [
+        {
+          "line": 6,
+          "fragments": [
+            "spec:"
+          ]
+        },
+        {
+          "line": 7,
+          "fragments": [
+            "  {{- if not (or .Values.autoscaling.enabled .Values.keda.enabled) }}"
+          ]
+        },
+        {
+          "line": 8,
+          "fragments": [
+            "  replicas: {{ .Values.replicas }}"
+          ]
+        },
+        {
+          "line": 9,
+          "fragments": [
+            "  {{- end }}"
+          ]
+        },
+        {
+          "line": 10,
+          "fragments": [
+            "  revisionHistoryLimit: 5"
+          ]
+        },
+        {
+          "line": 11,
+          "fragments": [
+            "  selector:"
+          ]
+        },
+        {
+          "line": 12,
+          "fragments": [
+            "    matchLabels: {{- include \"svc.selector\" . | nindent 6 }}"
+          ]
+        },
+        {
+          "line": 13,
+          "fragments": [
+            "  strategy:"
+          ]
+        },
+        {
+          "line": 14,
+          "fragments": [
+            "    type: RollingUpdate"
+          ]
+        },
+        {
+          "line": 15,
+          "fragments": [
+            "    rollingUpdate: {maxSurge: 1, maxUnavailable: 0}"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          7,
+          9,
+          "HPA或KEDA启用时省略replicas字段，避免静态声明争夺副本数。"
+        ],
+        [
+          13,
+          15,
+          "滚动更新策略仍由Deployment负责；字段让权不等于放弃发布策略。"
+        ]
+      ],
       "excerpt_lines": 10
     },
     "keda-rate": {
@@ -235,6 +1354,53 @@
       "file_sha256": "56efd93e5754f9c1e17e3138efb4d0833c39e9d8032427ca0557ea50508c83a0",
       "excerpt_sha256": "48e11fb7407890a7c08aa1b4b611dc86f543ec15beba080126c7ea2159c18d4b",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/gitops/envs/prod/storefront/services/notifier.yaml#L32-L36",
+      "common_indent_omitted": 4,
+      "display_lines": [
+        {
+          "line": 32,
+          "fragments": [
+            "- type: prometheus"
+          ]
+        },
+        {
+          "line": 33,
+          "fragments": [
+            "  metadata:"
+          ]
+        },
+        {
+          "line": 34,
+          "fragments": [
+            "    serverAddress: http://kps-prometheus.monitoring.svc:9090"
+          ]
+        },
+        {
+          "line": 35,
+          "fragments": [
+            "    query: sum(rate(orders_total{namespace=\"storefront\",",
+            "status=\"CONFIRMED\"}[1m]))"
+          ]
+        },
+        {
+          "line": 36,
+          "fragments": [
+            "    threshold: \"8\"            # events per second per replica: 80 % of one ",
+            "replica (10/s)"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          32,
+          35,
+          "从Prometheus读取已确认订单的每秒速率；先看rate的单位。"
+        ],
+        [
+          36,
+          36,
+          "目标8事件/秒/副本用于稳态估算，不直接度量已有队列欠账。"
+        ]
+      ],
       "excerpt_lines": 5
     },
     "tenant-rbac": {
@@ -242,10 +1408,10 @@
       "ranges": [
         [
           10,
-          20
+          19
         ],
         [
-          23,
+          22,
           27
         ]
       ],
@@ -258,16 +1424,137 @@
       ],
       "id": "C12",
       "file_sha256": "cafabdd714a8fe724c8a4cdef427d92edd3c967cf6e7bc38ab5c12a392371742",
-      "excerpt_sha256": "bc1170ac33960abe4e6024ad6e0f6b6f1276d96c8b0064864035c2dbc479e1cd",
+      "excerpt_sha256": "06b3932804db760b567a0a49f4207682e014541369e6461b4852006195e64896",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/gitops/platform/manifests/tenants/rbac.yaml#L10-L27",
+      "common_indent_omitted": 0,
+      "display_lines": [
+        {
+          "line": 10,
+          "fragments": [
+            "apiVersion: rbac.authorization.k8s.io/v1"
+          ]
+        },
+        {
+          "line": 11,
+          "fragments": [
+            "kind: ClusterRole"
+          ]
+        },
+        {
+          "line": 12,
+          "fragments": [
+            "metadata: {name: tenant-developer}"
+          ]
+        },
+        {
+          "line": 13,
+          "fragments": [
+            "rules:"
+          ]
+        },
+        {
+          "line": 14,
+          "fragments": [
+            "  - apiGroups: [\"\"]"
+          ]
+        },
+        {
+          "line": 15,
+          "fragments": [
+            "    resources: [pods, services, configmaps, persistentvolumeclaims,",
+            " serviceaccounts]"
+          ]
+        },
+        {
+          "line": 16,
+          "fragments": [
+            "    verbs: [get, list, watch, create, update, patch, delete]"
+          ]
+        },
+        {
+          "line": 17,
+          "fragments": [
+            "  - apiGroups: [\"\"]"
+          ]
+        },
+        {
+          "line": 18,
+          "fragments": [
+            "    resources: [pods/log]"
+          ]
+        },
+        {
+          "line": 19,
+          "fragments": [
+            "    verbs: [get]"
+          ]
+        },
+        {
+          "line": 22,
+          "fragments": [
+            "  - apiGroups: [\"\"]"
+          ]
+        },
+        {
+          "line": 23,
+          "fragments": [
+            "    resources: [pods/exec, pods/portforward]"
+          ]
+        },
+        {
+          "line": 24,
+          "fragments": [
+            "    verbs: [get, create]"
+          ]
+        },
+        {
+          "line": 25,
+          "fragments": [
+            "  - apiGroups: [apps]"
+          ]
+        },
+        {
+          "line": 26,
+          "fragments": [
+            "    resources: [deployments, statefulsets]"
+          ]
+        },
+        {
+          "line": 27,
+          "fragments": [
+            "    verbs: [get, list, watch, create, update, patch, delete]"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          14,
+          19,
+          "分别声明核心资源与日志子资源能执行的动作。"
+        ],
+        [
+          23,
+          24,
+          "exec与portforward是独立子资源权限，不能只检查Pod的增删改。"
+        ],
+        [
+          25,
+          27,
+          "再授权apps组工作负载；命名空间绑定范围仍需单独核对。"
+        ]
+      ],
       "excerpt_lines": 16
     },
     "upstream-entry": {
       "path": "v2/apps/storefront/src/storefront/common/upstream.py",
       "ranges": [
         [
-          70,
-          84
+          73,
+          78
+        ],
+        [
+          80,
+          82
         ]
       ],
       "title": "逻辑调用在整个尝试循环中占用隔舱",
@@ -280,9 +1567,83 @@
       ],
       "id": "C13",
       "file_sha256": "2b22c3d8c4cea21c323df273325b39350340146576264bcb64b5e97cee29a9d2",
-      "excerpt_sha256": "d3fb9bb0349c3dd6ef4c3bcec12c3d9ec47de910b28f8175baeef93efcd5c01d",
-      "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/apps/storefront/src/storefront/common/upstream.py#L70-L84",
-      "excerpt_lines": 15
+      "excerpt_sha256": "ee36d4ac4e3f86af1822d3bf00e804d00152810d339e7643f7d2dfaa9ce29de1",
+      "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/apps/storefront/src/storefront/common/upstream.py#L73-L82",
+      "common_indent_omitted": 8,
+      "display_lines": [
+        {
+          "line": 73,
+          "fragments": [
+            "headers = {**context.outgoing_headers(), **(headers or {})}"
+          ]
+        },
+        {
+          "line": 74,
+          "fragments": [
+            "idempotent = method in (\"GET\", \"HEAD\") or \"Idempotency-Key\" in headers"
+          ]
+        },
+        {
+          "line": 75,
+          "fragments": [
+            "if self.budget:"
+          ]
+        },
+        {
+          "line": 76,
+          "fragments": [
+            "    self.budget.deposit()"
+          ]
+        },
+        {
+          "line": 77,
+          "fragments": [
+            "try:"
+          ]
+        },
+        {
+          "line": 78,
+          "fragments": [
+            "    async with self.bulkhead:"
+          ]
+        },
+        {
+          "line": 80,
+          "fragments": [
+            "        return await self._attempts(method, path, json, headers, idempotent)"
+          ]
+        },
+        {
+          "line": 81,
+          "fragments": [
+            "except BulkheadFullError:"
+          ]
+        },
+        {
+          "line": 82,
+          "fragments": [
+            "    raise self._reject(\"bulkhead_full\") from None"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          74,
+          76,
+          "识别幂等条件，每次逻辑调用向预算存入一个比例份额。"
+        ],
+        [
+          80,
+          80,
+          "在隔舱上下文内运行整个尝试循环；重试退避期间仍占该名额。"
+        ],
+        [
+          81,
+          82,
+          "隔舱满就拒绝，不再发起尝试；本节省略指标更新，保留控制流。"
+        ]
+      ],
+      "excerpt_lines": 9
     },
     "upstream-deadline": {
       "path": "v2/apps/storefront/src/storefront/common/upstream.py",
@@ -303,6 +1664,95 @@
       "file_sha256": "2b22c3d8c4cea21c323df273325b39350340146576264bcb64b5e97cee29a9d2",
       "excerpt_sha256": "860c15f6f32eb7e76b1e9fc8c2537e4db211cd463f6055f3374423f6292bc8cb",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/apps/storefront/src/storefront/common/upstream.py#L89-L100",
+      "common_indent_omitted": 8,
+      "display_lines": [
+        {
+          "line": 89,
+          "fragments": [
+            "attempt = 0"
+          ]
+        },
+        {
+          "line": 90,
+          "fragments": [
+            "while True:"
+          ]
+        },
+        {
+          "line": 91,
+          "fragments": [
+            "    remaining = context.remaining_seconds()"
+          ]
+        },
+        {
+          "line": 92,
+          "fragments": [
+            "    if remaining is not None and remaining <= 0:"
+          ]
+        },
+        {
+          "line": 93,
+          "fragments": [
+            "        raise self._reject(\"deadline\")"
+          ]
+        },
+        {
+          "line": 94,
+          "fragments": [
+            "    if self.breaker and not self.breaker.allow():"
+          ]
+        },
+        {
+          "line": 95,
+          "fragments": [
+            "        raise self._reject(\"circuit_open\")"
+          ]
+        },
+        {
+          "line": 96,
+          "fragments": [
+            "    timeout = self.policy.timeout_s if remaining is None else ",
+            "min(self.policy.timeout_s, remaining)"
+          ]
+        },
+        {
+          "line": 97,
+          "fragments": [
+            "    started = time.perf_counter()"
+          ]
+        },
+        {
+          "line": 98,
+          "fragments": [
+            "    status, outcome = None, \"ok\""
+          ]
+        },
+        {
+          "line": 99,
+          "fragments": [
+            "    try:"
+          ]
+        },
+        {
+          "line": 100,
+          "fragments": [
+            "        resp = await self.client.request(method, path, json=json,",
+            " headers=headers, timeout=timeout)"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          91,
+          95,
+          "每次尝试先看总期限，再询问熔断器能否放行。"
+        ],
+        [
+          96,
+          100,
+          "单次超时取策略值与剩余期限的较小者，再发起网络请求。"
+        ]
+      ],
       "excerpt_lines": 12
     },
     "retry-budget": {
@@ -324,6 +1774,104 @@
       "file_sha256": "3dfd7bf6a58643713f81d36a9a6599fe7247aeacf7036afde30275def6e69c1c",
       "excerpt_sha256": "5641a730b91d002c779e230314780d027ed1475b4b9b1681c3dca0266ccdac84",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/apps/storefront/src/storefront/common/resilience.py#L77-L89",
+      "common_indent_omitted": 4,
+      "display_lines": [
+        {
+          "line": 77,
+          "fragments": [
+            "def __init__(self, ratio: float, max_tokens: float = 10.0) -> None:"
+          ]
+        },
+        {
+          "line": 78,
+          "fragments": [
+            "    self.ratio = ratio"
+          ]
+        },
+        {
+          "line": 79,
+          "fragments": [
+            "    self.max_tokens = max_tokens"
+          ]
+        },
+        {
+          "line": 80,
+          "fragments": [
+            "    self.tokens = max_tokens"
+          ]
+        },
+        {
+          "line": 81,
+          "fragments": [
+            ""
+          ]
+        },
+        {
+          "line": 82,
+          "fragments": [
+            "def deposit(self) -> None:"
+          ]
+        },
+        {
+          "line": 83,
+          "fragments": [
+            "    self.tokens = min(self.max_tokens, self.tokens + self.ratio)"
+          ]
+        },
+        {
+          "line": 84,
+          "fragments": [
+            ""
+          ]
+        },
+        {
+          "line": 85,
+          "fragments": [
+            "def try_withdraw(self) -> bool:"
+          ]
+        },
+        {
+          "line": 86,
+          "fragments": [
+            "    if self.tokens >= 1.0:"
+          ]
+        },
+        {
+          "line": 87,
+          "fragments": [
+            "        self.tokens -= 1.0"
+          ]
+        },
+        {
+          "line": 88,
+          "fragments": [
+            "        return True"
+          ]
+        },
+        {
+          "line": 89,
+          "fragments": [
+            "    return False"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          77,
+          80,
+          "桶从max_tokens开始，默认允许10令牌初始突发。"
+        ],
+        [
+          82,
+          83,
+          "每次逻辑调用存入ratio，余额不超过桶容量。"
+        ],
+        [
+          85,
+          89,
+          "一次重试花1令牌；不足就拒绝，20%因此是长期比例而非逐窗硬上限。"
+        ]
+      ],
       "excerpt_lines": 13
     },
     "retry-decision": {
@@ -345,6 +1893,118 @@
       "file_sha256": "2b22c3d8c4cea21c323df273325b39350340146576264bcb64b5e97cee29a9d2",
       "excerpt_sha256": "44ab5cebe55c146b0d7dd1410092fb4151bca5f4796d186cd033d60c28b48946",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/apps/storefront/src/storefront/common/upstream.py#L108-L122",
+      "common_indent_omitted": 12,
+      "display_lines": [
+        {
+          "line": 108,
+          "fragments": [
+            "self.metrics.upstream_duration.labels(self.name).observe(time.perf_counter() - s",
+            "tarted)"
+          ]
+        },
+        {
+          "line": 109,
+          "fragments": [
+            "self.metrics.upstream_requests.labels(self.name, outcome).inc()"
+          ]
+        },
+        {
+          "line": 110,
+          "fragments": [
+            "if self.breaker:"
+          ]
+        },
+        {
+          "line": 111,
+          "fragments": [
+            "    self.breaker.record(outcome == \"ok\")"
+          ]
+        },
+        {
+          "line": 112,
+          "fragments": [
+            "if outcome == \"ok\":"
+          ]
+        },
+        {
+          "line": 113,
+          "fragments": [
+            "    return resp"
+          ]
+        },
+        {
+          "line": 114,
+          "fragments": [
+            "retryable = outcome in (\"timeout\", \"connect_error\") or status in ",
+            "RETRYABLE_STATUS"
+          ]
+        },
+        {
+          "line": 115,
+          "fragments": [
+            "if not (idempotent and retryable and attempt < self.policy.retries):"
+          ]
+        },
+        {
+          "line": 116,
+          "fragments": [
+            "    break"
+          ]
+        },
+        {
+          "line": 117,
+          "fragments": [
+            "if self.budget and not self.budget.try_withdraw():"
+          ]
+        },
+        {
+          "line": 118,
+          "fragments": [
+            "    self.metrics.upstream_rejected.labels(self.name, \"retry_budget\").inc()"
+          ]
+        },
+        {
+          "line": 119,
+          "fragments": [
+            "    break"
+          ]
+        },
+        {
+          "line": 120,
+          "fragments": [
+            "attempt += 1"
+          ]
+        },
+        {
+          "line": 121,
+          "fragments": [
+            "self.metrics.upstream_retries.labels(self.name).inc()"
+          ]
+        },
+        {
+          "line": 122,
+          "fragments": [
+            "await asyncio.sleep(self.policy.backoff(attempt))"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          110,
+          115,
+          "记录本次结果，再同时检查幂等性、错误类别和剩余次数。"
+        ],
+        [
+          117,
+          119,
+          "符合重试条件还要取到预算；不能取到就停止。"
+        ],
+        [
+          120,
+          122,
+          "增加尝试计数并退避，随后回到期限与熔断检查。"
+        ]
+      ],
       "excerpt_lines": 15
     },
     "breaker-allow": {
@@ -366,6 +2026,81 @@
       "file_sha256": "3dfd7bf6a58643713f81d36a9a6599fe7247aeacf7036afde30275def6e69c1c",
       "excerpt_sha256": "42d9e2767cd976af2558db4853484fb03d66c9b4306a9e864266ea792685229b",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/apps/storefront/src/storefront/common/resilience.py#L138-L147",
+      "common_indent_omitted": 4,
+      "display_lines": [
+        {
+          "line": 138,
+          "fragments": [
+            "def allow(self) -> bool:"
+          ]
+        },
+        {
+          "line": 139,
+          "fragments": [
+            "    if self.state is BreakerState.OPEN:"
+          ]
+        },
+        {
+          "line": 140,
+          "fragments": [
+            "        if self.clock() - self._opened_at < self.open_seconds:"
+          ]
+        },
+        {
+          "line": 141,
+          "fragments": [
+            "            return False"
+          ]
+        },
+        {
+          "line": 142,
+          "fragments": [
+            "        self._move(BreakerState.HALF_OPEN)"
+          ]
+        },
+        {
+          "line": 143,
+          "fragments": [
+            "    if self.state is BreakerState.HALF_OPEN:"
+          ]
+        },
+        {
+          "line": 144,
+          "fragments": [
+            "        if self._trials >= self.half_open_calls:"
+          ]
+        },
+        {
+          "line": 145,
+          "fragments": [
+            "            return False"
+          ]
+        },
+        {
+          "line": 146,
+          "fragments": [
+            "        self._trials += 1"
+          ]
+        },
+        {
+          "line": 147,
+          "fragments": [
+            "    return True"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          139,
+          142,
+          "OPEN未到期拒绝；到期才转入HALF_OPEN。"
+        ],
+        [
+          143,
+          147,
+          "半开限制试探总数，放行不表示已恢复；成功/失败记录另行驱动状态。"
+        ]
+      ],
       "excerpt_lines": 10
     },
     "bulkhead": {
@@ -388,6 +2123,128 @@
       "file_sha256": "3dfd7bf6a58643713f81d36a9a6599fe7247aeacf7036afde30275def6e69c1c",
       "excerpt_sha256": "670937f5c2b46a9b337c1184419b6a0989006338748bbdfdd663b228bdb433e7",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/apps/storefront/src/storefront/common/resilience.py#L174-L190",
+      "common_indent_omitted": 4,
+      "display_lines": [
+        {
+          "line": 174,
+          "fragments": [
+            "def __init__(self, limit: int | None) -> None:"
+          ]
+        },
+        {
+          "line": 175,
+          "fragments": [
+            "    self.limit = limit"
+          ]
+        },
+        {
+          "line": 176,
+          "fragments": [
+            "    self.inflight = 0"
+          ]
+        },
+        {
+          "line": 177,
+          "fragments": [
+            "    self._sem = asyncio.Semaphore(limit) if limit else None"
+          ]
+        },
+        {
+          "line": 178,
+          "fragments": [
+            ""
+          ]
+        },
+        {
+          "line": 179,
+          "fragments": [
+            "async def __aenter__(self) -> Bulkhead:"
+          ]
+        },
+        {
+          "line": 180,
+          "fragments": [
+            "    if self._sem is not None:"
+          ]
+        },
+        {
+          "line": 181,
+          "fragments": [
+            "        if self._sem.locked():"
+          ]
+        },
+        {
+          "line": 182,
+          "fragments": [
+            "            raise BulkheadFullError"
+          ]
+        },
+        {
+          "line": 183,
+          "fragments": [
+            "        await self._sem.acquire()"
+          ]
+        },
+        {
+          "line": 184,
+          "fragments": [
+            "    self.inflight += 1"
+          ]
+        },
+        {
+          "line": 185,
+          "fragments": [
+            "    return self"
+          ]
+        },
+        {
+          "line": 186,
+          "fragments": [
+            ""
+          ]
+        },
+        {
+          "line": 187,
+          "fragments": [
+            "async def __aexit__(self, *exc: object) -> None:"
+          ]
+        },
+        {
+          "line": 188,
+          "fragments": [
+            "    self.inflight -= 1"
+          ]
+        },
+        {
+          "line": 189,
+          "fragments": [
+            "    if self._sem is not None:"
+          ]
+        },
+        {
+          "line": 190,
+          "fragments": [
+            "        self._sem.release()"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          174,
+          177,
+          "初始化本进程内的并发额度，不是全服务共享额度。"
+        ],
+        [
+          179,
+          185,
+          "满额立即拒绝，取得名额后才增加在途数。"
+        ],
+        [
+          187,
+          190,
+          "上下文退出时归还计数和信号量，失败路径也必须释放。"
+        ]
+      ],
       "excerpt_lines": 17
     },
     "writer-outcome": {
@@ -410,6 +2267,143 @@
       "file_sha256": "d9cbddb0b6d47758e846c630a4c8a07778603b14c542353bec8169f50f010e57",
       "excerpt_sha256": "2dcf6556d06c5b8f22d5fdbe736cf95cc93373f38de58ca7814bc5c761476a68",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/experiments/e7/writer.py#L75-L93",
+      "common_indent_omitted": 8,
+      "display_lines": [
+        {
+          "line": 75,
+          "fragments": [
+            "t0, m0 = time.time(), time.monotonic()"
+          ]
+        },
+        {
+          "line": 76,
+          "fragments": [
+            "sent = False"
+          ]
+        },
+        {
+          "line": 77,
+          "fragments": [
+            "try:"
+          ]
+        },
+        {
+          "line": 78,
+          "fragments": [
+            "    if conn is None:"
+          ]
+        },
+        {
+          "line": 79,
+          "fragments": [
+            "        conn = connect()"
+          ]
+        },
+        {
+          "line": 80,
+          "fragments": [
+            "    sent = True"
+          ]
+        },
+        {
+          "line": 81,
+          "fragments": [
+            "    run(conn, \"INSERT INTO writes (run, seq, client_ts) VALUES (%s, %s,",
+            " to_timestamp(%s))\","
+          ]
+        },
+        {
+          "line": 82,
+          "fragments": [
+            "        (RUN, seq, t0))"
+          ]
+        },
+        {
+          "line": 83,
+          "fragments": [
+            "    out(\"ok\", seq, f\"{t0:.3f}\", f\"{(time.monotonic() - m0) * 1000:.1f}\")"
+          ]
+        },
+        {
+          "line": 84,
+          "fragments": [
+            "except psycopg2.Error as e:"
+          ]
+        },
+        {
+          "line": 85,
+          "fragments": [
+            "    # an answer from the server (pgcode set) means the INSERT did not commit"
+          ]
+        },
+        {
+          "line": 86,
+          "fragments": [
+            "    known = (not sent) or e.pgcode is not None"
+          ]
+        },
+        {
+          "line": 87,
+          "fragments": [
+            "    reason = e.pgcode or type(e).__name__"
+          ]
+        },
+        {
+          "line": 88,
+          "fragments": [
+            "    out(\"fail\" if known else \"unk\", seq, f\"{t0:.3f}\",",
+            " f\"{(time.monotonic() - m0) * 1000:.1f}\", reason)"
+          ]
+        },
+        {
+          "line": 89,
+          "fragments": [
+            "    conn = drop(conn)"
+          ]
+        },
+        {
+          "line": 90,
+          "fragments": [
+            "except (TimeoutError, OSError) as e:"
+          ]
+        },
+        {
+          "line": 91,
+          "fragments": [
+            "    out(\"unk\" if sent else \"fail\", seq, f\"{t0:.3f}\",",
+            " f\"{(time.monotonic() - m0) * 1000:.1f}\","
+          ]
+        },
+        {
+          "line": 92,
+          "fragments": [
+            "        type(e).__name__)"
+          ]
+        },
+        {
+          "line": 93,
+          "fragments": [
+            "    conn = drop(conn)"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          78,
+          83,
+          "先连接再标记已发送；只有run返回后才记录ok。"
+        ],
+        [
+          84,
+          89,
+          "服务器错误码可判明确失败；发出后断连、无明确结果则记unk。"
+        ],
+        [
+          90,
+          93,
+          "网络/超时也按是否已发送分类；未知不能直接算成数据丢失。"
+        ]
+      ],
       "excerpt_lines": 19
     },
     "writer-compare": {
@@ -434,6 +2428,65 @@
       "file_sha256": "36551984a6e938ea0372756efe6d65ea822347d3d00580ed8f569b61bb94089b",
       "excerpt_sha256": "c5a431c4004d33987d872ea1b3aa73012d5025779909969bcceaf85d466a3724",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/experiments/e7/writer_report.py#L32-L44",
+      "common_indent_omitted": 4,
+      "display_lines": [
+        {
+          "line": 32,
+          "fragments": [
+            "by = {k: [a for a in attempts if a[0] == k] for k in (\"ok\", \"fail\", \"unk\")}"
+          ]
+        },
+        {
+          "line": 33,
+          "fragments": [
+            "print(f\"attempts {len(attempts)}: ok {len(by['ok'])}, fail {len(by['fail'])},",
+            " unknown {len(by['unk'])}\")"
+          ]
+        },
+        {
+          "line": 34,
+          "fragments": [
+            "lost = [a for a in by[\"ok\"] if a[1] not in present]"
+          ]
+        },
+        {
+          "line": 41,
+          "fragments": [
+            "unk_in = [a for a in by[\"unk\"] if a[1] in present]"
+          ]
+        },
+        {
+          "line": 42,
+          "fragments": [
+            "print(f\"unknown outcomes: {len(by['unk'])}, of them committed: {len(unk_in)},",
+            " not committed: {len(by['unk']) - len(unk_in)}\")"
+          ]
+        },
+        {
+          "line": 43,
+          "fragments": [
+            "bad = [a for a in by[\"fail\"] if a[1] in present]"
+          ]
+        },
+        {
+          "line": 44,
+          "fragments": [
+            "print(f\"'fail' rows that exist anyway (classification error): {len(bad)}\")"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          32,
+          34,
+          "先按客户端结果分类；只把已确认ok却不在恢复库的序号计为lost。"
+        ],
+        [
+          41,
+          44,
+          "另查未知中实际提交的记录，并验证fail分类有没有反例。"
+        ]
+      ],
       "excerpt_lines": 7
     },
     "release-gate": {
@@ -456,6 +2509,89 @@
       "file_sha256": "3c2f2548a7ab99f5326df2b8e9746612b317e45bd39817096362ff531f3f2f19",
       "excerpt_sha256": "30de5018711c201648d3216cc0a5931347648cb12911ba91fd2d77b5a9d447e7",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/gitops/.gitlab-ci.yml#L7-L17",
+      "common_indent_omitted": 0,
+      "display_lines": [
+        {
+          "line": 7,
+          "fragments": [
+            "stages: [render, policy]"
+          ]
+        },
+        {
+          "line": 8,
+          "fragments": [
+            "render:"
+          ]
+        },
+        {
+          "line": 9,
+          "fragments": [
+            "  stage: render"
+          ]
+        },
+        {
+          "line": 10,
+          "fragments": [
+            "  script: [sh ci/render.sh]"
+          ]
+        },
+        {
+          "line": 11,
+          "fragments": [
+            "  artifacts: {paths: [rendered/], expire_in: 1 week}"
+          ]
+        },
+        {
+          "line": 12,
+          "fragments": [
+            "release-policies:"
+          ]
+        },
+        {
+          "line": 13,
+          "fragments": [
+            "  stage: policy"
+          ]
+        },
+        {
+          "line": 14,
+          "fragments": [
+            "  needs: [render]"
+          ]
+        },
+        {
+          "line": 15,
+          "fragments": [
+            "  script:"
+          ]
+        },
+        {
+          "line": 16,
+          "fragments": [
+            "    - kyverno apply policies/release/common/ policies/release/prod/ --resource ",
+            "rendered/prod/ --remove-color"
+          ]
+        },
+        {
+          "line": 17,
+          "fragments": [
+            "    - kyverno apply policies/release/common/ --resource rendered/tenants/ ",
+            "--remove-color"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          7,
+          11,
+          "先把声明渲染成具体资源，保存同一批清单供后续校验。"
+        ],
+        [
+          12,
+          17,
+          "策略阶段依赖渲染产物，按生产与租户范围执行不同门禁。"
+        ]
+      ],
       "excerpt_lines": 11
     },
     "telemetry-resource": {
@@ -482,6 +2618,123 @@
       "file_sha256": "1cbf576cb40d32252fae6ecea4fae2eced5940b1a66ce93074a9ea490f1a9471",
       "excerpt_sha256": "bc2a5cd3832cbda3de93e83d70892bbc76fe460ffe1d18b81c722dc1337e9390",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/apps/storefront/src/storefront/common/telemetry.py#L38-L56",
+      "common_indent_omitted": 4,
+      "display_lines": [
+        {
+          "line": 38,
+          "fragments": [
+            "    resource = Resource.create("
+          ]
+        },
+        {
+          "line": 39,
+          "fragments": [
+            "        {"
+          ]
+        },
+        {
+          "line": 40,
+          "fragments": [
+            "            \"service.name\": settings.service,"
+          ]
+        },
+        {
+          "line": 41,
+          "fragments": [
+            "            \"service.namespace\": \"storefront\","
+          ]
+        },
+        {
+          "line": 42,
+          "fragments": [
+            "            \"service.version\": settings.version,"
+          ]
+        },
+        {
+          "line": 43,
+          "fragments": [
+            "            \"deployment.environment.name\": settings.environment,"
+          ]
+        },
+        {
+          "line": 44,
+          "fragments": [
+            "        }"
+          ]
+        },
+        {
+          "line": 45,
+          "fragments": [
+            "    )  # OTEL_RESOURCE_ATTRIBUTES (pod name, node,",
+            " zone from the Downward API) is merged in"
+          ]
+        },
+        {
+          "line": 46,
+          "fragments": [
+            "    provider = TracerProvider(resource=resource)"
+          ]
+        },
+        {
+          "line": 47,
+          "fragments": [
+            "    provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter()))"
+          ]
+        },
+        {
+          "line": 48,
+          "fragments": [
+            "    trace.set_tracer_provider(provider)"
+          ]
+        },
+        {
+          "line": 52,
+          "fragments": [
+            "    HTTPXClientInstrumentor().instrument()"
+          ]
+        },
+        {
+          "line": 53,
+          "fragments": [
+            "    AsyncPGInstrumentor().instrument()"
+          ]
+        },
+        {
+          "line": 54,
+          "fragments": [
+            "    RedisInstrumentor().instrument()"
+          ]
+        },
+        {
+          "line": 55,
+          "fragments": [
+            "    _installed = True"
+          ]
+        },
+        {
+          "line": 56,
+          "fragments": [
+            "FastAPIInstrumentor.instrument_app(app, excluded_urls=EXCLUDED_URLS)"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          38,
+          45,
+          "先附加服务、版本、环境身份，避免把不同部署混成一个总体。"
+        ],
+        [
+          46,
+          48,
+          "把带身份的span交给批处理与OTLP导出。"
+        ],
+        [
+          52,
+          56,
+          "为HTTPX、数据库、缓存及FastAPI安装真实库插桩；不等于每个span都已保存。"
+        ]
+      ],
       "excerpt_lines": 16
     },
     "exemplar-record": {
@@ -503,6 +2756,85 @@
       "file_sha256": "781e193439b892d6a8dc948dce6d8cf2292f67ab416e100f4efdd5e714d6c999",
       "excerpt_sha256": "c38f8d9b33f49798a098325a7feae91a9834a6c46f2f1b5fcba5b8ae6aa77659",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/apps/storefront/src/storefront/common/web.py#L149-L157",
+      "common_indent_omitted": 4,
+      "display_lines": [
+        {
+          "line": 149,
+          "fragments": [
+            "def _record(self, scope: Scope, status: int, elapsed: float,",
+            " trace_id: str | None = None) -> None:"
+          ]
+        },
+        {
+          "line": 150,
+          "fragments": [
+            "    method, template = scope[\"method\"], route_template(self.owner, scope)"
+          ]
+        },
+        {
+          "line": 151,
+          "fragments": [
+            "    self.metrics.requests.labels(method, template, str(status)).inc()"
+          ]
+        },
+        {
+          "line": 152,
+          "fragments": [
+            "    keep = trace_id is not None and (status >= 500 or elapsed >= ",
+            "EXEMPLAR_SLOW_S)"
+          ]
+        },
+        {
+          "line": 153,
+          "fragments": [
+            "    exemplar = {\"trace_id\": trace_id} if keep else None"
+          ]
+        },
+        {
+          "line": 154,
+          "fragments": [
+            "    self.metrics.duration.labels(method, template).observe(elapsed,",
+            " exemplar=exemplar)"
+          ]
+        },
+        {
+          "line": 155,
+          "fragments": [
+            "    sampled = random.random() < self.settings.access_log_sample  # noqa: S311 ",
+            "- not security"
+          ]
+        },
+        {
+          "line": 156,
+          "fragments": [
+            "    if status >= 500 or elapsed * 1000 >= ",
+            "self.settings.slow_request_ms or sampled:"
+          ]
+        },
+        {
+          "line": 157,
+          "fragments": [
+            "        log.info("
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          150,
+          151,
+          "用路由模板和状态计数，避免把具体商品ID扩成大量时间序列。"
+        ],
+        [
+          152,
+          154,
+          "只有已有trace_id且满足慢/错条件时才附exemplar；直方图仍记录所有此处请求。"
+        ],
+        [
+          155,
+          157,
+          "日志按错误、慢请求与抽样记录，不能把日志条数当请求总量。"
+        ]
+      ],
       "excerpt_lines": 9
     },
     "message-context": {
@@ -522,6 +2854,70 @@
       "file_sha256": "9ffa0e62d049d470d606c93ca6afb121ae78fe90a4b3cf14ae290436c6f04cbb",
       "excerpt_sha256": "c57d6b62b98b22e0914e2a0af569d91c74e5dcbd62a98c6d721afe1e91535932",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/apps/storefront/src/storefront/common/messaging.py#L19-L26",
+      "common_indent_omitted": 0,
+      "display_lines": [
+        {
+          "line": 19,
+          "fragments": [
+            "def inject(carrier: dict[str, str] | None = None,",
+            " ctx: Context | None = None) -> dict[str, str]:"
+          ]
+        },
+        {
+          "line": 20,
+          "fragments": [
+            "    carrier = carrier if carrier is not None else {}"
+          ]
+        },
+        {
+          "line": 21,
+          "fragments": [
+            "    propagate.inject(carrier, context=ctx)"
+          ]
+        },
+        {
+          "line": 22,
+          "fragments": [
+            "    return carrier"
+          ]
+        },
+        {
+          "line": 23,
+          "fragments": [
+            ""
+          ]
+        },
+        {
+          "line": 24,
+          "fragments": [
+            ""
+          ]
+        },
+        {
+          "line": 25,
+          "fragments": [
+            "def extract(headers: Mapping[str, str] | None) -> Context:"
+          ]
+        },
+        {
+          "line": 26,
+          "fragments": [
+            "    return propagate.extract(dict(headers or {}))"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          19,
+          22,
+          "生产侧把当前追踪上下文注入载体，再随事件保存或发布。"
+        ],
+        [
+          25,
+          26,
+          "消费侧从消息头提取上下文；创建消费span时还要显式使用它。"
+        ]
+      ],
       "excerpt_lines": 8
     },
     "iac-project": {
@@ -542,6 +2938,104 @@
       "file_sha256": "8d1e25fe1d87ebdcefad08a4e9c7c652d56264c82903829c912e4edfff8ad979",
       "excerpt_sha256": "8aa192fa43ca50605bae5ee585cab8f4261711afda1cc6f6a3d7461ff1b42e61",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/iac/gitlab/main.tf#L12-L24",
+      "common_indent_omitted": 0,
+      "display_lines": [
+        {
+          "line": 12,
+          "fragments": [
+            "resource \"gitlab_project\" \"gitops\" {"
+          ]
+        },
+        {
+          "line": 13,
+          "fragments": [
+            "  name                                  = \"platform-gitops\""
+          ]
+        },
+        {
+          "line": 14,
+          "fragments": [
+            "  path                                  = \"platform-gitops\""
+          ]
+        },
+        {
+          "line": 15,
+          "fragments": [
+            "  visibility_level                      = \"private\""
+          ]
+        },
+        {
+          "line": 16,
+          "fragments": [
+            "  default_branch                        = \"main\""
+          ]
+        },
+        {
+          "line": 17,
+          "fragments": [
+            "  only_allow_merge_if_pipeline_succeeds = true"
+          ]
+        },
+        {
+          "line": 18,
+          "fragments": [
+            "  allow_merge_on_skipped_pipeline       = false"
+          ]
+        },
+        {
+          "line": 19,
+          "fragments": [
+            "  remove_source_branch_after_merge      = true"
+          ]
+        },
+        {
+          "line": 20,
+          "fragments": [
+            ""
+          ]
+        },
+        {
+          "line": 21,
+          "fragments": [
+            "  lifecycle {"
+          ]
+        },
+        {
+          "line": 22,
+          "fragments": [
+            "    prevent_destroy = true"
+          ]
+        },
+        {
+          "line": 23,
+          "fragments": [
+            "  }"
+          ]
+        },
+        {
+          "line": 24,
+          "fragments": [
+            "}"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          12,
+          16,
+          "声明既有GitLab项目身份与默认分支；接管前先导入并比较。"
+        ],
+        [
+          17,
+          18,
+          "合并要求成功流水线，skipped不算成功。"
+        ],
+        [
+          21,
+          23,
+          "prevent_destroy保护这个项目资源，不能覆盖另一资源的替换窗口。"
+        ]
+      ],
       "excerpt_lines": 13
     },
     "state-encryption": {
@@ -563,6 +3057,123 @@
       "file_sha256": "03ae4777d083f2d9e7b414275baa6459bac7094cfa795d4895f790ea355a9aef",
       "excerpt_sha256": "ffb0c153aa701d6cd2b2cdd2ec6d8817857ebbdbe71e56e7b14aed257b95f705",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/iac/gitlab/versions.tf#L19-L35",
+      "common_indent_omitted": 0,
+      "display_lines": [
+        {
+          "line": 19,
+          "fragments": [
+            "  encryption {"
+          ]
+        },
+        {
+          "line": 20,
+          "fragments": [
+            "    key_provider \"pbkdf2\" \"lab\" {"
+          ]
+        },
+        {
+          "line": 21,
+          "fragments": [
+            "      passphrase = var.state_passphrase"
+          ]
+        },
+        {
+          "line": 22,
+          "fragments": [
+            "    }"
+          ]
+        },
+        {
+          "line": 23,
+          "fragments": [
+            "    method \"aes_gcm\" \"lab\" {"
+          ]
+        },
+        {
+          "line": 24,
+          "fragments": [
+            "      keys = key_provider.pbkdf2.lab"
+          ]
+        },
+        {
+          "line": 25,
+          "fragments": [
+            "    }"
+          ]
+        },
+        {
+          "line": 26,
+          "fragments": [
+            "    state {"
+          ]
+        },
+        {
+          "line": 27,
+          "fragments": [
+            "      method   = method.aes_gcm.lab"
+          ]
+        },
+        {
+          "line": 28,
+          "fragments": [
+            "      enforced = true"
+          ]
+        },
+        {
+          "line": 29,
+          "fragments": [
+            "    }"
+          ]
+        },
+        {
+          "line": 30,
+          "fragments": [
+            "    plan {"
+          ]
+        },
+        {
+          "line": 31,
+          "fragments": [
+            "      method   = method.aes_gcm.lab"
+          ]
+        },
+        {
+          "line": 32,
+          "fragments": [
+            "      enforced = true"
+          ]
+        },
+        {
+          "line": 33,
+          "fragments": [
+            "    }"
+          ]
+        },
+        {
+          "line": 34,
+          "fragments": [
+            "  }"
+          ]
+        },
+        {
+          "line": 35,
+          "fragments": [
+            "}"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          20,
+          24,
+          "由仓库外口令派生键，再把键交给AES-GCM；这里不显示口令值。"
+        ],
+        [
+          26,
+          33,
+          "状态与计划分别指定方法并强制加密；锁、访问权限与密钥恢复仍是独立问题。"
+        ]
+      ],
       "excerpt_lines": 17
     },
     "assessment-policy": {
@@ -584,6 +3195,63 @@
       "file_sha256": "61d6a10d9225b954f6db09ef177044e8a698130aa9b6c92f949d7c0e6d9adf33",
       "excerpt_sha256": "2dc6264c5422b95306949eabe83a80bb36070edf2b298c9646e32db799f19a95",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/assessment/t3-out-of-band.sh#L14-L20",
+      "common_indent_omitted": 0,
+      "display_lines": [
+        {
+          "line": 14,
+          "fragments": [
+            "apiVersion: security.istio.io/v1"
+          ]
+        },
+        {
+          "line": 15,
+          "fragments": [
+            "kind: AuthorizationPolicy"
+          ]
+        },
+        {
+          "line": 16,
+          "fragments": [
+            "metadata: {name: e12-quarantine, namespace: storefront}"
+          ]
+        },
+        {
+          "line": 17,
+          "fragments": [
+            "spec:"
+          ]
+        },
+        {
+          "line": 18,
+          "fragments": [
+            "  selector: {matchLabels: {app.kubernetes.io/name: payments}}"
+          ]
+        },
+        {
+          "line": 19,
+          "fragments": [
+            "  action: DENY"
+          ]
+        },
+        {
+          "line": 20,
+          "fragments": [
+            "  rules: [{}]"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          14,
+          18,
+          "注入对象位于storefront，并只选中payments工作负载。"
+        ],
+        [
+          19,
+          20,
+          "DENY配合空匹配规则拒绝命中范围的请求；这是故障注入，不是生产建议。"
+        ]
+      ],
       "excerpt_lines": 7
     },
     "assessment-grade": {
@@ -604,6 +3272,70 @@
       "file_sha256": "61d6a10d9225b954f6db09ef177044e8a698130aa9b6c92f949d7c0e6d9adf33",
       "excerpt_sha256": "1ed8965dcae4b244ea0687c7826926644b91dc221f4c68dc690811d3c283975e",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/assessment/t3-out-of-band.sh#L24-L31",
+      "common_indent_omitted": 0,
+      "display_lines": [
+        {
+          "line": 24,
+          "fragments": [
+            "grade)"
+          ]
+        },
+        {
+          "line": 25,
+          "fragments": [
+            "  echo \"== $(now) T3 grade\""
+          ]
+        },
+        {
+          "line": 26,
+          "fragments": [
+            "  wait_for 120 checkout_ok 5"
+          ]
+        },
+        {
+          "line": 27,
+          "fragments": [
+            "  check \"no object in storefront outside Git (untracked AuthorizationPolicy or ",
+            "NetworkPolicy)\" clean"
+          ]
+        },
+        {
+          "line": 28,
+          "fragments": [
+            "  check \"5 checkouts in a row answered 2xx or 402\" checkout_ok 5"
+          ]
+        },
+        {
+          "line": 29,
+          "fragments": [
+            "  check \"browsing answers 200\" browse_ok"
+          ]
+        },
+        {
+          "line": 30,
+          "fragments": [
+            "  check \"all applications Synced and Healthy\" apps_healthy"
+          ]
+        },
+        {
+          "line": 31,
+          "fragments": [
+            "  verdict ;;"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          26,
+          28,
+          "先等待业务恢复，再同时检查额外对象与连续下单结果。"
+        ],
+        [
+          29,
+          31,
+          "还要验证浏览与GitOps状态；四类断言一起决定结果。"
+        ]
+      ],
       "excerpt_lines": 8
     },
     "inhibition-controls": {
@@ -629,6 +3361,112 @@
       "file_sha256": "07dd675f89f42b491e2aeaaf19058fa9c8d3184bc9a352dfedd188b89fd3f95a",
       "excerpt_sha256": "c2772f5ebfb5cd9c5dc51fb8261ffe92b0933d764265cc375971e9cdfa4dbef6",
       "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/assessment/p1-inhibition.sh#L30-L47",
+      "common_indent_omitted": 0,
+      "display_lines": [
+        {
+          "line": 30,
+          "fragments": [
+            "ALERTS=("
+          ]
+        },
+        {
+          "line": 31,
+          "fragments": [
+            "  \"src|alertname=OpenBaoSealed severity=critical team=platform\""
+          ]
+        },
+        {
+          "line": 32,
+          "fragments": [
+            "  \"t1|alertname=KubeJobFailed severity=warning namespace=secrets ",
+            "job_name=e12-snapshot\""
+          ]
+        },
+        {
+          "line": 33,
+          "fragments": [
+            "  \"t2|alertname=KubeContainerWaiting severity=warning namespace=secrets ",
+            "pod=e12-snapshot container=e12\""
+          ]
+        },
+        {
+          "line": 34,
+          "fragments": [
+            "  \"t3|alertname=ArgoCDAppDegraded severity=warning team=platform ",
+            "name=backup-jobs project=platform\""
+          ]
+        },
+        {
+          "line": 35,
+          "fragments": [
+            "  \"c1|alertname=KubeJobFailed severity=warning namespace=storefront ",
+            "job_name=e12-control\""
+          ]
+        },
+        {
+          "line": 36,
+          "fragments": [
+            "  \"c2|alertname=ArgoCDAppDegraded severity=warning team=platform ",
+            "name=storefront-gateway project=storefront\""
+          ]
+        },
+        {
+          "line": 37,
+          "fragments": [
+            ")"
+          ]
+        },
+        {
+          "line": 42,
+          "fragments": [
+            "inhibited() {   # id -> the alert exists and something inhibits it"
+          ]
+        },
+        {
+          "line": 43,
+          "fragments": [
+            "  am -o json alert query --active --silenced --inhibited e12_test=true ",
+            "e12_id=\"$1\" | jq -e '.[0].status.inhibitedBy | length > 0'"
+          ]
+        },
+        {
+          "line": 44,
+          "fragments": [
+            "}"
+          ]
+        },
+        {
+          "line": 45,
+          "fragments": [
+            "not_inhibited() {   # id -> the alert exists and nothing inhibits it"
+          ]
+        },
+        {
+          "line": 46,
+          "fragments": [
+            "  am -o json alert query --active --silenced --inhibited e12_test=true ",
+            "e12_id=\"$1\" | jq -e '(.[0] != null) and (.[0].status.inhibitedBy | length == 0)'"
+          ]
+        },
+        {
+          "line": 47,
+          "fragments": [
+            "}"
+          ]
+        }
+      ],
+      "reading_steps": [
+        [
+          30,
+          37,
+          "同批设置源告警、依赖目标与不应被抑制的业务对照。"
+        ],
+        [
+          42,
+          47,
+          "正负断言都要求告警存在，再检查inhibitedBy；消失不算被正确抑制。"
+        ]
+      ],
       "excerpt_lines": 14
     }
   },
@@ -636,38 +3474,65 @@
     "order-trace": {
       "path": "v2/evidence/e1/grafana-trace-one-order.png",
       "kind": "真实界面局部",
-      "caption": "Tempo 的订单调用层次；历史成功订单，完整原图与 trace_tree 记录可在线查阅。",
+      "caption": "历史E1成功订单的Tempo局部（2026-11-07）；完整原图与trace_tree记录可在线查阅。",
       "views": [
         {
           "rect": [
-            35,
-            1065,
-            1430,
-            280
+            1040,
+            1110,
+            680,
+            70
           ],
-          "label": "① Trace 摘要与整体时间轴"
+          "width_mm": 145,
+          "label": "先读整条链路的总时长",
+          "marks": [
+            [
+              8,
+              5,
+              610,
+              53
+            ]
+          ],
+          "note": "A　总长约320.8 ms，包含响应后的工作；它不是顾客等待HTTP响应的时间。"
         },
         {
           "rect": [
             35,
-            1530,
+            1555,
             1120,
-            460
+            435
           ],
-          "label": "② 放大的服务与 SQL 层次"
+          "label": "再读HTTP父span与服务、SQL的缩进",
+          "marks": [
+            [
+              6,
+              3,
+              890,
+              65
+            ],
+            [
+              28,
+              150,
+              850,
+              180
+            ]
+          ],
+          "note": "B　gateway父span约156.6 ms；沿缩进找orders，再到INSERT、SELECT和catalog。比较嵌套与先后，不能把父子耗时直接相加。"
         }
       ],
       "reads": [
         "① 先区分接口响应与整条异步链路总长。",
         "② 缩进表示父子关系；SQL 和依赖调用属于相应服务 span。"
       ],
+      "conclusion": "调查判断：接口响应与异步完成是两条时钟；若响应快而通知慢，下一步查提交到发布、发布到消费的延迟。",
       "id": "S01",
       "dimensions": [
         2400,
         2475
       ],
       "sha256": "97a98d17aee33ada30ae8b1ccb8f8ec6f1879d1f4e15ed9f92406e8a62562a5c",
-      "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/evidence/e1/grafana-trace-one-order.png"
+      "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/evidence/e1/grafana-trace-one-order.png",
+      "figure_parts": 1
     },
     "mesh-balance": {
       "path": "v2/evidence/e2/grafana-balance.png",
@@ -681,67 +3546,107 @@
             1740,
             440
           ],
-          "label": "① 保留坐标与时间的分布趋势"
+          "label": "① 保留坐标与时间的分布趋势",
+          "marks": [
+            [
+              100,
+              65,
+              1575,
+              315
+            ]
+          ],
+          "note": "A　先确认08:03切换点，再比较两条副本曲线的份额；不要用请求总量代替均衡程度。"
         },
         {
           "rect": [
             1815,
             600,
-            540,
+            565,
             235
           ],
           "label": "② 放大原图 legend，确认各 Pod 身份",
-          "width_mm": 105
+          "width_mm": 110,
+          "marks": [
+            [
+              5,
+              5,
+              550,
+              218
+            ]
+          ],
+          "note": "B　用图例把曲线对应到两个副本；49.7%/50.3%来自该历史运行的统计，不是所有负载的保证。"
         }
       ],
       "reads": [
         "① 先看同一时间两条线是否接近；颜色会随副本更新变化。",
         "② legend 对应实例；不能把颜色跨发布当作永久身份。"
       ],
+      "conclusion": "调查判断：连接数少时，L4选择可使请求长期集中；观察到L7后的份额变化，仍需核对吞吐与代理开销。",
       "id": "S02",
       "dimensions": [
         2400,
         1875
       ],
       "sha256": "bea21c94cbe203e31f5915c57e92a0f23ca82df371359a242fa7005e863626d4",
-      "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/evidence/e2/grafana-balance.png"
+      "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/evidence/e2/grafana-balance.png",
+      "figure_parts": 1
     },
     "ambiguous-trace": {
       "path": "v2/evidence/e2/grafana-trace-charged-but-failed.png",
       "kind": "真实界面局部",
-      "caption": "结果未知事故的 Tempo 局部；不是本轮新运行。长调用与错误标记需要和支付最终状态一起读。",
+      "caption": "历史E2结果未知事故的Tempo局部（2026-11-07）；长调用与错误需和支付最终状态一起读，非本轮运行。",
       "views": [
         {
           "rect": [
             40,
             1065,
             1120,
-            190
+            175
           ],
-          "label": "① POST /charges 所在的关键路径"
+          "label": "① POST /charges 所在的关键路径",
+          "marks": [
+            [
+              5,
+              65,
+              1030,
+              70
+            ]
+          ],
+          "note": "A　先锁定orders调用payments的POST /charges路径，避免把另一次故障的span混进来。"
         },
         {
           "rect": [
             1710,
-            1110,
+            1128,
             620,
-            95
+            70
           ],
           "label": "② 原图关键路径耗时",
-          "width_mm": 100
+          "width_mm": 100,
+          "marks": [
+            [
+              290,
+              4,
+              210,
+              54
+            ]
+          ],
+          "note": "B　再读约1.04 s的等待，并回到调用方超时分支。超时只能说明未及时得到答案。"
         }
       ],
       "reads": [
         "① 该调用在 orders 侧超时，不证明 payments 没完成。",
         "② 关键路径约1.04秒；业务最终结果要另查支付与订单状态。"
       ],
+      "conclusion": "调查判断：下一步用同一业务键核对支付持久结果；仅凭调用方错误，不能断言服务端没有扣款。",
       "id": "S03",
       "dimensions": [
         2400,
         2850
       ],
       "sha256": "1a41df8b43b6db63e1d0c9c0499da31bd4e1de7fa1d44ca40797aa5a7760458c",
-      "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/evidence/e2/grafana-trace-charged-but-failed.png"
+      "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/evidence/e2/grafana-trace-charged-but-failed.png",
+      "figure_parts": 1
     },
     "capacity-cpu": {
       "path": "v2/evidence/e3/grafana-capacity-one-replica.png",
@@ -755,7 +3660,16 @@
             1160,
             500
           ],
-          "label": "① 每 Pod CPU，红线约一核"
+          "label": "① 每 Pod CPU，红线约一核",
+          "marks": [
+            [
+              90,
+              75,
+              565,
+              335
+            ]
+          ],
+          "note": "A　把gateway曲线与1 core参考线对齐；进程接近单核上限时，节点可能仍有空闲。"
         },
         {
           "rect": [
@@ -764,25 +3678,36 @@
             1160,
             500
           ],
-          "label": "② 同窗口服务 p95"
+          "label": "② 同窗口服务 p95",
+          "marks": [
+            [
+              90,
+              80,
+              565,
+              320
+            ]
+          ],
+          "note": "B　在相同时间窗看p95：gateway抬升显著，而多数下游较低。先提出入口排队假设，再用在途数与事件循环延迟验证。"
         }
       ],
       "reads": [
         "① 网关接近0.96核，其他服务仍低。",
         "② 网关尾延迟跳升；节点总CPU未必已经满。"
       ],
+      "conclusion": "调查判断：不能只看节点平均CPU；把同一服务的CPU、吞吐、p95和在途数联合起来，才有可检验的瓶颈解释。",
       "id": "S04",
       "dimensions": [
         2400,
         1950
       ],
       "sha256": "e027b4f8a7c07467d1f7817bfff4ca72a928efa55531278e60de76de120bf832",
-      "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/evidence/e3/grafana-capacity-one-replica.png"
+      "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/evidence/e3/grafana-capacity-one-replica.png",
+      "figure_parts": 1
     },
     "hpa-replicas": {
       "path": "v2/evidence/e4/grafana-capacity-hpa-170.png",
       "kind": "真实界面局部",
-      "caption": "170迭代/秒台阶中的HPA与每Pod CPU；历史02:16–02:26:30 UTC窗口。",
+      "caption": "170迭代/秒台阶中的HPA与每Pod CPU；历史2026-11-09 02:16–02:26:30 UTC窗口。",
       "views": [
         {
           "rect": [
@@ -791,7 +3716,22 @@
             1160,
             340
           ],
-          "label": "① 期望数、当前数与就绪数"
+          "label": "① 期望数、当前数与就绪数",
+          "marks": [
+            [
+              70,
+              50,
+              625,
+              240
+            ],
+            [
+              710,
+              100,
+              435,
+              181
+            ]
+          ],
+          "note": "A　按图例对齐desired、current与ready：gateway最终到4；这三个值分别代表目标、已有对象与可接流量副本。"
         },
         {
           "rect": [
@@ -800,25 +3740,42 @@
             1160,
             500
           ],
-          "label": "② 扩容后的 CPU 分布"
+          "label": "② 扩容后的 CPU 分布",
+          "marks": [
+            [
+              90,
+              65,
+              565,
+              350
+            ],
+            [
+              685,
+              167,
+              455,
+              138
+            ]
+          ],
+          "note": "B　再看每Pod CPU与图例的Max：四个gateway里两条接近0.84/0.92 core，两条约0.07/0.08。Ready并未保证流量均匀。"
         }
       ],
       "reads": [
         "① 到4个就绪副本不等于4个都在服务。",
         "② 两条高曲线与两个接近空载的新增网关形成对照。"
       ],
+      "conclusion": "调查判断：扩容已收敛而热Pod仍满，应继续查长连接与流量选择；重复增大副本目标可能只得到更多闲Pod。",
       "id": "S05",
       "dimensions": [
         2400,
         1950
       ],
       "sha256": "2457bd6c4cecb13d39a15cd279907abd8d82f2dff74315db9b04df05c5f3e984",
-      "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/evidence/e4/grafana-capacity-hpa-170.png"
+      "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/evidence/e4/grafana-capacity-hpa-170.png",
+      "figure_parts": 1
     },
     "canary-share": {
       "path": "v2/evidence/e8/screens/grafana-release-canary-c1-c3-top.png",
       "kind": "真实界面局部",
-      "caption": "一次金丝雀的份额与5xx；历史01:17–01:29 UTC，尖峰包含预览请求。",
+      "caption": "历史2026-11-10 01:17–01:29 UTC的金丝雀份额与5xx；尖峰包含预览请求。",
       "views": [
         {
           "rect": [
@@ -827,7 +3784,16 @@
             1165,
             460
           ],
-          "label": "① 新版本请求份额"
+          "label": "① 新版本请求份额",
+          "marks": [
+            [
+              90,
+              85,
+              585,
+              290
+            ]
+          ],
+          "note": "A　先辨认stable/canary份额和实验阶段；临时preview的100%不能解释为公共流量已全部晋级。"
         },
         {
           "rect": [
@@ -836,20 +3802,31 @@
             1160,
             430
           ],
-          "label": "② 按版本的5xx"
+          "label": "② 按版本的5xx",
+          "marks": [
+            [
+              130,
+              65,
+              545,
+              285
+            ]
+          ],
+          "note": "B　在相同阶段检查按版本分组的5xx，再与业务成功率和回退记录交叉验证。"
         }
       ],
       "reads": [
         "① 100%尖峰来自预览测试，不能当作公共全量。",
         "② 故障集中在canary；撤回后份额与错误归零。"
       ],
+      "conclusion": "调查判断：路由份额回答“谁收到请求”，错误率回答“服务得怎样”；晋级还要业务指标与可审计的Git变更。",
       "id": "S06",
       "dimensions": [
         2400,
         1000
       ],
       "sha256": "7b408bd7feec6cf8f06e23ae0de973a8241d24bd0f39cb231a3a046125592bb3",
-      "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/evidence/e8/screens/grafana-release-canary-c1-c3-top.png"
+      "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/evidence/e8/screens/grafana-release-canary-c1-c3-top.png",
+      "figure_parts": 2
     },
     "incident-traffic": {
       "path": "v2/evidence/e9/screens/grafana-slo-incident-checkout.png",
@@ -863,25 +3840,36 @@
             1160,
             445
           ],
-          "label": "① 浏览与下单的总体流量"
+          "label": "① 浏览与下单的总体流量",
+          "marks": [
+            [
+              255,
+              75,
+              170,
+              315
+            ]
+          ],
+          "note": "A　把browse与checkout分开看，再定位共同时间轴上的缺口。07:47–08:13是主机睡眠造成的采集中断，不能当作真实零流量。"
         }
       ],
       "reads": [
         "① 07:47–08:13附近空白来自主机睡眠。",
         "先限定下单旅程，再调查支付、订单和部署变化。"
       ],
+      "conclusion": "调查判断：先限定受影响旅程和有效采集区间，再计算错误比例；混入浏览流量或采集空洞都会改变分母。",
       "id": "S07",
       "dimensions": [
         2400,
         1013
       ],
       "sha256": "df94606ba2d6670efd5f16eb684f6d032c2cd01e12da03891a7c01cbed8cc35e",
-      "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/evidence/e9/screens/grafana-slo-incident-checkout.png"
+      "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/evidence/e9/screens/grafana-slo-incident-checkout.png",
+      "figure_parts": 1
     },
     "exemplar-critical": {
       "path": "v2/evidence/e9/screens/grafana-exemplar-trace.png",
       "kind": "真实界面局部",
-      "caption": "catalog延迟注入的 exemplar→Tempo 检验；与支付事故为不同场景。",
+      "caption": "历史catalog延迟[注入]的exemplar→Tempo检验，2026-11-10 09:12–09:24 UTC看板窗口；与支付事故不同。",
       "views": [
         {
           "rect": [
@@ -890,7 +3878,16 @@
             1140,
             230
           ],
-          "label": "① 关键调用的服务与路由"
+          "label": "① 关键调用的服务与路由",
+          "marks": [
+            [
+              5,
+              55,
+              1070,
+              125
+            ]
+          ],
+          "note": "A　先确认根请求POST /api/orders，再看被选中的orders → GET /products/sku-010，避免从服务图平均值推断单笔因果。"
         },
         {
           "rect": [
@@ -900,25 +3897,36 @@
             80
           ],
           "label": "② 原图标记的1.01秒、81.9%",
-          "width_mm": 100
+          "width_mm": 100,
+          "marks": [
+            [
+              260,
+              5,
+              195,
+              48
+            ]
+          ],
+          "note": "B　关键span约1.01 s，占该trace的81.9%；总长约1.23 s。它指向catalog调用路径，仍需结合源码与相关日志解释等待。"
         }
       ],
       "reads": [
         "① 关键路径是orders发往catalog的GET。",
         "② 用整条1.23秒作对照；不要把聚合服务图当单笔时序。"
       ],
+      "conclusion": "调查判断：先沿关键span定位这一笔，再回到总体指标确认影响范围；这条慢catalog样本与前述支付故障不是同一事件。",
       "id": "S09",
       "dimensions": [
         2400,
         1650
       ],
       "sha256": "e43696e233fc25578941d5206790f279b5b8f65a88f6ead2486d658b7e325d32",
-      "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/evidence/e9/screens/grafana-exemplar-trace.png"
+      "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/evidence/e9/screens/grafana-exemplar-trace.png",
+      "figure_parts": 1
     },
     "incident-windows": {
       "path": "v2/evidence/e9/screens/grafana-slo-incident-checkout.png",
       "kind": "真实界面局部",
-      "caption": "同一支付故障演练的错误窗口；曲线与图例分开从同一原图放大。",
+      "caption": "同一支付故障演练的错误窗口（2026-11-10 07:15–09:00 UTC）；曲线与图例来自同一原图。",
       "views": [
         {
           "rect": [
@@ -927,7 +3935,16 @@
             1185,
             435
           ],
-          "label": "① 不同窗口的错误比例"
+          "label": "① 不同窗口的错误比例",
+          "marks": [
+            [
+              760,
+              55,
+              400,
+              335
+            ]
+          ],
+          "note": "A　先比较短窗与长窗的上升、回落；恢复后长窗仍记得旧坏请求。"
         },
         {
           "rect": [
@@ -937,74 +3954,138 @@
             220
           ],
           "label": "② 图例的原始最大值",
-          "width_mm": 85
+          "width_mm": 85,
+          "marks": [
+            [
+              5,
+              65,
+              335,
+              40
+            ],
+            [
+              5,
+              137,
+              335,
+              43
+            ]
+          ],
+          "note": "B　再读窗口图例与Max：1h错误比例最高13.5%，低于14.4%，不能据此声称触发了1h/5m快呼叫。"
         }
       ],
       "reads": [
         "① 5分钟尖峰远高于1小时与6小时比例。",
         "② 1小时最高13.5%，快组合14.4%线并未越过。"
       ],
+      "conclusion": "调查判断：本次实际命中6h/30m分支；触发与解除都要按规则使用的两个窗口判断，不能只看短窗已恢复。",
       "id": "S08",
       "dimensions": [
         2400,
         1013
       ],
       "sha256": "df94606ba2d6670efd5f16eb684f6d032c2cd01e12da03891a7c01cbed8cc35e",
-      "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/evidence/e9/screens/grafana-slo-incident-checkout.png"
+      "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/evidence/e9/screens/grafana-slo-incident-checkout.png",
+      "figure_parts": 1
     },
     "state-lock": {
       "path": "v2/evidence/e11/screens/gitlab-lock.png",
       "kind": "终端记录节选",
-      "caption": "GitLab HTTP state 后端的历史锁验证；仓库原素材为终端记录排版，并非网页。",
+      "caption": "GitLab HTTP state后端的历史锁验证，2026-11-10 13:49 UTC，GitLab CE 19.5.3；仓库终端记录排版，并非网页。",
       "views": [
         {
           "rect": [
-            25,
-            245,
-            1230,
-            260
+            45,
+            160,
+            555,
+            42
           ],
-          "label": "① 锁拒绝与持有者信息"
+          "width_mm": 130,
+          "label": "先看同一把锁的第二次获取",
+          "marks": [
+            [
+              5,
+              3,
+              545,
+              36
+            ]
+          ],
+          "note": "A　再次获取同一把锁返回HTTP 409；这是竞争拒绝，不是状态损坏的证据。"
+        },
+        {
+          "rect": [
+            25,
+            238,
+            1230,
+            270
+          ],
+          "label": "再核对plan拒绝与锁持有者",
+          "marks": [
+            [
+              5,
+              3,
+              1210,
+              262
+            ]
+          ],
+          "note": "B　plan以1退出，并报告Error acquiring state lock；继续核对锁ID、Operation与Who，避免误把正常持锁者当残留锁。"
         }
       ],
       "reads": [
         "① Error acquiring说明第二个运行被挡住。",
         "完整记录还含第二次加锁409、解除及并发计划对照。"
       ],
+      "conclusion": "调查判断：核实持锁进程、操作和时间后再决定是否解除；另一执行者正常工作时不应强行解锁。这是终端记录，不是GitLab网页。",
       "id": "S10",
       "dimensions": [
         1960,
         728
       ],
       "sha256": "be60a0cf0dd050e94e9894852f7e27cac38147bb6ada407875d17d55de253f1d",
-      "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/evidence/e11/screens/gitlab-lock.png"
+      "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/evidence/e11/screens/gitlab-lock.png",
+      "figure_parts": 1
     },
     "drift-plan": {
       "path": "v2/evidence/e11/screens/drift.png",
       "kind": "终端记录节选",
-      "caption": "漂移计划的替换提示；来自历史真实输出的排版局部，不是GitLab网页。",
+      "caption": "2026-11-10 13:51 UTC的漂移计划局部；[注入]三处手工改动，终端记录排版，不是GitLab网页。",
       "views": [
         {
           "rect": [
             25,
             280,
-            1240,
-            340
+            1450,
+            390
           ],
-          "label": "① exit 2与必须替换的分支保护"
+          "label": "exit 2、替换标记与触发替换的字段",
+          "marks": [
+            [
+              45,
+              62,
+              1090,
+              45
+            ],
+            [
+              90,
+              330,
+              1320,
+              55
+            ]
+          ],
+          "note": "A　先读must be replaced，再看push_access_level的forces replacement标记；同一分支保护的删除和创建属于一次替换。"
         }
       ],
       "reads": [
         "① has changes与must be replaced回答不同问题。",
         "替换会先移除原保护；运行结束无差异不抹去中间风险。"
       ],
+      "conclusion": "调查判断：退出码2表示检测到变化；apply前仍要评估保护消失的窗口。该终端计划不能证明已实现持续漂移治理。",
       "id": "S11",
       "dimensions": [
         1960,
         1228
       ],
       "sha256": "226718e358c41b6914651b5d31ef5e302e2b4e3e7b1c44a10d61c1bf6df458e4",
-      "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/evidence/e11/screens/drift.png"
+      "url": "https://github.com/miku-wwl/devops-delivery/blob/510ec87a9f1b0756248e00f3b53d692ca27aeada/v2/evidence/e11/screens/drift.png",
+      "figure_parts": 1
     }
   },
   "figures": {
@@ -1072,7 +4153,7 @@
       "path": "v2/manual/illustrated/assets/concept-outbox.svg",
       "kind": "机制示意图",
       "caption": "事务性Outbox的原子边界仅覆盖订单与事件行；发布后再标记可能重复，消费者仍需处理副作用窗口。",
-      "sha256": "c59579769075ff84e60844173080379bfb1d83d41a7c869c0cdba53a77589ce1",
+      "sha256": "d2f5f0d2121c2a8f647c0d3682cf0cf3f07437d02df95432be446c411c656e21",
       "hash_scope": "UTF-8/LF normalized SVG source",
       "derived_from": "v2/manual/figures/concept-outbox.svg",
       "original_sha256": "8a6bc4dfa5b1eba45a8c97ba85675adbf976f6d1e39717388680544b3e1ff73f",
@@ -1081,6 +4162,14 @@
         "不丢：事件和订单在同一个事务里提交": "事件与订单在同一事务里提交",
         "不重：中继在“发布”与“标记”之间崩溃会重发，": "发布后未标记：中继可能重发",
         "NATS 和 notifier 各去重一次": "消息去重仍不能消除任意副作用窗口"
+      },
+      "redraw": {
+        "reason": "放大事务边界、发布后未标记的重复窗口和消费副作用窗口",
+        "sources": [
+          "v2/apps/storefront/src/storefront/orders/main.py",
+          "v2/apps/storefront/src/storefront/orders/outbox.py",
+          "v2/apps/storefront/src/storefront/notifier/main.py"
+        ]
       },
       "evidence_sources": [],
       "classification": "concept"
@@ -1177,7 +4266,7 @@
       "path": "v2/manual/illustrated/assets/concept-hpa-loop.svg",
       "kind": "机制示意图",
       "caption": "HPA用观测值计算整数副本目标，再受容差、稳定窗口、策略与Pod启动约束；扩容决定不等于容量已经就绪。",
-      "sha256": "8dd4d5d21171833638140c792973a514733455851191bc8c5f513dd31963f2b6",
+      "sha256": "9a5c4f5c774466b0cb90e5fb1754a5586786669093e974fb7b25681f76daeab8",
       "hash_scope": "UTF-8/LF normalized SVG source",
       "derived_from": "v2/manual/figures/concept-hpa-loop.svg",
       "original_sha256": "05824998126741771e252d9bc4184943eac00478984bb0adfa8cadabf2fa625e",
@@ -1185,6 +4274,13 @@
         "期望副本 = 当前副本 ×": "期望副本 = 向上取整",
         "当前指标 ÷ 目标": "当前副本 × 指标比值",
         "扩容：立即": "扩容：按策略执行"
+      },
+      "redraw": {
+        "reason": "放大公式，分开目标计算、创建、Ready与实际分流",
+        "sources": [
+          "v2/manual/illustrated/chapters/05-scaling.md",
+          "v2/evidence/e4"
+        ]
       },
       "evidence_sources": [],
       "classification": "concept"
@@ -1234,11 +4330,20 @@
       "classification": "concept"
     },
     "concept-api-request.svg": {
-      "path": "v2/manual/figures/concept-api-request.svg",
+      "path": "v2/manual/illustrated/assets/concept-api-request.svg",
       "kind": "机制示意图",
-      "caption": "一个请求进入 API server 要过的四道关。认证回答“你是谁”，授权回答“这个动作允许吗”，准入回答“这个对象合规吗”；审计把每一步的结果记下来，包括被拒绝的请求。",
-      "sha256": "3f46a2691796f99c2fcf146f9334407b888a2b3271c957aa0573ca8564b5b60b",
+      "caption": "创建或修改对象的简化请求路径；授权通过不代表后续检查通过。审计按配置记录请求阶段与结果，不是逐个内部函数的完整执行轨迹。",
+      "sha256": "f2259d50d91be466d308985df3e466a0e1cf80ce03d5325aff87529404a06135",
       "hash_scope": "UTF-8/LF normalized SVG source",
+      "derived_from": "v2/manual/figures/concept-api-request.svg",
+      "original_sha256": "3f46a2691796f99c2fcf146f9334407b888a2b3271c957aa0573ca8564b5b60b",
+      "redraw": {
+        "reason": "横向六小框改为两行，澄清授权、准入与审计覆盖范围",
+        "sources": [
+          "v2/manual/illustrated/chapters/06-security.md",
+          "v2/evidence/e5"
+        ]
+      },
       "evidence_sources": [],
       "classification": "concept"
     },
@@ -1285,7 +4390,7 @@
       "path": "v2/manual/illustrated/assets/concept-resilience.svg",
       "kind": "机制示意图",
       "caption": "调用先占隔舱，每次尝试再检查期限与熔断；失败后的重试要经过预算与退避。20%是长期比例，并另有初始突发。",
-      "sha256": "ad20d853d7f8ea5312150369c4fabac365f0f97fa7e26cbafc55f68660aeca37",
+      "sha256": "56d37a3b1e265581e902bb4df361eed3c1e6d7a3addfb5378fbde788628ce35c",
       "hash_scope": "UTF-8/LF normalized SVG source",
       "derived_from": "v2/manual/figures/concept-resilience.svg",
       "original_sha256": "c9ec65fc88de1bb59946984608dcf25a62fc9a1230eafd9dc0e786f709ef7654",
@@ -1298,6 +4403,13 @@
         "1 秒，且不超过": "放行：最多1秒",
         "上游的剩余时间": "且不超过剩余时间",
         "重试总量不超过 20%": "长期20% + 初始突发"
+      },
+      "redraw": {
+        "reason": "按真实执行顺序编号，分开逻辑调用与每次尝试",
+        "sources": [
+          "v2/apps/storefront/src/storefront/common/upstream.py",
+          "v2/apps/storefront/src/storefront/common/resilience.py"
+        ]
       },
       "evidence_sources": [],
       "classification": "concept"
@@ -1510,11 +4622,20 @@
       "classification": "quoted"
     },
     "concept-list-paths.svg": {
-      "path": "v2/manual/figures/concept-list-paths.svg",
+      "path": "v2/manual/illustrated/assets/concept-list-paths.svg",
       "kind": "机制示意图",
-      "caption": "一次 LIST 的三种走法。① 带 resourceVersion=0 的读一直由内存中的 watch 缓存提供；③ 要求“一致”的读过去必须从 etcd 取回全部对象；② 从 Kubernetes 1.31 起改为只向 etcd 询问当前的修订版本，等缓存追上，再从内存返回。",
-      "sha256": "3124c271eede8910c5ae46d42dcc0bdef197a0309067c18b19d3165ed2e9f7bc",
+      "caption": "本次Kubernetes v1.37中观察的LIST与缓存路径：一致读取得revision后等待缓存追平；rv=0可使用已有视图。不同版本、分页与参数组合仍需分别核对。",
+      "sha256": "12aa6118accfd902814f0754eb787ddce28f7b1296b32491be83484500080609",
       "hash_scope": "UTF-8/LF normalized SVG source",
+      "derived_from": "v2/manual/figures/concept-list-paths.svg",
+      "original_sha256": "3124c271eede8910c5ae46d42dcc0bdef197a0309067c18b19d3165ed2e9f7bc",
+      "redraw": {
+        "reason": "分开两种LIST条件与缓存更新，避免小字号和跨版本绝对化",
+        "sources": [
+          "v2/manual/illustrated/chapters/11-controlplane.md",
+          "v2/evidence/e10"
+        ]
+      },
       "evidence_sources": [],
       "classification": "concept"
     },
