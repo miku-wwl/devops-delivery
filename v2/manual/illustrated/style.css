@@ -1,7 +1,7 @@
 :root { --ink:#203345; --accent:#185b82; --accent-2:#19796d; --rule:#cfdae1; }
 @page { size:A4; margin:18mm 17mm 18mm; }
-html { font-size:10.5pt; line-height:1.8; }
-p { text-align:left; orphans:3; widows:3; margin-bottom:3mm; }
+html { font-size:10.5pt; line-height:1.75; }
+p { text-align:left; orphans:3; widows:3; margin-bottom:2.5mm; }
 .cover { background:#edf3f5; color:#173849; padding:42mm 22mm 0; }
 .cover::after { content:'13'; position:absolute; right:13mm; top:96mm; font:150pt 'Segoe UI',sans-serif; color:#dce8eb; z-index:0; }
 .cover > * { position:relative; z-index:1; }
@@ -47,6 +47,7 @@ figure figcaption::before { color:#19796d; }
 .fig-kind { display:block; font-size:7.9pt; color:#19796d; font-weight:700; letter-spacing:1px; margin-bottom:2mm; }
 .shot-window { position:relative; overflow:hidden; width:100%; background:#fff; }
 .shot-window img { display:block; max-width:none; max-height:none; position:absolute; }
+.shot-label { text-align:left; font-size:8.7pt; color:#245c77; margin:2mm 0 1mm; font-weight:700; }
 .shot-reads { display:flex; gap:3mm; margin:3mm 0 0; font-size:8.7pt; line-height:1.6; }
 .shot-reads p { flex:1; margin:0; }
 .shot-reads b { color:#19796d; }
@@ -61,13 +62,17 @@ div.warning { background:#fcf5e9; border-color:#b78037; }
 div.warning::before { content:'工程边界'; font-size:8pt; }
 div.case { background:#f0f5f8; border-color:#3d7d9c; }
 div.case::before { content:'推演与计算'; display:block; color:#3d7d9c; font-size:8pt; font-weight:700; margin-bottom:1mm; }
-div.exercise { background:#f5f6f3; border-color:#8d9d74; break-inside:auto; }
+div.exercise { background:#f5f6f3; border-color:#8d9d74; break-inside:avoid; }
 div.exercise::before { content:'判断与应用'; font-size:8pt; color:#637d45; }
 div.exercise li { break-inside:avoid; }
 .index { font-size:8.4pt; line-height:1.65; }
 .index p { margin-bottom:2mm; text-align:left; overflow-wrap:anywhere; }
-.glossary { columns:2; column-gap:9mm; font-size:9pt; line-height:1.65; }
-.glossary p { break-inside:avoid; margin-bottom:2mm; }
+.glossary { columns:2; column-gap:9mm; font-size:8.8pt; line-height:1.5; }
+.glossary p { break-inside:avoid; margin-bottom:1mm; }
+.reading-guide { font-size:9.5pt; line-height:1.65; }
+.reading-guide h2 { font-size:12.5pt; margin:5mm 0 2mm; }
+.reading-guide table { font-size:8.7pt; }
+.reading-guide th,.reading-guide td { padding:1.2mm 2mm; }
 .unit { break-inside:avoid; }
 .ev { font-size:7.7pt; white-space:nowrap; }
 .newpage { break-before:page; }

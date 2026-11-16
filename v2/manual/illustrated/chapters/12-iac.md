@@ -1,4 +1,4 @@
-# 基础设施即代码：状态、锁与修复的副作用 {#ch12}
+# 基础设施即代码：状态、锁与修复 {#ch12}
 
 <p class="subtitle">Infrastructure as Code · 管理工具本身也要可恢复</p>
 

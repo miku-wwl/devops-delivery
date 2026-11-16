@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="325" viewBox="0 0 640 325"><defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#638391"/></marker></defs><rect width="640" height="325" fill="white"/>
+<text x="16" y="24" font-size="16" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="start" font-weight="600">同一业务键，两个独立的状态拥有者</text>
+<text x="16" y="61" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#19796d" text-anchor="start" font-weight="600">orders</text>
+<rect x="110" y="40" width="140" height="66" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="180.0" y="64" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">PENDING</text>
+<text x="180.0" y="85" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">等待支付结果</text>
+<rect x="390" y="40" width="220" height="66" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="500.0" y="64" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">FAILED + 释放库存</text>
+<text x="500.0" y="85" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">当前非201分支</text>
+<polyline points="250,73 390,73" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="320" y="59" font-size="13" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">超时 / 409</text>
+<text x="16" y="159" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#19796d" text-anchor="start" font-weight="600">payments</text>
+<rect x="110" y="135" width="140" height="66" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="180.0" y="159" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">处理中</text>
+<text x="180.0" y="180" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">幂等锁仍存在</text>
+<rect x="390" y="135" width="220" height="66" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="500.0" y="159" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">approved</text>
+<text x="500.0" y="180" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">结果可能稍后保存</text>
+<polyline points="250,168 390,168" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="320" y="153" font-size="13" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">继续执行</text>
+<polyline points="500,201 500,249 250,249" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)" stroke-dasharray="5 4"/>
+<rect x="16" y="225" width="234" height="65" rx="5" fill="#fff5e8" stroke="#d6b787"/>
+<text x="133.0" y="249" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">待核对 / 查询结果</text>
+<text x="133.0" y="270" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">设计建议，当前未实现</text>
+<text x="318" y="285" font-size="15" font-family="Microsoft YaHei, sans-serif" fill="#9a6226" text-anchor="start" font-weight="600">超时 ≠ 服务端已经撤销</text></svg>

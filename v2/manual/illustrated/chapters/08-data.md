@@ -1,4 +1,4 @@
-# 数据可靠性：恢复以后，怎样知道没有少订单 {#ch8}
+# 数据可靠性：恢复后怎样核对订单 {#ch8}
 
 <p class="subtitle">Data Reliability & Disaster Recovery · WAL、已确认写入与恢复验证</p>
 
