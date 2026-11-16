@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="370" viewBox="0 0 640 370"><defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#638391"/></marker></defs><rect width="640" height="370" fill="white"/>
+<text x="16" y="25" font-size="16" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="start" font-weight="600">一次逻辑调用内，可能有多次尝试</text>
+<rect x="16" y="58" width="184" height="86" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="108.0" y="82" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">① 占用隔舱</text>
+<text x="108.0" y="103" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">满额立即拒绝</text>
+<text x="108.0" y="124" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">否则保留并发名额</text>
+<rect x="228" y="58" width="184" height="86" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="320.0" y="82" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">② 检查总期限</text>
+<text x="320.0" y="103" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">每次尝试都重算</text>
+<text x="320.0" y="124" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">已过期立即拒绝</text>
+<rect x="440" y="58" width="184" height="86" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="532.0" y="82" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">③ 熔断器放行</text>
+<text x="532.0" y="103" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">OPEN拒绝</text>
+<text x="532.0" y="124" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">半开限量试探</text>
+<polyline points="200,101 228,101" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<polyline points="412,101 440,101" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<polyline points="532,144 532,196" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<rect x="440" y="196" width="184" height="88" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="532.0" y="220" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">④ 单次网络调用</text>
+<text x="532.0" y="241" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">timeout = 较小值</text>
+<text x="532.0" y="262" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">策略超时 / 剩余期限</text>
+<rect x="228" y="196" width="184" height="88" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="320.0" y="220" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">⑤ 记录与判断</text>
+<text x="320.0" y="241" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">成功就返回</text>
+<text x="320.0" y="262" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">失败再查幂等与次数</text>
+<rect x="16" y="196" width="184" height="88" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="108.0" y="220" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">⑥ 预算与退避</text>
+<text x="108.0" y="241" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">取不到令牌就停止</text>
+<text x="108.0" y="262" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">取到后退避再尝试</text>
+<polyline points="440,240 412,240" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<polyline points="228,240 200,240" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<polyline points="108,196 108,171 320,171 320,144" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)" stroke-dasharray="5 4"/>
+<text x="217" y="164" font-size="13" font-family="Microsoft YaHei, sans-serif" fill="#19796d" text-anchor="middle" font-weight="400">重试回到②</text>
+<text x="16" y="320" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#19796d" text-anchor="start" font-weight="600">整个循环与退避仍占①的名额；退出上下文才归还。</text>
+<text x="16" y="347" font-size="13" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="start" font-weight="400">预算按进程 / Upstream持有：长期20%比例 + 默认10令牌初始突发。</text></svg>

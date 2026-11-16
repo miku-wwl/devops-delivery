@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="348" viewBox="0 0 640 348"><defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#638391"/></marker></defs><rect width="640" height="348" fill="white"/>
+<text x="16" y="25" font-size="16" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="start" font-weight="600">症状相同，下一项证据不同</text>
+<rect x="16" y="63" width="190" height="73" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="111.0" y="87" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">浏览正常 / 下单失败</text>
+<text x="111.0" y="108" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">GitOps 全部Healthy</text>
+<rect x="270" y="53" width="354" height="63" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="447.0" y="77" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">业务实现或配置</text>
+<text x="447.0" y="98" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">支付端收到了请求吗？参数改变了吗？</text>
+<rect x="270" y="146" width="354" height="63" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="447.0" y="170" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">网络或身份策略</text>
+<text x="447.0" y="191" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">ztunnel更新了什么？请求在哪里被拒？</text>
+<rect x="270" y="239" width="354" height="63" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="447.0" y="263" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">过载或调用方保护</text>
+<text x="447.0" y="284" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">超时、熔断、隔舱与CPU是否相关？</text>
+<polyline points="206,100 238,100 238,84 270,84" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<polyline points="206,100 238,100 238,177 270,177" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<polyline points="206,100 238,100 238,270 270,270" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="16" y="329" font-size="13" font-family="Microsoft YaHei, sans-serif" fill="#19796d" text-anchor="start" font-weight="400">Healthy 只覆盖被管理资源的健康判定；不能替代业务与额外对象检查。</text></svg>

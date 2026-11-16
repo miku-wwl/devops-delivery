@@ -4,16 +4,19 @@
 
 第一册（`v1.0.0`）的成果保持不变；第二册的一切都在 `v2/` 下。
 
-## 两个版本
+## 教材版本
 
 | 版本 | 是什么 | PDF | 分支 / 标签 |
 |---|---|---|---|
+| **Illustrated Edition（最新）** | 114页，13章、5附录；29组真实源码逐行解释、52幅SVG、11处历史界面/终端素材；完整逐页审读，运行验证限制见QA | [Illustrated Edition PDF](manual/dist/Enterprise-Platform-SRE-Handbook-Vol2-Illustrated-Edition.pdf) | `main`；[精修QA](docs/illustrated/REFINEMENT-QA.md)、[修改摘要](docs/illustrated/REFINEMENT-CHANGES.md)、[编辑源文件](manual/illustrated/) |
 | **Publication Edition** | 出版级重构：章首导读、机制示意图与实测数据图、图的分类标注、证据编号与四个附录；实验结论与 v2.0.0 相同 | [manual/dist/Enterprise-Platform-SRE-Handbook-Vol2-Publication-Edition.pdf](manual/dist/Enterprise-Platform-SRE-Handbook-Vol2-Publication-Edition.pdf) | 标签 `v2.1.0`，`main` |
 | v2.0.0 | 技术验收版：E0–E12 全部通过验收时的教材与验收报告 | [标签 v2.0.0 中的 PDF](https://github.com/miku-wwl/devops-delivery/blob/v2.0.0/v2/manual/dist/Enterprise-Platform-SRE-Simulation-Vol2.pdf)（已从 `main` 移除） | 标签 `v2.0.0` |
 
 教材（封面、阅读指南与附录 C）中提到的分支 `v2/publication` 已合并进 `main` 并删除，它的最终状态就是标签 `v2.1.0`；仓库只保留 `main` 一个分支（见 [../docs/REPOSITORY-CLEANUP.md](../docs/REPOSITORY-CLEANUP.md)）。
 
 两次验收是分开的：[docs/acceptance-report.md](docs/acceptance-report.md) 是 v2.0.0 的技术验收；[docs/publication/ACCEPTANCE.md](docs/publication/ACCEPTANCE.md) 是出版版的出版与工程验收，其中也更正了前者的一处不实之处。
+
+Illustrated Edition的[出版精修验收](docs/illustrated/REFINEMENT-QA.md)另列教学与版面检查；它固定引用历史实现和Evidence，没有重新执行E0–E12，不更新当前运行环境的验收结论。旧217页Publication Edition与历史标签保持原样。
 
 ## 怎样使用这个仓库
 

@@ -1,0 +1,10 @@
+title: "DevOps Delivery V2 · 企业平台工程图解教材"
+edition: "ENTERPRISE ILLUSTRATED EDITION · REFINED"
+subtitle: "从一笔订单到可靠的平台"
+cover-title: "企业平台工程<br>与 SRE 图解教材"
+cover-flow: "业务场景 → 机制图解 → 真实源码 → 界面调查 → 工程判断"
+cover-lines:
+  - "13 章完整教材 · Kubernetes / GitOps / 可观测性 / 数据可靠性"
+  - "基于 storefront 的真实实现与历史实验记录"
+  - "2026 年 11 月 · 源码基线 510ec87 · Illustrated Edition · Refined"
+  - "Weilai Wang / miku-wwl · 教学重构与出版：Codex"

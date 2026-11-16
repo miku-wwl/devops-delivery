@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="278" viewBox="0 0 640 278"><defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#638391"/></marker></defs><rect width="640" height="278" fill="white"/>
+<text x="16" y="25" font-size="16" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="start" font-weight="600">先算副本目标，再等系统把容量变成现实</text>
+<rect x="16" y="54" width="184" height="83" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="108.0" y="78" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">① 指标采集</text>
+<text x="108.0" y="99" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">观测值与目标值</text>
+<text x="108.0" y="120" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">单位和分母要一致</text>
+<rect x="228" y="54" width="184" height="83" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="320.0" y="78" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">② HPA计算目标</text>
+<text x="320.0" y="99" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">经容差、窗口、策略</text>
+<text x="320.0" y="120" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">与副本上下限修正</text>
+<rect x="440" y="54" width="184" height="83" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="532.0" y="78" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">③ Deployment / RS</text>
+<text x="532.0" y="99" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">按新目标创建Pod</text>
+<text x="532.0" y="120" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">调度与启动仍需时间</text>
+<polyline points="200,95 228,95" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<polyline points="412,95 440,95" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<rect x="440" y="159" width="184" height="64" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="532.0" y="183" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">④ Pod变成Ready</text>
+<text x="532.0" y="204" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">现在才可接流量</text>
+<rect x="16" y="159" width="396" height="64" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="214.0" y="183" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">⑤ 观测实际分流与每Pod负载</text>
+<text x="214.0" y="204" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">请求变少后，指标再次进入控制循环</text>
+<polyline points="532,137 532,159" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<polyline points="440,190 412,190" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<polyline points="108,159 108,137" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)" stroke-dasharray="5 4"/>
+<text x="16" y="257" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#19796d" text-anchor="start" font-weight="600">Ready不保证均匀分流；有效容量还要回到每Pod CPU和业务延迟。</text></svg>

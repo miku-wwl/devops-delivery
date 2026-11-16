@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="357" viewBox="0 0 640 357"><defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#638391"/></marker></defs><rect width="640" height="357" fill="white"/>
+<text x="16" y="25" font-size="16" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="start" font-weight="600">把读取条件与缓存如何更新分开看</text>
+<rect x="16" y="60" width="184" height="72" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="108.0" y="84" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">① LIST：rv=0</text>
+<text x="108.0" y="105" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">允许已有缓存视图</text>
+<rect x="228" y="60" width="184" height="72" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="320.0" y="84" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">watch cache</text>
+<text x="320.0" y="105" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">读取内存对象</text>
+<rect x="440" y="60" width="184" height="72" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="532.0" y="84" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">编码后返回</text>
+<text x="532.0" y="105" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">仍有CPU、内存开销</text>
+<polyline points="200,96 228,96" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<polyline points="412,96 440,96" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<rect x="16" y="160" width="184" height="72" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="108.0" y="184" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">② 本次一致LIST</text>
+<text x="108.0" y="205" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">向etcd确认revision</text>
+<rect x="228" y="160" width="184" height="72" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="320.0" y="184" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">等待缓存追平</text>
+<text x="320.0" y="205" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">不必取回全部对象</text>
+<rect x="440" y="160" width="184" height="72" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="532.0" y="184" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">编码后返回</text>
+<text x="532.0" y="205" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">实验观察：v1.37</text>
+<polyline points="200,196 228,196" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<polyline points="412,196 440,196" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<rect x="16" y="260" width="184" height="63" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="108.0" y="284" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">③ etcd发生变化</text>
+<rect x="228" y="260" width="184" height="63" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="320.0" y="284" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">watch传递增量</text>
+<rect x="440" y="260" width="184" height="63" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="532.0" y="284" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">更新watch cache</text>
+<polyline points="200,291 228,291" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<polyline points="412,291 440,291" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="16" y="346" font-size="13" font-family="Microsoft YaHei, sans-serif" fill="#19796d" text-anchor="start" font-weight="400">其他版本、分页和参数组合需另核对；缓存命中不等于请求没有成本。</text></svg>

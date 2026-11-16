@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="320" viewBox="0 0 640 320"><defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#638391"/></marker></defs><rect width="640" height="320" fill="white"/>
+<text x="16" y="24" font-size="16" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="start" font-weight="600">先看状态转移，再看保护范围</text>
+<rect x="16" y="85" width="170" height="72" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="101.0" y="109" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">CLOSED</text>
+<text x="101.0" y="130" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">记录近期尝试</text>
+<rect x="235" y="85" width="170" height="72" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="320.0" y="109" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">OPEN</text>
+<text x="320.0" y="130" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">快速拒绝5秒</text>
+<rect x="454" y="85" width="170" height="72" rx="5" fill="#edf5f7" stroke="#a6c4cf"/>
+<text x="539.0" y="109" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">HALF_OPEN</text>
+<text x="539.0" y="130" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">最多3次试探</text>
+<polyline points="186,120 235,120" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="211" y="77" font-size="12" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">达阈值</text>
+<polyline points="405,120 454,120" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="429" y="77" font-size="12" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">到期</text>
+<polyline points="540,157 540,190 320,190 320,157" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="428" y="183" font-size="12" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">任一失败 → 再OPEN</text>
+<polyline points="540,85 540,57 100,57 100,85" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="325" y="49" font-size="12" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">全部试探成功 → CLOSED</text>
+<rect x="16" y="226" width="608" height="69" rx="5" fill="#fff5e8" stroke="#d6b787"/>
+<text x="320.0" y="250" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="600">一个 Upstream 对应一个服务，不是一个后端实例</text>
+<text x="320.0" y="271" font-size="14" font-family="Microsoft YaHei, sans-serif" fill="#203345" text-anchor="middle" font-weight="400">部分实例故障也可能打开整个服务的熔断器</text></svg>
