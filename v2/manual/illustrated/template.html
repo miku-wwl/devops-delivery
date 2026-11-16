@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>$title$</title>
+<style>$highlighting-css$</style>
+<link rel="stylesheet" href="../assets/manual.css">
+<link rel="stylesheet" href="../../v2/manual/illustrated/style.css">
+</head>
+<body>
+<section class="cover">
+  <div class="cover-edition">$edition$</div>
+  <div class="cover-kicker">DEVOPS DELIVERY V2</div>
+  <div class="cover-title">$cover-title$</div>
+  <div class="cover-subtitle">$subtitle$</div>
+  <div class="cover-architecture"><span>订单与事件</span><i>→</i><span>平台与控制器</span><i>→</i><span>可靠性与治理</span></div>
+  <div class="cover-flow">$cover-flow$</div>
+  <div class="cover-meta">$for(cover-lines)$<div>$cover-lines$</div>$endfor$</div>
+</section>
+<nav id="TOC" class="toc"><div class="toc-title">目录与学习路线</div>$table-of-contents$</nav>
+<main>$body$</main>
+<script>
+(async()=>{
+await Promise.all(Array.from(document.images).filter(i=>!i.complete).map(i=>new Promise(r=>i.onload=i.onerror=r)));
+const bad=Array.from(document.images).filter(i=>i.naturalWidth===0).map(i=>i.src);
+if(bad.length)document.body.dataset.brokenImages=JSON.stringify(bad);
+await document.fonts.ready;
+document.querySelectorAll('#TOC a').forEach(a=>{const s=document.createElement('span');s.className='fill';a.append(s)});
+document.body.dataset.ready='1';
+})();
+</script>
+</body></html>
