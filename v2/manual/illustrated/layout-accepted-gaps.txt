@@ -1,0 +1,7 @@
+# Final PDF 5c1f00415a94e0607341e184eaf0ef74a04737ea7cef8a287dfb485447192f39
+# Physical PDF page numbers, including the cover. Reviewed 2026-11-16.
+# 26: capacity definitions stay together; the model curve starts the next page.
+# 30: measured queue cost and optimization introduction precede one intact code panel.
+# 80: state encryption and its limits stay together; the lock timeline starts the next page.
+# 85: the assessment opens with the symptoms before revealing the diagnostic tree.
+26,30,80,85

@@ -72,7 +72,7 @@ class SVG:
         d=' '.join(f'{x},{y}' for x,y in coords)
         self.parts.append(f'<polyline points="{d}" fill="none" stroke="#638391" stroke-width="1.6" marker-end="url(#a)"'+(' stroke-dasharray="5 4"' if dashed else '')+'/>')
     def save(self,name):
-        (ASSETS/name).write_text('\n'.join(self.parts)+ '</svg>\n',encoding='utf-8')
+        (ASSETS/name).write_text('\n'.join(self.parts)+ '</svg>\n',encoding='utf-8',newline='\n')
 
 
 def generate():
@@ -136,7 +136,7 @@ def generate():
             if old not in content:
                 raise ValueError(f'Missing historical label in {name}: {old}')
             content = content.replace(old,new)
-        (ASSETS/name).write_text(content,encoding='utf-8')
+        (ASSETS/name).write_text(content,encoding='utf-8',newline='\n')
 
 
 if __name__=='__main__':generate()

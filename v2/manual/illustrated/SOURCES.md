@@ -1,6 +1,6 @@
 # Illustrated Edition 来源索引
 
-基线：`510ec87a9f1b0756248e00f3b53d692ca27aeada`。
+基线：`510ec87a9f1b0756248e00f3b53d692ca27aeada`。源码与SVG的SHA-256按UTF-8/LF统一后计算；原始PNG按完整原始字节计算。代码未改变符号、原始缩进或执行逻辑。
 
 ## 代码节选
 
@@ -214,7 +214,7 @@
 
 机制示意图；订单与支付拥有独立状态：超时只改变调用方的知识；虚线是尚未实现的对账设计，不是当前执行路径。
 
-源：`v2/manual/illustrated/assets/order-outcomes.svg`；SHA-256 `af83094fc6d589165bf8564dd897b1919f7bb7b2cd5f154a1a76be75a4c177c8`。
+源：`v2/manual/illustrated/assets/order-outcomes.svg`；SHA-256 `7f12c450591e3e0da4f7ec93d2bea1f73ddec8a7f0a1da5c8e8db76e57663b75`。
 
 历史数据源：[]。新增图的机制依据见 illustrations.py 与相邻代码节选。
 
@@ -222,7 +222,7 @@
 
 机制示意图；事务性Outbox的原子边界仅覆盖订单与事件行；发布后再标记可能重复，消费者仍需处理副作用窗口。
 
-源：`v2/manual/illustrated/assets/concept-outbox.svg`；SHA-256 `35125e4e540ed7e8a8c3e2b14863322e428f150a7d4cf30f3cb0b692995a3ec7`。
+源：`v2/manual/illustrated/assets/concept-outbox.svg`；SHA-256 `c59579769075ff84e60844173080379bfb1d83d41a7c869c0cdba53a77589ce1`。
 
 历史数据源：[]。新增图的机制依据见 illustrations.py 与相邻代码节选。
 
@@ -232,7 +232,7 @@
 
 机制示意图；E1初始GitOps布局：根Application创建分层子Application；这里的wave只描述该阶段，后续网格与安全资源扩展见第9章。
 
-源：`v2/manual/illustrated/assets/concept-app-of-apps.svg`；SHA-256 `a65467cb2284a128d16e4a71c0e03d676403d238c379f2404e9fda7a9c470e32`。
+源：`v2/manual/illustrated/assets/concept-app-of-apps.svg`；SHA-256 `27c5dc4afda9c41e0edcc6cca823b78c2382c91e40c16c2d40d4dbfe9e12576c`。
 
 历史数据源：[]。新增图的机制依据见 illustrations.py 与相邻代码节选。
 
@@ -298,7 +298,7 @@
 
 机制示意图；HPA用观测值计算整数副本目标，再受容差、稳定窗口、策略与Pod启动约束；扩容决定不等于容量已经就绪。
 
-源：`v2/manual/illustrated/assets/concept-hpa-loop.svg`；SHA-256 `fcf186e9df4f0c4de8bfb04e572f1ba4b1edddc7b0f4fb1610c0c07d426fed81`。
+源：`v2/manual/illustrated/assets/concept-hpa-loop.svg`；SHA-256 `8dd4d5d21171833638140c792973a514733455851191bc8c5f513dd31963f2b6`。
 
 历史数据源：[]。新增图的机制依据见 illustrations.py 与相邻代码节选。
 
@@ -348,7 +348,7 @@
 
 机制示意图；安全边界分工：身份授权、准入、网络、秘密、发布目标与审计共同约束访问；任何一层都不能替代其余层。
 
-源：`v2/manual/illustrated/assets/concept-tenant-fences.svg`；SHA-256 `e3bf5adebf7d2603f107f9e440396a6de48220d5dde1c3b2a769c7d348114018`。
+源：`v2/manual/illustrated/assets/concept-tenant-fences.svg`；SHA-256 `40fa3aebb44eefe1f71a1c75c51984600caaea772b362c2f9be352aec1f2ba43`。
 
 历史数据源：[]。新增图的机制依据见 illustrations.py 与相邻代码节选。
 
@@ -374,7 +374,7 @@
 
 机制示意图；调用先占隔舱，每次尝试再检查期限与熔断；失败后的重试要经过预算与退避。20%是长期比例，并另有初始突发。
 
-源：`v2/manual/illustrated/assets/concept-resilience.svg`；SHA-256 `a58fc20bd333f1ed53144d16d2c018e0aa3ac52068cd1bdd3a73e554e10984d8`。
+源：`v2/manual/illustrated/assets/concept-resilience.svg`；SHA-256 `ad20d853d7f8ea5312150369c4fabac365f0f97fa7e26cbafc55f68660aeca37`。
 
 历史数据源：[]。新增图的机制依据见 illustrations.py 与相邻代码节选。
 
@@ -384,7 +384,7 @@
 
 机制示意图；熔断状态机与保护范围；按服务的熔断不区分健康与故障实例，半开只放有限试探。
 
-源：`v2/manual/illustrated/assets/breaker-states.svg`；SHA-256 `4f56545f66906ff797fff9d210dead8faa8c64f3bb724aed248e881c5a809d7d`。
+源：`v2/manual/illustrated/assets/breaker-states.svg`；SHA-256 `1909e258c9a3e9114bb85ca77e603bb950c9bf44d393a7bdb76c73bb7f11e66b`。
 
 历史数据源：[]。新增图的机制依据见 illustrations.py 与相邻代码节选。
 
@@ -424,7 +424,7 @@
 
 机制示意图；以简化时间线区分确认条件：异步不等备库；同步要等指定备库的确认。复制传输可以与本地提交并行，图中先后不是所有实际运行的固定时序。
 
-源：`v2/manual/illustrated/assets/concept-commit-paths.svg`；SHA-256 `509fca2281ec7272612591e4b6622cb929af45294af818e5f02cc2aacbdf1b79`。
+源：`v2/manual/illustrated/assets/concept-commit-paths.svg`；SHA-256 `41f2aa9348aa24903a9162a30ac30302dcccc71c70894cbbea4bbb6dfed07c2a`。
 
 历史数据源：[]。新增图的机制依据见 illustrations.py 与相邻代码节选。
 
@@ -442,7 +442,7 @@
 
 机制示意图；恢复链由基础备份与连续WAL组成；archive_timeout触发切段，不保证对象存储在5分钟内收到完整归档。
 
-源：`v2/manual/illustrated/assets/concept-wal-pitr.svg`；SHA-256 `904e857c8aa283b7453e94bb87af678f79a16faf6302c9beaccf8c524ce19ee9`。
+源：`v2/manual/illustrated/assets/concept-wal-pitr.svg`；SHA-256 `599a41f2deab94bcfb11612864f148016c3c9d6b4c9ce1cd8b21a86c965a32d9`。
 
 历史数据源：[]。新增图的机制依据见 illustrations.py 与相邻代码节选。
 
@@ -484,7 +484,7 @@
 
 机制示意图；从总体异常缩到一笔请求与源码，再用总体业务结果确认缓解；三种信号互相补足。
 
-源：`v2/manual/illustrated/assets/investigation-path.svg`；SHA-256 `692c17a90a8a90b2e3ec39ce0deb1f4e3f9f06717946ca5d63672f19481b998a`。
+源：`v2/manual/illustrated/assets/investigation-path.svg`；SHA-256 `7df67bc8059d0b508418382638090f171dc45e2a8c381ee4028835360d0eefea`。
 
 历史数据源：[]。新增图的机制依据见 illustrations.py 与相邻代码节选。
 
@@ -492,7 +492,7 @@
 
 机制示意图；头部决定在请求开始时发生；尾部决策只能使用到达采样器的数据，迟到、丢失或已被头部丢弃的span仍可能缺失。
 
-源：`v2/manual/illustrated/assets/concept-sampling.svg`；SHA-256 `b1f01a13036cfe87fdf3b8010a8678656a17a1e85462e4cb1324b2807d309b61`。
+源：`v2/manual/illustrated/assets/concept-sampling.svg`；SHA-256 `8d0c00c26c3a923f414bed96b2f694a76ed307112d7e69755790b2a4d734eb0d`。
 
 历史数据源：[]。新增图的机制依据见 illustrations.py 与相邻代码节选。
 
@@ -590,7 +590,7 @@
 
 机制示意图；T3综合诊断的竞争假设；健康状态的覆盖范围与实际请求路径不同，观察应能够区分原因。
 
-源：`v2/manual/illustrated/assets/assessment-tree.svg`；SHA-256 `8a40adcb522ace2ab24a782b08489af520a91c90bd3ddb0359ee00564e9f615b`。
+源：`v2/manual/illustrated/assets/assessment-tree.svg`；SHA-256 `ca9b1e26de2e6571cfe0511eda9acd4261dd2e03d14196975a4591a7e48a532d`。
 
 历史数据源：[]。新增图的机制依据见 illustrations.py 与相邻代码节选。
 

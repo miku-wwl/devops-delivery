@@ -1013,6 +1013,7 @@
       "kind": "机制示意图",
       "caption": "本章的实验环境是四层嵌套：Windows、WSL2 虚拟机、作为“节点”的 Docker 容器、Pod。每一层的上限都约束它里面的所有进程；三个工作节点各自固定在 4 个 CPU 上，内存由内核限制在 3 GiB。",
       "sha256": "906dea76ba2a77af9ea340f7acb2a4a255446043bd2d7b9500fe1243db2a7282",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [
         "evidence/e0/host.log"
       ],
@@ -1023,6 +1024,7 @@
       "kind": "机制示意图",
       "caption": "问题的根源：kubelet 的“容量”来自整台虚拟机的 /proc/meminfo，真正执行的上限却在节点容器的 cgroup 上。不修正的话，调度器以为每个节点有 15 GiB，驱逐阈值永远不会触发，最先出手的只能是内核的 OOM killer。",
       "sha256": "fcfda0defc341e711fab6a415a04d3eaa407e0aef3c28eb0ccd2082c9dc5c371",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [
         "evidence/e0/baseline.log"
       ],
@@ -1033,6 +1035,7 @@
       "kind": "历史实测",
       "caption": "一个工作节点的三条内存线（MiB）。把预留和驱逐阈值设成“从虚拟机的 15642 MiB 倒推”的值之后，三个角色的判断依次发生：调度器不会把 requests 放过 2666 MiB；实际用量到 2922 MiB 时 kubelet 按顺序驱逐 Pod；只有驱逐来不及时，内核才在 3072 MiB 杀进程。",
       "sha256": "696099857b2fef1c5f162de4d4298305b0be393544454f94589e09a6ddcbe00a",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [
         "evidence/e0/baseline.log"
       ],
@@ -1043,6 +1046,7 @@
       "kind": "机制示意图",
       "caption": "storefront 的服务与数据：同步调用（实线）在请求路径上，订单确认后的通知经事务性 outbox 与 NATS 异步送达（虚线）。每个服务只访问自己的数据。",
       "sha256": "61561434429a54ff609a1acc33575d0ef1a2fa7a74c8e62cd7cb804f413362d6",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [],
       "classification": "concept"
     },
@@ -1051,6 +1055,7 @@
       "kind": "机制示意图",
       "caption": "编排式Saga的正常步骤与补偿路径；补偿是独立操作，也可能失败，不能当作跨服务数据库回滚。",
       "sha256": "7dba9ef637e7958451e547bf486d1071e0898c3d8fe46da61113f4bbede98135",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [],
       "classification": "concept"
     },
@@ -1058,7 +1063,8 @@
       "path": "v2/manual/illustrated/assets/order-outcomes.svg",
       "kind": "机制示意图",
       "caption": "订单与支付拥有独立状态：超时只改变调用方的知识；虚线是尚未实现的对账设计，不是当前执行路径。",
-      "sha256": "af83094fc6d589165bf8564dd897b1919f7bb7b2cd5f154a1a76be75a4c177c8",
+      "sha256": "7f12c450591e3e0da4f7ec93d2bea1f73ddec8a7f0a1da5c8e8db76e57663b75",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [],
       "classification": "ILLUSTRATIVE"
     },
@@ -1066,7 +1072,8 @@
       "path": "v2/manual/illustrated/assets/concept-outbox.svg",
       "kind": "机制示意图",
       "caption": "事务性Outbox的原子边界仅覆盖订单与事件行；发布后再标记可能重复，消费者仍需处理副作用窗口。",
-      "sha256": "35125e4e540ed7e8a8c3e2b14863322e428f150a7d4cf30f3cb0b692995a3ec7",
+      "sha256": "c59579769075ff84e60844173080379bfb1d83d41a7c869c0cdba53a77589ce1",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "derived_from": "v2/manual/figures/concept-outbox.svg",
       "original_sha256": "8a6bc4dfa5b1eba45a8c97ba85675adbf976f6d1e39717388680544b3e1ff73f",
       "label_changes": {
@@ -1082,7 +1089,8 @@
       "path": "v2/manual/illustrated/assets/concept-app-of-apps.svg",
       "kind": "机制示意图",
       "caption": "E1初始GitOps布局：根Application创建分层子Application；这里的wave只描述该阶段，后续网格与安全资源扩展见第9章。",
-      "sha256": "a65467cb2284a128d16e4a71c0e03d676403d238c379f2404e9fda7a9c470e32",
+      "sha256": "27c5dc4afda9c41e0edcc6cca823b78c2382c91e40c16c2d40d4dbfe9e12576c",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "derived_from": "v2/manual/figures/concept-app-of-apps.svg",
       "original_sha256": "27c5dc4afda9c41e0edcc6cca823b78c2382c91e40c16c2d40d4dbfe9e12576c",
       "label_changes": {},
@@ -1094,6 +1102,7 @@
       "kind": "机制示意图",
       "caption": "同一个调用方、两个副本，两种选择时机。少量长连接可能持续集中到同一后端；L7按请求选择。图中为E2实测份额取整：无网格97.1%/2.9%，waypoint后49.7%/50.3%。",
       "sha256": "290a01c0a8d15f7a72f02f3e63ca9f00650f4dc4bb81487ae079875667bb6fc2",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [
         "evidence/e2/mode-none.log",
         "evidence/e2/mode-ambient-l7.log"
@@ -1105,6 +1114,7 @@
       "kind": "机制示意图",
       "caption": "ambient 模式的数据路径：Pod 里没有 sidecar，流量被重定向到本节点的 ztunnel，节点之间用 HBONE（mTLS 上的 HTTP/2 CONNECT，端口 15008，图中的粗线）传输；需要第 7 层能力时，流量再经过一个 waypoint。",
       "sha256": "e96df3c67d3cb2695f43baa4d0bc56151231ad2c3ec3e22d938254a7070c5d89",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [],
       "classification": "concept"
     },
@@ -1113,6 +1123,7 @@
       "kind": "历史实测",
       "caption": "同一个问题的两种测法。第一次把“无网格”和“ambient”各跑一次，相隔 15 分钟：下单 p50 相差 32.4 ms。交替运行三轮之后，浏览的差值稳定在 2.1–2.7 ms，而下单的差值在 −0.6 到 +16.8 ms 之间摆动——它被 payments 人为生成的延迟淹没了，第一次的 +32 ms 大部分是两次运行之间的漂移。",
       "sha256": "da210a9f9b34ad452e132ba2027dab778582cb93583e3acc4c7ff56756e984f1",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [
         "evidence/e2/mode-none.log",
         "evidence/e2/mode-ambient-l4.log",
@@ -1125,6 +1136,7 @@
       "kind": "历史实测",
       "caption": "场景 S3 中的重试叠加（数字为实测）：应用认为自己只发出了 7 次尝试，waypoint 上的路由为每一次又重试 3 次，payments 实际收到 28 次。每一层都只看得见自己的重试。",
       "sha256": "71287bc767d91af311e3313932cb7ac190af9030012f1fb6279591a346a170d3",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [
         "evidence/e2/retry-matrix.log"
       ],
@@ -1135,6 +1147,7 @@
       "kind": "模型曲线",
       "caption": "响应时间律画成曲线（这是公式，不是测量）。利用率从 50% 到 80%，响应时间从服务时间的 2 倍变为 5 倍；越过 90% 之后，每多一点负载都换来成倍的等待。容量规划谈的“拐点”和“余量”，说的就是不要让任何一个组件长期停在曲线的右端。",
       "sha256": "574507981938175971e32ef3984b54dcfaab1757bb07845eeb29071ae6e47469",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [],
       "classification": "model"
     },
@@ -1143,6 +1156,7 @@
       "kind": "历史实测",
       "caption": "同一次运行的延迟。160 迭代/秒以内，浏览的 p95 在 26–81 ms 之间；越过饱和点，它在一个档位之内变成 1.18 秒。这就是上面那条模型曲线在真实系统里的样子：拐点之前几乎没有征兆。",
       "sha256": "554d71e250dfd0eae33c702a2f8ee29c0fd59b900e684a297271f5a7f99635fc",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [
         "evidence/e3/step-ramp-high.log"
       ],
@@ -1153,6 +1167,7 @@
       "kind": "历史实测",
       "caption": "排队发生在调用方。网关的 CPU 到 0.96 核之后，它“看到”的 catalog 调用从十几毫秒变成 630 毫秒以上，而 catalog 自己处理一个请求始终只要 2–3 毫秒：响应早已到达，只是网关的事件循环没有空闲去读它。只看被调用方的延迟，会完全错过这次饱和。",
       "sha256": "c99ae618ffa134e17583dd73f7ca4bcaa7695d107e364a327b0fc25604d13411",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [
         "evidence/e3/one-replica-2-analysis.log"
       ],
@@ -1162,7 +1177,8 @@
       "path": "v2/manual/illustrated/assets/concept-hpa-loop.svg",
       "kind": "机制示意图",
       "caption": "HPA用观测值计算整数副本目标，再受容差、稳定窗口、策略与Pod启动约束；扩容决定不等于容量已经就绪。",
-      "sha256": "fcf186e9df4f0c4de8bfb04e572f1ba4b1edddc7b0f4fb1610c0c07d426fed81",
+      "sha256": "8dd4d5d21171833638140c792973a514733455851191bc8c5f513dd31963f2b6",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "derived_from": "v2/manual/figures/concept-hpa-loop.svg",
       "original_sha256": "05824998126741771e252d9bc4184943eac00478984bb0adfa8cadabf2fa625e",
       "label_changes": {
@@ -1178,6 +1194,7 @@
       "kind": "历史实测",
       "caption": "扩容之后的一分钟里四个网关 Pod 各自的负载。两个原有的 Pod 仍在过载并返回 5xx，两个新 Pod 一个请求也没有收到：已有的长连接不会自己搬家。HPA 计算的是四个 Pod 的平均利用率，于是认为问题已经解决。",
       "sha256": "863d6c6e9dee254d755bd247e091ef7fd6e17ec632ce5f3c5cead1dab6785c6d",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [
         "evidence/e4/hpa-2-pods.log"
       ],
@@ -1188,6 +1205,7 @@
       "kind": "历史实测",
       "caption": "只按积压扩缩时的副本数。负载没有变化，副本数却在 1 和 5 之间来回：积压被消化完之后，“每个副本的积压”接近 0，KEDA 等满 300 秒的稳定窗口就缩到 1 个；一个副本处理不过来，积压重新出现，再扩容。积压衡量的是“排着多少”，不是“来得多快”。",
       "sha256": "adc861d1427ff3371252e47f9df50be44877300da8a4731688c25b09fde70709",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [
         "evidence/e4/keda-steady.log"
       ],
@@ -1198,6 +1216,7 @@
       "kind": "历史实测",
       "caption": "同一个 CPU 消耗者，声明不同的 CPU 请求。没有请求时，它只能用别人剩下的 CPU，同节点的网关几乎不受影响；声明 2 核的请求之后，内核按权重分配 CPU 时间（网关请求 500m，权重 20；消耗者请求 2 核，权重 79），网关在争抢中只分到一小份，p50 从 16 ms 变成 131 ms。CPU 请求不只是给调度器看的数字，它是争抢时的权重。",
       "sha256": "a9a6f5f4fdb40bc20a3137cfd15e9548ca5c256e2ce8dd2b94bbfe8b7138fbb6",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [
         "evidence/e4/noisy.log"
       ],
@@ -1208,6 +1227,7 @@
       "kind": "机制示意图",
       "caption": "E4中三个Pod的内存驱逐顺序：先看是否超出requests，再看优先级，最后看超出量。QoS类别不是直接排序键；超出160 MiB的BestEffort排在超出712 MiB的Burstable之后。",
       "sha256": "e5c63ac0099989f6211d926b08a84fccf8bd5b859bbcc4cfc5cc73ea5b06b5fa",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [
         "evidence/e4/eviction-2.log"
       ],
@@ -1218,6 +1238,7 @@
       "kind": "机制示意图",
       "caption": "一个请求进入 API server 要过的四道关。认证回答“你是谁”，授权回答“这个动作允许吗”，准入回答“这个对象合规吗”；审计把每一步的结果记下来，包括被拒绝的请求。",
       "sha256": "3f46a2691796f99c2fcf146f9334407b888a2b3271c957aa0573ca8564b5b60b",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [],
       "classification": "concept"
     },
@@ -1225,7 +1246,8 @@
       "path": "v2/manual/illustrated/assets/concept-tenant-fences.svg",
       "kind": "机制示意图",
       "caption": "安全边界分工：身份授权、准入、网络、秘密、发布目标与审计共同约束访问；任何一层都不能替代其余层。",
-      "sha256": "e3bf5adebf7d2603f107f9e440396a6de48220d5dde1c3b2a769c7d348114018",
+      "sha256": "40fa3aebb44eefe1f71a1c75c51984600caaea772b362c2f9be352aec1f2ba43",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "derived_from": "v2/manual/figures/concept-tenant-fences.svg",
       "original_sha256": "28639529c9c413286126e51503f217abcb7bf1ff41c3d9b43695efa323bbe847",
       "label_changes": {
@@ -1244,6 +1266,7 @@
       "kind": "机制示意图",
       "caption": "网格中 NetworkPolicy 看到的流量。应用以为自己在访问 8080，线上走的是到 15008 端口的隧道；有 waypoint 时，到达服务端的连接来自 waypoint 而不是客户端。按“客户端 → 服务端:8080”写的经典规则，对网格内的流量不起作用，对网格外的客户端才生效。",
       "sha256": "42e533587c1ba6c596a82dd804ee95d96083d81bdac111440fc1d6e44bcd2bbb",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [],
       "classification": "concept"
     },
@@ -1252,6 +1275,7 @@
       "kind": "历史实测",
       "caption": "一次密钥轮换的传播（时间为实测）。新值 8 秒内进入 Kubernetes Secret，挂载的文件 61 秒后跟上，环境变量永远不会——需要轮换的凭据应当以文件挂载，并由应用重新读取。",
       "sha256": "b36b32ecd53425cf65732d8ab6e90d92a1d4872ac5718eb839a8053c69289881",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [
         "evidence/e5/secrets.log"
       ],
@@ -1261,7 +1285,8 @@
       "path": "v2/manual/illustrated/assets/concept-resilience.svg",
       "kind": "机制示意图",
       "caption": "调用先占隔舱，每次尝试再检查期限与熔断；失败后的重试要经过预算与退避。20%是长期比例，并另有初始突发。",
-      "sha256": "a58fc20bd333f1ed53144d16d2c018e0aa3ac52068cd1bdd3a73e554e10984d8",
+      "sha256": "ad20d853d7f8ea5312150369c4fabac365f0f97fa7e26cbafc55f68660aeca37",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "derived_from": "v2/manual/figures/concept-resilience.svg",
       "original_sha256": "c9ec65fc88de1bb59946984608dcf25a62fc9a1230eafd9dc0e786f709ef7654",
       "label_changes": {
@@ -1281,7 +1306,8 @@
       "path": "v2/manual/illustrated/assets/breaker-states.svg",
       "kind": "机制示意图",
       "caption": "熔断状态机与保护范围；按服务的熔断不区分健康与故障实例，半开只放有限试探。",
-      "sha256": "4f56545f66906ff797fff9d210dead8faa8c64f3bb724aed248e881c5a809d7d",
+      "sha256": "1909e258c9a3e9114bb85ca77e603bb950c9bf44d393a7bdb76c73bb7f11e66b",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [],
       "classification": "ILLUSTRATIVE"
     },
@@ -1290,6 +1316,7 @@
       "kind": "历史实测",
       "caption": "同一个故障，两种模式打到故障依赖上的负载。inventory 已经在失败，naive 模式却把对它的调用放大到平时的 5 倍以上——故障中的服务最不需要的就是更多请求；resilient 模式几乎不再打扰它，代价是订单在这段时间里全部快速失败。",
       "sha256": "edb05f8ef36aafe45d592b091c56d2252bff2172934013d77a511c1f84a986ed",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [
         "evidence/e6/slow-resilient.log",
         "evidence/e6/slow-naive.log",
@@ -1303,6 +1330,7 @@
       "kind": "历史实测",
       "caption": "两次节点失效的对比。第一次，storefront 命名空间唯一的 waypoint 就在被冻结的节点上：所有经过它的请求全部失败，直到 300 秒的容忍期结束、Pod 在别的节点重建；第二次有两个 waypoint 副本，失败只持续到节点 NotReady、端点被移除为止。决定故障时长的不是节点何时恢复，而是 Kubernetes 何时停止向它发送流量。",
       "sha256": "825f1e96b6c73c498e67272ec7712a82ecb53fba2903f307fe123d507d619d0d",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [
         "evidence/e6/node-1.log",
         "evidence/e6/node-2.log"
@@ -1314,6 +1342,7 @@
       "kind": "机制示意图",
       "caption": "分区与节点失效的区别：数据面断了，控制面没有断。节点的心跳照常到达，Kubernetes 认为一切健康，不会移除任何端点；能发现问题的，只有发起连接的一方。",
       "sha256": "6c75d70c9873d97394bfc6554da944ba1bab9c7a2284ea8de2e2439ecd79afbe",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [],
       "classification": "concept"
     },
@@ -1322,6 +1351,7 @@
       "kind": "机制示意图",
       "caption": "两个指标在时间轴上的位置（示意）。RPO 是故障之前、还没来得及送到安全之处的那一段数据——它由复制与归档的落后决定，在故障发生的那一刻就已经确定；RTO 是从故障到服务恢复的时间——发现、决定、执行、验证，每一步都算在内。",
       "sha256": "ebe7dfa885310278ef46b961a7adfb5d51ced8ec085d9908255b12f981bfcb5b",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [],
       "classification": "concept"
     },
@@ -1329,7 +1359,8 @@
       "path": "v2/manual/illustrated/assets/concept-commit-paths.svg",
       "kind": "机制示意图",
       "caption": "以简化时间线区分确认条件：异步不等备库；同步要等指定备库的确认。复制传输可以与本地提交并行，图中先后不是所有实际运行的固定时序。",
-      "sha256": "509fca2281ec7272612591e4b6622cb929af45294af818e5f02cc2aacbdf1b79",
+      "sha256": "41f2aa9348aa24903a9162a30ac30302dcccc71c70894cbbea4bbb6dfed07c2a",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "derived_from": "v2/manual/figures/concept-commit-paths.svg",
       "original_sha256": "17c3f4f4c8e4d875e1dc9b2d5b313b8548e2d01611cb2be22c4a0fd4ed2c0c31",
       "label_changes": {
@@ -1344,6 +1375,7 @@
       "kind": "历史实测",
       "caption": "六种故障的两个结果：写入中断多久，丢了多少已经确认的写入。计划内的操作都在 30 秒以内；计划外的失效，时间主要花在“确认旧主库真的不在了”。唯一丢数据的是异步复制下的 F3；同步复制把它换成了更长的停顿——F4 的 137.9 秒里，主库宁可不接受写入，也不确认一个备库没有收到的提交。",
       "sha256": "bc28e60d28c4fee74483d6c37bf5c4e0a8f782a8f5c23c92297335b74501e0a9",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [
         "evidence/e7/failover-results.md"
       ],
@@ -1353,7 +1385,8 @@
       "path": "v2/manual/illustrated/assets/concept-wal-pitr.svg",
       "kind": "机制示意图",
       "caption": "恢复链由基础备份与连续WAL组成；archive_timeout触发切段，不保证对象存储在5分钟内收到完整归档。",
-      "sha256": "904e857c8aa283b7453e94bb87af678f79a16faf6302c9beaccf8c524ce19ee9",
+      "sha256": "599a41f2deab94bcfb11612864f148016c3c9d6b4c9ce1cd8b21a86c965a32d9",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "derived_from": "v2/manual/figures/concept-wal-pitr.svg",
       "original_sha256": "69a176c67c999a43adc6273883511c6eaabf4f2d39839339a63c97a47f390eb0",
       "label_changes": {
@@ -1367,6 +1400,7 @@
       "kind": "机制示意图",
       "caption": "本章的发布路径：每个改动都是一个合并请求，每道关卡都留下记录",
       "sha256": "fcbbf6e3c22144fb4ab5541ef456035c66a538f5ac32e837be87e087d084c9d5",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [],
       "classification": "concept"
     },
@@ -1375,6 +1409,7 @@
       "kind": "机制示意图",
       "caption": "金丝雀的两条路由规则。带预览头的请求全部去金丝雀——团队可以在放量之前自己验证；其余的公共请求按权重分流。新版本出问题时，受影响的比例大约是“权重 × 失败率”，这就是爆炸半径。",
       "sha256": "f94461da722923b2e19b17b4c1c7796fe1e1a3667fa33cf2d720e0e61692f5d7",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [],
       "classification": "concept"
     },
@@ -1383,6 +1418,7 @@
       "kind": "历史实测",
       "caption": "金丝雀实验的四个数字。两种独立的统计都落在设定的 5% 附近；注入“一半请求返回 503”的故障之后，受影响的公共请求是 2.45%——权重（约 5%）乘以失败率（约 50%）。金丝雀没有让故障消失，它把故障的影响面缩小到可以从容撤回的程度。",
       "sha256": "5a33a390c81a3f58562f4b27d9980d2c2a527f1186d0eb19b987d9506be68d75",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [
         "evidence/e8/canary-results.md"
       ],
@@ -1393,6 +1429,7 @@
       "kind": "机制示意图",
       "caption": "变更冻结的两把钥匙。第一把在合并之前：冻结期间，流水线只放行标明紧急的改动。第二把在合并之后：即使改动已经进入 main，Argo CD 的同步窗口也不把它带进集群。只有两把钥匙都打开，改动才会生效。",
       "sha256": "501e510df6a4865d74045efffdafe04acce8a3b929543a282b5a2aba0bd32332",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [],
       "classification": "concept"
     },
@@ -1400,7 +1437,8 @@
       "path": "v2/manual/illustrated/assets/investigation-path.svg",
       "kind": "机制示意图",
       "caption": "从总体异常缩到一笔请求与源码，再用总体业务结果确认缓解；三种信号互相补足。",
-      "sha256": "692c17a90a8a90b2e3ec39ce0deb1f4e3f9f06717946ca5d63672f19481b998a",
+      "sha256": "7df67bc8059d0b508418382638090f171dc45e2a8c381ee4028835360d0eefea",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [],
       "classification": "ILLUSTRATIVE"
     },
@@ -1408,7 +1446,8 @@
       "path": "v2/manual/illustrated/assets/concept-sampling.svg",
       "kind": "机制示意图",
       "caption": "头部决定在请求开始时发生；尾部决策只能使用到达采样器的数据，迟到、丢失或已被头部丢弃的span仍可能缺失。",
-      "sha256": "b1f01a13036cfe87fdf3b8010a8678656a17a1e85462e4cb1324b2807d309b61",
+      "sha256": "8d0c00c26c3a923f414bed96b2f694a76ed307112d7e69755790b2a4d734eb0d",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "derived_from": "v2/manual/figures/concept-sampling.svg",
       "original_sha256": "90886e7094b8e4e65838d2bb21918b6bf1f14d357ff16f0f483c7cfde3146a1a",
       "label_changes": {
@@ -1422,6 +1461,7 @@
       "kind": "机制示意图",
       "caption": "本章的告警链路：通知离开集群，链路本身由心跳看守",
       "sha256": "1258abad23469500400999336b56f70b31b94f185fc232f702656b5e106e087f",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [],
       "classification": "concept"
     },
@@ -1430,6 +1470,7 @@
       "kind": "机制示意图",
       "caption": "本章的实验环境。同一个 WSL 虚拟机中，前十章的实验集群 ent 与 kwokctl 启动的集群 scale 并存。scale 的控制面组件是真实的 Kubernetes v1.37.0 容器，每个都有内存上限（事故 E10-1 之后加上）；它管理的 1000 个节点和 10 000 个 Pod 只是 etcd 里的对象。",
       "sha256": "ad44c0b49a73b1aee27e6da98d5963067029ee7e4c61a48f9487cfcbd4f50b01",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [
         "experiments/e10/scale.sh"
       ],
@@ -1440,6 +1481,7 @@
       "kind": "历史实测",
       "caption": "一万个虚拟 Pod 进入 Running 的过程，每个点是一次实际计数。K1 在创建结束之后是一条直线，斜率每秒 50 个——调度器并不忙，它在等客户端限速的令牌。K2 放开限速后调度跟着创建走，29.4 秒全部调度完；Running 晚到 48.6 秒，是因为所有 Pod 的状态都由同一个 kwok 控制器写入。",
       "sha256": "aa388bef81eb5bedd7d33a9dbe1eff9a36c4dd255f4f434bf3b9fa23c312ed52",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [
         "evidence/e10/k1/timeline.txt",
         "evidence/e10/k2/timeline.txt"
@@ -1451,6 +1493,7 @@
       "kind": "机制示意图",
       "caption": "etcd 的空间去了哪里。每次写入都留下一个新版本；压缩只是把旧版本占的页面标记为空闲，文件并不变小；碎片整理才把空间还给文件系统。任由它增长，最终会撞上配额：整个集群只能读和删除，不能再创建任何对象。",
       "sha256": "5c12ae4d1597ab9e40d825daf512b3c956fe9f0979486deaeadf097ab65efd3f",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [],
       "classification": "concept"
     },
@@ -1459,6 +1502,7 @@
       "kind": "历史实测",
       "caption": "删除 10 000 个 Pod 前后的 etcd。灰柱是数据库文件，绿柱是其中的有效数据：删除让文件增大；API server 的压缩把有效数据降到 24.3 MiB，文件却没有变小；碎片整理之后文件才变为 18.7 MiB。",
       "sha256": "ccf5f1baace640bdb5f7cfaa77ec381d291c299c5fba071a7dde26f4edda7d73",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [
         "evidence/e10/k3-clean.log",
         "evidence/e10/k3-etcd.log"
@@ -1470,6 +1514,7 @@
       "kind": "机制示意图",
       "caption": "一次 LIST 的三种走法。① 带 resourceVersion=0 的读一直由内存中的 watch 缓存提供；③ 要求“一致”的读过去必须从 etcd 取回全部对象；② 从 Kubernetes 1.31 起改为只向 etcd 询问当前的修订版本，等缓存追上，再从内存返回。",
       "sha256": "3124c271eede8910c5ae46d42dcc0bdef197a0309067c18b19d3165ed2e9f7bc",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [],
       "classification": "concept"
     },
@@ -1478,6 +1523,7 @@
       "kind": "机制示意图",
       "caption": "APF 处理一个请求的过程。FlowSchema 把请求分到一个优先级；优先级有自己的名义席位，没有空席位就排队，队列满了立即返回 429。繁忙的优先级还可以借用别的优先级空闲的席位——除非显式把借用上限设为 0。整个过程只数“同时执行多少个请求”，不看每个请求要用多少内存。",
       "sha256": "98e5df91d72406ec388a2fec1a53388fb7879428a7bd3c5312bd1a7d66df4871",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [],
       "classification": "concept"
     },
@@ -1486,6 +1532,7 @@
       "kind": "历史实测",
       "caption": "洪水期间 API server 的匿名内存，每秒一个采样点。两次运行中优先级 e10-low 都只有 3 个 LIST 在执行；曲线落到 0 的地方，是进程被内核杀死、Docker 重启它的时刻。上限 1536 MiB 时它在 4 秒内被杀，之后反复被杀；上限 2560 MiB 时，三个并发的 LIST 把它推到 2437 MiB，10 秒后越过上限被杀一次，重启后在同样的洪水下维持在 1.6–2.0 GiB。",
       "sha256": "508f045d1cfdf16230f8ef1c573954f198fdc5118da2b74aab6f24a650180a99",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [
         "evidence/e10/k8/apf-apiserver-mem.txt",
         "evidence/e10/k9/apf-apiserver-mem.txt"
@@ -1497,6 +1544,7 @@
       "kind": "机制示意图",
       "caption": "对象所有权与状态位置：Argo CD管理集群中受跟踪的声明，从E11起管理自己；OpenTofu管理GitLab门禁，状态由GitLab加锁、客户端加密。原Garage后端因锁测试失败而停用。",
       "sha256": "ae385cdbb0abfd5c1e5ac619ddacbdd1b8d13955201da01c65a6ca0dd21e9120",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [],
       "classification": "concept"
     },
@@ -1505,6 +1553,7 @@
       "kind": "机制示意图",
       "caption": "锁保护的是什么。两个运行同时开始：只有后端能保证“只在不存在时才写入”，第二个加锁请求才会失败，B 才会停下。后端做不到这一点时，B 的加锁同样“成功”，两个运行读到同一份状态，后写回的覆盖先写回的——先写的那一方创建的资源，从此不在任何状态里。",
       "sha256": "baf3fb5d8f3e25043099455f1666cf90d9b7d76320e8754c7eb0798da1908366",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [],
       "classification": "concept"
     },
@@ -1513,6 +1562,7 @@
       "kind": "历史实测",
       "caption": "Argo CD 经合并请求升级自己（2026-11-10，合并请求 !45；门禁的流水线 31 秒）。时间从合并起算：Argo CD 轮询 Git，244 秒后才看到新版本；同步本身 24 秒；它的组件依次滚动，应用控制器在自己的同步完成之后才被替换；315 秒时回到 Synced 和 Healthy。",
       "sha256": "5e724832b0dee9b383438ca90e94d051eea4fba4ebfa1d4f3fe4bf5f28990757",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [
         "evidence/e11/i4/upgrade.log"
       ],
@@ -1522,7 +1572,8 @@
       "path": "v2/manual/illustrated/assets/assessment-tree.svg",
       "kind": "机制示意图",
       "caption": "T3综合诊断的竞争假设；健康状态的覆盖范围与实际请求路径不同，观察应能够区分原因。",
-      "sha256": "8a40adcb522ace2ab24a782b08489af520a91c90bd3ddb0359ee00564e9f615b",
+      "sha256": "ca9b1e26de2e6571cfe0511eda9acd4261dd2e03d14196975a4591a7e48a532d",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [],
       "classification": "ILLUSTRATIVE"
     },
@@ -1531,6 +1582,7 @@
       "kind": "历史实测",
       "caption": "四道题在两种状态下的判分。红色是故障存在时通过的检查项数，绿色是修复之后：每一道题都是“故障存在时不能全过，修复之后全过”，判分脚本才算可信。T2 和 T3 在故障存在时仍有两项通过——那两项检查的是症状，而症状有时会滞后或被掩盖。",
       "sha256": "27b66163c8dd93801db9b0652f6a65f4a410ef3f21ff8b547ae61d0a2b2ead92",
+      "hash_scope": "UTF-8/LF normalized SVG source",
       "evidence_sources": [
         "evidence/e12/t1.log",
         "evidence/e12/t2.log",

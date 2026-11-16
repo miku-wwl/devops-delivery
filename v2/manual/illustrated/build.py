@@ -28,6 +28,10 @@ def sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def svg_sha(path: Path) -> str:
+    return sha(path.read_text(encoding='utf-8').encode('utf-8'))
+
+
 def link(path: str, start: int | None = None, end: int | None = None) -> str:
     if not (ROOT/path).exists():
         raise FileNotFoundError(f'Linked repository path is missing: {path}')
@@ -124,11 +128,11 @@ def main() -> int:
         kind = "机制示意图" if new or name.startswith("concept-") else "模型曲线" if name.startswith("model-") else "历史实测"
         cap = illustrations.CAPTIONS[name] if new else captions.get(name, name)
         rel = path.relative_to(ROOT).as_posix()
-        used_figs[name] = {"path":rel, "kind":kind, "caption":cap, "sha256":sha(path.read_bytes())}
+        used_figs[name] = {"path":rel, "kind":kind, "caption":cap, "sha256":svg_sha(path), "hash_scope":"UTF-8/LF normalized SVG source"}
         if name in illustrations.DERIVATIONS:
             original = MAN / 'figures' / name
             used_figs[name].update(derived_from=original.relative_to(ROOT).as_posix(),
-                original_sha256=sha(original.read_bytes()), label_changes=illustrations.DERIVATIONS[name])
+                original_sha256=svg_sha(original), label_changes=illustrations.DERIVATIONS[name])
         return f'<figure id="fig-{Path(name).stem}"><span class="fig-kind">{kind}</span><img class="{"new" if new else "legacy"}" src="{path.as_uri()}" alt="{html.escape(cap)}"><figcaption>{html.escape(cap)}</figcaption></figure>'
 
     def shot(m):
@@ -195,7 +199,7 @@ def main() -> int:
         historical[f"e{n-1}"] = list(dict.fromkeys(paths))
     appendix = ['# 附录 C　代码、图表与界面来源 {#source-index .unnumbered}',
         f'源码与历史素材锚定提交 `{BASE[:7]}`。下列路径可点击进入固定版本；源码节选逐行来自原文件，省略处单独标记，原始缩进保留。图表源文件与完整来源索引见仓库 `v2/manual/illustrated/SOURCES.md`。\n', '<div class="index">']
-    index_md = [f'# Illustrated Edition 来源索引\n\n基线：`{BASE}`。\n\n## 代码节选\n']
+    index_md = [f'# Illustrated Edition 来源索引\n\n基线：`{BASE}`。源码与SVG的SHA-256按UTF-8/LF统一后计算；原始PNG按完整原始字节计算。代码未改变符号、原始缩进或执行逻辑。\n\n## 代码节选\n']
     for c in used_codes.values():
         ranges = ', '.join(f'L{a}–{b}' for a,b in c['ranges'])
         item = f'**{c["id"]}　{c["title"]}**　[{c["path"]}]({c["url"]}) · {ranges}'
